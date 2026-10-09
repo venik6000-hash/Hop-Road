@@ -1,0 +1,1395 @@
+{
+ "color_range": 2.0,
+ "drop_colliders": [],
+ "lights": [
+  {
+   "color": [
+    1.0,
+    0.5600000023841858,
+    0.23999999463558197
+   ],
+   "energy": 1.8,
+   "flicker": 0.05,
+   "layer": "exterior",
+   "name": "Lantern 0",
+   "night": 1.0,
+   "position": [
+    9.1,
+    8.64,
+    0.85
+   ],
+   "range": 7.0,
+   "shadow": true,
+   "size": 0.04,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5600000023841858,
+    0.23999999463558197
+   ],
+   "energy": 1.8,
+   "flicker": 0.05,
+   "layer": "exterior",
+   "name": "Lantern 1",
+   "night": 1.0,
+   "position": [
+    12.9,
+    8.64,
+    0.85
+   ],
+   "range": 7.0,
+   "shadow": false,
+   "size": 0.04,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5600000023841858,
+    0.23999999463558197
+   ],
+   "energy": 1.8,
+   "flicker": 0.05,
+   "layer": "exterior",
+   "name": "Lantern 2",
+   "night": 1.0,
+   "position": [
+    3.0,
+    8.98,
+    0.7
+   ],
+   "range": 7.0,
+   "shadow": false,
+   "size": 0.04,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5600000023841858,
+    0.23999999463558197
+   ],
+   "energy": 1.8,
+   "flicker": 0.05,
+   "layer": "exterior",
+   "name": "Lantern 3",
+   "night": 1.0,
+   "position": [
+    17.5,
+    8.98,
+    0.7
+   ],
+   "range": 7.0,
+   "shadow": false,
+   "size": 0.04,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5600000023841858,
+    0.23999999463558197
+   ],
+   "energy": 1.8,
+   "flicker": 0.05,
+   "layer": "exterior",
+   "name": "Lantern 4",
+   "night": 1.0,
+   "position": [
+    1.0,
+    8.98,
+    8.0
+   ],
+   "range": 7.0,
+   "shadow": false,
+   "size": 0.04,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5600000023841858,
+    0.23999999463558197
+   ],
+   "energy": 1.8,
+   "flicker": 0.05,
+   "layer": "exterior",
+   "name": "Lantern 5",
+   "night": 1.0,
+   "position": [
+    14.0,
+    8.98,
+    8.0
+   ],
+   "range": 7.0,
+   "shadow": false,
+   "size": 0.04,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5600000023841858,
+    0.23999999463558197
+   ],
+   "energy": 1.8,
+   "flicker": 0.05,
+   "layer": "exterior",
+   "name": "Lantern 6",
+   "night": 1.0,
+   "position": [
+    29.0,
+    8.98,
+    8.0
+   ],
+   "range": 7.0,
+   "shadow": false,
+   "size": 0.04,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5600000023841858,
+    0.23999999463558197
+   ],
+   "energy": 1.8,
+   "flicker": 0.05,
+   "layer": "exterior",
+   "name": "Lantern 7",
+   "night": 1.0,
+   "position": [
+    4.9,
+    9.45,
+    12.0
+   ],
+   "range": 7.0,
+   "shadow": false,
+   "size": 0.04,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5600000023841858,
+    0.23999999463558197
+   ],
+   "energy": 1.8,
+   "flicker": 0.05,
+   "layer": "exterior",
+   "name": "Lantern 8",
+   "night": 1.0,
+   "position": [
+    -3.67,
+    7.45,
+    -7.0
+   ],
+   "range": 7.0,
+   "shadow": false,
+   "size": 0.04,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5600000023841858,
+    0.23999999463558197
+   ],
+   "energy": 1.8,
+   "flicker": 0.05,
+   "layer": "exterior",
+   "name": "Lantern 9",
+   "night": 1.0,
+   "position": [
+    -0.07,
+    7.28,
+    -20.0
+   ],
+   "range": 7.0,
+   "shadow": false,
+   "size": 0.04,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5600000023841858,
+    0.23999999463558197
+   ],
+   "energy": 1.8,
+   "flicker": 0.05,
+   "layer": "exterior",
+   "name": "Lantern 10",
+   "night": 1.0,
+   "position": [
+    11.84,
+    11.19,
+    28.0
+   ],
+   "range": 7.0,
+   "shadow": false,
+   "size": 0.04,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5600000023841858,
+    0.23999999463558197
+   ],
+   "energy": 1.8,
+   "flicker": 0.05,
+   "layer": "exterior",
+   "name": "Lantern 11",
+   "night": 1.0,
+   "position": [
+    -11.97,
+    4.57,
+    -34.0
+   ],
+   "range": 7.0,
+   "shadow": false,
+   "size": 0.04,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5600000023841858,
+    0.23999999463558197
+   ],
+   "energy": 1.8,
+   "flicker": 0.05,
+   "layer": "exterior",
+   "name": "Lantern 12",
+   "night": 1.0,
+   "position": [
+    -24.41,
+    4.2,
+    -49.0
+   ],
+   "range": 7.0,
+   "shadow": false,
+   "size": 0.04,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5600000023841858,
+    0.23999999463558197
+   ],
+   "energy": 1.8,
+   "flicker": 0.05,
+   "layer": "exterior",
+   "name": "Lantern 13",
+   "night": 1.0,
+   "position": [
+    -17.81,
+    4.36,
+    -62.0
+   ],
+   "range": 7.0,
+   "shadow": false,
+   "size": 0.04,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5600000023841858,
+    0.23999999463558197
+   ],
+   "energy": 1.8,
+   "flicker": 0.05,
+   "layer": "exterior",
+   "name": "Lantern 14",
+   "night": 1.0,
+   "position": [
+    11.0,
+    12.23,
+    1.72
+   ],
+   "range": 7.0,
+   "shadow": false,
+   "size": 0.04,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "angle": 35.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    0.0,
+    -0.5299,
+    0.848
+   ],
+   "energy": 1.4,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill hall_front_w",
+   "night": 1.0,
+   "position": [
+    7.55,
+    8.45,
+    0.37
+   ],
+   "range": 7.5,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 35.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    0.0,
+    -0.5299,
+    0.848
+   ],
+   "energy": 1.4,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill hall_front_e",
+   "night": 1.0,
+   "position": [
+    14.45,
+    8.45,
+    0.37
+   ],
+   "range": 7.5,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 35.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    -0.848,
+    -0.5299,
+    -0.0
+   ],
+   "energy": 1.4,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill hall_west_s",
+   "night": 1.0,
+   "position": [
+    3.63,
+    8.45,
+    -3.0
+   ],
+   "range": 7.5,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 35.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    -0.848,
+    -0.5299,
+    -0.0
+   ],
+   "energy": 1.4,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill hall_west_n",
+   "night": 1.0,
+   "position": [
+    3.63,
+    8.45,
+    -6.8
+   ],
+   "range": 7.5,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 35.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    0.0,
+    -0.5299,
+    -0.848
+   ],
+   "energy": 1.4,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill hall_rear",
+   "night": 1.0,
+   "position": [
+    16.3,
+    8.525,
+    -14.37
+   ],
+   "range": 7.5,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 35.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    0.0,
+    -0.5299,
+    0.848
+   ],
+   "energy": 1.4,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill kitchen_front",
+   "night": 1.0,
+   "position": [
+    25.3,
+    7.9,
+    -0.715
+   ],
+   "range": 7.5,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 35.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    0.848,
+    -0.5299,
+    -0.0
+   ],
+   "energy": 1.4,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill kitchen_east",
+   "night": 1.0,
+   "position": [
+    27.285,
+    7.9,
+    -4.2
+   ],
+   "range": 7.5,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 35.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    0.0,
+    -0.5299,
+    -0.848
+   ],
+   "energy": 1.4,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill kitchen_rear",
+   "night": 1.0,
+   "position": [
+    22.6,
+    7.9,
+    -12.285
+   ],
+   "range": 7.5,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 32.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    0.0,
+    -0.6428,
+    0.766
+   ],
+   "energy": 0.9,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill front_upper_w",
+   "night": 1.0,
+   "position": [
+    8.3,
+    12.8712,
+    0.285
+   ],
+   "range": 10.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 32.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    0.0,
+    -0.6428,
+    0.766
+   ],
+   "energy": 0.9,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill front_upper_e",
+   "night": 1.0,
+   "position": [
+    13.7,
+    12.8712,
+    0.285
+   ],
+   "range": 10.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 32.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    0.0,
+    -0.6428,
+    0.766
+   ],
+   "energy": 0.9,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill attic",
+   "night": 1.0,
+   "position": [
+    11.0,
+    17.5044,
+    0.285
+   ],
+   "range": 10.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 32.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    0.766,
+    -0.6428,
+    0.0
+   ],
+   "energy": 0.9,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill east_upper_s",
+   "night": 1.0,
+   "position": [
+    18.265,
+    12.8244,
+    -5.25
+   ],
+   "range": 10.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 32.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    0.766,
+    -0.6428,
+    0.0
+   ],
+   "energy": 0.9,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill east_upper_n",
+   "night": 1.0,
+   "position": [
+    18.265,
+    12.8244,
+    -12.25
+   ],
+   "range": 10.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 32.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    -0.766,
+    -0.6428,
+    0.0
+   ],
+   "energy": 0.9,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill west_upper_s",
+   "night": 1.0,
+   "position": [
+    3.735,
+    12.8244,
+    -5.25
+   ],
+   "range": 10.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 32.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    -0.766,
+    -0.6428,
+    0.0
+   ],
+   "energy": 0.9,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill west_upper_n",
+   "night": 1.0,
+   "position": [
+    3.735,
+    12.8244,
+    -12.25
+   ],
+   "range": 10.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 32.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    0.0,
+    -0.6428,
+    -0.766
+   ],
+   "energy": 0.9,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill rear_upper_w",
+   "night": 1.0,
+   "position": [
+    9.0,
+    12.8244,
+    -14.285
+   ],
+   "range": 10.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 32.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    0.0,
+    -0.6428,
+    -0.766
+   ],
+   "energy": 0.9,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill rear_upper_e",
+   "night": 1.0,
+   "position": [
+    13.0,
+    12.8244,
+    -14.285
+   ],
+   "range": 10.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 32.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    0.0,
+    -0.6428,
+    0.766
+   ],
+   "energy": 0.9,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill annex_front",
+   "night": 1.0,
+   "position": [
+    24.5,
+    9.876,
+    -0.71
+   ],
+   "range": 10.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 32.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    0.766,
+    -0.6428,
+    0.0
+   ],
+   "energy": 0.9,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill annex_east",
+   "night": 1.0,
+   "position": [
+    27.29,
+    9.8292,
+    -7.1
+   ],
+   "range": 10.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 32.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    0.766,
+    -0.6428,
+    0.0
+   ],
+   "energy": 0.6,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill dormer",
+   "night": 1.0,
+   "position": [
+    16.36,
+    17.45,
+    -8.0
+   ],
+   "range": 10.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 43.0,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    0.0,
+    -0.3746,
+    0.9272
+   ],
+   "energy": 3.2,
+   "flicker": 0.0,
+   "layer": "exterior",
+   "name": "Spill entrance",
+   "night": 1.0,
+   "position": [
+    11.0,
+    8.2,
+    0.645
+   ],
+   "range": 10.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "spot"
+  }
+ ],
+ "materials": {
+  "tav_board": {
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "desaturate": 0.85,
+   "grime": 0.2,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.7,
+    0.56,
+    0.42
+   ],
+   "uv_scale": 1.2
+  },
+  "tav_candle": {
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "albedo_gain": 1.5,
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "normal_strength": 0.2,
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "roughness": 0.55,
+   "shader": "surface",
+   "tint": [
+    0.95,
+    0.9,
+    0.76
+   ],
+   "uv_scale": 0.15
+  },
+  "tav_foam": {
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "albedo_gain": 1.7,
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "normal_strength": 0.6,
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "roughness": 0.9,
+   "shader": "surface",
+   "tint": [
+    1.0,
+    0.97,
+    0.9
+   ],
+   "uv_scale": 0.3
+  },
+  "tav_gilt": {
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "albedo_gain": 2.2,
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "metallic": 0.85,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "normal_strength": 0.25,
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "roughness": 0.5,
+   "shader": "surface",
+   "tint": [
+    1.0,
+    0.74,
+    0.34
+   ],
+   "uv_scale": 0.5
+  },
+  "tav_glass": {
+   "alpha": 0.1,
+   "roughness": 0.04,
+   "shader": "glass",
+   "tint": [
+    0.86,
+    0.92,
+    0.88
+   ],
+   "wave": 0.05
+  },
+  "tav_iron": {
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "desaturate": 0.7,
+   "grime": 0.0,
+   "metallic": 0.55,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "roughness": 0.9,
+   "shader": "surface",
+   "tint": [
+    0.34,
+    0.31,
+    0.29
+   ],
+   "uv_scale": 0.6
+  },
+  "tav_ivy_stem": {
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "desaturate": 0.8,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "normal_strength": 0.6,
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.5,
+    0.42,
+    0.33
+   ],
+   "uv_scale": 0.25
+  },
+  "tav_lantern_flame": {
+   "color": [
+    1.0,
+    0.6,
+    0.24
+   ],
+   "dusk_only": true,
+   "emission": 6.0,
+   "emission_color": [
+    1.0,
+    0.6,
+    0.3
+   ],
+   "energy": 3.5,
+   "shader": "flame",
+   "tint": [
+    1.0,
+    0.6,
+    0.3
+   ],
+   "wildness": 0.12
+  },
+  "tav_lead": {
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "albedo_gain": 1.0,
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "metallic": 0.25,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "normal_strength": 0.3,
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "roughness": 0.75,
+   "shader": "surface",
+   "tint": [
+    0.62,
+    0.64,
+    0.66
+   ],
+   "uv_scale": 0.8
+  },
+  "tav_leaf": {
+   "albedo": "res://assets/generated/tavern/plants_albedo.png",
+   "flutter": 0.012,
+   "normal": "res://assets/generated/tavern/plants_normal.png",
+   "normal_strength": 0.8,
+   "roughness": 0.6,
+   "shader": "foliage",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "transmission": 0.45,
+   "wrap": 0.3
+  },
+  "tav_log_bark": {
+   "albedo": "res://assets/generated/tavern/bark_brown_02_diff_1k.jpg",
+   "desaturate": 0.3,
+   "grime": 0.2,
+   "moss": 0.1,
+   "normal": "res://assets/generated/tavern/bark_brown_02_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/bark_brown_02_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.78,
+    0.72,
+    0.66
+   ],
+   "uv_scale": 0.45
+  },
+  "tav_mortar": {
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "desaturate": 0.6,
+   "grime": 0.6,
+   "moss": 0.2,
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.6,
+    0.57,
+    0.52
+   ],
+   "uv_scale": 1.2
+  },
+  "tav_oak": {
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "desaturate": 0.85,
+   "grime": 0.25,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.62,
+    0.43,
+    0.27
+   ],
+   "uv_scale": 1.4
+  },
+  "tav_oak_end": {
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "desaturate": 0.85,
+   "grime": 0.2,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.42,
+    0.29,
+    0.19
+   ],
+   "uv_scale": 0.35
+  },
+  "tav_oak_smooth": {
+   "albedo": "res://assets/generated/tavern/wood_table_worn_diff_1k.jpg",
+   "desaturate": 0.1,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/wood_table_worn_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/wood_table_worn_arm_1k.jpg",
+   "roughness": 0.9,
+   "shader": "surface",
+   "tint": [
+    0.92,
+    0.84,
+    0.78
+   ],
+   "uv_scale": 1.2
+  },
+  "tav_paint": {
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "albedo_gain": 3.0,
+   "desaturate": 1.0,
+   "grime": 0.2,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "roughness": 0.9,
+   "shader": "surface",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "uv_scale": 1.2
+  },
+  "tav_plaster": {
+   "albedo": "res://assets/generated/tavern/grey_plaster_03_diff_2k.jpg",
+   "albedo_gain": 2.3,
+   "desaturate": 0.85,
+   "grime": 0.45,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/grey_plaster_03_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/grey_plaster_03_arm_2k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    1.0,
+    0.96,
+    0.87
+   ],
+   "uv_scale": 2.4
+  },
+  "tav_slate": {
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "albedo_gain": 1.25,
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "lichen": 0.3,
+   "moss": 0.25,
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "normal_strength": 0.8,
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "roughness": 0.85,
+   "shader": "surface",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "uv_scale": 0.9
+  },
+  "tav_soil": {
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "desaturate": 0.9,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.3,
+    0.22,
+    0.15
+   ],
+   "uv_scale": 0.4
+  },
+  "tav_soot": {
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.05,
+    0.045,
+    0.04
+   ],
+   "uv_scale": 0.5
+  },
+  "tav_stem": {
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "albedo_gain": 1.5,
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "normal_strength": 0.2,
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "roughness": 0.8,
+   "shader": "surface",
+   "tint": [
+    0.36,
+    0.5,
+    0.17
+   ],
+   "uv_scale": 0.3
+  },
+  "tav_stone": {
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "albedo_gain": 1.12,
+   "desaturate": 0.7,
+   "grime": 0.55,
+   "moss": 0.35,
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "normal_strength": 1.2,
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.86,
+    0.86,
+    0.86
+   ],
+   "uv_scale": 1.6
+  },
+  "tav_zinc": {
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "albedo_gain": 1.2,
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "metallic": 0.4,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "normal_strength": 0.15,
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "roughness": 0.6,
+   "shader": "surface",
+   "tint": [
+    0.9,
+    0.92,
+    0.94
+   ],
+   "uv_scale": 0.6
+  }
+ },
+ "probes": [],
+ "replaces": [
+  "Annex east oak window",
+  "Annex front oak window",
+  "Annex oak plank door",
+  "Attic oak window",
+  "Balcony flower boxes and climbing ivy",
+  "Continuous mortar behind interior masonry",
+  "East upper oak window",
+  "East upper oak window.001",
+  "East upper oak window.002",
+  "East wing individual slate shingles",
+  "East wing roof carpentry",
+  "East wing solid roof substrate",
+  "Front upper oak window",
+  "Front upper oak window.001",
+  "Hand hewn oak splits and pegs",
+  "Hanging tavern beer mug sign",
+  "Limewashed upper walls",
+  "Main hearth chimney opening",
+  "Main hearth chimney stone",
+  "Main rear chimney opening",
+  "Main rear chimney stone",
+  "Massive mortise and tenon oak frame",
+  "Oak barrels crates firewood and fences",
+  "Rear upper oak window",
+  "Rear upper oak window.001",
+  "Roof dormer oak window",
+  "Side dormer oak face",
+  "Tavern main individual slate shingles",
+  "Tavern main roof carpentry",
+  "Tavern main solid roof substrate",
+  "Tavern structural masonry",
+  "Wing hearth chimney opening",
+  "Wing hearth chimney stone"
+ ],
+ "scenes": [
+  "res://assets/models/tavern/optimized/tavern.glb",
+  "res://assets/models/tavern/optimized/tavern_props.gltf"
+ ],
+ "seats": []
+}

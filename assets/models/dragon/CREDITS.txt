@@ -1,0 +1,8 @@
+Animated Dragon Three Motion Loops
+Author: LasquetiSpice
+https://sketchfab.com/LasquetiSpice
+Source: https://sketchfab.com/3d-models/animated-dragon-three-motion-loops-eca98cf6cd084c1596cecf716e110c29
+License: CC BY 4.0
+https://creativecommons.org/licenses/by/4.0/
+Original GLB unchanged; scaled and animated along a lake route in the game.
+Attribution and license are taken from the embedded GLB metadata.

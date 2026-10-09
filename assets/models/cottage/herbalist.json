@@ -1,0 +1,385 @@
+{
+  "scene": "res://assets/models/cottage/herbalist.glb",
+  "origin": [
+    -15.0,
+    3.950000047683716,
+    -24.0
+  ],
+  "replaces_prefix": "Village house 00 ",
+  "materials": {
+    "cottage_clay": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+      "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+      "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+      "tint": [
+        0.82,
+        0.69,
+        0.53
+      ],
+      "desaturate": 0.6,
+      "uv_scale": 0.3,
+      "roughness": 1.0,
+      "grime": 0.1,
+      "moss": 0.2
+    },
+    "cottage_cloth": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+      "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+      "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+      "tint": [
+        0.82,
+        0.8,
+        0.64
+      ],
+      "desaturate": 0.6,
+      "uv_scale": 0.12,
+      "roughness": 1.0,
+      "grime": 0,
+      "moss": 0.2,
+      "normal_strength": 0.25
+    },
+    "cottage_dark": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+      "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+      "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+      "tint": [
+        0.045,
+        0.048,
+        0.034
+      ],
+      "desaturate": 0.85,
+      "uv_scale": 1.4,
+      "roughness": 1.0,
+      "grime": 0,
+      "moss": 0.0
+    },
+    "cottage_shake": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+      "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+      "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+      "tint": [
+        0.55,
+        0.5,
+        0.37
+      ],
+      "desaturate": 0.85,
+      "uv_scale": 0.7,
+      "roughness": 1.0,
+      "grime": 0.2,
+      "moss": 0.12
+    },
+    "cottage_window": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+      "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+      "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+      "tint": [
+        0.35,
+        0.44,
+        0.36
+      ],
+      "desaturate": 1.0,
+      "albedo_gain": 1.2,
+      "uv_scale": 0.6,
+      "roughness": 0.25,
+      "normal_strength": 0.15,
+      "metallic": 0.35,
+      "grime": 0.0,
+      "moss": 0.0
+    },
+    "cottage_wood": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+      "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+      "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+      "tint": [
+        0.63,
+        0.48,
+        0.33
+      ],
+      "desaturate": 0.85,
+      "uv_scale": 1.05,
+      "roughness": 1.0,
+      "grime": 0.2,
+      "moss": 0.0
+    },
+    "tav_board": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+      "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+      "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+      "tint": [
+        0.7,
+        0.56,
+        0.42
+      ],
+      "desaturate": 0.85,
+      "uv_scale": 1.2,
+      "roughness": 1.0,
+      "grime": 0.2,
+      "moss": 0.0
+    },
+    "tav_candle": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+      "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+      "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+      "tint": [
+        0.95,
+        0.9,
+        0.76
+      ],
+      "desaturate": 1.0,
+      "albedo_gain": 1.5,
+      "uv_scale": 0.15,
+      "roughness": 0.55,
+      "normal_strength": 0.2,
+      "grime": 0.0,
+      "moss": 0.0
+    },
+    "tav_glass": {
+      "shader": "glass",
+      "tint": [
+        0.86,
+        0.92,
+        0.88
+      ],
+      "alpha": 0.1,
+      "roughness": 0.04,
+      "wave": 0.05
+    },
+    "tav_iron": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+      "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+      "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+      "tint": [
+        0.34,
+        0.31,
+        0.29
+      ],
+      "desaturate": 0.7,
+      "uv_scale": 0.6,
+      "roughness": 0.9,
+      "metallic": 0.55,
+      "grime": 0.0,
+      "moss": 0.0
+    },
+    "tav_lantern_flame": {
+      "shader": "flame",
+      "color": [
+        1.0,
+        0.6,
+        0.24
+      ],
+      "energy": 3.5,
+      "wildness": 0.12,
+      "dusk_only": true,
+      "tint": [
+        1.0,
+        0.6,
+        0.3
+      ],
+      "emission": 6.0,
+      "emission_color": [
+        1.0,
+        0.6,
+        0.3
+      ]
+    },
+    "tav_leaf": {
+      "shader": "foliage",
+      "albedo": "res://assets/generated/tavern/plants_albedo.png",
+      "normal": "res://assets/generated/tavern/plants_normal.png",
+      "tint": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "roughness": 0.6,
+      "normal_strength": 0.8,
+      "wrap": 0.3,
+      "transmission": 0.45,
+      "flutter": 0.012
+    },
+    "tav_log_bark": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/bark_brown_02_diff_1k.jpg",
+      "normal": "res://assets/generated/tavern/bark_brown_02_nor_gl_1k.jpg",
+      "orm": "res://assets/generated/tavern/bark_brown_02_arm_1k.jpg",
+      "tint": [
+        0.78,
+        0.72,
+        0.66
+      ],
+      "desaturate": 0.3,
+      "uv_scale": 0.45,
+      "roughness": 1.0,
+      "grime": 0.2,
+      "moss": 0.1
+    },
+    "tav_mortar": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+      "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+      "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+      "tint": [
+        0.6,
+        0.57,
+        0.52
+      ],
+      "desaturate": 0.6,
+      "uv_scale": 1.2,
+      "roughness": 1.0,
+      "grime": 0.6,
+      "moss": 0.2
+    },
+    "tav_oak": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+      "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+      "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+      "tint": [
+        0.62,
+        0.43,
+        0.27
+      ],
+      "desaturate": 0.85,
+      "uv_scale": 1.4,
+      "roughness": 1.0,
+      "grime": 0.25,
+      "moss": 0.0
+    },
+    "tav_oak_end": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+      "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+      "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+      "tint": [
+        0.42,
+        0.29,
+        0.19
+      ],
+      "desaturate": 0.85,
+      "uv_scale": 0.35,
+      "roughness": 1.0,
+      "grime": 0.2,
+      "moss": 0.0
+    },
+    "tav_oak_smooth": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/wood_table_worn_diff_1k.jpg",
+      "normal": "res://assets/generated/tavern/wood_table_worn_nor_gl_1k.jpg",
+      "orm": "res://assets/generated/tavern/wood_table_worn_arm_1k.jpg",
+      "tint": [
+        0.92,
+        0.84,
+        0.78
+      ],
+      "desaturate": 0.1,
+      "uv_scale": 1.2,
+      "roughness": 0.9,
+      "grime": 0.0,
+      "moss": 0.0
+    },
+    "tav_paint": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+      "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+      "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+      "tint": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "desaturate": 1.0,
+      "albedo_gain": 3.0,
+      "uv_scale": 1.2,
+      "roughness": 0.9,
+      "grime": 0.2,
+      "moss": 0.0
+    },
+    "tav_soil": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+      "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+      "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+      "tint": [
+        0.3,
+        0.22,
+        0.15
+      ],
+      "desaturate": 0.9,
+      "uv_scale": 0.4,
+      "roughness": 1.0,
+      "grime": 0.0,
+      "moss": 0.0
+    },
+    "tav_stem": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+      "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+      "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+      "tint": [
+        0.36,
+        0.5,
+        0.17
+      ],
+      "desaturate": 1.0,
+      "albedo_gain": 1.5,
+      "uv_scale": 0.3,
+      "roughness": 0.8,
+      "normal_strength": 0.2,
+      "grime": 0.0,
+      "moss": 0.0
+    },
+    "tav_stone": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+      "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+      "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+      "tint": [
+        0.86,
+        0.86,
+        0.86
+      ],
+      "desaturate": 0.7,
+      "albedo_gain": 1.12,
+      "uv_scale": 1.6,
+      "roughness": 1.0,
+      "normal_strength": 1.2,
+      "grime": 0.55,
+      "moss": 0.35
+    },
+    "tav_zinc": {
+      "shader": "surface",
+      "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+      "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+      "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+      "tint": [
+        0.9,
+        0.92,
+        0.94
+      ],
+      "desaturate": 1.0,
+      "albedo_gain": 1.2,
+      "uv_scale": 0.6,
+      "roughness": 0.6,
+      "normal_strength": 0.15,
+      "metallic": 0.4,
+      "grime": 0.0,
+      "moss": 0.0
+    }
+  },
+  "color_range": 2.0,
+  "lantern": [
+    -13.39,
+    6.1300000476837155,
+    -20.77
+  ],
+  "description": "Дом травницы; авторская геометрия, существующие CC0 PBR-текстуры таверны."
+}

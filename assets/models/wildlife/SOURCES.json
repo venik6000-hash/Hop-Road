@@ -1,0 +1,154 @@
+{
+  "deer": {
+    "author": "CDmir, TinyWorlds",
+    "source": "https://opengameart.org/content/deer-female",
+    "download": "https://opengameart.org/sites/default/files/doe.blend",
+    "license": "CC0-1.0",
+    "sha256_original": "577b9e48ce7cee955c6dac1b0a70333eccdfcad3f11eaa1f96a15900b64ca25e",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "changes": "Restored author textures, normalized scale and orientation, baked original skeletal clips and exported GLB."
+  },
+  "bird": {
+    "author": "pistachio",
+    "source": "https://opengameart.org/content/bird-yellow-billed-shrike",
+    "download": "https://opengameart.org/sites/default/files/bird_yellow_billed_shrike.zip",
+    "license": "CC0-1.0",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "sha256_original": "a41a4f10ce7795d508b8eded4eb45e80ddf85bc4dba1f2bea4708e7705faac64",
+    "changes": "Restored original diffuse, normal, roughness and alpha maps; normalized scale; added fly, glide and perch skeletal clips. Original artist geometry and textures preserved."
+  },
+  "chicken": {
+    "author": "CDmir, TinyWorlds",
+    "source": "https://opengameart.org/content/chicken-animated",
+    "download": "https://opengameart.org/sites/default/files/chicken_0.zip",
+    "license": "CC0-1.0",
+    "sha256_original": "0e958040fdb855c192903657d8a9da2d95cf17ea23165676bae2ae1454baa284",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "changes": "Restored author textures, normalized scale and orientation, baked original skeletal clips and exported GLB."
+  },
+  "fox": {
+    "author": "br-n518",
+    "source": "https://opengameart.org/content/fox-0",
+    "download": "https://opengameart.org/sites/default/files/fox_source_v3.zip",
+    "license": "CC0-1.0",
+    "sha256_original": "9faa5b363e003363d7cb4ad32c8ceae70ed3bb4b4e73afc249e0acd9be2787a3",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "changes": "Restored author textures, normalized scale and orientation, baked original skeletal clips and exported GLB."
+  },
+  "fish": {
+    "author": "CDmir, TinyWorlds",
+    "source": "https://opengameart.org/content/fish-animated",
+    "download": "https://opengameart.org/sites/default/files/fish.zip",
+    "license": "CC0-1.0",
+    "sha256_original": "eb3e47cd7531c4c7c96a7442ab19e262eb0c3f23960cdd53d84350dba90c1afc",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "changes": "Restored author textures, normalized scale and orientation, baked original skeletal clips and exported GLB."
+  },
+  "butterfly": {
+    "author": "CDmir, TinyWorlds",
+    "source": "https://opengameart.org/content/butterfly-animated",
+    "download": "https://opengameart.org/sites/default/files/Butterfly.zip",
+    "license": "CC0-1.0",
+    "sha256_original": "043c530f9ce15f031903fbabab4e74e1fe58e77cf2e1d6c4abed0ffaca306eb6",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "changes": "Restored author textures, normalized scale and orientation, baked original skeletal clips and exported GLB."
+  },
+  "birds_audio": {
+    "author": "isaiah658",
+    "source": "https://opengameart.org/content/ambient-bird-sounds",
+    "download": "https://opengameart.org/sites/default/files/birds-isaiah658.ogg",
+    "license": "CC0-1.0",
+    "sha256_original": "359e4e3f9da9d75aac64cede511c7e3ef8b461f9d9f8c230f8f80e44c4b3e35f"
+  },
+  "seagull": {
+    "author": "Wildfire Games",
+    "source": "https://github.com/0ad/0ad/tree/master/binaries/data/mods/public/art",
+    "license": "CC-BY-SA-3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "changes": "Converted original COLLADA mesh, feather texture and original skeletal flight animations to GLB; normalized scale. Derived bird assets remain CC-BY-SA-3.0.",
+    "files": [
+      {
+        "download": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/meshes/skeletal/seagull.dae",
+        "path": "source/seagull/model.dae",
+        "sha256": "bb91ae546c59d637a6f900673e6b2a0cb58fccc643f6708a70bbf8e25b3ea9b8"
+      },
+      {
+        "download": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/textures/skins/skeletal/animal_seagull.png",
+        "path": "source/seagull/animal_seagull.png",
+        "sha256": "ac93404b66c5b836c4f345d62dc82819c7bff4c1de8a21fdb4c830876adbf046"
+      },
+      {
+        "download": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/animation/other/seagull_flight_01.dae",
+        "path": "source/seagull/seagull_flight_01.dae",
+        "sha256": "9e7f7b8c837b6c8dc8963d8fe098f711be2ecd2ed6b36937f0f0af6634af1ba2"
+      },
+      {
+        "download": "https://raw.githubusercontent.com/0ad/0ad/master/binaries/data/mods/public/art/animation/other/seagull_flight_02.dae",
+        "path": "source/seagull/seagull_flight_02.dae",
+        "sha256": "189b980599b9de3b87fa1458e6e06eaeb7463fe075b618c02f32491294a2acfe"
+      }
+    ]
+  },
+  "pike": {
+    "author": "CDmir",
+    "source": "https://opengameart.org/content/esox-animated-fish",
+    "license": "CC0-1.0",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "changes": "Restored original PBR textures and original swim animation; normalized size and exported GLB.",
+    "files": [
+      {
+        "download": "https://opengameart.org/sites/default/files/esox.zip",
+        "path": "source/pike/original.zip",
+        "sha256": "dd5e8784046ac792ee70f3c0c461b1fa4e01d132dd046cdc32aeb02ddabdb27d"
+      }
+    ]
+  },
+  "perch": {
+    "author": "Michael Carey",
+    "source": "https://opengameart.org/content/perch-fish",
+    "license": "CC-BY-3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0/",
+    "changes": "Original artist geometry and texture; normalized size, added tail motion, exported GLB.",
+    "files": [
+      {
+        "download": "https://opengameart.org/sites/default/files/fish.blend",
+        "path": "source/perch/original.blend",
+        "sha256": "305a374ed867aad9678ef6af12c70ff150e563b22e7d2ecf7b2d4fe3db019130"
+      },
+      {
+        "download": "https://opengameart.org/sites/default/files/fishskin.png",
+        "path": "source/perch/fishskin.png",
+        "sha256": "fea6679c5e4f55b38749ba2db255d609bb53d77a5122909a355683c4fc66d64c"
+      }
+    ]
+  },
+  "trout": {
+    "author": "sandsound; texture by WeaponGuy",
+    "source": "https://opengameart.org/content/trout",
+    "license": "CC-BY-3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0/",
+    "changes": "Original artist geometry and texture; normalized size, added tail motion, exported GLB.",
+    "files": [
+      {
+        "download": "https://opengameart.org/sites/default/files/trout_04.blend",
+        "path": "source/trout/original.blend",
+        "sha256": "4430ee7fabda4c404c06ba392021b6b5d4a45940376521f0f06c528f7a281016"
+      },
+      {
+        "download": "https://opengameart.org/sites/default/files/rainbowtrout.png",
+        "path": "source/trout/trout.png",
+        "sha256": "e2cfd03f660e316bdaa51267506ca537cdb2435df63a4d1d391e27e2419a6bb0"
+      }
+    ]
+  },
+  "raven": {
+    "author": "Teh_Bucket",
+    "source": "https://opengameart.org/content/raven-0",
+    "download": "https://opengameart.org/sites/default/files/raven.blend",
+    "license": "CC0-1.0",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "sha256_original": "f1fa45875c8f4dda1e0793ae312140d10de89779f6092a6d250020e316d7350e",
+    "original_path": "source/raven/original.blend",
+    "changes": "Original model, texture and author flight clip normalized and exported GLB."
+  }
+}

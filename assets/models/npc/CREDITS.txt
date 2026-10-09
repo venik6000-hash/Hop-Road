@@ -1,0 +1,22 @@
+Bartender: CDmir with TinyWorlds, Kelgar. CC0 1.0.
+https://opengameart.org/content/bartender
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Monk model/rig: CDmir with TinyWorlds. Original model CC0.
+Original animations: hwoarangmy, OpenDungeons. Animated asset CC BY-SA 3.0.
+https://opengameart.org/content/monk-animated
+https://opengameart.org/content/monk
+https://creativecommons.org/licenses/by-sa/3.0/
+
+Changes in this project: reconstructed materials from packed images, normalized
+scale, baked skeletal animations, added work and service animations, exported GLB.
+The modified monk model and its animations are distributed under CC BY-SA 3.0.
+Original source files are included under source/; source/.gdignore keeps them
+out of Godot's automatic Blender importer.
+
+.Fuse Civilian 1 — Leonardo Carvalho, CC BY 4.0.
+https://sketchfab.com/3d-models/fuse-civilian-1-6fc4bddf4d364e6b9fa2f050011e03ce
+https://creativecommons.org/licenses/by/4.0/
+
+Changes: normalized scale, renamed bones, added skeletal work, walking and
+service animations. All three downloads were free.

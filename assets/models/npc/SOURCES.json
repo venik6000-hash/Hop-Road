@@ -1,0 +1,30 @@
+{
+  "bartender": {
+    "author": "CDmir, TinyWorlds",
+    "source": "https://opengameart.org/content/bartender",
+    "download": "https://opengameart.org/sites/default/files/bartender-IK.blend",
+    "license": "CC0-1.0",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "changes": "Rebuilt packed texture materials, normalized scale, added idle/walk/wipe/chop/stir/pour/serve clips, exported GLB.",
+    "sha256_original": "2ce1099d1c4eccf245613a65a52d64cd5be9a686402e5c2b3d1d8d089d8fe969"
+  },
+  "monk": {
+    "model_author": "CDmir, TinyWorlds",
+    "animation_author": "hwoarangmy",
+    "source": "https://opengameart.org/content/monk-animated",
+    "model_source": "https://opengameart.org/content/monk",
+    "download": "https://opengameart.org/sites/default/files/MONK.7z",
+    "license": "CC-BY-SA-3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "changes": "Rebuilt packed texture materials, baked original IK clips, normalized scale, added work clips and exported GLB. Modified model and animations remain CC-BY-SA-3.0.",
+    "sha256_original": "402a778eaea4339216ff33b1c99ffecee9b39f6109456fe95a0b1136c180b726"
+  },
+  "civilian_1": {
+    "author": "Leonardo Carvalho",
+    "source": "https://sketchfab.com/3d-models/fuse-civilian-1-6fc4bddf4d364e6b9fa2f050011e03ce",
+    "license": "CC-BY-4.0",
+    "changes": "Normalized scale, renamed Mixamo bones, added idle/walk/wipe/chop/stir/pour/serve skeletal clips, exported GLB.",
+    "sha256_original": "d6dff7203dfb0b39a19c139802457c2380f9a91607c1a446067345b76b61b4e6",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/"
+  }
+}

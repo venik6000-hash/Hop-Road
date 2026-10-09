@@ -1,0 +1,11 @@
+IRON TANKARD
+Medieval Beer Mug by AnshiNoWara NG+ (Anshinowara2)
+https://sketchfab.com/3d-models/medieval-beer-mug-1135ca899e55415ca6814631a2bb1232
+Creative Commons Attribution 4.0: https://creativecommons.org/licenses/by/4.0/
+Changes: extracted iron variant; normalized height to 0.24 m; centred cup body;
+removed duplicated UV channels. Original PBR maps retained. Author marks NoAI.
+
+Linen sleeve: procedural geometry authored for this project.
+Fluid: native Godot implementation of Position Based Fluids (Macklin & Müller,
+2013), informed by dgreenheck/threejs-particle-fluids; no Three.js runtime or
+source files are bundled. Foam is a procedural surface appearance on the liquid.

@@ -1,0 +1,2306 @@
+{
+ "color_range": 2.0,
+ "drop_colliders": [
+  "Interior oak floor beams bar and tables"
+ ],
+ "lights": [
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.5,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "Stammtisch candle",
+   "night": 0.0,
+   "position": [
+    5.84,
+    7.912,
+    -1.48
+   ],
+   "range": 3.2,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.6,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "West table candles",
+   "night": 0.0,
+   "position": [
+    6.2198,
+    8.1118,
+    -5.0401
+   ],
+   "range": 3.6,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.45,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "Round table 0 candle",
+   "night": 0.0,
+   "position": [
+    9.03,
+    8.083,
+    -3.88
+   ],
+   "range": 3.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.45,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "Round table 1 candle",
+   "night": 0.0,
+   "position": [
+    13.38,
+    8.0936,
+    -4.08
+   ],
+   "range": 3.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.45,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "Round table 2 candle",
+   "night": 0.0,
+   "position": [
+    12.88,
+    8.0784,
+    -8.23
+   ],
+   "range": 3.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.55,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "East table lantern",
+   "night": 0.0,
+   "position": [
+    14.86,
+    7.835,
+    -8.43
+   ],
+   "range": 3.4,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5,
+    0.20000000298023224
+   ],
+   "energy": 4.0,
+   "flicker": 0.22,
+   "layer": "interior",
+   "name": "Hall hearth fire",
+   "night": 0.0,
+   "position": [
+    6.62,
+    7.41,
+    -10.3
+   ],
+   "range": 11.0,
+   "shadow": true,
+   "size": 0.25,
+   "speed": 0.9,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.45,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "Mantel candles",
+   "night": 0.0,
+   "position": [
+    7.09,
+    9.755,
+    -10.3
+   ],
+   "range": 3.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 1.4,
+   "flicker": 0.05,
+   "layer": "interior",
+   "name": "Chandelier 1",
+   "night": 0.0,
+   "position": [
+    10.82,
+    9.66,
+    -4.7
+   ],
+   "range": 7.5,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 1.4,
+   "flicker": 0.05,
+   "layer": "interior",
+   "name": "Chandelier 2",
+   "night": 0.0,
+   "position": [
+    10.82,
+    9.66,
+    -8.7
+   ],
+   "range": 7.5,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.9,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "Bar candelabra",
+   "night": 0.0,
+   "position": [
+    10.1998,
+    8.696,
+    -11.5208
+   ],
+   "range": 4.2,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.6,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "Bar lantern",
+   "night": 0.0,
+   "position": [
+    13.2,
+    8.155,
+    -11.42
+   ],
+   "range": 3.6,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.8,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "Stair lantern",
+   "night": 0.0,
+   "position": [
+    17.35,
+    8.9261,
+    -1.35
+   ],
+   "range": 4.5,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5,
+    0.20000000298023224
+   ],
+   "energy": 3.6,
+   "flicker": 0.25,
+   "layer": "interior",
+   "name": "Kitchen hearth fire",
+   "night": 0.0,
+   "position": [
+    24.5,
+    7.51,
+    -10.7
+   ],
+   "range": 9.0,
+   "shadow": true,
+   "size": 0.25,
+   "speed": 1.1,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 1.1,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "Kitchen lantern",
+   "night": 0.0,
+   "position": [
+    22.3,
+    9.05,
+    -5.4
+   ],
+   "range": 6.5,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.4,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "Kitchen candle",
+   "night": 0.0,
+   "position": [
+    18.67,
+    7.762,
+    -3.4
+   ],
+   "range": 3.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.6,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "Front west room candle",
+   "night": 0.0,
+   "position": [
+    4.52,
+    11.5697,
+    -3.35
+   ],
+   "range": 4.4,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.6,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "Front east room candle",
+   "night": 0.0,
+   "position": [
+    15.4,
+    11.5697,
+    -3.23
+   ],
+   "range": 4.4,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.8,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "Stairwell lantern",
+   "night": 0.0,
+   "position": [
+    17.48,
+    12.8561,
+    -6.2
+   ],
+   "range": 4.6,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5,
+    0.20000000298023224
+   ],
+   "energy": 1.3,
+   "flicker": 0.2,
+   "layer": "interior",
+   "name": "Back west room fire",
+   "night": 0.0,
+   "position": [
+    6.94,
+    11.39,
+    -10.3
+   ],
+   "range": 4.5,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.2,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.45,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "Back west room candle",
+   "night": 0.0,
+   "position": [
+    6.9,
+    12.132,
+    -9.73
+   ],
+   "range": 3.6,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5,
+    0.20000000298023224
+   ],
+   "energy": 0.9,
+   "flicker": 0.18,
+   "layer": "interior",
+   "name": "Back east room stove",
+   "night": 0.0,
+   "position": [
+    14.4,
+    11.32,
+    -12.705
+   ],
+   "range": 3.6,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 0.8,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.55,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "Back east room candle",
+   "night": 0.0,
+   "position": [
+    12.9422,
+    11.842,
+    -10.7951
+   ],
+   "range": 4.2,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.8,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "Corridor lantern",
+   "night": 0.0,
+   "position": [
+    11.9,
+    12.6561,
+    -7.838
+   ],
+   "range": 5.5,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.9,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "Attic lantern",
+   "night": 0.0,
+   "position": [
+    11.12,
+    15.3696,
+    -1.14
+   ],
+   "range": 5.5,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.8,
+   "flicker": 0.08,
+   "layer": "interior",
+   "name": "Dormer lantern",
+   "night": 0.0,
+   "position": [
+    15.25,
+    15.519,
+    -8.1
+   ],
+   "range": 4.8,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.5,
+    0.20000000298023224
+   ],
+   "energy": 1.4,
+   "flicker": 0.18,
+   "layer": "interior",
+   "name": "Bread oven fire",
+   "night": 0.0,
+   "position": [
+    25.6,
+    7.5,
+    -9.22
+   ],
+   "range": 3.0,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  },
+  {
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.55,
+   "flicker": 0.04,
+   "layer": "interior",
+   "name": "Pantry reflected lantern",
+   "night": 0.0,
+   "position": [
+    15.7,
+    8.83,
+    -5.4
+   ],
+   "range": 2.7,
+   "shadow": false,
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "type": "point"
+  }
+ ],
+ "materials": {
+  "tav_ash": {
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "normal_strength": 0.6,
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.36,
+    0.34,
+    0.32
+   ],
+   "uv_scale": 0.35
+  },
+  "tav_bark": {
+   "albedo": "res://assets/generated/tavern/bark_brown_02_diff_1k.jpg",
+   "desaturate": 0.3,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/bark_brown_02_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/bark_brown_02_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.72,
+    0.62,
+    0.52
+   ],
+   "uv_scale": 0.45
+  },
+  "tav_bottle": {
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "albedo_gain": 0.3,
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "normal_strength": 0.05,
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "roughness": 0.12,
+   "shader": "surface",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "uv_scale": 0.4
+  },
+  "tav_brass": {
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "albedo_gain": 1.6,
+   "desaturate": 0.95,
+   "grime": 0.0,
+   "metallic": 0.85,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "normal_strength": 0.2,
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "roughness": 0.45,
+   "shader": "surface",
+   "tint": [
+    0.92,
+    0.72,
+    0.36
+   ],
+   "uv_scale": 0.35
+  },
+  "tav_bread": {
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "desaturate": 0.6,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "normal_strength": 1.0,
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "roughness": 0.85,
+   "shader": "surface",
+   "tint": [
+    0.78,
+    0.52,
+    0.27
+   ],
+   "uv_scale": 0.18
+  },
+  "tav_carpet": {
+   "albedo": "res://assets/generated/tavern/dirty_carpet_diff_1k.jpg",
+   "desaturate": 0.05,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/dirty_carpet_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/dirty_carpet_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.95,
+    0.9,
+    0.85
+   ],
+   "uv_scale": 1.4
+  },
+  "tav_ceramic": {
+   "albedo": "res://assets/generated/tavern/grey_plaster_03_diff_2k.jpg",
+   "albedo_gain": 1.9,
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/grey_plaster_03_nor_gl_2k.jpg",
+   "normal_strength": 0.25,
+   "orm": "res://assets/generated/tavern/grey_plaster_03_arm_2k.jpg",
+   "roughness": 0.35,
+   "shader": "surface",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "uv_scale": 0.6
+  },
+  "tav_chalk": {
+   "albedo": "res://assets/generated/tavern/white_plaster_rough_01_diff_1k.jpg",
+   "albedo_gain": 1.2,
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/white_plaster_rough_01_nor_gl_1k.jpg",
+   "normal_strength": 0.2,
+   "orm": "res://assets/generated/tavern/white_plaster_rough_01_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.92,
+    0.92,
+    0.9
+   ],
+   "uv_scale": 0.2
+  },
+  "tav_char": {
+   "albedo": "res://assets/generated/tavern/bark_brown_02_diff_1k.jpg",
+   "desaturate": 0.8,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/bark_brown_02_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/bark_brown_02_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.13,
+    0.11,
+    0.1
+   ],
+   "uv_scale": 0.3
+  },
+  "tav_cheese": {
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "albedo_gain": 1.2,
+   "desaturate": 0.8,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "normal_strength": 0.35,
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "roughness": 0.65,
+   "shader": "surface",
+   "tint": [
+    0.98,
+    0.8,
+    0.42
+   ],
+   "uv_scale": 0.25
+  },
+  "tav_ember": {
+   "color": [
+    1.0,
+    0.32,
+    0.08
+   ],
+   "emission": 5.0,
+   "emission_color": [
+    1.0,
+    0.35,
+    0.1
+   ],
+   "energy": 2.6,
+   "shader": "flame",
+   "tint": [
+    1.0,
+    0.35,
+    0.1
+   ],
+   "wildness": 0.05
+  },
+  "tav_fire": {
+   "color": [
+    1.0,
+    0.5,
+    0.18
+   ],
+   "emission": 8.0,
+   "emission_color": [
+    1.0,
+    0.5,
+    0.2
+   ],
+   "energy": 5.0,
+   "shader": "flame",
+   "tint": [
+    1.0,
+    0.5,
+    0.2
+   ],
+   "wildness": 0.8
+  },
+  "tav_flame": {
+   "color": [
+    1.0,
+    0.62,
+    0.25
+   ],
+   "emission": 6.0,
+   "emission_color": [
+    1.0,
+    0.6,
+    0.3
+   ],
+   "energy": 4.0,
+   "shader": "flame",
+   "tint": [
+    1.0,
+    0.6,
+    0.3
+   ],
+   "wildness": 0.15
+  },
+  "tav_floor": {
+   "albedo": "res://assets/generated/tavern/wood_table_worn_diff_1k.jpg",
+   "desaturate": 0.25,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/wood_table_worn_nor_gl_1k.jpg",
+   "normal_strength": 1.0,
+   "orm": "res://assets/generated/tavern/wood_table_worn_arm_1k.jpg",
+   "roughness": 0.95,
+   "shader": "surface",
+   "tint": [
+    0.66,
+    0.55,
+    0.45
+   ],
+   "uv_scale": 1.5
+  },
+  "tav_garlic": {
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "albedo_gain": 1.25,
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "normal_strength": 0.3,
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "roughness": 0.6,
+   "shader": "surface",
+   "tint": [
+    0.95,
+    0.92,
+    0.84
+   ],
+   "uv_scale": 0.12
+  },
+  "tav_herb": {
+   "albedo": "res://assets/generated/tavern/bark_brown_02_diff_1k.jpg",
+   "albedo_gain": 1.2,
+   "desaturate": 0.7,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/bark_brown_02_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/bark_brown_02_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.55,
+    0.6,
+    0.34
+   ],
+   "uv_scale": 0.1
+  },
+  "tav_iron": {
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "desaturate": 0.7,
+   "grime": 0.0,
+   "metallic": 0.55,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "roughness": 0.9,
+   "shader": "surface",
+   "tint": [
+    0.34,
+    0.31,
+    0.29
+   ],
+   "uv_scale": 0.6
+  },
+  "tav_leather": {
+   "albedo": "res://assets/generated/tavern/brown_leather_diff_1k.jpg",
+   "desaturate": 0.2,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/brown_leather_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/brown_leather_arm_1k.jpg",
+   "roughness": 0.8,
+   "shader": "surface",
+   "tint": [
+    0.9,
+    0.8,
+    0.7
+   ],
+   "uv_scale": 0.4
+  },
+  "tav_limewash": {
+   "albedo": "res://assets/generated/tavern/white_plaster_rough_01_diff_1k.jpg",
+   "desaturate": 0.7,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/white_plaster_rough_01_nor_gl_1k.jpg",
+   "normal_strength": 0.8,
+   "orm": "res://assets/generated/tavern/white_plaster_rough_01_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.93,
+    0.9,
+    0.84
+   ],
+   "uv_scale": 1.6
+  },
+  "tav_linen": {
+   "albedo": "res://assets/generated/tavern/rough_linen_diff_1k.jpg",
+   "desaturate": 0.5,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_linen_nor_gl_1k.jpg",
+   "normal_strength": 0.8,
+   "orm": "res://assets/generated/tavern/rough_linen_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.94,
+    0.91,
+    0.85
+   ],
+   "uv_scale": 0.35
+  },
+  "tav_meat": {
+   "albedo": "res://assets/generated/tavern/brown_leather_diff_1k.jpg",
+   "desaturate": 0.4,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/brown_leather_nor_gl_1k.jpg",
+   "normal_strength": 0.8,
+   "orm": "res://assets/generated/tavern/brown_leather_arm_1k.jpg",
+   "roughness": 0.55,
+   "shader": "surface",
+   "tint": [
+    0.62,
+    0.3,
+    0.2
+   ],
+   "uv_scale": 0.15
+  },
+  "tav_mortar": {
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "desaturate": 0.6,
+   "grime": 0.6,
+   "moss": 0.2,
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.6,
+    0.57,
+    0.52
+   ],
+   "uv_scale": 1.2
+  },
+  "tav_oak": {
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "desaturate": 0.85,
+   "grime": 0.25,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.62,
+    0.43,
+    0.27
+   ],
+   "uv_scale": 1.4
+  },
+  "tav_oak_end": {
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "desaturate": 0.85,
+   "grime": 0.2,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.42,
+    0.29,
+    0.19
+   ],
+   "uv_scale": 0.35
+  },
+  "tav_oak_smooth": {
+   "albedo": "res://assets/generated/tavern/wood_table_worn_diff_1k.jpg",
+   "desaturate": 0.1,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/wood_table_worn_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/wood_table_worn_arm_1k.jpg",
+   "roughness": 0.9,
+   "shader": "surface",
+   "tint": [
+    0.92,
+    0.84,
+    0.78
+   ],
+   "uv_scale": 1.2
+  },
+  "tav_onion": {
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "albedo_gain": 1.1,
+   "desaturate": 0.8,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "normal_strength": 0.3,
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "roughness": 0.5,
+   "shader": "surface",
+   "tint": [
+    0.86,
+    0.6,
+    0.3
+   ],
+   "uv_scale": 0.12
+  },
+  "tav_paper": {
+   "albedo": "res://assets/generated/tavern/rough_linen_diff_1k.jpg",
+   "albedo_gain": 1.15,
+   "desaturate": 0.9,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_linen_nor_gl_1k.jpg",
+   "normal_strength": 0.2,
+   "orm": "res://assets/generated/tavern/rough_linen_arm_1k.jpg",
+   "roughness": 0.95,
+   "shader": "surface",
+   "tint": [
+    0.93,
+    0.86,
+    0.7
+   ],
+   "uv_scale": 0.3
+  },
+  "tav_pewter": {
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "albedo_gain": 1.5,
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "metallic": 0.75,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "normal_strength": 0.2,
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "roughness": 0.55,
+   "shader": "surface",
+   "tint": [
+    0.62,
+    0.62,
+    0.61
+   ],
+   "uv_scale": 0.35
+  },
+  "tav_plank": {
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "desaturate": 0.75,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "normal_strength": 0.9,
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.86,
+    0.74,
+    0.6
+   ],
+   "uv_scale": 1.1
+  },
+  "tav_rope": {
+   "albedo": "res://assets/generated/tavern/hessian_230_diff_1k.jpg",
+   "desaturate": 0.5,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/hessian_230_nor_gl_1k.jpg",
+   "normal_strength": 1.4,
+   "orm": "res://assets/generated/tavern/hessian_230_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.7,
+    0.58,
+    0.42
+   ],
+   "uv_scale": 0.08
+  },
+  "tav_sack": {
+   "albedo": "res://assets/generated/tavern/hessian_230_diff_1k.jpg",
+   "desaturate": 0.3,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/hessian_230_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/hessian_230_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.86,
+    0.76,
+    0.6
+   ],
+   "uv_scale": 0.3
+  },
+  "tav_slateboard": {
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "albedo_gain": 0.55,
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "normal_strength": 0.3,
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "roughness": 0.85,
+   "shader": "surface",
+   "tint": [
+    0.34,
+    0.35,
+    0.37
+   ],
+   "uv_scale": 0.8
+  },
+  "tav_soot": {
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.05,
+    0.045,
+    0.04
+   ],
+   "uv_scale": 0.5
+  },
+  "tav_stone": {
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "albedo_gain": 1.12,
+   "desaturate": 0.7,
+   "grime": 0.55,
+   "moss": 0.35,
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "normal_strength": 1.2,
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.86,
+    0.86,
+    0.86
+   ],
+   "uv_scale": 1.6
+  },
+  "tav_straw": {
+   "albedo": "res://assets/generated/tavern/hessian_230_diff_1k.jpg",
+   "desaturate": 0.4,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/hessian_230_nor_gl_1k.jpg",
+   "normal_strength": 1.2,
+   "orm": "res://assets/generated/tavern/hessian_230_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.95,
+    0.8,
+    0.5
+   ],
+   "uv_scale": 0.12
+  },
+  "tav_wax": {
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "albedo_gain": 1.35,
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "normal_strength": 0.15,
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "roughness": 0.55,
+   "shader": "surface",
+   "tint": [
+    0.97,
+    0.93,
+    0.8
+   ],
+   "uv_scale": 0.2
+  },
+  "tav_wool": {
+   "albedo": "res://assets/generated/tavern/wool_boucle_diff_1k.jpg",
+   "albedo_gain": 1.25,
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/wool_boucle_nor_gl_1k.jpg",
+   "normal_strength": 0.9,
+   "orm": "res://assets/generated/tavern/wool_boucle_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "uv_scale": 0.3
+  }
+ },
+ "probes": [
+  {
+   "ambient": [
+    0.07,
+    0.05,
+    0.036
+   ],
+   "extents": [
+    6.670000076293945,
+    2.1115000247955322,
+    6.670000076293945
+   ],
+   "name": "Probe hall",
+   "position": [
+    11.0,
+    8.7115,
+    -7.0
+   ],
+   "room": "hall"
+  },
+  {
+   "ambient": [
+    0.075,
+    0.055,
+    0.04
+   ],
+   "extents": [
+    4.212499618530273,
+    4.225499961853028,
+    5.255000114440918
+   ],
+   "name": "Probe kitchen",
+   "position": [
+    22.5425,
+    10.815500038146972,
+    -6.5
+   ],
+   "room": "kitchen"
+  },
+  {
+   "ambient": [
+    0.06,
+    0.045,
+    0.034
+   ],
+   "extents": [
+    3.3450002670288086,
+    1.9000000953674316,
+    3.1550002098083496
+   ],
+   "name": "Probe upper_front_w",
+   "position": [
+    7.585,
+    12.74,
+    -3.375
+   ],
+   "room": "upper_front_w"
+  },
+  {
+   "ambient": [
+    0.06,
+    0.045,
+    0.034
+   ],
+   "extents": [
+    3.3450002670288086,
+    1.9000000953674316,
+    3.1550002098083496
+   ],
+   "name": "Probe upper_front_e",
+   "position": [
+    14.415,
+    12.74,
+    -3.375
+   ],
+   "room": "upper_front_e"
+  },
+  {
+   "ambient": [
+    0.06,
+    0.045,
+    0.034
+   ],
+   "extents": [
+    3.1449999809265137,
+    1.9000000953674316,
+    2.7549996376037598
+   ],
+   "name": "Probe upper_back_w",
+   "position": [
+    7.385,
+    12.74,
+    -11.025
+   ],
+   "room": "upper_back_w"
+  },
+  {
+   "ambient": [
+    0.06,
+    0.045,
+    0.034
+   ],
+   "extents": [
+    3.5450000762939453,
+    1.9000000953674316,
+    2.7549996376037598
+   ],
+   "name": "Probe upper_back_e",
+   "position": [
+    14.215,
+    12.74,
+    -11.025
+   ],
+   "room": "upper_back_e"
+  },
+  {
+   "ambient": [
+    0.06,
+    0.045,
+    0.034
+   ],
+   "extents": [
+    6.760000228881836,
+    1.9000000953674316,
+    0.7300000190734863
+   ],
+   "name": "Probe corridor",
+   "position": [
+    11.0,
+    12.74,
+    -7.4
+   ],
+   "room": "corridor"
+  },
+  {
+   "ambient": [
+    0.05,
+    0.04,
+    0.032
+   ],
+   "extents": [
+    6.760000228881836,
+    2.822500228881836,
+    6.779999732971191
+   ],
+   "name": "Probe attic",
+   "position": [
+    11.0,
+    17.6775,
+    -7.0
+   ],
+   "room": "attic"
+  }
+ ],
+ "replaces": [
+  "Interior oak floor beams bar and tables"
+ ],
+ "scenes": [
+  "res://assets/models/tavern/optimized/tavern_interior.glb",
+  "res://assets/models/tavern/optimized/tavern_interior_props.gltf"
+ ],
+ "seats": [
+  {
+   "exits": [
+    [
+     10.2933,
+     6.93,
+     -4.7866
+    ],
+    [
+     9.9604,
+     6.93,
+     -5.1728
+    ]
+   ],
+   "facing": [
+    -0.8708,
+    -0.0,
+    0.4916
+   ],
+   "height": 0.46,
+   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 1",
+   "position": [
+    9.5531,
+    6.93,
+    -4.3687
+   ]
+  },
+  {
+   "exits": [
+    [
+     7.6265,
+     6.93,
+     -4.9686
+    ],
+    [
+     7.4034,
+     6.93,
+     -4.5101
+    ]
+   ],
+   "facing": [
+    0.796,
+    -0.0,
+    0.6054
+   ],
+   "height": 0.46,
+   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 1.001",
+   "position": [
+    8.303,
+    6.93,
+    -4.454
+   ]
+  },
+  {
+   "exits": [
+    [
+     8.7526,
+     6.93,
+     -2.4068
+    ],
+    [
+     9.2596,
+     6.93,
+     -2.4603
+    ]
+   ],
+   "facing": [
+    0.0922,
+    -0.0,
+    -0.9957
+   ],
+   "height": 0.46,
+   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 1.002",
+   "position": [
+    8.8309,
+    6.93,
+    -3.2532
+   ]
+  },
+  {
+   "exits": [
+    [
+     14.6665,
+     6.93,
+     -4.9861
+    ],
+    [
+     14.3365,
+     6.93,
+     -5.3747
+    ]
+   ],
+   "facing": [
+    -0.8744,
+    -0.0,
+    0.4852
+   ],
+   "height": 0.46,
+   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 2",
+   "position": [
+    13.9233,
+    6.93,
+    -4.5736
+   ]
+  },
+  {
+   "exits": [
+    [
+     12.8265,
+     6.93,
+     -5.7637
+    ],
+    [
+     12.37,
+     6.93,
+     -5.5364
+    ]
+   ],
+   "facing": [
+    0.2614,
+    -0.0,
+    0.9652
+   ],
+   "height": 0.46,
+   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 2.001",
+   "position": [
+    13.0487,
+    6.93,
+    -4.9432
+   ]
+  },
+  {
+   "exits": [
+    [
+     11.7316,
+     6.93,
+     -3.6354
+    ],
+    [
+     11.9996,
+     6.93,
+     -3.2016
+    ]
+   ],
+   "facing": [
+    0.9373,
+    -0.0,
+    -0.3485
+   ],
+   "height": 0.46,
+   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 2.002",
+   "position": [
+    12.5283,
+    6.93,
+    -3.9316
+   ]
+  },
+  {
+   "exits": [
+    [
+     13.6752,
+     6.93,
+     -2.6368
+    ],
+    [
+     14.1314,
+     6.93,
+     -2.8645
+    ]
+   ],
+   "facing": [
+    -0.2625,
+    -0.0,
+    -0.9649
+   ],
+   "height": 0.46,
+   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 2.003",
+   "position": [
+    13.4521,
+    6.93,
+    -3.457
+   ]
+  },
+  {
+   "exits": [
+    [
+     14.3077,
+     6.93,
+     -8.2645
+    ],
+    [
+     14.2352,
+     6.93,
+     -8.7693
+    ]
+   ],
+   "facing": [
+    -0.9985,
+    -0.0,
+    -0.0548
+   ],
+   "height": 0.46,
+   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 3",
+   "position": [
+    13.4589,
+    6.93,
+    -8.3111
+   ]
+  },
+  {
+   "exits": [
+    [
+     11.7045,
+     6.93,
+     -9.5078
+    ],
+    [
+     11.4004,
+     6.93,
+     -9.0985
+    ]
+   ],
+   "facing": [
+    0.6702,
+    -0.0,
+    0.7422
+   ],
+   "height": 0.46,
+   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 3.001",
+   "position": [
+    12.2742,
+    6.93,
+    -8.877
+   ]
+  },
+  {
+   "exits": [
+    [
+     11.9116,
+     6.93,
+     -7.0345
+    ],
+    [
+     12.3869,
+     6.93,
+     -6.8501
+    ]
+   ],
+   "facing": [
+    0.5375,
+    -0.0,
+    -0.8433
+   ],
+   "height": 0.46,
+   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 3.002",
+   "position": [
+    12.3684,
+    6.93,
+    -7.7513
+   ]
+  },
+  {
+   "exits": [
+    [
+     5.3,
+     6.93,
+     -3.58
+    ],
+    [
+     7.95,
+     6.93,
+     -4.38
+    ]
+   ],
+   "facing": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "height": 0.46,
+   "name": "\u0421\u0442\u043e\u043b \u0443 \u0437\u0430\u043f\u0430\u0434\u043d\u044b\u0445 \u043e\u043a\u043e\u043d",
+   "position": [
+    5.3,
+    6.93,
+    -4.38
+   ]
+  },
+  {
+   "exits": [
+    [
+     6.2,
+     6.93,
+     -3.58
+    ],
+    [
+     7.95,
+     6.93,
+     -4.38
+    ]
+   ],
+   "facing": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "height": 0.46,
+   "name": "\u0421\u0442\u043e\u043b \u0443 \u0437\u0430\u043f\u0430\u0434\u043d\u044b\u0445 \u043e\u043a\u043e\u043d.001",
+   "position": [
+    6.2,
+    6.93,
+    -4.38
+   ]
+  },
+  {
+   "exits": [
+    [
+     7.1,
+     6.93,
+     -3.58
+    ],
+    [
+     7.95,
+     6.93,
+     -4.38
+    ]
+   ],
+   "facing": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "height": 0.46,
+   "name": "\u0421\u0442\u043e\u043b \u0443 \u0437\u0430\u043f\u0430\u0434\u043d\u044b\u0445 \u043e\u043a\u043e\u043d.002",
+   "position": [
+    7.1,
+    6.93,
+    -4.38
+   ]
+  },
+  {
+   "exits": [
+    [
+     5.3,
+     6.93,
+     -6.42
+    ],
+    [
+     7.95,
+     6.93,
+     -5.62
+    ]
+   ],
+   "facing": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "height": 0.46,
+   "name": "\u0421\u0442\u043e\u043b \u0443 \u0437\u0430\u043f\u0430\u0434\u043d\u044b\u0445 \u043e\u043a\u043e\u043d.003",
+   "position": [
+    5.3,
+    6.93,
+    -5.62
+   ]
+  },
+  {
+   "exits": [
+    [
+     6.2,
+     6.93,
+     -6.42
+    ],
+    [
+     7.95,
+     6.93,
+     -5.62
+    ]
+   ],
+   "facing": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "height": 0.46,
+   "name": "\u0421\u0442\u043e\u043b \u0443 \u0437\u0430\u043f\u0430\u0434\u043d\u044b\u0445 \u043e\u043a\u043e\u043d.004",
+   "position": [
+    6.2,
+    6.93,
+    -5.62
+   ]
+  },
+  {
+   "exits": [
+    [
+     7.1,
+     6.93,
+     -6.42
+    ],
+    [
+     7.95,
+     6.93,
+     -5.62
+    ]
+   ],
+   "facing": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "height": 0.46,
+   "name": "\u0421\u0442\u043e\u043b \u0443 \u0437\u0430\u043f\u0430\u0434\u043d\u044b\u0445 \u043e\u043a\u043e\u043d.005",
+   "position": [
+    7.1,
+    6.93,
+    -5.62
+   ]
+  },
+  {
+   "exits": [
+    [
+     13.45,
+     6.93,
+     -8.4
+    ],
+    [
+     14.3,
+     6.93,
+     -10.85
+    ],
+    [
+     14.3,
+     6.93,
+     -7.5
+    ]
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    -0.0
+   ],
+   "height": 0.46,
+   "name": "\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u043e\u043b \u0443 \u043a\u0443\u0445\u043d\u0438",
+   "position": [
+    14.3,
+    6.93,
+    -8.4
+   ]
+  },
+  {
+   "exits": [
+    [
+     13.45,
+     6.93,
+     -9.15
+    ],
+    [
+     14.3,
+     6.93,
+     -10.85
+    ],
+    [
+     14.3,
+     6.93,
+     -7.5
+    ]
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    -0.0
+   ],
+   "height": 0.46,
+   "name": "\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u043e\u043b \u0443 \u043a\u0443\u0445\u043d\u0438.001",
+   "position": [
+    14.3,
+    6.93,
+    -9.15
+   ]
+  },
+  {
+   "exits": [
+    [
+     13.45,
+     6.93,
+     -9.9
+    ],
+    [
+     14.3,
+     6.93,
+     -10.85
+    ],
+    [
+     14.3,
+     6.93,
+     -7.5
+    ]
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    -0.0
+   ],
+   "height": 0.46,
+   "name": "\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u043e\u043b \u0443 \u043a\u0443\u0445\u043d\u0438.002",
+   "position": [
+    14.3,
+    6.93,
+    -9.9
+   ]
+  },
+  {
+   "exits": [
+    [
+     16.35,
+     6.93,
+     -8.4
+    ],
+    [
+     15.5,
+     6.93,
+     -10.85
+    ],
+    [
+     15.5,
+     6.93,
+     -7.5
+    ]
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "height": 0.46,
+   "name": "\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u043e\u043b \u0443 \u043a\u0443\u0445\u043d\u0438.003",
+   "position": [
+    15.5,
+    6.93,
+    -8.4
+   ]
+  },
+  {
+   "exits": [
+    [
+     16.35,
+     6.93,
+     -9.15
+    ],
+    [
+     15.5,
+     6.93,
+     -10.85
+    ],
+    [
+     15.5,
+     6.93,
+     -7.5
+    ]
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "height": 0.46,
+   "name": "\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u043e\u043b \u0443 \u043a\u0443\u0445\u043d\u0438.004",
+   "position": [
+    15.5,
+    6.93,
+    -9.15
+   ]
+  },
+  {
+   "exits": [
+    [
+     16.35,
+     6.93,
+     -9.9
+    ],
+    [
+     15.5,
+     6.93,
+     -10.85
+    ],
+    [
+     15.5,
+     6.93,
+     -7.5
+    ]
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "height": 0.46,
+   "name": "\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u043e\u043b \u0443 \u043a\u0443\u0445\u043d\u0438.005",
+   "position": [
+    15.5,
+    6.93,
+    -9.9
+   ]
+  },
+  {
+   "exits": [
+    [
+     7.4,
+     6.93,
+     -1.5
+    ],
+    [
+     6.7,
+     6.93,
+     -2.9
+    ]
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    -0.1
+   ],
+   "height": 0.46,
+   "name": "\u0421\u0442\u043e\u043b \u0437\u0430\u0432\u0441\u0435\u0433\u0434\u0430\u0442\u0430\u0435\u0432",
+   "position": [
+    6.56,
+    6.93,
+    -1.5
+   ]
+  },
+  {
+   "exits": [
+    [
+     5.4,
+     6.93,
+     -3.1
+    ],
+    [
+     6.7,
+     6.93,
+     -2.9
+    ]
+   ],
+   "facing": [
+    0.1,
+    0.0,
+    1.0
+   ],
+   "height": 0.46,
+   "name": "\u0421\u0442\u043e\u043b \u0437\u0430\u0432\u0441\u0435\u0433\u0434\u0430\u0442\u0430\u0435\u0432.001",
+   "position": [
+    5.4,
+    6.93,
+    -2.3
+   ]
+  },
+  {
+   "exits": [
+    [
+     9.4,
+     6.93,
+     -9.3
+    ]
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "height": 0.46,
+   "name": "\u041a\u0440\u0435\u0441\u043b\u043e \u0443 \u043a\u0430\u043c\u0438\u043d\u0430",
+   "position": [
+    8.32,
+    6.93,
+    -9.55
+   ]
+  },
+  {
+   "exits": [
+    [
+     7.3,
+     6.93,
+     -11.6
+    ]
+   ],
+   "facing": [
+    -0.83,
+    0.0,
+    0.56
+   ],
+   "height": 0.46,
+   "name": "\u0421\u0442\u043e\u043b\u0438\u043a \u0443 \u043a\u0430\u043c\u0438\u043d\u0430",
+   "position": [
+    8.15,
+    6.93,
+    -11.18
+   ]
+  },
+  {
+   "exits": [
+    [
+     8.25,
+     10.86,
+     -2.3
+    ]
+   ],
+   "facing": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "height": 0.46,
+   "name": "\u041f\u0438\u0441\u044c\u043c\u0435\u043d\u043d\u044b\u0439 \u0441\u0442\u043e\u043b",
+   "position": [
+    8.25,
+    10.86,
+    -1.4
+   ]
+  },
+  {
+   "exits": [
+    [
+     13.3,
+     10.86,
+     -2.4
+    ]
+   ],
+   "facing": [
+    0.2,
+    0.0,
+    1.0
+   ],
+   "height": 0.46,
+   "name": "\u0421\u0442\u043e\u043b \u0432 \u0433\u043e\u0441\u0442\u0435\u0432\u043e\u0439 \u043a\u043e\u043c\u043d\u0430\u0442\u0435",
+   "position": [
+    13.4,
+    10.86,
+    -1.48
+   ]
+  },
+  {
+   "exits": [
+    [
+     14.6,
+     10.86,
+     -2.0
+    ]
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.28
+   ],
+   "height": 0.46,
+   "name": "\u0421\u0442\u043e\u043b \u0432 \u0433\u043e\u0441\u0442\u0435\u0432\u043e\u0439 \u043a\u043e\u043c\u043d\u0430\u0442\u0435.001",
+   "position": [
+    14.48,
+    10.86,
+    -1.1
+   ]
+  },
+  {
+   "exits": [
+    [
+     8.5,
+     10.86,
+     -10.2
+    ]
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.1
+   ],
+   "height": 0.46,
+   "name": "\u041a\u0440\u0435\u0441\u043b\u043e \u0432 \u043a\u043e\u043c\u043d\u0430\u0442\u0435 \u0441 \u043a\u0430\u043c\u0438\u043d\u043e\u043c",
+   "position": [
+    7.6,
+    10.86,
+    -10.35
+   ]
+  },
+  {
+   "exits": [
+    [
+     11.6,
+     10.86,
+     -9.4
+    ]
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    -0.0
+   ],
+   "height": 0.46,
+   "name": "\u0421\u0442\u043e\u043b \u0432 \u043e\u0431\u0449\u0435\u0439 \u0441\u043f\u0430\u043b\u044c\u043d\u0435",
+   "position": [
+    11.65,
+    10.86,
+    -10.6
+   ]
+  },
+  {
+   "exits": [
+    [
+     14.4,
+     10.86,
+     -10.7
+    ]
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.1
+   ],
+   "height": 0.46,
+   "name": "\u0421\u0442\u043e\u043b \u0432 \u043e\u0431\u0449\u0435\u0439 \u0441\u043f\u0430\u043b\u044c\u043d\u0435.001",
+   "position": [
+    13.55,
+    10.86,
+    -10.7
+   ]
+  },
+  {
+   "exits": [
+    [
+     12.7,
+     10.86,
+     -12.2
+    ]
+   ],
+   "facing": [
+    -0.1,
+    0.0,
+    1.0
+   ],
+   "height": 0.46,
+   "name": "\u0421\u0442\u043e\u043b \u0432 \u043e\u0431\u0449\u0435\u0439 \u0441\u043f\u0430\u043b\u044c\u043d\u0435.002",
+   "position": [
+    12.7,
+    10.86,
+    -11.32
+   ]
+  }
+ ]
+}

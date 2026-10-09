@@ -1,0 +1,12 @@
+{
+  "author": "TooManyDemons (https://sketchfab.com/toomanydemons)",
+  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+  "source": "https://sketchfab.com/3d-models/old-rowboat-9922d5678af84adeb1c9b479856446ca",
+  "title": "Old Rowboat",
+  "source_file": "../source/lakeside/old_rowboat.glb",
+  "downloaded_by": "user, from Sketchfab",
+  "sha256": "e0f3b6e4a91994270d564aa8d9d98575f6ee737b744b9e9624d76a9c81db8758",
+  "triangles": 5484,
+  "textures": "Original 1024x1024 base color, normal, metallic/roughness; no generated upscaling",
+  "adaptations": "Normalized to 4 m length, joined hull surfaces, separated oars and set rowlock pivots, exported to Godot glTF."
+}

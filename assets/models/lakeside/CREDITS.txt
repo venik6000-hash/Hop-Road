@@ -1,0 +1,6 @@
+Old Rowboat by TooManyDemons
+https://sketchfab.com/toomanydemons
+https://sketchfab.com/3d-models/old-rowboat-9922d5678af84adeb1c9b479856446ca
+Licensed CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
+Changes: normalized units to metres; merged hull meshes; separated oars with rowlock pivots.
+Original PBR textures preserved. Original GLB supplied by the user.
