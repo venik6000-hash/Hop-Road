@@ -13,7 +13,7 @@
 3. В менеджере проектов Godot нажмите «Импорт» и выберите `project.godot`. При первом открытии редактор импортирует ресурсы: на Apple M1 это около семи минут и ещё 1,3 ГБ в папке `.godot/`.
 4. Нажмите F5.
 
-Сначала проект нужно открыть в редакторе: без импорта игра не запустится. Первый запуск дольше остальных, потому что видеокарта компилирует шейдеры; экран загрузки в это время не завис.
+Игра рассчитана на запуск из редактора; экспорт отдельной сборкой целиком не проверялся. Сначала проект нужно открыть в редакторе: без импорта игра не запустится. Первый запуск дольше остальных, потому что видеокарта компилирует шейдеры; экран загрузки в это время не завис.
 
 Если игра идёт медленно, F10 открывает настройки графики: качество изображения и текстур.
 
@@ -57,7 +57,7 @@
 
 A test map of the game "The Hop Road": an alpine valley with a tavern, a lake and a village. You can walk, swim, fish from a boat, light a campfire, and change the weather and the time of day.
 
-To run it, install [Godot 4.7.2](https://godotengine.org/download/archive/4.7.2-stable/) (standard build), download this repository (about 1.7 GB), import `project.godot` in the Godot project manager, wait for the first import (about seven minutes on an Apple M1, 1.3 GB more in `.godot/`) and press F5. The first launch takes longer because the shaders compile. Tested on macOS (Apple M1, Metal) only.
+To run it, install [Godot 4.7.2](https://godotengine.org/download/archive/4.7.2-stable/) (standard build), download this repository (about 1.7 GB), import `project.godot` in the Godot project manager, wait for the first import (about seven minutes on an Apple M1, 1.3 GB more in `.godot/`) and press F5. Run it from the editor: an exported build has not been tested end to end. The first launch takes longer because the shaders compile. Tested on macOS (Apple M1, Metal) only.
 
 Keys: WASD and mouse to move, Shift to run, E to interact, V to drink, K for a campfire, J for the fishing rod, F5/F6 for the weather, `[` and `]` for the time of day, F9 for an overview, F10 for the graphics settings, Esc to release the cursor. The in-game text is in Russian.
 
