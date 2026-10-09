@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://bywlth4bbag5h"
+path="res://.godot/imported/fft_evolve.glsl-a329dd8150a7b1ac37c672664b696540.res"
+
+[deps]
+
+source_file="res://src/water/fft_evolve.glsl"
+dest_files=["res://.godot/imported/fft_evolve.glsl-a329dd8150a7b1ac37c672664b696540.res"]
+
+[params]
+

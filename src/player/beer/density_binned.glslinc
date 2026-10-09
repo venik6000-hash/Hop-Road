@@ -1,0 +1,39 @@
+layout(local_size_x=4,local_size_y=4,local_size_z=4) in;
+struct Particle { vec4 position; vec4 velocity; vec4 predicted; vec4 correction; vec4 constraint; };
+layout(set=0,binding=0,std430) readonly restrict buffer Particles { Particle p[]; };
+layout(BEER_FIELD_FORMAT,set=0,binding=1) uniform restrict writeonly image3D field;
+layout(push_constant,std430) uniform Params { vec4 low; vec4 extent; vec4 control; } u;
+layout(set=0,binding=2,std430) readonly restrict buffer Bins { uint bits[]; };
+shared uint neighbour_count;
+shared uint neighbours[512];
+void main() {
+    ivec3 c=ivec3(gl_GlobalInvocationID), size=imageSize(field);
+    // Every tile is still dispatched, clearing even previously occupied tiles.
+    uint tile=(gl_WorkGroupID.z*gl_NumWorkGroups.y+gl_WorkGroupID.y)*gl_NumWorkGroups.x+gl_WorkGroupID.x;
+    if(gl_LocalInvocationIndex==0) {
+        neighbour_count=0;
+        for(uint word=0;word<16u;word++) {
+            uint mask=bits[tile*16u+word];
+            while(mask!=0u) {
+                uint bit=uint(findLSB(mask));
+                neighbours[neighbour_count++]=word*32u+bit;
+                mask&=mask-1u;
+            }
+        }
+    }
+    barrier();
+    float radius=u.control.y;
+    if(any(greaterThanEqual(c,size))) return;
+    vec3 pos=u.low.xyz+(vec3(c)+0.5)/vec3(size)*u.extent.xyz;
+    float density=0.0, energy=0.0;
+    for(uint neighbour=0;neighbour<neighbour_count;neighbour++) {
+        uint i=neighbours[neighbour];
+        vec3 d=pos-p[i].position.xyz;
+        float r2=dot(d,d)/(radius*radius);
+        if(r2>=1.0) continue;
+        float w=pow(1.0-r2,3.0);
+        density+=w;
+        energy+=w*min(length(p[i].velocity.xyz)*0.07,1.0);
+    }
+    imageStore(field,c,vec4(density,energy/max(density,0.0001),0,1));
+}

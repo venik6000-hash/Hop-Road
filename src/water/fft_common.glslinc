@@ -1,0 +1,30 @@
+// Shared definitions for the FFT ocean (Tessendorf 2001, "Simulating Ocean
+// Water"; spectra after Horvath 2015, "Empirical directional wave spectra for
+// computer graphics").
+#define N 256u
+#define LOG2_N 8u
+const float PI = 3.14159265358979;
+const float TAU = 6.28318530717959;
+
+vec2 cmul(vec2 a, vec2 b) {
+	return vec2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x);
+}
+
+vec2 cconj(vec2 a) {
+	return vec2(a.x, -a.y);
+}
+
+// i * a
+vec2 ci(vec2 a) {
+	return vec2(-a.y, a.x);
+}
+
+// Combine the spectra of two real fields into one complex signal: A + iB.
+vec2 pack(vec2 a, vec2 b) {
+	return vec2(a.x - b.y, a.y + b.x);
+}
+
+// Wave vector of texel `id` in a centred spectrum of a tile `tile` metres wide.
+vec2 wave_vector(uvec2 id, float tile) {
+	return (vec2(id) - float(N / 2u)) * (TAU / tile);
+}

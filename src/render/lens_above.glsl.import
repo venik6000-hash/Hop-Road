@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://cy0swsv3xjgfj"
+path="res://.godot/imported/lens_above.glsl-0ae15a56a2d1cdc7fc3328c20e6d05d5.res"
+
+[deps]
+
+source_file="res://src/render/lens_above.glsl"
+dest_files=["res://.godot/imported/lens_above.glsl-0ae15a56a2d1cdc7fc3328c20e6d05d5.res"]
+
+[params]
+

@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://b2wuki6ohtvh"
+path="res://.godot/imported/sun_shadow_resolve.glsl-7a7cf632f3a8c69949ee86c84e48fc35.res"
+
+[deps]
+
+source_file="res://src/terrain/sun_shadow_resolve.glsl"
+dest_files=["res://.godot/imported/sun_shadow_resolve.glsl-7a7cf632f3a8c69949ee86c84e48fc35.res"]
+
+[params]
+

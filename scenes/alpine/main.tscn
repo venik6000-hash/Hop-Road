@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://dqyjtaehvoi6m"]
+
+[ext_resource type="Script" uid="uid://bnc2pkqptxapu" path="res://src/alpine/level.gd" id="1_level"]
+[ext_resource type="PackedScene" uid="uid://dd8gtgjb2show" path="res://assets/models/alpine/alpine_map.glb" id="2_map"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://scenes/alpine/lake_dragon.tscn" id="4_dragon"]
+
+[sub_resource type="StandardMaterial3D" id="ThresholdStone"]
+albedo_color = Color(0.63, 0.6, 0.51, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="ThresholdMesh"]
+material = SubResource("ThresholdStone")
+size = Vector3(2.6, 0.2, 1.25)
+
+[sub_resource type="BoxShape3D" id="ThresholdShape"]
+size = Vector3(2.6, 0.2, 1.25)
+
+[node name="AlpineValley" type="Node3D" unique_id=607665291]
+script = ExtResource("1_level")
+
+[node name="Map" parent="." unique_id=1265720651 instance=ExtResource("2_map")]
+
+[node name="PorchThreshold" type="MeshInstance3D" parent="." unique_id=1064446051]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 6.97, 0.15)
+mesh = SubResource("ThresholdMesh")
+
+[node name="Solid" type="StaticBody3D" parent="PorchThreshold" unique_id=1616886096]
+
+[node name="Surface" type="CollisionShape3D" parent="PorchThreshold/Solid" unique_id=1573999394]
+shape = SubResource("ThresholdShape")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=419914476]
+
+[node name="Player" parent="." unique_id=340682983 instance=ExtResource("3_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12, 15)
+
+[node name="Overview" type="Camera3D" parent="." unique_id=1454565010]
+far = 24000.0
+
+[node name="LakeDragon" parent="." instance=ExtResource("4_dragon")]

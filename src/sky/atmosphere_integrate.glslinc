@@ -1,0 +1,80 @@
+// Single-scattering integrator with an optional multiple-scattering term
+// (Hillaire 2020, section 5). Expects `transmittance_lut` to be declared,
+// and `multiscatter_lut` when USE_MULTISCATTER_LUT is defined.
+
+struct ScatterResult {
+	vec3 luminance;
+	vec3 multi_scatter_as_1;
+};
+
+vec2 multiscatter_uv(float r, float sun_zenith_cos) {
+	vec2 uv = vec2(sun_zenith_cos * 0.5 + 0.5, (r - R_GROUND) / (R_TOP - R_GROUND));
+	uv = clamp(uv, 0.0, 1.0);
+	return (uv * 31.0 + 0.5) / 32.0;
+}
+
+// isotropic: phase = 1/(4 pi) (multiple-scattering LUT pass).
+// ground: add the sun light bounced by the ground where the ray ends on it.
+ScatterResult integrate_scattering(vec3 origin, vec3 dir, vec3 sun_dir, int sample_count,
+		bool isotropic, bool ground, vec4 tune) {
+	ScatterResult result;
+	result.luminance = vec3(0.0);
+	result.multi_scatter_as_1 = vec3(0.0);
+	float t_bottom = ray_sphere(origin, dir, R_GROUND);
+	float t_top = ray_sphere(origin, dir, R_TOP);
+	float t_max;
+	if (t_bottom < 0.0) {
+		if (t_top < 0.0) {
+			return result;
+		}
+		t_max = t_top;
+	} else {
+		t_max = t_top > 0.0 ? min(t_top, t_bottom) : t_bottom;
+	}
+	bool ends_on_ground = t_bottom >= 0.0 && t_max == t_bottom;
+
+	float cos_theta = dot(sun_dir, dir);
+	float phase_r = rayleigh_phase(cos_theta);
+	float phase_m = mie_phase(cos_theta, MIE_G);
+	float t = 0.0;
+	vec3 throughput = vec3(1.0);
+	for (int i = 0; i < sample_count; i++) {
+		// Quadratic distribution: dense near the viewer where it matters.
+		float t0 = t_max * pow(float(i) / float(sample_count), 2.0);
+		float t1 = t_max * pow(float(i + 1) / float(sample_count), 2.0);
+		float dt = t1 - t0;
+		t = t0 + dt * 0.3;
+		vec3 p = origin + t * dir;
+		float r = length(p);
+		vec3 up = p / r;
+		Medium m = sample_medium(r - R_GROUND, tune);
+		vec3 extinction = max(m.extinction, vec3(1e-9));
+		vec3 step_transmittance = exp(-extinction * dt);
+
+		float sun_zenith_cos = dot(sun_dir, up);
+		vec3 sun_transmittance = texture(transmittance_lut, transmittance_uv(r, sun_zenith_cos)).rgb;
+		// The planet shadows points whose line to the sun passes through it.
+		float earth = ray_sphere(p, sun_dir, R_GROUND);
+		float shadow = earth >= 0.0 ? 0.0 : 1.0;
+
+		vec3 phase_scatter = isotropic ? m.scattering / (4.0 * PI) : m.rayleigh * phase_r + m.mie * phase_m;
+		vec3 multi = vec3(0.0);
+#ifdef USE_MULTISCATTER_LUT
+		multi = texture(multiscatter_lut, multiscatter_uv(r, sun_zenith_cos)).rgb * m.scattering;
+#endif
+		vec3 source = shadow * sun_transmittance * phase_scatter + multi;
+		// Analytic integration over the step (Hillaire 2015, energy conserving).
+		result.luminance += throughput * (source - source * step_transmittance) / extinction;
+		result.multi_scatter_as_1 += throughput * (m.scattering - m.scattering * step_transmittance) / extinction;
+		throughput *= step_transmittance;
+	}
+	if (ground && ends_on_ground) {
+		vec3 p = origin + t_bottom * dir;
+		float r = length(p);
+		vec3 up = p / r;
+		float sun_zenith_cos = dot(sun_dir, up);
+		vec3 sun_transmittance = texture(transmittance_lut, transmittance_uv(r, sun_zenith_cos)).rgb;
+		result.luminance += sun_transmittance * throughput * clamp(sun_zenith_cos, 0.0, 1.0) * GROUND_ALBEDO / PI;
+	}
+	return result;
+}

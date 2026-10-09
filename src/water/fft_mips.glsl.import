@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://ct3p0wt47gcut"
+path="res://.godot/imported/fft_mips.glsl-6ab502ef4ee8df6b1bb5cc65ab42ae0f.res"
+
+[deps]
+
+source_file="res://src/water/fft_mips.glsl"
+dest_files=["res://.godot/imported/fft_mips.glsl-6ab502ef4ee8df6b1bb5cc65ab42ae0f.res"]
+
+[params]
+

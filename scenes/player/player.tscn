@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/player/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://src/player/camera_rig.gd" id="2_rig"]
+[ext_resource type="PackedScene" path="res://scenes/player/beer_viewmodel.tscn" id="3_viewmodel"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 0.35
+height = 1.75
+
+[node name="Player" type="CharacterBody3D"]
+script = ExtResource("1_player")
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.875, 0)
+shape = SubResource("CapsuleShape3D_body")
+
+[node name="CameraRig" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+script = ExtResource("2_rig")
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig"]
+current = true
+fov = 62.0
+near = 0.05
+far = 700.0
+
+[node name="BeerViewmodel" parent="." instance=ExtResource("3_viewmodel")]

@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://bfbx1tsjlbfl0"
+path="res://.godot/imported/atmosphere_skyview.glsl-5774c0931363fc7b2fdc92f8324ae769.res"
+
+[deps]
+
+source_file="res://src/sky/atmosphere_skyview.glsl"
+dest_files=["res://.godot/imported/atmosphere_skyview.glsl-5774c0931363fc7b2fdc92f8324ae769.res"]
+
+[params]
+

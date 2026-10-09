@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://dijkqv1ssvgjj"
+path="res://.godot/imported/shore_state.glsl-6c4645306d9c90ea121b0ca4a8864a04.res"
+
+[deps]
+
+source_file="res://src/lakeside/shore_state.glsl"
+dest_files=["res://.godot/imported/shore_state.glsl-6c4645306d9c90ea121b0ca4a8864a04.res"]
+
+[params]
+

@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://l0jq285t8eqm"
+path="res://.godot/imported/fog_volume.glsl-c4c10488fb955ff2b3a2a7f79e319d28.res"
+
+[deps]
+
+source_file="res://src/weather/fog_volume.glsl"
+dest_files=["res://.godot/imported/fog_volume.glsl-c4c10488fb955ff2b3a2a7f79e319d28.res"]
+
+[params]
+

@@ -1,0 +1,33 @@
+// The terrain's height as its shaders see it (terrain_fields.gdshaderinc):
+// the 0.5 m near field fading into the 8 m far field over its outer 40 m.
+
+layout(set = 0, binding = 0) uniform sampler2D near_height;
+layout(set = 0, binding = 1) uniform sampler2D far_height;
+
+layout(push_constant, std430) uniform Params {
+	vec4 near_rect;    // heights: origin x, origin z, cell (m), samples
+	vec4 far_rect;
+	vec4 field_rect;   // the field being built: origin x, origin z, cell, samples
+	vec4 coarse_rect;  // the far field (w = 0 while it is the one being built)
+	vec4 sweep;        // xy toward the sun on the ground, z step (m), w its rise (m)
+	vec4 mode;         // x: 0 seed, 1 sweep; y: metres of path per metre of step
+} params;
+
+float near_weight(vec2 xz) {
+	vec2 local = (xz - params.near_rect.xy) / params.near_rect.z;
+	vec2 edge = min(local, vec2(params.near_rect.w - 1.0) - local) * params.near_rect.z;
+	return clamp(min(edge.x, edge.y) / 40.0, 0.0, 1.0);
+}
+
+float height_at(vec2 xz) {
+	float w = near_weight(xz);
+	float h = textureLod(far_height, ((xz - params.far_rect.xy) / params.far_rect.z + 0.5) / params.far_rect.w, 0.0).r;
+	if (w > 0.0) {
+		h = mix(h, textureLod(near_height, ((xz - params.near_rect.xy) / params.near_rect.z + 0.5) / params.near_rect.w, 0.0).r, w);
+	}
+	return h;
+}
+
+vec2 field_xz(ivec2 texel) {
+	return params.field_rect.xy + vec2(texel) * params.field_rect.z;
+}

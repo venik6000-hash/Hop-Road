@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://bswvaj060lvp1"
+path="res://.godot/imported/sun_shadow_sweep.glsl-0657df565cd612556d4444f2b6513d35.res"
+
+[deps]
+
+source_file="res://src/terrain/sun_shadow_sweep.glsl"
+dest_files=["res://.godot/imported/sun_shadow_sweep.glsl-0657df565cd612556d4444f2b6513d35.res"]
+
+[params]
+

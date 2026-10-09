@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://covliesrbsfbg"
+path="res://.godot/imported/lens_post.glsl-e8f2456aaeccfd7309a859d55e16a1e0.res"
+
+[deps]
+
+source_file="res://src/render/lens_post.glsl"
+dest_files=["res://.godot/imported/lens_post.glsl-e8f2456aaeccfd7309a859d55e16a1e0.res"]
+
+[params]
+

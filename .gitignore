@@ -1,0 +1,7 @@
+# Godot: import cache, rebuilt when the project is first opened
+.godot/
+*.translation
+export_presets.cfg
+
+# macOS
+.DS_Store

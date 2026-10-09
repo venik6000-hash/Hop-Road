@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://cvc7avvte1lxg"
+path="res://.godot/imported/particle_fluid.glsl-b3722cc8920a06ea3824fafa61455cec.res"
+
+[deps]
+
+source_file="res://src/player/beer/particle_fluid.glsl"
+dest_files=["res://.godot/imported/particle_fluid.glsl-b3722cc8920a06ea3824fafa61455cec.res"]
+
+[params]
+

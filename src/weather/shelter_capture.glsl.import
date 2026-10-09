@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://bp86u7815uqqy"
+path="res://.godot/imported/shelter_capture.glsl-51e749b80db46940dabe6465e6b2b8db.res"
+
+[deps]
+
+source_file="res://src/weather/shelter_capture.glsl"
+dest_files=["res://.godot/imported/shelter_capture.glsl-51e749b80db46940dabe6465e6b2b8db.res"]
+
+[params]
+

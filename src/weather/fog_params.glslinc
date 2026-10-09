@@ -1,0 +1,45 @@
+layout(set = 0, binding = 0, std140) uniform Params {
+	mat4 inv_projection;  // NDC of the image (y down, as its rows run) -> view
+	mat4 camera;          // view -> world
+	vec4 size;            // xy: image size; view depth (m) = z / (raw depth + w)
+	vec4 range;           // x: far edge of the first slice (m), y: of the last, z: slices, w: frame noise 0..1
+	vec4 sun;             // xyz: direction to the sun, w: lake level (m)
+	vec4 sun_light;       // rgb: the sun's light (pi * irradiance), a: share of it a thick cloud takes
+	vec4 moon;            // xyz: direction to the moon, w: height the clouds' shadow is taken at (m)
+	vec4 moon_light;      // rgb: the moon's light, a: lightning's light 0..1
+	vec4 sky_light;       // rgb: sun radiance scale of the sky LUT, a: viewer radius (km)
+	vec4 haze;            // x: extinction at the lake level (1/m), y: scale height (m), w: rainbow strength
+	vec4 mist;            // x: extinction in the bank (1/m), y: its top above the ground (m), z: falloff above the top (m), w: how high above the lake it reaches (m)
+	vec4 rain;            // x: extinction under a rain cloud (1/m), y: the clouds' base (m), z: drops in the air 0..1, w: their extinction (1/m)
+	vec4 cloud;           // the sky's cloud_params: coverage, density, cumulus bias, darkness
+	vec4 drift;           // xy: the sky's cloud_offset (km), zw: the mist's drift (m)
+	vec4 shadow_rect;     // the far sun-shadow field: origin x, origin z, cell (m), samples (0: none)
+	vec4 height_rect;     // the far heightfield, the same
+	vec4 room_min;        // the building the fog stays out of; w: 1 when there is one
+	vec4 room_max;        // w: debug view
+	vec4 lit;             // x: lamps lit in the fog, y: 1 when the lake's mirror takes the fog beyond it, z: how high the lake's waves reach (m)
+	vec4 lamps[32];       // a lamp is two rows. xyz: where it is (m), w: the fog's scattering around it (1/m);
+	                      // rgb: what a metre of that fog sends on of its light, a: how far its light reaches (m)
+} p;
+
+const int MAX_LAMPS = 16;
+
+// Slice k of a column ends at slice_edge(k + 1) metres from the eye: the first
+// at range.x, each next one longer by the same factor, the last at range.y.
+float slice_edge(int k) {
+	return k <= 0 ? 0.0 : p.range.x * pow(p.range.y / p.range.x, float(k - 1) / (p.range.z - 1.0));
+}
+
+// Where along the slices a distance lies: 0 at the eye, k at slice_edge(k).
+float slice_of(float t) {
+	if (t <= p.range.x) {
+		return t / p.range.x;
+	}
+	return 1.0 + log(t / p.range.x) / log(p.range.y / p.range.x) * (p.range.z - 1.0);
+}
+
+// Interleaved gradient noise, a new pattern each frame for TAA to resolve.
+float frame_noise(vec2 pixel) {
+	pixel += p.range.w * vec2(47.0, 17.0) * 64.0;
+	return fract(52.9829189 * fract(dot(pixel, vec2(0.06711056, 0.00583715))));
+}

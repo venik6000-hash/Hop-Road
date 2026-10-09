@@ -1,0 +1,36 @@
+shader_type spatial;
+// Scanned ground plants of the village (VillageFlora): alpha-cut leaves that
+// take light from both sides, lean with the wind by their height, and vary a
+// little in tone from plant to plant (COLOR of the MultiMesh instance).
+render_mode cull_disabled, depth_draw_opaque;
+
+uniform sampler2D albedo_map : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D normal_map : hint_normal, filter_linear_mipmap, repeat_enable;
+uniform vec3 tint = vec3(1.0);
+// Metres the top of a plant of unit height sways.
+uniform float sway = 0.05;
+uniform float transmission = 0.35;
+
+varying vec3 tone;
+
+void vertex() {
+	vec3 world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	float stem = max(VERTEX.y, 0.0);
+	float gust = sin(TIME * 1.3 + world.x * 0.45 + world.z * 0.35) + 0.5 * sin(TIME * 2.9 + world.x * 1.7 - world.z * 1.3);
+	VERTEX.x += gust * stem * sway;
+	VERTEX.z += cos(TIME * 1.1 + world.z * 0.5) * stem * sway * 0.6;
+	tone = COLOR.rgb;
+}
+
+void fragment() {
+	vec4 c = texture(albedo_map, UV);
+	ALBEDO = c.rgb * tint * tone;
+	ALPHA = c.a;
+	ALPHA_SCISSOR_THRESHOLD = 0.45;
+	ALPHA_ANTIALIASING_EDGE = 0.3;
+	ROUGHNESS = 0.85;
+	SPECULAR = 0.25;
+	NORMAL_MAP = texture(normal_map, UV).rgb;
+	NORMAL_MAP_DEPTH = 0.7;
+	BACKLIGHT = c.rgb * tint * tone * transmission;
+}

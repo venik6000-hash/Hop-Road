@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/wildlife/lake_dragon.gd" id="1_flight"]
+[ext_resource type="PackedScene" path="res://assets/models/dragon/lake_dragon.glb" id="2_model"]
+
+[node name="LakeDragon" type="Node3D"]
+script = ExtResource("1_flight")
+
+[node name="Model" parent="." instance=ExtResource("2_model")]
+position = Vector3(0, -7.5, 0)
+scale = Vector3(2.5, 2.5, 2.5)

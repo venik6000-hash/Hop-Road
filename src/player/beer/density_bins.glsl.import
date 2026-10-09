@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://crx67r7lyj782"
+path="res://.godot/imported/density_bins.glsl-e3fad7981312191f5b42abc284b78f6b.res"
+
+[deps]
+
+source_file="res://src/player/beer/density_bins.glsl"
+dest_files=["res://.godot/imported/density_bins.glsl-e3fad7981312191f5b42abc284b78f6b.res"]
+
+[params]
+

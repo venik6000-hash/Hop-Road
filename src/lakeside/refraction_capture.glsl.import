@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://dvuan45wwostq"
+path="res://.godot/imported/refraction_capture.glsl-71ae4f3732b7cb2857be035574da1d34.res"
+
+[deps]
+
+source_file="res://src/lakeside/refraction_capture.glsl"
+dest_files=["res://.godot/imported/refraction_capture.glsl-71ae4f3732b7cb2857be035574da1d34.res"]
+
+[params]
+

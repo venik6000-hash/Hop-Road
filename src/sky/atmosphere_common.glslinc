@@ -1,0 +1,110 @@
+// Physically based atmosphere, after Hillaire 2020, "A Scalable and
+// Production Ready Sky and Atmosphere Rendering Technique" (EGSR), and
+// Bruneton 2017 for the transmittance parameterisation. Distances in km,
+// coefficients per km. The planet's up axis is +Y (Godot convention).
+
+const float PI = 3.14159265358979;
+const float R_GROUND = 6360.0;
+const float R_TOP = 6460.0;
+const vec3 RAYLEIGH_SCATTERING = vec3(5.802, 13.558, 33.1) * 1e-3;
+const float RAYLEIGH_SCALE_HEIGHT = 8.0;
+const float MIE_SCATTERING = 3.996e-3;
+const float MIE_ABSORPTION = 0.444e-3;
+const float MIE_SCALE_HEIGHT = 1.2;
+const float MIE_G = 0.8;
+const vec3 OZONE_ABSORPTION = vec3(0.650, 1.881, 0.085) * 1e-3;
+const vec3 GROUND_ALBEDO = vec3(0.3);
+
+// Tunables from the sky script: x = Rayleigh scale (sky blueness),
+// y = Mie scale (haze/turbidity), z = ozone scale, w = unused.
+struct Medium {
+	vec3 scattering;
+	vec3 extinction;
+	vec3 rayleigh;
+	float mie;
+};
+
+Medium sample_medium(float height_km, vec4 tune) {
+	float rayleigh_density = exp(-height_km / RAYLEIGH_SCALE_HEIGHT);
+	float mie_density = exp(-height_km / MIE_SCALE_HEIGHT);
+	float ozone_density = max(0.0, 1.0 - abs(height_km - 25.0) / 15.0);
+	Medium m;
+	m.rayleigh = RAYLEIGH_SCATTERING * rayleigh_density * tune.x;
+	m.mie = MIE_SCATTERING * mie_density * tune.y;
+	m.scattering = m.rayleigh + vec3(m.mie);
+	m.extinction = m.scattering + vec3(MIE_ABSORPTION * mie_density * tune.y) + OZONE_ABSORPTION * ozone_density * tune.z;
+	return m;
+}
+
+float rayleigh_phase(float cos_theta) {
+	return 3.0 / (16.0 * PI) * (1.0 + cos_theta * cos_theta);
+}
+
+// Cornette-Shanks, a better-behaved Henyey-Greenstein for aerosols.
+float mie_phase(float cos_theta, float g) {
+	float k = 3.0 / (8.0 * PI) * (1.0 - g * g) / (2.0 + g * g);
+	return k * (1.0 + cos_theta * cos_theta) / pow(max(1.0 + g * g - 2.0 * g * cos_theta, 1e-4), 1.5);
+}
+
+// Nearest positive hit of a ray with a sphere at the origin; -1 if none.
+float ray_sphere(vec3 origin, vec3 dir, float radius) {
+	float b = dot(origin, dir);
+	float c = dot(origin, origin) - radius * radius;
+	float disc = b * b - c;
+	if (disc < 0.0) {
+		return -1.0;
+	}
+	float s = sqrt(disc);
+	float t0 = -b - s;
+	float t1 = -b + s;
+	if (t0 >= 0.0) {
+		return t0;
+	}
+	if (t1 >= 0.0) {
+		return t1;
+	}
+	return -1.0;
+}
+
+// Transmittance LUT: x = view-zenith cosine (via distance to the top), y = height.
+vec2 transmittance_uv(float r, float mu) {
+	float h = sqrt(R_TOP * R_TOP - R_GROUND * R_GROUND);
+	float rho = sqrt(max(0.0, r * r - R_GROUND * R_GROUND));
+	float disc = r * r * (mu * mu - 1.0) + R_TOP * R_TOP;
+	float d = max(0.0, -r * mu + sqrt(max(disc, 0.0)));
+	float d_min = R_TOP - r;
+	float d_max = rho + h;
+	return vec2((d - d_min) / (d_max - d_min), rho / h);
+}
+
+void transmittance_params(vec2 uv, out float r, out float mu) {
+	float h = sqrt(R_TOP * R_TOP - R_GROUND * R_GROUND);
+	float rho = h * uv.y;
+	r = sqrt(rho * rho + R_GROUND * R_GROUND);
+	float d_min = R_TOP - r;
+	float d_max = rho + h;
+	float d = d_min + uv.x * (d_max - d_min);
+	mu = d == 0.0 ? 1.0 : (h * h - rho * rho - d * d) / (2.0 * r * d);
+	mu = clamp(mu, -1.0, 1.0);
+}
+
+// Sky-view LUT: longitude = angle to the sun around the zenith, latitude
+// squeezed toward the horizon where the sky changes fastest.
+vec2 skyview_uv(float view_height, float view_zenith_cos, float light_view_cos, bool hits_ground, vec2 size) {
+	float v_horizon = sqrt(max(view_height * view_height - R_GROUND * R_GROUND, 0.0));
+	float cos_beta = v_horizon / view_height;
+	float beta = acos(clamp(cos_beta, -1.0, 1.0));
+	float zenith_horizon = PI - beta;
+	vec2 uv;
+	if (!hits_ground) {
+		float coord = acos(clamp(view_zenith_cos, -1.0, 1.0)) / zenith_horizon;
+		coord = 1.0 - sqrt(max(1.0 - coord, 0.0));
+		uv.y = coord * 0.5;
+	} else {
+		float coord = (acos(clamp(view_zenith_cos, -1.0, 1.0)) - zenith_horizon) / beta;
+		uv.y = sqrt(max(coord, 0.0)) * 0.5 + 0.5;
+	}
+	uv.x = sqrt(clamp(-light_view_cos * 0.5 + 0.5, 0.0, 1.0));
+	// Unit range to texel centres.
+	return (uv * (size - 1.0) + 0.5) / size;
+}

@@ -1,0 +1,2 @@
+# Baked data is keyed by file hashes: keep every file byte for byte on any OS
+* -text

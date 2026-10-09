@@ -1,0 +1,13 @@
+layout(set = 0, binding = 4, std140) uniform Params {
+	mat4 inv_projection;  // NDC (depth-corrected) -> view
+	mat4 camera;          // view -> world
+	vec4 surface;         // x: calm water level, y: 1 = lens far above every crest (skip the water), w: near plane (m)
+	vec4 tiles;           // cascade tile sizes (m)
+	vec4 weights;         // cascade weights times the local wave scale
+	vec4 extinction;      // rgb: 1/m, a: debug view
+	vec4 scatter;         // rgb: scattering coefficient b (1/m), a: meniscus half width (m)
+	vec4 sun;             // xyz: direction to the sun, w: viewer radius (km)
+	vec4 sun_scale;       // rgb: sun radiance scale, a: vignette strength
+	vec4 size;            // xy: image size, zw: 1 / size
+} p;
+
