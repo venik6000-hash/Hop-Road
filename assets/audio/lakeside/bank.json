@@ -1,0 +1,123 @@
+{
+  "step_grass": [
+    "step_grass_0.wav",
+    "step_grass_1.wav",
+    "step_grass_2.wav",
+    "step_grass_3.wav",
+    "step_grass_4.wav"
+  ],
+  "step_rock": [
+    "step_rock_0.wav",
+    "step_rock_1.wav",
+    "step_rock_2.wav",
+    "step_rock_3.wav",
+    "step_rock_4.wav"
+  ],
+  "step_sand": [
+    "step_sand_0.wav",
+    "step_sand_1.wav",
+    "step_sand_2.wav",
+    "step_sand_3.wav",
+    "step_sand_4.wav"
+  ],
+  "step_wood": [
+    "step_wood_0.wav",
+    "step_wood_1.wav",
+    "step_wood_2.wav",
+    "step_wood_3.wav",
+    "step_wood_4.wav"
+  ],
+  "step_water": [
+    "step_water_0.wav",
+    "step_water_1.wav",
+    "step_water_2.wav",
+    "step_water_3.wav",
+    "step_water_4.wav"
+  ],
+  "swim": [
+    "swim_0.wav",
+    "swim_1.wav",
+    "swim_2.wav",
+    "swim_3.wav"
+  ],
+  "uw_swim": [
+    "uw_swim_0.wav",
+    "uw_swim_1.wav",
+    "uw_swim_2.wav",
+    "uw_swim_3.wav"
+  ],
+  "submerge": [
+    "submerge_0.wav",
+    "submerge_1.wav"
+  ],
+  "emerge": [
+    "emerge_0.wav"
+  ],
+  "pier_lap": [
+    "pier_lap_loop.wav"
+  ],
+  "boat_lap": [
+    "boat_lap_loop.wav"
+  ],
+  "splash": [
+    "splash_0.wav",
+    "splash_1.wav",
+    "splash_2.wav",
+    "splash_3.wav"
+  ],
+  "plop": [
+    "plop_0.wav",
+    "plop_1.wav"
+  ],
+  "rod_swish": [
+    "rod_swish_0.wav",
+    "rod_swish_1.wav",
+    "rod_swish_2.wav",
+    "rod_swish_3.wav",
+    "rod_swish_4.wav"
+  ],
+  "reel_wind": [
+    "reel_wind_loop.wav"
+  ],
+  "fish_splash": [
+    "fish_splash_0.wav",
+    "fish_splash_1.wav",
+    "fish_splash_2.wav",
+    "fish_splash_3.wav",
+    "fish_splash_4.wav"
+  ],
+  "fish_flop": [
+    "fish_flop_0.wav",
+    "fish_flop_1.wav",
+    "fish_flop_2.wav",
+    "fish_flop_3.wav"
+  ],
+  "bird_forest": [
+    "bird_forest_0.wav",
+    "bird_forest_1.wav",
+    "bird_forest_2.wav",
+    "bird_forest_3.wav",
+    "bird_forest_4.wav",
+    "bird_forest_5.wav",
+    "bird_forest_6.wav",
+    "bird_forest_7.wav",
+    "bird_forest_8.wav",
+    "bird_forest_9.wav",
+    "bird_forest_10.wav",
+    "bird_forest_11.wav",
+    "bird_forest_12.wav"
+  ],
+  "bird_dove": [
+    "bird_dove_0.wav",
+    "bird_dove_1.wav",
+    "bird_dove_2.wav",
+    "bird_dove_3.wav",
+    "bird_dove_4.wav"
+  ],
+  "crickets": [
+    "crickets_loop.wav"
+  ],
+  "wind": [
+    "wind_loop.wav"
+  ]
+}

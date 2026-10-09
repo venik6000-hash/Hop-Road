@@ -1,0 +1,41 @@
+{
+ "water_level": 0.72,
+ "far": {
+  "size": 2048,
+  "cell": 8.0,
+  "origin": [
+   -9000.0,
+   -9700.0
+  ],
+  "min": -58.833282470703125,
+  "max": 3464.3056640625
+ },
+ "near": {
+  "size": 2048,
+  "cell": 0.5,
+  "origin": [
+   -632.0,
+   -572.0
+  ],
+  "min": -49.834354400634766,
+  "max": 163.04367065429688
+ },
+ "masks": {
+  "size": 1024,
+  "cell": 1.0,
+  "origin": [
+   -632.0,
+   -572.0
+  ]
+ },
+ "minmax": {
+  "cell": 32.0,
+  "size": 512,
+  "origin": [
+   -9000.0,
+   -9700.0
+  ],
+  "layout": "levels of (min, max) float32 pairs, 512^2 then halving to 1^2"
+ },
+ "convention": "sample [row z][column x] sits at origin + (x, z) * cell; float32 little-endian"
+}

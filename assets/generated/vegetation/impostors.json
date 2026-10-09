@@ -1,0 +1,81 @@
+{
+ "views": 8,
+ "slice_size": [
+  2048,
+  512
+ ],
+ "species": [
+  {
+   "name": "spruce_a",
+   "width_m": 11.2684,
+   "height_m": 22.5369,
+   "bottom_m": 0.0,
+   "tree_height_m": 22.095,
+   "crown_radius_m": 5.1432
+  },
+  {
+   "name": "spruce_b",
+   "width_m": 8.7095,
+   "height_m": 17.4189,
+   "bottom_m": 0.0,
+   "tree_height_m": 17.0774,
+   "crown_radius_m": 3.706
+  },
+  {
+   "name": "spruce_c",
+   "width_m": 13.81,
+   "height_m": 27.6199,
+   "bottom_m": 0.0,
+   "tree_height_m": 27.0784,
+   "crown_radius_m": 6.5382
+  },
+  {
+   "name": "fir_young",
+   "width_m": 3.6009,
+   "height_m": 7.2017,
+   "bottom_m": 0.0,
+   "tree_height_m": 4.573,
+   "crown_radius_m": 1.7651
+  },
+  {
+   "name": "beech_a",
+   "width_m": 17.615,
+   "height_m": 17.615,
+   "bottom_m": 0.0,
+   "tree_height_m": 17.2696,
+   "crown_radius_m": 7.1958
+  },
+  {
+   "name": "beech_b",
+   "width_m": 14.3683,
+   "height_m": 14.3683,
+   "bottom_m": 0.0,
+   "tree_height_m": 14.0866,
+   "crown_radius_m": 5.8525
+  },
+  {
+   "name": "pine_a",
+   "width_m": 10.3609,
+   "height_m": 20.7219,
+   "bottom_m": 0.0,
+   "tree_height_m": 20.3155,
+   "crown_radius_m": 4.6343
+  },
+  {
+   "name": "pine_b",
+   "width_m": 8.3373,
+   "height_m": 16.6746,
+   "bottom_m": 0.0,
+   "tree_height_m": 14.8085,
+   "crown_radius_m": 4.0869
+  },
+  {
+   "name": "pine_c",
+   "width_m": 8.9306,
+   "height_m": 17.8613,
+   "bottom_m": 0.0,
+   "tree_height_m": 17.4542,
+   "crown_radius_m": 4.3778
+  }
+ ]
+}

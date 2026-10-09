@@ -1,0 +1,823 @@
+{
+  "upstream_commit": "4811ba48d795197de5621985f404e765c0b7c0ef",
+  "files": [
+    {
+      "file": "step_grass.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/step_grass.ogg",
+      "sha256": "31be902e1ddf2530867d447cc3ae602a03c9aa60293d515f27359dbafd5ceb87",
+      "license": "CC0-1.0",
+      "slices": [
+        [
+          0.08,
+          0.304
+        ],
+        [
+          0.464,
+          0.3553
+        ],
+        [
+          0.8993,
+          0.284
+        ],
+        [
+          1.2633,
+          0.254
+        ],
+        [
+          1.5973,
+          0.2473
+        ]
+      ],
+      "converted": [
+        {
+          "file": "step_grass_0.wav",
+          "sha256": "ee3ffa8b6708433e10615bbe7363ac522769e5535b2323f514e744bd60918e2b"
+        },
+        {
+          "file": "step_grass_1.wav",
+          "sha256": "e7b599ab687ee2b7550876cec460fb5540e5b0f2017d5529478fbcb2a4cabc16"
+        },
+        {
+          "file": "step_grass_2.wav",
+          "sha256": "14e45a2a7711a692a0c4aac9709fb58b887b508bfeae889a2d078758c46db85c"
+        },
+        {
+          "file": "step_grass_3.wav",
+          "sha256": "59d6a437912f5865f060746e1c4b5448ebf1cb0dc69e66ca597df81987d79d73"
+        },
+        {
+          "file": "step_grass_4.wav",
+          "sha256": "9f68f51961f7bee13f078c8759f3e23d6e8b7aaebe570c42b2813355ef0ae7fa"
+        }
+      ]
+    },
+    {
+      "file": "step_rock.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/step_rock.ogg",
+      "sha256": "82b0a1bb6344b982c789988d99d9d324493ea0a1e7fd1668c0ca2081e8895157",
+      "license": "CC0-1.0",
+      "slices": [
+        [
+          0.08,
+          0.504
+        ],
+        [
+          0.664,
+          0.504
+        ],
+        [
+          1.248,
+          0.504
+        ],
+        [
+          1.832,
+          0.504
+        ],
+        [
+          2.416,
+          0.504
+        ]
+      ],
+      "converted": [
+        {
+          "file": "step_rock_0.wav",
+          "sha256": "06a9a08c5dfe8c8de2b5d4469a30326cfd5696b208457d5a86f34e4f5efd9cc7"
+        },
+        {
+          "file": "step_rock_1.wav",
+          "sha256": "be2c8f02d713cad5199273eba1e06c86e694f99c03c58fc38480b91735e1f7a5"
+        },
+        {
+          "file": "step_rock_2.wav",
+          "sha256": "23f4c8f60fb545b4357e3b1ef92a2525c727cba74bf35cf1f690e1a0a830e3cb"
+        },
+        {
+          "file": "step_rock_3.wav",
+          "sha256": "9ffb10abe21599fb0257dbef2b946efc33f5c13551576df65ec880387bba2400"
+        },
+        {
+          "file": "step_rock_4.wav",
+          "sha256": "0449483930a1ab3696063274124f8ea88baaed3a38750d0acd273e81906d8ecf"
+        }
+      ]
+    },
+    {
+      "file": "step_sand.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/step_sand.ogg",
+      "sha256": "3128efca52668d0aad8ec243963a691b969e2327c5c740f41c71fe624c96242e",
+      "license": "CC0-1.0",
+      "slices": [
+        [
+          0.08,
+          0.191
+        ],
+        [
+          0.351,
+          0.3153
+        ],
+        [
+          0.7463,
+          0.2237
+        ],
+        [
+          1.05,
+          0.516
+        ],
+        [
+          1.646,
+          0.436
+        ]
+      ],
+      "converted": [
+        {
+          "file": "step_sand_0.wav",
+          "sha256": "e3c23f606a7e2c969b42c5de0cef63a42a51ec8a453a62d72ab70a819437eaf8"
+        },
+        {
+          "file": "step_sand_1.wav",
+          "sha256": "040f1cd66e9ea49d0077cbfd581ccbf58eb8eff95e43040fd55a117031eb59b0"
+        },
+        {
+          "file": "step_sand_2.wav",
+          "sha256": "8be0734befe1f195e837880a6012e2bda18ad018ac5150a447c34ad29bb1865f"
+        },
+        {
+          "file": "step_sand_3.wav",
+          "sha256": "53ff37f7d95481bb18ee7052cf4bde63557ac39ae840ea51f4b9b43085e38c1a"
+        },
+        {
+          "file": "step_sand_4.wav",
+          "sha256": "a013c26250ee588e602060f61164c33310831d8761f11870aef10e3b7fb6fb37"
+        }
+      ]
+    },
+    {
+      "file": "step_wood.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/step_wood.ogg",
+      "sha256": "90cb5daf01a8f122bf0a08504f2216869008b0943e588c4bc637f1bd187210d8",
+      "license": "CC0-1.0",
+      "slices": [
+        [
+          0.08,
+          0.4267
+        ],
+        [
+          0.5867,
+          0.424
+        ],
+        [
+          1.0907,
+          0.424
+        ],
+        [
+          1.5947,
+          0.417
+        ],
+        [
+          2.0917,
+          0.4326
+        ]
+      ],
+      "converted": [
+        {
+          "file": "step_wood_0.wav",
+          "sha256": "f68d1e8162c797511fbc6515cbb83c67ffaa7ab26bca86c4092b90d7d7312b33"
+        },
+        {
+          "file": "step_wood_1.wav",
+          "sha256": "8b24f62aae91689fbb74721113b29a6288af98eba5a6dd12ed2c83ed201936a7"
+        },
+        {
+          "file": "step_wood_2.wav",
+          "sha256": "c5faa01ce14b5c8bac4467c74f2a6d0c3300ac97181b5e259f1c5aa90383de78"
+        },
+        {
+          "file": "step_wood_3.wav",
+          "sha256": "d8634aad03b47d8beedfd38218be5226abfe6d2b6caec5a630d7282bed4ed434"
+        },
+        {
+          "file": "step_wood_4.wav",
+          "sha256": "58188c756b411bcedd8e4ec144c2439273c3bec104bdaf44f6fcc0296f8a02a6"
+        }
+      ]
+    },
+    {
+      "file": "step_water.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/step_water.ogg",
+      "sha256": "e8b03fa5acd8d09286e1b3907b5c86dbcfaa6064afe59cb375a37b4abac7636e",
+      "license": "CC0-1.0",
+      "slices": [
+        [
+          0.08,
+          0.854
+        ],
+        [
+          1.014,
+          0.704
+        ],
+        [
+          1.798,
+          0.624
+        ],
+        [
+          2.502,
+          0.624
+        ],
+        [
+          3.206,
+          0.854
+        ]
+      ],
+      "converted": [
+        {
+          "file": "step_water_0.wav",
+          "sha256": "090590af073b51e5c2c5a059442611072439edecccc3cd43765a4c86a607f13f"
+        },
+        {
+          "file": "step_water_1.wav",
+          "sha256": "e6dcfc7b6541adc6ab3233b4cf39f1db2e327e097d3a7375313851f99e03bfe8"
+        },
+        {
+          "file": "step_water_2.wav",
+          "sha256": "66f44fe0befcad18067b4422da951aab7008a3b4996995f719b245c229d901b6"
+        },
+        {
+          "file": "step_water_3.wav",
+          "sha256": "ccf8c01efaac3b6933bd5a24f76bf364b5cd74a911d072c7a3edaa9b392cfb31"
+        },
+        {
+          "file": "step_water_4.wav",
+          "sha256": "3331449d8e7187dff0a811600575df9d2a0d1ac48a7416b941ca85450b8a5041"
+        }
+      ]
+    },
+    {
+      "file": "swim.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/swim.ogg",
+      "sha256": "cf45000f1b0ad2b0f330b2dde654a53ea64ce3484301d024c32bd57dd32bffdc",
+      "license": "CC0-1.0",
+      "slices": [
+        [
+          0.08,
+          0.754
+        ],
+        [
+          0.914,
+          0.5547
+        ],
+        [
+          1.5487,
+          0.604
+        ],
+        [
+          2.2327,
+          0.804
+        ]
+      ],
+      "converted": [
+        {
+          "file": "swim_0.wav",
+          "sha256": "c5d8d8256c02d1809e7b92d68d99aef56ede39dd08ec45ef902747f752069c0e"
+        },
+        {
+          "file": "swim_1.wav",
+          "sha256": "db899ea7a7b590501fd9987b666e65e99c53dcee9da0ee34e5e098c976f3d1ed"
+        },
+        {
+          "file": "swim_2.wav",
+          "sha256": "034a2e33bf1308c73ed31a3b1e77bb69b41bb4e3d1206651d6a8e22a7a91cacf"
+        },
+        {
+          "file": "swim_3.wav",
+          "sha256": "9d7fd09096bb6c17095a363b109ed6de78108e4ede5bbc8daef4464d398e97d5"
+        }
+      ]
+    },
+    {
+      "file": "uw_swim.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/uw_swim.ogg",
+      "sha256": "b52eae0e40747edb6f84e12f0bf62674e667004204cc35929182c73abd98b00f",
+      "license": "CC0-1.0",
+      "slices": [
+        [
+          0.08,
+          0.626
+        ],
+        [
+          0.786,
+          0.836
+        ],
+        [
+          1.702,
+          0.786
+        ],
+        [
+          2.568,
+          1.1053
+        ]
+      ],
+      "converted": [
+        {
+          "file": "uw_swim_0.wav",
+          "sha256": "aba42d9015c361c1da0cde3813f652f2f807a9ac0672f854538819fa669b639a"
+        },
+        {
+          "file": "uw_swim_1.wav",
+          "sha256": "b9886867523358fb518b9ac1ce4214b4db420062c5a428423beaa982e17eecd9"
+        },
+        {
+          "file": "uw_swim_2.wav",
+          "sha256": "7ebed6b2bb0bb59dd0d32edeb572c2cfb692a0bf95545f6f18dec7f3741e9a53"
+        },
+        {
+          "file": "uw_swim_3.wav",
+          "sha256": "61f67920d3ee4ee6b8400cbcabdc0d309705cb75ce6c27ccbb894917cc713a38"
+        }
+      ]
+    },
+    {
+      "file": "submerge.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/submerge.ogg",
+      "sha256": "56b2f265bb453da7daf1775ca9d2a9c3e6366758d0c0d906b791c4996bdd36c2",
+      "license": "CC0-1.0",
+      "slices": [
+        [
+          0.08,
+          0.804
+        ],
+        [
+          0.964,
+          0.754
+        ]
+      ],
+      "converted": [
+        {
+          "file": "submerge_0.wav",
+          "sha256": "5879539a19b98a4c0fa380e310e4eb32e621f26ff634f4f9779c07ce364cba5d"
+        },
+        {
+          "file": "submerge_1.wav",
+          "sha256": "e183dd967e7e39b0dc8da18d18a638d8eb4c03bcd618958a80c75ce4bbb9e777"
+        }
+      ]
+    },
+    {
+      "file": "emerge.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/emerge.ogg",
+      "sha256": "6b06f80b49a1dc03daa0ec0bc02e6a0b68c8d36c2af16cbaf0a9874bb4320759",
+      "license": "CC0-1.0",
+      "slices": [
+        [
+          0.08,
+          0.904
+        ]
+      ],
+      "converted": [
+        {
+          "file": "emerge_0.wav",
+          "sha256": "055d5e5473682f10a9405676622be78d88b84c64b3ecfd0d55d4c3f1feeab718"
+        }
+      ]
+    },
+    {
+      "file": "pier_lap.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/pier_lap.ogg",
+      "sha256": "e020be075543b148dfb2b47540a605c1a30d25e5d18206b945b949b96a32079a",
+      "license": "CC0-1.0",
+      "slices": [],
+      "converted": [
+        {
+          "file": "pier_lap_loop.wav",
+          "sha256": "6a34eeeb3171eb1e671abc5ea1a66bd37f67c5df82d4405dc7aa2f1dd60a1d14"
+        }
+      ]
+    },
+    {
+      "file": "boat_lap.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/boat_lap.ogg",
+      "sha256": "90c0b619f22842e8625520e36d6da6cad6d3cf21ade49c36a77d03ddcbde9bb8",
+      "license": "CC0-1.0",
+      "slices": [],
+      "converted": [
+        {
+          "file": "boat_lap_loop.wav",
+          "sha256": "11ce214a91e779018dfd200d9474ab68845e5bd30e3ef4557eff634b38764316"
+        }
+      ]
+    },
+    {
+      "file": "splash.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/splash.ogg",
+      "sha256": "9de4dab53ab34891dcfe14be3160c5cb6770364e007c83cec8d0d79065a49ee0",
+      "license": "CC0-1.0",
+      "slices": [
+        [
+          0.08,
+          1.604
+        ],
+        [
+          1.764,
+          2.2067
+        ],
+        [
+          4.0507,
+          2.2133
+        ],
+        [
+          6.344,
+          1.906
+        ]
+      ],
+      "converted": [
+        {
+          "file": "splash_0.wav",
+          "sha256": "20abd4f05b98e1bd05973608c787f63c6bd6a001aa932b6d06371613f4e7c1ef"
+        },
+        {
+          "file": "splash_1.wav",
+          "sha256": "2f11185088526fb6f33179fb04df574d106c28eff27dd58cd9fa5f4ea60f1c43"
+        },
+        {
+          "file": "splash_2.wav",
+          "sha256": "4e2fc49187fbe271a33eeb01cbfef93e0b399ddd2c7b1856ba5515cbc3bb3fd8"
+        },
+        {
+          "file": "splash_3.wav",
+          "sha256": "1c90aef9903fd6b3aa2e3f06acddd16e377a0e79c9302c44008bedfa377b6b25"
+        }
+      ]
+    },
+    {
+      "file": "plop.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/plop.ogg",
+      "sha256": "b648df37071652a2335aa34f3a73e03aeb3bd8201c26d65951ebac0779b6c6f7",
+      "license": "CC0-1.0",
+      "slices": [
+        [
+          0.08,
+          0.624
+        ],
+        [
+          0.784,
+          0.264
+        ]
+      ],
+      "converted": [
+        {
+          "file": "plop_0.wav",
+          "sha256": "10f872c53b14a16f7ecd0b2aae2799008320e7edc341ea2cb98d08e429590818"
+        },
+        {
+          "file": "plop_1.wav",
+          "sha256": "9873cc2443468bbc00f800e197b51ceba9345d859f691efd64ab3284fe5ef8b0"
+        }
+      ]
+    },
+    {
+      "file": "rod_swish.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/rod_swish.ogg",
+      "sha256": "5637f21cc6d11e6e16f1806997267117bb34e0a190277f2569c5ba8f1f234184",
+      "license": "CC0-1.0",
+      "slices": [
+        [
+          0.08,
+          0.404
+        ],
+        [
+          0.564,
+          0.4453
+        ],
+        [
+          1.0893,
+          0.604
+        ],
+        [
+          1.7733,
+          0.424
+        ],
+        [
+          2.2773,
+          0.604
+        ]
+      ],
+      "converted": [
+        {
+          "file": "rod_swish_0.wav",
+          "sha256": "8a30a454d9cc4d218472fed44c24597cbe8e0bdbf9e3fd855f06aa1c73af23d2"
+        },
+        {
+          "file": "rod_swish_1.wav",
+          "sha256": "796de9eabd32bf31ddc517b1c79ac92260d2bbf2fcc02e871d0dbddc5aa2a1c3"
+        },
+        {
+          "file": "rod_swish_2.wav",
+          "sha256": "ab1354948b3c0535479b589d5ed7ba6a3787683c33cd1dc354158097749bb54d"
+        },
+        {
+          "file": "rod_swish_3.wav",
+          "sha256": "9840373ce91aaeb35f4a9b0be1c823ba3e1e749acaaa29d3a7ba19e9a4b2edb1"
+        },
+        {
+          "file": "rod_swish_4.wav",
+          "sha256": "1d561923d1dc95193be83959294401bf7be0f55cd16ff6eb3990e80cde8a52be"
+        }
+      ]
+    },
+    {
+      "file": "reel_wind.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/reel_wind.ogg",
+      "sha256": "6783e26b193865bf0c143e61c0b1c63a18f554fd21e9ef6f4b9f5997fde0d61f",
+      "license": "CC0-1.0",
+      "slices": [],
+      "converted": [
+        {
+          "file": "reel_wind_loop.wav",
+          "sha256": "5db3abdea081570d406c483caae5861efe18518227b257f75a898f2ce7cc940c"
+        }
+      ]
+    },
+    {
+      "file": "fish_splash.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/fish_splash.ogg",
+      "sha256": "7c3b51bdf54b08bd53364aceb603c19e6e6c7f961f9d8f7385fac65d269e5897",
+      "license": "CC0-1.0",
+      "slices": [
+        [
+          0.08,
+          0.464
+        ],
+        [
+          0.624,
+          0.324
+        ],
+        [
+          1.028,
+          0.504
+        ],
+        [
+          1.612,
+          1.204
+        ],
+        [
+          2.896,
+          1.304
+        ]
+      ],
+      "converted": [
+        {
+          "file": "fish_splash_0.wav",
+          "sha256": "1de62bd6114d1683bffa5cdc2c21e0e974604d2db0b02911e6bcbc9d3b3327cb"
+        },
+        {
+          "file": "fish_splash_1.wav",
+          "sha256": "e6c3f098d171d0497c91e74f15d4ffe19c5c73222bbf76f515b833071337f086"
+        },
+        {
+          "file": "fish_splash_2.wav",
+          "sha256": "aebeca0ace2f4d07164665e65b12a8c0223719e13c621eafb6fca7f6b232b0a8"
+        },
+        {
+          "file": "fish_splash_3.wav",
+          "sha256": "31cfd8110025ad9c674e2c8b1f99bdb78fae83127b53b47ea260bfc9c25d375c"
+        },
+        {
+          "file": "fish_splash_4.wav",
+          "sha256": "f561c9c20c831d18dce471eaacf9bf2bf7c8370333b741ef4fa0617f39f5410e"
+        }
+      ]
+    },
+    {
+      "file": "fish_flop.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/fish_flop.ogg",
+      "sha256": "c1425bfbd966e387409f83c8c1aa16c8a553703957b24af46b4c863776eb0c87",
+      "license": "CC0-1.0",
+      "slices": [
+        [
+          0.08,
+          1.354
+        ],
+        [
+          1.514,
+          0.304
+        ],
+        [
+          1.898,
+          0.304
+        ],
+        [
+          2.282,
+          0.324
+        ]
+      ],
+      "converted": [
+        {
+          "file": "fish_flop_0.wav",
+          "sha256": "693fd0b10d4ae4a6de36a04962dbbb25de780ff13a985ae3e5fe73647957a8c4"
+        },
+        {
+          "file": "fish_flop_1.wav",
+          "sha256": "b9b97052482b41b74b978a8fb85ff552ff4c69545d44655ea1a4f422457a2349"
+        },
+        {
+          "file": "fish_flop_2.wav",
+          "sha256": "2775d093b93dd29746fa7b29e69bd9710facaa6f11a40a65019b0840b8998d23"
+        },
+        {
+          "file": "fish_flop_3.wav",
+          "sha256": "2261f21d0ff975bb73659300dab1d204ee12fb156ec8a170d3f757f4a4b05886"
+        }
+      ]
+    },
+    {
+      "file": "bird_forest.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/bird_forest.ogg",
+      "sha256": "a5368bcbbaae5b7521322f225cab99f644abab975c6c5db1a17b9232ada6f032",
+      "license": "CC0-1.0",
+      "slices": [
+        [
+          0.08,
+          1.47
+        ],
+        [
+          1.63,
+          1.45
+        ],
+        [
+          3.16,
+          1.23
+        ],
+        [
+          4.47,
+          1.59
+        ],
+        [
+          6.14,
+          1.55
+        ],
+        [
+          7.77,
+          1.38
+        ],
+        [
+          9.23,
+          1.16
+        ],
+        [
+          10.47,
+          1.3
+        ],
+        [
+          11.85,
+          1.12
+        ],
+        [
+          13.05,
+          1.45
+        ],
+        [
+          14.58,
+          1.99
+        ],
+        [
+          16.65,
+          1.2
+        ],
+        [
+          17.93,
+          1.06
+        ]
+      ],
+      "converted": [
+        {
+          "file": "bird_forest_0.wav",
+          "sha256": "10b2cdf49484982f969c357ec30905fb0525337dd0b1ee83f7e8341276cde999"
+        },
+        {
+          "file": "bird_forest_1.wav",
+          "sha256": "f25398cd213dc654d6b073f7071089481764318054c9b76d4c560bdda8d98228"
+        },
+        {
+          "file": "bird_forest_2.wav",
+          "sha256": "260781353254bdf5db869afbfd8cca8ff64a9850d5089eeeac1d12793d8a48c4"
+        },
+        {
+          "file": "bird_forest_3.wav",
+          "sha256": "cbbbf58451ddeb2d39e2ce988bb654a0ad8201264aae3f68686a38a9bfa23719"
+        },
+        {
+          "file": "bird_forest_4.wav",
+          "sha256": "c06c1703b67e1cce377d16f31d30f5804e93a2bb40d844e2e200c5160f1860c8"
+        },
+        {
+          "file": "bird_forest_5.wav",
+          "sha256": "99d3f2db86145e08c8d4ceae1af28eec2d5309cee26db57a0b5e1955af05fc0f"
+        },
+        {
+          "file": "bird_forest_6.wav",
+          "sha256": "e7af2ed45bbd46ed84b63c90643a9b39b27ab5b4f6c5a06c0e43d4052b6691f9"
+        },
+        {
+          "file": "bird_forest_7.wav",
+          "sha256": "bed1e57de5da4ef5c0963563722cf8aa1d070fd2f691fa56625dbe4974506db4"
+        },
+        {
+          "file": "bird_forest_8.wav",
+          "sha256": "286bd9236902605bac6cdf61a8b692dc80138fc823b94ee61e66c697231481ce"
+        },
+        {
+          "file": "bird_forest_9.wav",
+          "sha256": "dc353b589352716b8d5efa6fdb68973a5d7dcd9f143f62c05254b79c7c3dae1a"
+        },
+        {
+          "file": "bird_forest_10.wav",
+          "sha256": "5f52d00536799fbd379d739cb5610a575e6fdc8da9af5c19745002e0da40db63"
+        },
+        {
+          "file": "bird_forest_11.wav",
+          "sha256": "d922bdff4e15cecb956b3e615787bd1be6968c446166bdbf5b1bc816ffa37c85"
+        },
+        {
+          "file": "bird_forest_12.wav",
+          "sha256": "d7e162d8927014534dba10d071eaeac6b44811f2134748b32b10b2b944bf6972"
+        }
+      ]
+    },
+    {
+      "file": "bird_dove.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/bird_dove.ogg",
+      "sha256": "156f11da57c25ab4ee05af27a2d38f01195bad8283f1ee2424c0e6e185f7b6c9",
+      "license": "CC0-1.0",
+      "slices": [
+        [
+          0.08,
+          3.12
+        ],
+        [
+          3.28,
+          3.18
+        ],
+        [
+          6.54,
+          3.13
+        ],
+        [
+          9.75,
+          3.36
+        ],
+        [
+          13.19,
+          3.31
+        ]
+      ],
+      "converted": [
+        {
+          "file": "bird_dove_0.wav",
+          "sha256": "92490aa8db299cc0d8fd1eb959ab34c214fe273b14526005927a37c299b25f65"
+        },
+        {
+          "file": "bird_dove_1.wav",
+          "sha256": "0715983513c84ddbb3f09c2a77fb058748e3c7bdc05ee777ccb3e447db067cc9"
+        },
+        {
+          "file": "bird_dove_2.wav",
+          "sha256": "4a24e21441ffdb9c92c7324e5a530881c2b0a1d7603774114c8bd6ff293746d7"
+        },
+        {
+          "file": "bird_dove_3.wav",
+          "sha256": "e33565061fb3e5161231eb80b88f474f4796335f166655a52e65bf7ee609ce8a"
+        },
+        {
+          "file": "bird_dove_4.wav",
+          "sha256": "5a60057a2beabe06d05c32ca72a65ab47a8e97977667c2bcf0d17fc545e07e46"
+        }
+      ]
+    },
+    {
+      "file": "crickets.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/crickets.ogg",
+      "sha256": "01b41d7e8fc719373f77f41f3936e8ccfdfee4aadea1a1dd1120206b2115d76c",
+      "license": "CC0-1.0",
+      "slices": [],
+      "converted": [
+        {
+          "file": "crickets_loop.wav",
+          "sha256": "191fe9ba24947be53a02c6052e4dc8f5478b2cdd16894b94acac08239395a757"
+        }
+      ]
+    },
+    {
+      "file": "wind.ogg",
+      "url": "https://raw.githubusercontent.com/dgreenheck/tidewater/4811ba48d795197de5621985f404e765c0b7c0ef/public/audio/wind.ogg",
+      "sha256": "3e5d45f75364bf797f375061ed0232724e0570c1ff8f64c4c97498093e1789ec",
+      "license": "CC0-1.0",
+      "slices": [],
+      "converted": [
+        {
+          "file": "wind_loop.wav",
+          "sha256": "19e02d440535a906cd8a915ab77233df6da0dda59cc0d4d79440a65b90c93fac"
+        }
+      ]
+    }
+  ],
+  "conversion": "Mono PCM s16 WAV, 24 kHz; events split at upstream soundBank.js sprite boundaries; loops retained."
+}

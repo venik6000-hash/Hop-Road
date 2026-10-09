@@ -1,0 +1,13 @@
+{
+  "author": "Thomas Iche / Unity Labs Paris",
+  "license": "CC0 1.0",
+  "source": "https://unity.com/blog/engine-platform/free-vfx-image-sequences-flipbooks",
+  "download": "https://unity3d.com/files/labs/downloads/vfx/assets01/Flame03/Flame03-flipbooks.zip",
+  "archive_sha256": "248c2d09c6599ded36085633d4c7fdb9a9a05bdf1a98ab34b8f14d282cef87a9",
+  "layout": [
+    16,
+    4
+  ],
+  "frames": 64,
+  "conversion": "Uncompressed TGA to lossless PNG; original pixels unchanged"
+}

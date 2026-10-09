@@ -1,0 +1,4659 @@
+{
+	"compression": "S3TC (BC1/BC3) and RGTC with mipmaps",
+	"textures": [
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/1a94662323fea41aa5e45875686ca53c.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/1a94662323fea41aa5e45875686ca53c.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "62ad8b112d5f75aece7a3d4014613156523799b5d1a6ba153fe59591fec7e14b",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/anvil_Anvil_and_Stump_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/9e76b471acdc8260dbf13f090c03d22e.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/9e76b471acdc8260dbf13f090c03d22e.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "cc02e41b3d56f8fbc032f3fb88b2b16a3561445af3fe2e064b9d521083d3494e",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/anvil_Anvil_and_Stump_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/0c95183ddd2625dd4d38150e2faaf20e.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/0c95183ddd2625dd4d38150e2faaf20e.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "b9cbde7fa9591c8fe3d32ff32c72cee5adc7d30b43a833f5695fed2d2f368f3b",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/anvil_Anvil_and_Stump_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/ac8b918cd048c2c7df5e8da6022d0e9e.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/ac8b918cd048c2c7df5e8da6022d0e9e.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "37e6cdf9fb19216991ea9f3ba1a29b1e85fd2c18132c6b5eacd67f27fed9e258",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/axe_material_baseColor.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/908d51f30832a56aa6d2edda8fa84dc2.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/908d51f30832a56aa6d2edda8fa84dc2.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "47f6b6c58e255464aa45adf3365913f17d4c1d20282a45ecf8323a6df168ba65",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/axe_material_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/226048da78350df39def8e10dc27e4bb.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/226048da78350df39def8e10dc27e4bb.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "491f41e5c94ab2f03aa91567cb5cf60fc466346ce15d23988287307759ed17da",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/axe_material_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/b99843c016b9f8a84097ad06315db006.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/b99843c016b9f8a84097ad06315db006.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "fcbd1363474e81d12090c2e121daf666fdb162bee614b0d9805521b62e957d0d",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/barrel_Material.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/5d4381266ae8e0c1ceb6e71f66e1be56.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/5d4381266ae8e0c1ceb6e71f66e1be56.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "c4a5106d825ad4864ce751999ad39a834dfde8d3cbaa3f3235ca5a85500cdbeb",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/barrel_Material_1.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/e10be98d819b7b5145579095ec8070d6.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/e10be98d819b7b5145579095ec8070d6.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "693c93168f32ebe86c9d9425acde2c28e09beeca2eff3fb50ea1905b3386d3e5",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/basket_Scene_-_Root_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/low/193714c9299f7e95eb811694dedf040c.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 1398128,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/medium/193714c9299f7e95eb811694dedf040c.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "fe2cf0ece41b894825a565511e04112a597bf7263b038c37198be1c713941cff",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/basket_Scene_-_Root_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/95ca03bcfd77e3012205d952ece2b7d0.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/95ca03bcfd77e3012205d952ece2b7d0.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "d15a0024fad45eb015b281e5432fd235bf493e673056c805c59263aaa2f6aa99",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/basket_Scene_-_Root_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/c71de4dc91954c07c49bc8afef673cb8.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/c71de4dc91954c07c49bc8afef673cb8.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "b6a78dfe417b5a0fb3641ff0ebef860c825100ca4a023ff37093bae6b843ff03",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/bellows_Bellows_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/0b381ce32e9fe4cd55ef91987efcbf87.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/0b381ce32e9fe4cd55ef91987efcbf87.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "34c954701564ef1a36a5e285a006481ab32531415f20ac7a4d817d38e8ae63b1",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/bellows_Bellows_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/02be6bb4a6ff64538bfeacd6e2aa203b.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/02be6bb4a6ff64538bfeacd6e2aa203b.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "9f56d0cd05b1dba91b47fba79443a75c202574618dca8f62aa169398c878c4ed",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/bellows_Bellows_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/9dad4b384188021ff541b3a9dc86ef9d.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/9dad4b384188021ff541b3a9dc86ef9d.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "8f8de0d6b320606e5625b8f0755d357f266a99fa2226cbc6e9990e49de5312bb",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/bench_wooden_bench_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/low/ff494bfa89be03da4046dddf9c985c9f.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 1398128,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/medium/ff494bfa89be03da4046dddf9c985c9f.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "abd030154e2d5917f7654cede0bdfdc1d8c576638aa7489e4d78b3349a4e038f",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/bench_wooden_bench_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/999fc2173f959d4ab783dd80108588af.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/999fc2173f959d4ab783dd80108588af.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "461bc7855cd65887fd7c2e34b46ebde385535e4b75e18cf7be9586ef7197e7ca",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/bench_wooden_bench_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/835f5f9e3662ebd166817d5f00792a1f.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/835f5f9e3662ebd166817d5f00792a1f.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "bfb0500a0e45f25b0890a4ec01be80b534845274ffe4adf7e966afc2f859493c",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/bracken_material_baseColor.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/a88bd15e0f6b07f44d68d90943dbffc6.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/a88bd15e0f6b07f44d68d90943dbffc6.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "aa809aa2393654aa83dead7e6e4a3615cb2a56d89631c78644e177c8289bb5b0",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/branch_matNone_baseColor.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/7770d7c992fdcf8ad59e5e26b3ae5d93.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/7770d7c992fdcf8ad59e5e26b3ae5d93.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "ec12b891f018b26056b61b143afd3a5ae6dd6445df149a242f4404484cca9f24",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/branch_matNone_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/5db0abcacbedf5d4288e065e1a4cd1a2.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/5db0abcacbedf5d4288e065e1a4cd1a2.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "3286b8af748efe94c7bfabf92356a604c8f99ab52080184f5bf15c93ab12a271",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/branch_matNone_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/a81c487031efd595825335beb7a40227.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/a81c487031efd595825335beb7a40227.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "39d3ef04145a316bf20174f7da35d3d612fe8433fb74e5118e3c7e10648157d4",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/bucket_M_BucketAndWheel_baseColor.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/fa35a3a352df4d7575a69332c7de1983.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/fa35a3a352df4d7575a69332c7de1983.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "0870a34f13bc22bbf812496b30f24e750f96331aa507b9a96a4fed952b1fc0b6",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/bucket_M_BucketAndWheel_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/59b6985e2193cd718ab00310c035d643.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/59b6985e2193cd718ab00310c035d643.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "8379060dc09cc493e0d13fd094416a31a63f9bb63f8178aad0a68d6dde95af61",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/bucket_M_BucketAndWheel_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/3eea13ef3def873369c3294f77d0af25.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/3eea13ef3def873369c3294f77d0af25.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "17d306fcf9e1150779c4df6591dce491067f6760bada3bd152d37f00b495edb9",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/cheese_Brillat_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/ac0ba0e197a74e0a7a8e7e4fb55687fb.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/ac0ba0e197a74e0a7a8e7e4fb55687fb.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "ffc78ef102a8c3bc03789c68cf2421f6045f2815f96115a97658ec5eb4efa11b",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/cheese_Brillat_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 19,
+				"path": "res://assets/generated/texture_quality/low/a5f66f79dd6680fced4e2509e23dfd6e.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 1398128,
+				"format": 19,
+				"path": "res://assets/generated/texture_quality/medium/a5f66f79dd6680fced4e2509e23dfd6e.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "f0de138e8d7cf69a54db685d4ae8ee9925a2012da8f61ef8c7515605c5d41fb8",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/clover_Clover_material_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/2caa10881e888e0719978bcb6cc9eeeb.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/2caa10881e888e0719978bcb6cc9eeeb.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "246562e41fddf85901956eb92cab447320c49009de8fd83edeaa9ea8e081e1b9",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/clover_Clover_material_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/68ef3d84062c6dd19b7e5867af0b5c57.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/68ef3d84062c6dd19b7e5867af0b5c57.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "704f910f8b413153b4fd000910be4f4d23262adc7092d1be4f9627092f157226",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/clover_Clover_material_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/8ff74c895fa7b8101ace395efc98e4e9.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/8ff74c895fa7b8101ace395efc98e4e9.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "dd42560b7bc8bdf3e03672d903cea03599374617326905a23f3462279d8cd775",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/crate_openPBR_shader1_baseColor.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/51612e8fd6b5217115ce2924e278dcc0.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/51612e8fd6b5217115ce2924e278dcc0.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "e218a3e191c8f98480bbb07775d52444da2548cd30db828da2887abf7496a43d",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/crate_openPBR_shader1_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/421a10331aa49f8e5bbce5c5fdd329e6.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/421a10331aa49f8e5bbce5c5fdd329e6.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "a1c5a41fbec13da39706eec641917f08a0e1a79ac1f5d8e913066afa649facc2",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/crate_openPBR_shader1_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/990291bea6a46fa1c659941227c51399.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/990291bea6a46fa1c659941227c51399.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "56a8455ac284fd7d449487cb60a6b8c6bfb0c6c2c32fac96c1eabdbf7b6a3eb1",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/farm_cart_arava_baseColor.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/99fc9db81f664fed272584288c8629b3.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/99fc9db81f664fed272584288c8629b3.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "32c1b2f890e394028f1aca8004ab9334c91f908518b3b4680753f6e4be66b31a",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/farm_cart_arava_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/b5efdd40d9cb05d028a447101e3061c4.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/b5efdd40d9cb05d028a447101e3061c4.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "cc1c910db06b5cf91f40b5014a3bf05ccba431f9f64db7bbb9af3ece30f56cff",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/farm_cart_arava_normal.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/09d615b1cb970305f5968f349cdd22aa.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/09d615b1cb970305f5968f349cdd22aa.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "48a0cff02cc763ed7a5cb3be9193ec2b29d19311f82eae95611c988cb8864673",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/farm_cart_gildirak_baseColor.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/badd4de3a7fcef25a2a345abf04a98a1.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/badd4de3a7fcef25a2a345abf04a98a1.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "ec48f4e466e131945e133f91778423cadda2a7d834170cfbacc03a84a60cc66b",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/farm_cart_gildirak_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/9be41ad71b4f9210513652e80aa129d5.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/9be41ad71b4f9210513652e80aa129d5.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "e2de69dda3cc2310709f650719f49580f936a76ae5c65065537f80361d4cb79d",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/farm_cart_gildirak_normal.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/b5e93f7cafac4ce20b1536e3c9adfb39.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/b5e93f7cafac4ce20b1536e3c9adfb39.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "b406f3420b9e4dcccb5d014386ec348270abb140b205874da31d29f08dcede65",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/fence_Wood_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/3944eec9597e35049dd55b56da5044af.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/3944eec9597e35049dd55b56da5044af.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "b0de4c27f13b2895296e64d335a4d908e51668631574ab488afa487f384a8286",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/fence_Wood_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/b08e7a0e7aa34a4d66947bcdc22a67eb.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/b08e7a0e7aa34a4d66947bcdc22a67eb.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "aac0fe7b1b0fd5ba6b19a90b35a8847bfd2d636fa8da436ae2ccfc432ff32149",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/fence_Wood_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 19,
+				"path": "res://assets/generated/texture_quality/low/72fd9e7a4b9a372a1569142c349291af.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 1398128,
+				"format": 19,
+				"path": "res://assets/generated/texture_quality/medium/72fd9e7a4b9a372a1569142c349291af.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "48e1654458f2924532f3ce9d482bdcc0e4786d794e228aa6adbeeebe2935264b",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/fern_Polypodium_01a_diffuse.png"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 19,
+				"path": "res://assets/generated/texture_quality/low/edd04243f081c872393782d97b01bdf7.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 1398128,
+				"format": 19,
+				"path": "res://assets/generated/texture_quality/medium/edd04243f081c872393782d97b01bdf7.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "46e11f0d01cc3468092a9f3093ffdcf35487324b319abf1a9fdf97c24bf4d260",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/fern_Polypodium_01b_diffuse.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/ce3e61a8501ab95cd70f563e55198f4c.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/ce3e61a8501ab95cd70f563e55198f4c.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "4ff1758ed98c90f7bc22a75f71304001d269e4d1b71908eecdbae0406238200d",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/fern_Polypodium_01b_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 11016,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/ae31c0ce9e3fe8052aa76fc0e44f3543.res",
+				"size": [
+					32,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 43784,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/ae31c0ce9e3fe8052aa76fc0e44f3543.res",
+				"size": [
+					64,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 1398140,
+			"sha256": "b02ef60ed4f7c3e13040cbec2c356ab543db9674d4f3f7754473e9b1cc01733f",
+			"size": [
+				128,
+				2048
+			],
+			"source": "res://assets/models/village_pack/fern_Polypodium_root_diffuse.png"
+		},
+		{
+			"low": {
+				"bytes": 11016,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/5da9731c027eaedd8d2496226abf779a.res",
+				"size": [
+					32,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 43784,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/5da9731c027eaedd8d2496226abf779a.res",
+				"size": [
+					64,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 1398140,
+			"sha256": "fea6e29d748c003a989b00bae83cb0a960ae0ec71f5bb42470f5e71436147c73",
+			"size": [
+				128,
+				2048
+			],
+			"source": "res://assets/models/village_pack/fern_Polypodium_root_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/3700af1e63e32748c42b56339db85485.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/3700af1e63e32748c42b56339db85485.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "28f3af27d3dbf8b049a83cfad66a92c1ac2db5129d9a42eeb1ad949152ef525b",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/firewood_Material.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/952f2a828ca47e9699addae1534d1e3c.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/952f2a828ca47e9699addae1534d1e3c.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "378b92d5a3fb8a2c7bb5f37fb66de1ff6a296cd8063c45f1f856b2a91d8e82f5",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/firewood_Material_1.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/ab79e01b2086dc92b539138e5c41f9ae.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/ab79e01b2086dc92b539138e5c41f9ae.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "02a96e85e54b038b1281b7480abecd6cacdd701b595895a0d777e6f3f4cdb650",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/firewood_Material_2.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/f1b8d101a5ac1115121466b29c9e21db.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/f1b8d101a5ac1115121466b29c9e21db.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "e0a8e7a346d07c6d4905fa0ed9576519abe238f39a3df60760f338dc0de41576",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/forge_Forge_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/445018ebeaccbd9b51b1b3b33dc5de24.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/445018ebeaccbd9b51b1b3b33dc5de24.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "71f6e53247595daf8a63e3652b33877f95b29c6b614ca25a3bb89c32eea49798",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/forge_Forge_emissive.png"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/low/4546bd3b8abc9895d4be44c28f2bbda1.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 1398128,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/medium/4546bd3b8abc9895d4be44c28f2bbda1.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "16ab5d3bda97989507244afe1b683d2efe7fed23850fa395ba7240c34ce7f598",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/forge_Forge_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/115525f412d7d0a15125c9de23cc8b5b.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/115525f412d7d0a15125c9de23cc8b5b.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "8ea084e5144fa841511e78a73f0828cd48e2a59a1bef84953cc30e82263212dc",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/forge_Forge_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/6dcf8adc4e4eafe9dbf5a87cd50ee6fe.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/6dcf8adc4e4eafe9dbf5a87cd50ee6fe.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "df362f69ad3e92b0387d719779aa88a88afbd797b80e54fa49c5cd39b336c922",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/grain_Material_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/a4cfae238ccc17586255e1e1c73a8734.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/a4cfae238ccc17586255e1e1c73a8734.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "f0ef841425c74fb6a40be38a86c56928c18825a35810a2337761e4cd3e85fd6e",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/grain_Material_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/1982059d2a4fa688b3df478d0d2dcb62.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/1982059d2a4fa688b3df478d0d2dcb62.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "5d4502cab9c9c1255a4700e09e355a1892678671eb1f311ce6f5858453055f60",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/grain_Material_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/d3834f3647de88410aace458ff905eb1.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/d3834f3647de88410aace458ff905eb1.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "be811c482f05d52814e3820708f987375ccd682113438cb2e8932bb59b74721a",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/grindstone_Material.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/425a4b932482a0fc8564eb46d2ab4431.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/425a4b932482a0fc8564eb46d2ab4431.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "dafd6222a22b96072d9b6b94e720be9b94e7abd4e574b721b2626d1dae534638",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/grindstone_Material_1.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/01c811ac075b89397a79804bdcccaad8.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/01c811ac075b89397a79804bdcccaad8.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "c793476ad3e716dc18e7813e8460cd914fda7589436a48f53247cc73061b7252",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/grindstone_Material_2.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/a66c18a029e8d5d9ac7f633aa7219439.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/a66c18a029e8d5d9ac7f633aa7219439.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "98b56c69c2979aa1037fc7f7f8057711f2249e1dc2ce543684d16ee033d5b86a",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/handcart_Chariot_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/0bdbb8c5f6a7b5a1d967674c3f94535f.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/0bdbb8c5f6a7b5a1d967674c3f94535f.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "1e20bf20a05b245d62b83ea74e430126a8f077d908b7e65cd753296e44b7d1ab",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/handcart_Chariot_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/21f5c4a16831c31f5020fec81839039a.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/21f5c4a16831c31f5020fec81839039a.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "f16b9bd2e4a55d8b265886b412ab9952fcfcc3b5e00faa610e456f49df371456",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/handcart_Chariot_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 19,
+				"path": "res://assets/generated/texture_quality/low/6ea08bbf323c3dd90293d48bd0a0f7a5.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 1398128,
+				"format": 19,
+				"path": "res://assets/generated/texture_quality/medium/6ea08bbf323c3dd90293d48bd0a0f7a5.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "8eff5c28abcdfc2981bdac930c17c551b31f66b9480223e7d6ed9c294d37d581",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/hay_hay_bale_texture_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/fb3bdbbde9f3e3fe80d305cb012fb8f1.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/fb3bdbbde9f3e3fe80d305cb012fb8f1.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "4ed064abb74e43db5476a0c8877d8a702496daefd14bf72bf5c6712f66807665",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/hay_hay_bale_texture_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/df0aeb40ef30b62cb772e37938be9d61.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/df0aeb40ef30b62cb772e37938be9d61.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "5c569dec7a45d7fec9853a46df4cb9c34926394c8c3cf37c7d04e28c1bf73a35",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/hay_hay_bale_texture_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/1d3b97fb38c9900ed1c9865ba5f0298e.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/1d3b97fb38c9900ed1c9865ba5f0298e.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "c7f0c57112ce80799db1dde578f193cff461990dcfd6374fd49893070790a776",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/jug_initialShadingGroup_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/low/3ff15fc444afab6d1bbadc87e47dc0cd.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 1398128,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/medium/3ff15fc444afab6d1bbadc87e47dc0cd.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "ebc8d8f4cd59a1875e537b3536eadc801f632b00936fdcda5956518f6a566256",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/jug_initialShadingGroup_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/7c47e3b43a89ed7701b05621b266fa9b.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/7c47e3b43a89ed7701b05621b266fa9b.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "875cfd58268d25c33f11cdc973c444a3c1f11f4023c4fd0ae6943576c7805427",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/jug_initialShadingGroup_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/961cb45f495610b08af46c7793174465.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/961cb45f495610b08af46c7793174465.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "e30b3e9530189e609c2644dbe9dc5da1a85163fece047987fb983f0b53a11e75",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/log_ForestLogMedium_1_baseColor.jpg"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/low/992dbf92bcba53f50e922704ba4075d6.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 1398128,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/medium/992dbf92bcba53f50e922704ba4075d6.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "abb0ce9507f6de15881f187f494d2bffa923266fd20583686849a1c1b0e57eeb",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/log_ForestLogMedium_1_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/23904aaa217682063ba0751529b55f60.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/23904aaa217682063ba0751529b55f60.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "fc7421beb10c822b6b1552064c52c277080ab9ff89fcf3f1073d94f8c83821ba",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/log_ForestLogMedium_1_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/43b4ff609c8644fed6e3ed5efb2d8388.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/43b4ff609c8644fed6e3ed5efb2d8388.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "84aef6822bedcb9e2bceb9a8a225cacb5c9d521bbc901d641f1ad1febe45a6ee",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_Bottle.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/56636b26d471a834a2f0b606cde811ef.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/56636b26d471a834a2f0b606cde811ef.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "2d885d1e13b90706d5d2e9b2a6baf19cc4150b151f46cdca4a255c58aaa99077",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_Bottle_22.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/df6577dd0e27ca9d4481638bc0b8083e.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/df6577dd0e27ca9d4481638bc0b8083e.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "ea0ea434bcb13cfe0f0ccbd52591e381aa8d2ec5c8193bac15337a517bf326c0",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_Bottle_23.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/593752efdd113c9e5e423334c585cdbc.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/593752efdd113c9e5e423334c585cdbc.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "f16f670d085089a92282911073dd23b09bdd9475b7d4e7ec63a07d594ea3594f",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_dark_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/8d657fd449fdb9c9814e0ffaa7040021.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/8d657fd449fdb9c9814e0ffaa7040021.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "2aae3903aee43fd900d3c9eb70b6b5ae56ec5d1ddb28aced5bb91842dd0a44c1",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_dark_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/c544f7edc9b23192f580d24988363e8e.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/c544f7edc9b23192f580d24988363e8e.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "b3d7865498769a28ec967667538e8a0d401dcd69b269bb5368f67f2fa1cbc5d6",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_dark_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/d529b8844421c81eedf622f0d0978f7a.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/d529b8844421c81eedf622f0d0978f7a.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "b3f410627630154fb789f2087d6650787b031ef0d5fc310c6eb593eb9b201cc1",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_hatches_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/low/4ecf52ab70d8639cc2ba21f31e2fea94.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 1398128,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/medium/4ecf52ab70d8639cc2ba21f31e2fea94.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "7ff8823d5cab95e8d2998a84d3040c1a82813f3a6188dccf4cb0adb5c8541ea3",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_hatches_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/a8093330280be0a2fb91a1bd807124d5.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/a8093330280be0a2fb91a1bd807124d5.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "22fc6c1a506978e3f508f365e0722e6b6435f8808675ae552151be77384cb38c",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_hatches_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/be16e50bf4025948fb17965b4867f15e.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/be16e50bf4025948fb17965b4867f15e.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "00d971c495d467742fbd66328219a0a0e6c9d8c7c95caac12fb1b10210f9315f",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_main_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/9477b4b061fc9154c08cc93f712c5c56.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/9477b4b061fc9154c08cc93f712c5c56.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "7cee3c3011aad17265fdefc50c3abcf9650d5ce12ada5885bab3d6ba767e2885",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_main_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/da4882ab1ae6039814172184a34153b4.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/da4882ab1ae6039814172184a34153b4.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "6618e0244eb06235a392e2d4654238c01db2f099c95ae99f208afc751ebd4e24",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_main_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/e04ad961d8cdf29334eddd5edfa39e1b.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/e04ad961d8cdf29334eddd5edfa39e1b.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "73ae6a39c580dc859562fa27698b77ba7d07268eed95bc8fdd754bb086ddd0ab",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_metal_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/77c817f91457b25e5c9fdc92c9771d2b.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/77c817f91457b25e5c9fdc92c9771d2b.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "eb6a410f0e4489bdc78c8949897025b8bc3968c1713f69a3516675bf2a017de5",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_metal_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/ebe15e57b9aaa0e90f58fa23d2c7201b.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/ebe15e57b9aaa0e90f58fa23d2c7201b.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "ab59ef0f47d6e49dad19114b4cc3666512ee5f01f06c9b4bb4a6f0593ee18ebf",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_metal_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/edfa98cff93200e619dfdd09f05696c1.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/edfa98cff93200e619dfdd09f05696c1.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "0e42f845eb2a7f56a9ba6d6b7d9a011cf6d8a43b727c6a48d1c04149f5196bfe",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_roof_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/c4d4d3b464c555672c5d1a0da96e3ee1.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/c4d4d3b464c555672c5d1a0da96e3ee1.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "15bfeff313a7bee2aecd1c82fd5d862d020c72f8c3feb0f9a7a7a3f3b8f3eb6f",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_roof_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/ca1cc4f9bd0b0545919840070105f634.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/ca1cc4f9bd0b0545919840070105f634.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "9e92224f38a8a7976507790f0c9bf3aadfba31aa550f91af14fd44d3c312015a",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_roof_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/846a2195d829731e096a3b2061704b5b.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/846a2195d829731e096a3b2061704b5b.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "4b2936e8e21d283dc77404aa73dcb05cbd7f0dfdcd346b072e2914457fe12197",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_wheels_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/131f73d93df496c45d0347bdebd8ef59.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/131f73d93df496c45d0347bdebd8ef59.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "842de55c4e354020b5cffffa5f95909edaa96e1a26a2fce9b24f1f0b0142ae7f",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_wheels_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/1971bae480db942a30dfce61b59d4b5f.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/1971bae480db942a30dfce61b59d4b5f.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "6dd155490e252208e170bb3324979755a4b00c5f356e74878aa66d32183de441",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_wheels_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/ad052dcc42abe2764815045a31718509.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/ad052dcc42abe2764815045a31718509.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "db917f425040e702861bfd97a7de0f8b34aa9d8821d9395a253197017fb3556a",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_wood_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/low/349c37f58bf2546784891f72c0d7506f.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 1398128,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/medium/349c37f58bf2546784891f72c0d7506f.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "d841f22a0f829ee07e18e47c1e9f093e7484f793d92bfa1ff54de66973912aef",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_wood_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/c81b9d88ec4828a2d66306b37258ce56.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/c81b9d88ec4828a2d66306b37258ce56.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "02a193dae67033aa828e13e819c4d01c1b7220572e1ba5bbf93a15151874ed85",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/merchant_cart_wood_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/50f62a5de617cf2a62942542675796b8.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/50f62a5de617cf2a62942542675796b8.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "a6ec2723c3093c152177f9994bcce8b671eaa8e9fe703f21e0cb27913b5c66d0",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/pot_Material_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/be4338220d96e54824094ae1defcb8c5.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/be4338220d96e54824094ae1defcb8c5.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "9657e2244ce6b39ef930b131baf8e0a8e990565dcbcffd23f488022de3b84804",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/pot_Material_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/9935b31ae47020d64206f0ae030140f7.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/9935b31ae47020d64206f0ae030140f7.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "19e6e137ae95ed36fa51725d9e59340110a062a6cddd26ee701c9995e475389f",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/pot_Material_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/1790e0666bbe154d63970cfb131bbac1.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/1790e0666bbe154d63970cfb131bbac1.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "7393c9d9cbdfe345f5a009385976e28bc5a7f01b4ba472da00de8afb9bc47edc",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/quench_Quench_Trough_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/b3a8a19133cd8fc49c0286b814560f6b.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/b3a8a19133cd8fc49c0286b814560f6b.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "76afd7ab9d8ba4c94941e5df94dc9c99e660efa7a4b5d05e21212f88f4c21348",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/quench_Quench_Trough_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/b3cde63d98c74423e306a612126a0466.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/b3cde63d98c74423e306a612126a0466.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "e1c76afddf319a33a2aeacb609d71a4a4d064c2507c96fc04c2d47b4284f7d49",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/quench_Quench_Trough_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/3bbda144c1a825bc416570e19378622b.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/3bbda144c1a825bc416570e19378622b.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "052a2f4753f12b5bdaa271771a209a3f5f21e0298ccf8ed2b9b971cca8e7fbe2",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/rake_initialShadingGroup_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/low/4eba4716cb225346c7c05a5a1e402b35.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 1398128,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/medium/4eba4716cb225346c7c05a5a1e402b35.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "3a30631f8e23aa3910d21adb80e5fbd9750f50f52cf93dbe66b754e2a1752772",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/rake_initialShadingGroup_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/e54ad54bdbebbd125a7f1b925def9a53.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/e54ad54bdbebbd125a7f1b925def9a53.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "d856df6113d4385fd9f702ba5cda8141de18836c1592472cee599f30c7cdadbe",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/rake_initialShadingGroup_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/9591ee364b44825a63eaaba05b28135c.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/9591ee364b44825a63eaaba05b28135c.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "0eb7b2ccb2d5407cb3e8192d9dbbc8010cc95d0979c71d78a93015ec27f931f5",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/roots_material_baseColor.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/f920217e9360c3141125ec55b1c9873b.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/f920217e9360c3141125ec55b1c9873b.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "3f98f0f75d835f48047debe2b3c21ed5d45e9d206b013f2262dd4e9b833cbb44",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/sack_Closed_Burlap_Sack_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/3fdf69faca0cd46d154d5bdcf47e1e93.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/3fdf69faca0cd46d154d5bdcf47e1e93.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "ae05ec7fc804b1de4c5cd9e6d98997f83302dbebea258445540b4f7f822b69db",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/sack_Closed_Burlap_Sack_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/596d4bb08f9d28623c14e09ba8bee902.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/596d4bb08f9d28623c14e09ba8bee902.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "572c20648c00eaa1d626be5b38e812b669c5b1e1023d7bcbde383e07e588f227",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/sack_Closed_Burlap_Sack_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/b81d4b5b17f289e36a4c7109d02b6acc.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/b81d4b5b17f289e36a4c7109d02b6acc.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "c3c91318b74cc7fdca16b1ee4461148d2dc215961248391ba35927471978738b",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/shovel_shovel_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/292a882bba2640558b8b78aa31b066dc.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/292a882bba2640558b8b78aa31b066dc.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "b099b69c4255823d57eaf568ca3703e2356f2e5492fa0fa498e85cb760f62fad",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/shovel_shovel_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/80558cfb7d981762583bef56e27aed59.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/80558cfb7d981762583bef56e27aed59.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "9c3eb95acc738bb19fa002214bc1415f9056ff7e48161c33c8a09be70d3a78a4",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/shovel_shovel_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/ba1ad6ddc603e6ac889c47f7cde73536.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/ba1ad6ddc603e6ac889c47f7cde73536.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "20fa10aaa041f3bde263ff19a12b7322ab123baabec9e9059d1a2183fe3acb0c",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/stump_material_baseColor.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/3883c7b777eb21c6a9c2888e21c37444.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/3883c7b777eb21c6a9c2888e21c37444.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "02add01a64dd996d8011870515c052497864a88b1df0d91b41ed3b7636bed218",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/table_standardSurface1SG_baseColor.jpg"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/low/27baee08940854e76f22e841aad69e8a.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 1398128,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/medium/27baee08940854e76f22e841aad69e8a.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "dc16137d4b2238b42d02c645037e742304d57279edd0f8359d52a85274935919",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/table_standardSurface1SG_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/5492102791f576d57f11e8f103e45895.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/5492102791f576d57f11e8f103e45895.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "df329c5d2935305df10d782dff88aac62e878fb07fe3d18eb42037fe70270a6c",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/table_standardSurface1SG_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/a3c30f964a6ece380940b661a6badc34.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/a3c30f964a6ece380940b661a6badc34.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "842cf20e5e01af4a4b7071d8b05a9d27dc79ee46c3c398f74f2229d051fe175a",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/trough_1001_baseColor.jpg"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/low/91b50fda785380696eb8bff371a1b61c.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 1398128,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/medium/91b50fda785380696eb8bff371a1b61c.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "e93efad26744fadc91d689537502c3d8690956d081bc4f6cea4cdbaae1672166",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/trough_1001_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/6d08d0819c4edd8dbcd4bd9c0d58c712.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/6d08d0819c4edd8dbcd4bd9c0d58c712.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "5f4344a83cc9387d4886e158a8d24ec8dfca78dc5044f8cc09bef75d33255a5e",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/trough_1001_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/ea17bffbd837254bd52d38378c89f15c.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/ea17bffbd837254bd52d38378c89f15c.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"original_rgba_mip_bytes": 1398100,
+			"sha256": "c3ec5102a2874b035f13aac8ae51550f4120d3874f7c699c294fc9ce57a01350",
+			"size": [
+				512,
+				512
+			],
+			"source": "res://assets/models/village_pack/well_Material_4_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 87400,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/d31f2571d9546793f36493183961a0fa.res",
+				"size": [
+					256,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 349544,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/d31f2571d9546793f36493183961a0fa.res",
+				"size": [
+					512,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 2796204,
+			"sha256": "5a7aa8d4097bb8ac8f399bcfa21586df85210bd579acc6fc3259dc0d1ffe0e20",
+			"size": [
+				512,
+				1024
+			],
+			"source": "res://assets/models/village_pack/well_Material_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/41e76077f304ec57fbfbef63413a0c28.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/41e76077f304ec57fbfbef63413a0c28.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "39d3ef04145a316bf20174f7da35d3d612fe8433fb74e5118e3c7e10648157d4",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/wheel_M_BucketAndWheel_baseColor.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/2810dc419e06681bd737a2879131dab0.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/2810dc419e06681bd737a2879131dab0.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "0870a34f13bc22bbf812496b30f24e750f96331aa507b9a96a4fed952b1fc0b6",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/wheel_M_BucketAndWheel_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/d4c05758da2a1ea44e2d76e8e53ff720.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/d4c05758da2a1ea44e2d76e8e53ff720.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "8379060dc09cc493e0d13fd094416a31a63f9bb63f8178aad0a68d6dde95af61",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/wheel_M_BucketAndWheel_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/d1dafbb86a8bb3349c0380fab32f46d8.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/d1dafbb86a8bb3349c0380fab32f46d8.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "d4d0f206e77e26bbae1fbc5fde1b032c5a1e262fff647becd2411dcdf532b8a4",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/wine_barrel_barrel_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/6da369ff67a7e73d7c5fe3f8cccb2cdf.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/6da369ff67a7e73d7c5fe3f8cccb2cdf.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "1e6b2a2a5f3d1d976de0d2a4d519a7903370f12909f348f46160dd4a2a6b05d5",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/wine_barrel_barrel_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/02a9c87e0b84d42b890546c08ccd23df.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/02a9c87e0b84d42b890546c08ccd23df.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "45e51f81ad08d294ce474f45d769971911b13dda5773ca66b6515627f8cf9626",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/wine_barrel_barrel_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/143ccfc369d7b067414a99e52c69c4c5.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/143ccfc369d7b067414a99e52c69c4c5.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "e511fd97c5fa4b61b5f88fd8f8048d1735ade4a324b81d30d6cd08f3308158f2",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/woodpile_Firewood_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/f561557e14963b13b3f497fbb2602c11.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/f561557e14963b13b3f497fbb2602c11.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "2aad509da7c1d2b52b3459309719c506fdd38a6e9c31027bafff8f3f25767f5e",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/models/village_pack/woodpile_Firewood_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/eb1f51385685534f21380148cf177073.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/eb1f51385685534f21380148cf177073.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "55039ae61842666b044620decab8242e983d844b2f226bf8f34cfccc06ca3310",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/workbench_Workbench_baseColor.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/ca1ab713ec2222249bde696dc706c743.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/ca1ab713ec2222249bde696dc706c743.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "98352e7f6c9e0af39d0d5d88ffa3beb9d62aff41d18a8d46c9c1dc5b63f41ac6",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/workbench_Workbench_metallicRoughness.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/95b815073df165f66b266507b39aca4f.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/95b815073df165f66b266507b39aca4f.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "67e39ac9cfe95b3713268df4c9a6cc182b45b44fff109e305db42c115ad2c552",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/models/village_pack/workbench_Workbench_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/53bb6e9efb043f5770db5e051ae5f5f5.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/53bb6e9efb043f5770db5e051ae5f5f5.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "6bd86d37b3b9b40cc30a4b661e382ec41fa7463a8b1144ff44708b19fa675af1",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/bark_brown_02_arm_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/857b5b4801d0bc0a684d5e5c789cbc4f.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/857b5b4801d0bc0a684d5e5c789cbc4f.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "920fa0bed0c9d78c1d530e99795113afd532d7db746de440f4a85d7c83ed0f1a",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/bark_brown_02_diff_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/025a11ee8b664f91a35bf548a75a7823.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/025a11ee8b664f91a35bf548a75a7823.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "0d5e691e8ad8bcd093a3587887fda2a6b4a948b5708a4f256f7919584c6eb857",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/bark_brown_02_nor_gl_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/6b6039c55c22b4bd27ea17434c252996.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/6b6039c55c22b4bd27ea17434c252996.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "8f40d242830b2c1310470abfaf2df15f52658d01c21d97dd96f0679589677de1",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/brown_leather_arm_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/f4bd73dc2919b6006c3ccb29597ee1d5.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/f4bd73dc2919b6006c3ccb29597ee1d5.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "7e9e1d6566d1fd91d4ceb4966c4820361e85d53a7a828b6bab3b2a093a876cd1",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/brown_leather_diff_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/4a6e892ea6ae88f1fbaf23f033694730.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/4a6e892ea6ae88f1fbaf23f033694730.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "506a0b7650c2dea285e247f26ed2d0d6ec38fc10dd584359f0d203e9c082236d",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/brown_leather_nor_gl_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/8987cc671f8187bf9baa3876338bcff1.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/8987cc671f8187bf9baa3876338bcff1.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "c7d89d591dcc3691d28cec7eddb3a75126a1e0a49e9808b521c7c33450f9e50e",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/dirty_carpet_arm_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/79e6a09543d1520c1bfe50699412bd8b.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/79e6a09543d1520c1bfe50699412bd8b.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "b0ef2b248cb7dfa1d33f1b2215fb3b83e815527d4091a2c3a423bdcd63bef60a",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/dirty_carpet_diff_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/2b57ffb11797bb7d3d3effddfb09d63b.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/2b57ffb11797bb7d3d3effddfb09d63b.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "ba96f6f098ac64456f4cc310469200ff702596a9070d2553f990da8f7b86d29f",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/dirty_carpet_nor_gl_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/07067ce2665bb1252274048e0d736437.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/07067ce2665bb1252274048e0d736437.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "c87e8b0ed9cb84eb5e7a70db41979cfaa8669323b7f74d68948c03a889e87d1f",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/generated/tavern/grey_plaster_03_arm_2k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/5e9f535f77e318f478a7226a37e579dc.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/5e9f535f77e318f478a7226a37e579dc.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "5d0fa0b107b1fe6513701d3e2606cce25da4f0f1c4290dc063cd2c8f88196039",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/generated/tavern/grey_plaster_03_diff_2k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/a010f16322692354c8545d38ed635952.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/a010f16322692354c8545d38ed635952.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "c02be4797ae113e83899981986eefc0b4e6baa64b41a723bd26e639547603ba7",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/generated/tavern/grey_plaster_03_nor_gl_2k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/ff7435d3e351e6c5ba9e10480c709fa1.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 697016,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/ff7435d3e351e6c5ba9e10480c709fa1.res",
+				"size": [
+					1024,
+					1020
+				]
+			},
+			"original_rgba_mip_bytes": 5558620,
+			"sha256": "963ba03b3583a9dcc3a10181a9042de63aec019ee1a8a89c8be77d33a2f6b691",
+			"size": [
+				1024,
+				1018
+			],
+			"source": "res://assets/generated/tavern/hessian_230_arm_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/504912b2be23d0193f4768057a019b33.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 697016,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/504912b2be23d0193f4768057a019b33.res",
+				"size": [
+					1024,
+					1020
+				]
+			},
+			"original_rgba_mip_bytes": 5558620,
+			"sha256": "ef9ac1a0129b6d0f44b6d5beb68db7be7a0adf11e09fe52fd2cdc9370b27d4ba",
+			"size": [
+				1024,
+				1018
+			],
+			"source": "res://assets/generated/tavern/hessian_230_diff_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/4c92b49093f4975a64a0c9a5154f0999.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 697016,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/4c92b49093f4975a64a0c9a5154f0999.res",
+				"size": [
+					1024,
+					1020
+				]
+			},
+			"original_rgba_mip_bytes": 5558620,
+			"sha256": "6d5a6d23c880dbaae98477ed33dbd5d7c0eeda910a39319aec2d0014892974aa",
+			"size": [
+				1024,
+				1018
+			],
+			"source": "res://assets/generated/tavern/hessian_230_nor_gl_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 19,
+				"path": "res://assets/generated/texture_quality/low/09572d1eeb7312d5af8737390ab634ad.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 1398128,
+				"format": 19,
+				"path": "res://assets/generated/texture_quality/medium/09572d1eeb7312d5af8737390ab634ad.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "95ee02a980f2ef1d0e1338b3c936d6343d38e4fe7c5994e778437d75ff9ac17b",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/generated/tavern/plants_albedo.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/4e20a7ede952027701edd94821cd877e.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/4e20a7ede952027701edd94821cd877e.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "a02567c6e8e1c2b0ae210236a1b87b15c30ccad722fa3cd591df1a8812eb2e85",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/generated/tavern/plants_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/030c73409b2cc2b9e97a55fffe08a048.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/030c73409b2cc2b9e97a55fffe08a048.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5602644,
+			"sha256": "e1ca6b51ed62834063253e08f8f2e23836aa00d72675b960ddd8e608d9f0c7e6",
+			"size": [
+				1024,
+				1026
+			],
+			"source": "res://assets/generated/tavern/rough_linen_arm_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/ac4d693b8c5929710b2d61102b05e1cd.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/ac4d693b8c5929710b2d61102b05e1cd.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5602644,
+			"sha256": "04897d7611d7390ddf5b2c6f7273f448dfc48341fdbd1f4f207fa30b331d7f57",
+			"size": [
+				1024,
+				1026
+			],
+			"source": "res://assets/generated/tavern/rough_linen_diff_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/56543c0952812d26d8758e473a07100e.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/56543c0952812d26d8758e473a07100e.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5602644,
+			"sha256": "e2402166d1a489f7414814e69e1836ab672aa24e30bec2d41fea356f81687e53",
+			"size": [
+				1024,
+				1026
+			],
+			"source": "res://assets/generated/tavern/rough_linen_nor_gl_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/257e28dc873d8710fc232d361d0707a4.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/257e28dc873d8710fc232d361d0707a4.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "8fe2141ec4c5be039526aca6df676b23c0f760364279735a139f077bc649d65e",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/7786a03137b663c998eddd125174b6bd.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/7786a03137b663c998eddd125174b6bd.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "0d4eb2248bbef9637e6a9e6a636e93e3d533f5c434103eaa35f023f51444b81f",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/29819e2dd2b2ec99564f7267d6132c08.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/29819e2dd2b2ec99564f7267d6132c08.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "cac1933d0f981325eb8035c9d0df6a056de6fd4e60cc1a52eff42c47fedd6463",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/e7e13d054d9c25ffd7af6006ee7d455b.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/e7e13d054d9c25ffd7af6006ee7d455b.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "bd7597ff0d2d6682e6990a0204b67260c001cdffe01acf95e8f8b43881edb4af",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/generated/tavern/rough_wood_arm_2k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/bb26831405f2d85715f083bd83fc6b43.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/bb26831405f2d85715f083bd83fc6b43.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "0bd2b3195db9b54d55aa0f842801220ec5e1d389f5fc1e670b378bdaca3f8e7b",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/generated/tavern/rough_wood_diff_2k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/e6ce0949c6709a1ac26183303d9ff10f.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/e6ce0949c6709a1ac26183303d9ff10f.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "b75cb1e989407e442c3255f3e05ea8c40162c0e5dc2efc9ef2515fce61319194",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/f3da6201c510620ef2557793a7c01613.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/f3da6201c510620ef2557793a7c01613.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "a1843634545090d8b89052f0369a7d015d18758ff3e133d1b52487b4c5344dab",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/24ba4429aaaaeed6a9bb962b440a5cbd.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/24ba4429aaaaeed6a9bb962b440a5cbd.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "369f69eb86a7dcc4e5b6e30b1f3a4da5ce6ba50cf417de937efb4f09101f88d4",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/9dd2d6599e32ce6faa30eaf7e451c152.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/9dd2d6599e32ce6faa30eaf7e451c152.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "08ae69576b453b0970f5982d359897f09aae41c7cb18c19c02de37324160625c",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/e39bf1a2a8a6d8c029790b9557d526cb.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/e39bf1a2a8a6d8c029790b9557d526cb.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "a9097eddee7fa503f8baa0f19406a67796d1b9ef6ca4e33d5f4d49298ae48c5f",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/white_plaster_rough_01_arm_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/2122d401e1f36c4ede75704ea37a023f.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/2122d401e1f36c4ede75704ea37a023f.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "8d3b209ec5bbcee3db7a883c6c2eee982b7c18a268e6f43766ee540c7c28ebcb",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/white_plaster_rough_01_diff_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/8bc82034a256f5049e4a4a80143ea3ee.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/8bc82034a256f5049e4a4a80143ea3ee.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "f9d15f0adb27a3cbcffe11bea7a14d486d036b0251e01ec24c3ca0ae05aef54b",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/white_plaster_rough_01_nor_gl_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/9a550d105c6210ef6cec5a47f006fabe.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/9a550d105c6210ef6cec5a47f006fabe.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "b4f07c36a701bfd8dfe95e1fa836b32ae9dd5c0b4b73346cfdf5e1bacbb98435",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/wood_table_worn_arm_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/a30a3af98ff80800d4f142d3a0beff9e.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/a30a3af98ff80800d4f142d3a0beff9e.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "092ab3465a6a24b24d092ea86865f332c3bd239b8eb2fd664b70357082031a3f",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/wood_table_worn_diff_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/c4b663cc8f58890bc0b6df6b26530c22.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/c4b663cc8f58890bc0b6df6b26530c22.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "0d494f3fe08320a05f0f966a7a3ca3c4cd6e3f7cde5b176b9bc167b5593fd00d",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/wood_table_worn_nor_gl_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 142072,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/132889cd1cbba9f23b7b754b0299e150.res",
+				"size": [
+					416,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 565976,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/132889cd1cbba9f23b7b754b0299e150.res",
+				"size": [
+					828,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 6928564,
+			"sha256": "5a46c8ded370471c2f26a698e4b33abcaab59f823ead459b97c52297a096053b",
+			"size": [
+				1024,
+				1269
+			],
+			"source": "res://assets/generated/tavern/wool_boucle_arm_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 142072,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/f0237f6f5997e9757578ed381f3b5f04.res",
+				"size": [
+					416,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 565976,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/f0237f6f5997e9757578ed381f3b5f04.res",
+				"size": [
+					828,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 6928564,
+			"sha256": "fee39653b3c78efe89636508f2c10ceb38ecb10c0d735ae8dd4e9935cf26540e",
+			"size": [
+				1024,
+				1269
+			],
+			"source": "res://assets/generated/tavern/wool_boucle_diff_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 142072,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/6fec3698adb26a4ae7f3b8e0354db1f6.res",
+				"size": [
+					416,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 565976,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/6fec3698adb26a4ae7f3b8e0354db1f6.res",
+				"size": [
+					828,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 6928564,
+			"sha256": "2cc13a2be4d0bb942a59a86d613665c0d24ff201560daa4d841cee597af0c752",
+			"size": [
+				1024,
+				1269
+			],
+			"source": "res://assets/generated/tavern/wool_boucle_nor_gl_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/d3f01b9e6fa04e3e48bc0de2337228f3.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/d3f01b9e6fa04e3e48bc0de2337228f3.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "f45f946c6fab5feacef1e8aaf86011b93aab16c94a83416e988b946e507656ae",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/1350b05994ed79f894aa3ff93c13ce61.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/1350b05994ed79f894aa3ff93c13ce61.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "084e528a8b63684cf6cd9c9c1d44cef32a8f4c9e8404394a4a1a40c70cbf000d",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/d0967291a4288ae7ad2623be84b4242f.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/d0967291a4288ae7ad2623be84b4242f.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "51fb7b64eda0d68babd621c43a06d89300d789f27fbe63d917cd7b6ab93365cb",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg"
+		}
+	],
+	"tiers": {
+		"low": 512,
+		"medium": 1024
+	},
+	"totals": {
+		"low": 32170104,
+		"medium": 128135192,
+		"original_rgba_mip_bytes": 2879832144
+	},
+	"version": 1
+}
