@@ -7,35 +7,35 @@
  "species": [
   {
    "name": "spruce_a",
-   "width_m": 11.2684,
-   "height_m": 22.5369,
+   "width_m": 12.5244,
+   "height_m": 25.0489,
    "bottom_m": 0.0,
-   "tree_height_m": 22.095,
-   "crown_radius_m": 5.1432
+   "tree_height_m": 24.5577,
+   "crown_radius_m": 4.6131
   },
   {
    "name": "spruce_b",
-   "width_m": 8.7095,
-   "height_m": 17.4189,
+   "width_m": 8.9184,
+   "height_m": 17.8368,
    "bottom_m": 0.0,
-   "tree_height_m": 17.0774,
-   "crown_radius_m": 3.706
+   "tree_height_m": 17.487,
+   "crown_radius_m": 4.0369
   },
   {
    "name": "spruce_c",
-   "width_m": 13.81,
-   "height_m": 27.6199,
+   "width_m": 10.4965,
+   "height_m": 20.993,
    "bottom_m": 0.0,
-   "tree_height_m": 27.0784,
-   "crown_radius_m": 6.5382
+   "tree_height_m": 20.0015,
+   "crown_radius_m": 5.1453
   },
   {
    "name": "fir_young",
-   "width_m": 3.6009,
-   "height_m": 7.2017,
+   "width_m": 3.0306,
+   "height_m": 6.0611,
    "bottom_m": 0.0,
-   "tree_height_m": 4.573,
-   "crown_radius_m": 1.7651
+   "tree_height_m": 4.5045,
+   "crown_radius_m": 1.4856
   },
   {
    "name": "beech_a",
