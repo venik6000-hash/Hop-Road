@@ -156,7 +156,7 @@
  {
   "name": "square_trough_014",
   "asset": "trough",
-  "x": 14.0,
+  "x": 15.1,
   "z": -30.0,
   "size": 1.5,
   "yaw": -10.0,
@@ -167,8 +167,8 @@
  {
   "name": "square_bucket_015",
   "asset": "bucket",
-  "x": 12.6,
-  "z": -30.3,
+  "x": 14.3,
+  "z": -30.75,
   "size": 0.38,
   "yaw": 0.0,
   "lift": 0.0,
@@ -185,105 +185,6 @@
   "lift": 0.0,
   "solid": true,
   "zone": "square"
- },
- {
-  "name": "smithy_forge_017",
-  "asset": "forge",
-  "x": 16.5,
-  "z": -43.0,
-  "size": 2.8,
-  "yaw": 0.0,
-  "lift": 0.0,
-  "solid": true,
-  "zone": "smithy"
- },
- {
-  "name": "smithy_anvil_018",
-  "asset": "anvil",
-  "x": 15.0,
-  "z": -40.5,
-  "size": 1.0,
-  "yaw": 30.0,
-  "lift": 0.0,
-  "solid": true,
-  "zone": "smithy"
- },
- {
-  "name": "smithy_bellows_019",
-  "asset": "bellows",
-  "x": 18.5,
-  "z": -42.7,
-  "size": 1.9,
-  "yaw": 0.0,
-  "lift": 0.0,
-  "solid": true,
-  "zone": "smithy"
- },
- {
-  "name": "smithy_workbench_020",
-  "asset": "workbench",
-  "x": 19.0,
-  "z": -39.8,
-  "size": 2.2,
-  "yaw": 90.0,
-  "lift": 0.0,
-  "solid": true,
-  "zone": "smithy"
- },
- {
-  "name": "smithy_grindstone_021",
-  "asset": "grindstone",
-  "x": 13.1,
-  "z": -41.6,
-  "size": 1.25,
-  "yaw": 75.0,
-  "lift": 0.0,
-  "solid": true,
-  "zone": "smithy"
- },
- {
-  "name": "smithy_quench_022",
-  "asset": "quench",
-  "x": 16.8,
-  "z": -38.7,
-  "size": 1.2,
-  "yaw": 0.0,
-  "lift": 0.0,
-  "solid": true,
-  "zone": "smithy"
- },
- {
-  "name": "smithy_woodpile_023",
-  "asset": "woodpile",
-  "x": 19.0,
-  "z": -44.5,
-  "size": 1.8,
-  "yaw": -15.0,
-  "lift": 0.0,
-  "solid": true,
-  "zone": "smithy"
- },
- {
-  "name": "smithy_barrel_024",
-  "asset": "barrel",
-  "x": 20.0,
-  "z": -41.5,
-  "size": 1.0,
-  "yaw": 0.0,
-  "lift": 0.0,
-  "solid": true,
-  "zone": "smithy"
- },
- {
-  "name": "smithy_axe_025",
-  "asset": "axe",
-  "x": 19.0,
-  "z": -39.8,
-  "size": 0.55,
-  "yaw": 0.0,
-  "lift": 0.95,
-  "solid": false,
-  "zone": "smithy"
  },
  {
   "name": "farm_farm_cart_026",
@@ -530,8 +431,8 @@
  {
   "name": "yards_bucket_048",
   "asset": "bucket",
-  "x": 13.4,
-  "z": -47.7,
+  "x": 13.9,
+  "z": -48.9,
   "size": 0.45,
   "yaw": 45.0,
   "lift": 0.0,
@@ -618,10 +519,10 @@
  {
   "name": "yards_woodpile_056",
   "asset": "woodpile",
-  "x": -12.4,
-  "z": -51.0,
+  "x": -6.78,
+  "z": -85.27,
   "size": 1.4,
-  "yaw": 84.0,
+  "yaw": 91.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"
@@ -629,10 +530,10 @@
  {
   "name": "yards_barrel_057",
   "asset": "barrel",
-  "x": -12.0,
-  "z": -49.5,
+  "x": -6.5,
+  "z": -83.8,
   "size": 0.9,
-  "yaw": 100.0,
+  "yaw": 107.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"
@@ -640,10 +541,10 @@
  {
   "name": "yards_bucket_058",
   "asset": "bucket",
-  "x": -11.8,
-  "z": -50.2,
+  "x": -6.69,
+  "z": -82.87,
   "size": 0.45,
-  "yaw": 45.0,
+  "yaw": 52.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"
@@ -651,10 +552,10 @@
  {
   "name": "yards_sack_059",
   "asset": "sack",
-  "x": -11.9,
-  "z": -52.6,
+  "x": -6.98,
+  "z": -86.86,
   "size": 0.7,
-  "yaw": 15.0,
+  "yaw": 22.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"
@@ -662,10 +563,10 @@
  {
   "name": "yards_rake_060",
   "asset": "rake",
-  "x": -12.1,
-  "z": -52.0,
+  "x": -6.71,
+  "z": -86.29,
   "size": 1.5,
-  "yaw": 30.0,
+  "yaw": 37.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"
@@ -673,10 +574,10 @@
  {
   "name": "yards_woodpile_061",
   "asset": "woodpile",
-  "x": -11.65,
-  "z": -55.0,
+  "x": -1.58,
+  "z": -64.64,
   "size": 1.4,
-  "yaw": 107.0,
+  "yaw": -163.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"
@@ -684,10 +585,10 @@
  {
   "name": "yards_wine_barrel_062",
   "asset": "wine_barrel",
-  "x": -9.5,
-  "z": -55.0,
+  "x": -1.6,
+  "z": -66.8,
   "size": 0.9,
-  "yaw": 115.0,
+  "yaw": -155.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"
@@ -695,10 +596,10 @@
  {
   "name": "yards_basket_063",
   "asset": "basket",
-  "x": -9.8,
-  "z": -54.0,
+  "x": -0.6,
+  "z": -66.5,
   "size": 0.45,
-  "yaw": 45.0,
+  "yaw": 135.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"
@@ -706,10 +607,10 @@
  {
   "name": "yards_bench_064",
   "asset": "bench",
-  "x": -11.5,
-  "z": -53.8,
+  "x": -0.4,
+  "z": -64.8,
   "size": 1.6,
-  "yaw": 0.0,
+  "yaw": 90.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"
@@ -717,10 +618,10 @@
  {
   "name": "yards_shovel_065",
   "asset": "shovel",
-  "x": -12.3,
-  "z": -54.9,
+  "x": -1.45,
+  "z": -63.97,
   "size": 1.5,
-  "yaw": 30.0,
+  "yaw": 120.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"
@@ -728,10 +629,10 @@
  {
   "name": "yards_woodpile_066",
   "asset": "woodpile",
-  "x": 2.2,
-  "z": -52.5,
+  "x": 3.9,
+  "z": -52.0,
   "size": 1.4,
-  "yaw": 130.0,
+  "yaw": 40.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"
@@ -739,10 +640,10 @@
  {
   "name": "yards_barrel_067",
   "asset": "barrel",
-  "x": 2.3,
-  "z": -51.0,
+  "x": 2.4,
+  "z": -51.9,
   "size": 0.9,
-  "yaw": 130.0,
+  "yaw": 40.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"
@@ -750,10 +651,10 @@
  {
   "name": "yards_bucket_068",
   "asset": "bucket",
-  "x": 2.0,
-  "z": -50.1,
+  "x": 1.5,
+  "z": -52.2,
   "size": 0.45,
-  "yaw": 45.0,
+  "yaw": -45.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"
@@ -761,10 +662,10 @@
  {
   "name": "yards_sack_069",
   "asset": "sack",
-  "x": 2.2,
-  "z": -54.1,
+  "x": 5.5,
+  "z": -52.0,
   "size": 0.7,
-  "yaw": 15.0,
+  "yaw": -75.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"
@@ -772,10 +673,10 @@
  {
   "name": "yards_rake_070",
   "asset": "rake",
-  "x": 2.4,
-  "z": -53.5,
+  "x": 4.9,
+  "z": -51.8,
   "size": 1.5,
-  "yaw": 30.0,
+  "yaw": -60.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"
@@ -783,8 +684,8 @@
  {
   "name": "yards_woodpile_071",
   "asset": "woodpile",
-  "x": -6.6,
-  "z": -65.0,
+  "x": -4.2,
+  "z": -71.0,
   "size": 1.4,
   "yaw": 153.0,
   "lift": 0.0,
@@ -794,8 +695,8 @@
  {
   "name": "yards_wine_barrel_072",
   "asset": "wine_barrel",
-  "x": -6.6,
-  "z": -63.5,
+  "x": -4.2,
+  "z": -69.5,
   "size": 0.9,
   "yaw": 145.0,
   "lift": 0.0,
@@ -805,8 +706,8 @@
  {
   "name": "yards_basket_073",
   "asset": "basket",
-  "x": -6.4,
-  "z": -64.3,
+  "x": -4.0,
+  "z": -70.3,
   "size": 0.45,
   "yaw": 45.0,
   "lift": 0.0,
@@ -816,8 +717,8 @@
  {
   "name": "yards_bench_074",
   "asset": "bench",
-  "x": -5.5,
-  "z": -69.8,
+  "x": -3.1,
+  "z": -75.8,
   "size": 1.6,
   "yaw": 0.0,
   "lift": 0.0,
@@ -827,8 +728,8 @@
  {
   "name": "yards_shovel_075",
   "asset": "shovel",
-  "x": -6.7,
-  "z": -65.6,
+  "x": -4.3,
+  "z": -71.6,
   "size": 1.5,
   "yaw": 30.0,
   "lift": 0.0,
@@ -838,8 +739,8 @@
  {
   "name": "yards_woodpile_076",
   "asset": "woodpile",
-  "x": -9.7,
-  "z": -72.7,
+  "x": -5.0,
+  "z": -77.1,
   "size": 1.4,
   "yaw": 176.0,
   "lift": 0.0,
@@ -849,8 +750,8 @@
  {
   "name": "yards_barrel_077",
   "asset": "barrel",
-  "x": -9.6,
-  "z": -70.7,
+  "x": -4.9,
+  "z": -75.1,
   "size": 0.9,
   "yaw": 160.0,
   "lift": 0.0,
@@ -860,8 +761,8 @@
  {
   "name": "yards_bucket_078",
   "asset": "bucket",
-  "x": -9.7,
-  "z": -69.7,
+  "x": -5.0,
+  "z": -74.1,
   "size": 0.45,
   "yaw": 45.0,
   "lift": 0.0,
@@ -871,8 +772,8 @@
  {
   "name": "yards_sack_079",
   "asset": "sack",
-  "x": -9.8,
-  "z": -73.2,
+  "x": -5.1,
+  "z": -77.6,
   "size": 0.7,
   "yaw": 15.0,
   "lift": 0.0,
@@ -882,8 +783,8 @@
  {
   "name": "yards_rake_080",
   "asset": "rake",
-  "x": -10.1,
-  "z": -73.6,
+  "x": -5.4,
+  "z": -78.0,
   "size": 1.5,
   "yaw": 30.0,
   "lift": 0.0,
@@ -893,10 +794,10 @@
  {
   "name": "yards_woodpile_081",
   "asset": "woodpile",
-  "x": 11.0,
-  "z": -65.7,
+  "x": 14.5,
+  "z": -69.1,
   "size": 1.4,
-  "yaw": 199.0,
+  "yaw": -161.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"
@@ -904,8 +805,8 @@
  {
   "name": "yards_wine_barrel_082",
   "asset": "wine_barrel",
-  "x": 11.0,
-  "z": -64.3,
+  "x": 14.5,
+  "z": -67.7,
   "size": 0.9,
   "yaw": 175.0,
   "lift": 0.0,
@@ -915,8 +816,8 @@
  {
   "name": "yards_basket_083",
   "asset": "basket",
-  "x": 11.2,
-  "z": -64.8,
+  "x": 14.7,
+  "z": -68.2,
   "size": 0.45,
   "yaw": 45.0,
   "lift": 0.0,
@@ -926,8 +827,8 @@
  {
   "name": "yards_bench_084",
   "asset": "bench",
-  "x": 8.0,
-  "z": -68.5,
+  "x": 11.5,
+  "z": -71.9,
   "size": 1.6,
   "yaw": 0.0,
   "lift": 0.0,
@@ -937,8 +838,8 @@
  {
   "name": "yards_shovel_085",
   "asset": "shovel",
-  "x": 11.2,
-  "z": -66.2,
+  "x": 14.7,
+  "z": -69.6,
   "size": 1.5,
   "yaw": 30.0,
   "lift": 0.0,
@@ -948,10 +849,10 @@
  {
   "name": "yards_woodpile_086",
   "asset": "woodpile",
-  "x": 4.85,
-  "z": -80.0,
+  "x": 6.05,
+  "z": -82.6,
   "size": 1.4,
-  "yaw": 222.0,
+  "yaw": -138.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"
@@ -959,10 +860,10 @@
  {
   "name": "yards_barrel_087",
   "asset": "barrel",
-  "x": 7.0,
-  "z": -80.0,
+  "x": 8.2,
+  "z": -82.3,
   "size": 0.9,
-  "yaw": 190.0,
+  "yaw": -170.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"
@@ -970,8 +871,8 @@
  {
   "name": "yards_bucket_088",
   "asset": "bucket",
-  "x": 6.7,
-  "z": -79.0,
+  "x": 7.9,
+  "z": -81.6,
   "size": 0.45,
   "yaw": 45.0,
   "lift": 0.0,
@@ -981,8 +882,8 @@
  {
   "name": "yards_sack_089",
   "asset": "sack",
-  "x": 7.5,
-  "z": -79.4,
+  "x": 8.7,
+  "z": -82.0,
   "size": 0.7,
   "yaw": 15.0,
   "lift": 0.0,
@@ -992,8 +893,8 @@
  {
   "name": "yards_rake_090",
   "asset": "rake",
-  "x": 4.2,
-  "z": -79.9,
+  "x": 5.4,
+  "z": -82.5,
   "size": 1.5,
   "yaw": 30.0,
   "lift": 0.0,
@@ -1014,8 +915,8 @@
  {
   "name": "yards_handcart_092",
   "asset": "handcart",
-  "x": 4.0,
-  "z": -73.0,
+  "x": 6.9,
+  "z": -72.6,
   "size": 2.4,
   "yaw": 70.0,
   "lift": 0.0,
@@ -1025,8 +926,8 @@
  {
   "name": "yards_wheel_093",
   "asset": "wheel",
-  "x": 5.3,
-  "z": -73.0,
+  "x": 7.9,
+  "z": -73.4,
   "size": 1.0,
   "yaw": 90.0,
   "lift": 0.0,
@@ -1047,10 +948,10 @@
  {
   "name": "yards_pot_095",
   "asset": "pot",
-  "x": -10.5,
-  "z": -55.8,
+  "x": -1.88,
+  "z": -65.8,
   "size": 0.48,
-  "yaw": 0.0,
+  "yaw": 90.0,
   "lift": 0.0,
   "solid": true,
   "zone": "yards"

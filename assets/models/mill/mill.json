@@ -1,0 +1,1493 @@
+{
+ "title": "Mill",
+ "description": "Водяная мельница на скальной полке у большого водопада: каменный мучной этаж с передачей, дощатый этаж с жерновами и углом мельника, наливное колесо под выносом крыши, лоток по стене обрыва. Авторская геометрия на библиотеке таверны, её же CC0-сканы.",
+ "scenes": {
+  "shell": "res://assets/models/mill/mill.glb",
+  "interior": "res://assets/models/mill/mill_interior.glb"
+ },
+ "origin": [
+  -36.0,
+  6.7,
+  -121.5
+ ],
+ "yaw": 0.0,
+ "materials": {
+  "mill_flour": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_linen_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_linen_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_linen_arm_1k.jpg",
+   "tint": [
+    1.0,
+    0.98,
+    0.93
+   ],
+   "desaturate": 0.5,
+   "uv_scale": 0.12,
+   "roughness": 1.0,
+   "normal_strength": 0.5,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "mill_grain": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/hessian_230_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/hessian_230_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/hessian_230_arm_1k.jpg",
+   "tint": [
+    0.86,
+    0.7,
+    0.4
+   ],
+   "desaturate": 0.3,
+   "uv_scale": 0.08,
+   "roughness": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal_strength": 1.4
+  },
+  "mill_millstone": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "tint": [
+    0.95,
+    0.93,
+    0.88
+   ],
+   "desaturate": 0.7,
+   "albedo_gain": 1.12,
+   "uv_scale": 0.8,
+   "roughness": 1.0,
+   "normal_strength": 1.2,
+   "grime": 0.15,
+   "moss": 0.0
+  },
+  "mill_shingle": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.94,
+    0.92,
+    0.88
+   ],
+   "desaturate": 1.0,
+   "uv_scale": 1.0,
+   "roughness": 1.0,
+   "grime": 0.2,
+   "moss": 0.3,
+   "albedo_gain": 1.3,
+   "lichen": 0.3
+  },
+  "mill_wet_oak": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.4,
+    0.33,
+    0.24
+   ],
+   "desaturate": 0.85,
+   "uv_scale": 1.4,
+   "roughness": 0.78,
+   "grime": 0.5,
+   "moss": 0.4
+  },
+  "mill_wet_stone": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "tint": [
+    0.8,
+    0.84,
+    0.78
+   ],
+   "desaturate": 0.7,
+   "albedo_gain": 1.12,
+   "uv_scale": 1.6,
+   "roughness": 0.7,
+   "normal_strength": 1.2,
+   "grime": 0.75,
+   "moss": 0.9
+  },
+  "tav_board": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.7,
+    0.56,
+    0.42
+   ],
+   "desaturate": 0.85,
+   "uv_scale": 1.2,
+   "roughness": 1.0,
+   "grime": 0.2,
+   "moss": 0.0
+  },
+  "tav_candle": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "tint": [
+    0.95,
+    0.9,
+    0.76
+   ],
+   "desaturate": 1.0,
+   "albedo_gain": 1.5,
+   "uv_scale": 0.15,
+   "roughness": 0.55,
+   "normal_strength": 0.2,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_floor": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/wood_table_worn_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/wood_table_worn_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/wood_table_worn_arm_1k.jpg",
+   "tint": [
+    0.66,
+    0.55,
+    0.45
+   ],
+   "desaturate": 0.25,
+   "uv_scale": 1.5,
+   "roughness": 0.95,
+   "normal_strength": 1.0,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_glass": {
+   "shader": "glass",
+   "tint": [
+    0.86,
+    0.92,
+    0.88
+   ],
+   "alpha": 0.1,
+   "roughness": 0.04,
+   "wave": 0.05
+  },
+  "tav_iron": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "tint": [
+    0.34,
+    0.31,
+    0.29
+   ],
+   "desaturate": 0.7,
+   "uv_scale": 0.6,
+   "roughness": 0.9,
+   "metallic": 0.55,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_lantern_flame": {
+   "shader": "flame",
+   "color": [
+    1.0,
+    0.6,
+    0.24
+   ],
+   "energy": 3.5,
+   "wildness": 0.12,
+   "dusk_only": true,
+   "tint": [
+    1.0,
+    0.6,
+    0.3
+   ],
+   "emission": 6.0,
+   "emission_color": [
+    1.0,
+    0.6,
+    0.3
+   ]
+  },
+  "tav_leather": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/brown_leather_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/brown_leather_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/brown_leather_arm_1k.jpg",
+   "tint": [
+    0.9,
+    0.8,
+    0.7
+   ],
+   "desaturate": 0.2,
+   "uv_scale": 0.4,
+   "roughness": 0.8,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_linen": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_linen_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_linen_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_linen_arm_1k.jpg",
+   "tint": [
+    0.94,
+    0.91,
+    0.85
+   ],
+   "desaturate": 0.5,
+   "uv_scale": 0.35,
+   "roughness": 1.0,
+   "normal_strength": 0.8,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_oak": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.62,
+    0.43,
+    0.27
+   ],
+   "desaturate": 0.85,
+   "uv_scale": 1.4,
+   "roughness": 1.0,
+   "grime": 0.25,
+   "moss": 0.0
+  },
+  "tav_oak_end": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.42,
+    0.29,
+    0.19
+   ],
+   "desaturate": 0.85,
+   "uv_scale": 0.35,
+   "roughness": 1.0,
+   "grime": 0.2,
+   "moss": 0.0
+  },
+  "tav_oak_smooth": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/wood_table_worn_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/wood_table_worn_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/wood_table_worn_arm_1k.jpg",
+   "tint": [
+    0.92,
+    0.84,
+    0.78
+   ],
+   "desaturate": 0.1,
+   "uv_scale": 1.2,
+   "roughness": 0.9,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_paper": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_linen_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_linen_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_linen_arm_1k.jpg",
+   "tint": [
+    0.93,
+    0.86,
+    0.7
+   ],
+   "desaturate": 0.9,
+   "albedo_gain": 1.15,
+   "uv_scale": 0.3,
+   "roughness": 0.95,
+   "normal_strength": 0.2,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_plank": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.86,
+    0.74,
+    0.6
+   ],
+   "desaturate": 0.75,
+   "uv_scale": 1.1,
+   "roughness": 1.0,
+   "normal_strength": 0.9,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_rope": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/hessian_230_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/hessian_230_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/hessian_230_arm_1k.jpg",
+   "tint": [
+    0.7,
+    0.58,
+    0.42
+   ],
+   "desaturate": 0.5,
+   "uv_scale": 0.08,
+   "roughness": 1.0,
+   "normal_strength": 1.4,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_sack": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/hessian_230_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/hessian_230_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/hessian_230_arm_1k.jpg",
+   "tint": [
+    0.86,
+    0.76,
+    0.6
+   ],
+   "desaturate": 0.3,
+   "uv_scale": 0.3,
+   "roughness": 1.0,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_soot": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "tint": [
+    0.05,
+    0.045,
+    0.04
+   ],
+   "desaturate": 1.0,
+   "uv_scale": 0.5,
+   "roughness": 1.0,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_stone": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "tint": [
+    0.86,
+    0.86,
+    0.86
+   ],
+   "desaturate": 0.7,
+   "albedo_gain": 1.12,
+   "uv_scale": 1.6,
+   "roughness": 1.0,
+   "normal_strength": 1.2,
+   "grime": 0.55,
+   "moss": 0.35
+  },
+  "tav_wax": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "tint": [
+    0.97,
+    0.93,
+    0.8
+   ],
+   "desaturate": 1.0,
+   "albedo_gain": 1.35,
+   "uv_scale": 0.2,
+   "roughness": 0.55,
+   "normal_strength": 0.15,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_wool": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/wool_boucle_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/wool_boucle_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/wool_boucle_arm_1k.jpg",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "desaturate": 1.0,
+   "albedo_gain": 1.25,
+   "uv_scale": 0.3,
+   "roughness": 1.0,
+   "normal_strength": 0.9,
+   "grime": 0.0,
+   "moss": 0.0
+  }
+ },
+ "color_range": 2.0,
+ "lights": [
+  {
+   "name": "Door lantern",
+   "position": [
+    -5.03,
+    2.37,
+    2.27
+   ],
+   "type": "point",
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 1.5,
+   "range": 8.0,
+   "shadow": true,
+   "flicker": 0.12,
+   "night": 1.0,
+   "layer": "exterior",
+   "size": 0.05,
+   "speed": 0.8,
+   "sway": 0.0
+  },
+  {
+   "name": "Meal floor lantern",
+   "position": [
+    -0.8,
+    2.73,
+    0.55
+   ],
+   "type": "point",
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 1.2,
+   "range": 7.0,
+   "shadow": false,
+   "flicker": 0.12,
+   "night": 0.0,
+   "layer": "interior",
+   "size": 0.05,
+   "speed": 0.8,
+   "sway": 0.0
+  },
+  {
+   "name": "Gear lantern",
+   "position": [
+    -1.795,
+    2.73,
+    -0.3
+   ],
+   "type": "point",
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.8,
+   "range": 5.0,
+   "shadow": false,
+   "flicker": 0.12,
+   "night": 0.0,
+   "layer": "interior",
+   "size": 0.05,
+   "speed": 0.8,
+   "sway": 0.0
+  },
+  {
+   "name": "Stone floor lantern",
+   "position": [
+    -1.5,
+    5.77,
+    -2.6
+   ],
+   "type": "point",
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 1.2,
+   "range": 7.5,
+   "shadow": false,
+   "flicker": 0.12,
+   "night": 0.0,
+   "layer": "interior",
+   "size": 0.05,
+   "speed": 0.8,
+   "sway": 0.0
+  },
+  {
+   "name": "Miller lantern",
+   "position": [
+    0.62,
+    5.19,
+    0.36
+   ],
+   "type": "point",
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.9,
+   "range": 5.0,
+   "shadow": false,
+   "flicker": 0.12,
+   "night": 0.0,
+   "layer": "interior",
+   "size": 0.05,
+   "speed": 0.8,
+   "sway": 0.0
+  }
+ ],
+ "probes": [
+  {
+   "name": "meal_floor",
+   "position": [
+    -1.85,
+    1.63,
+    -1.05
+   ],
+   "extents": [
+    2.3499999046325684,
+    1.6299999952316284,
+    2.4000000953674316
+   ],
+   "ambient": [
+    0.05,
+    0.04,
+    0.03
+   ],
+   "room": "meal_floor"
+  },
+  {
+   "name": "stone_floor",
+   "position": [
+    -1.85,
+    6.1882,
+    -1.05
+   ],
+   "extents": [
+    2.7100000381469727,
+    2.6881532669067383,
+    2.759999990463257
+   ],
+   "ambient": [
+    0.05,
+    0.04,
+    0.03
+   ],
+   "room": "stone_floor"
+  }
+ ],
+ "stats": {
+  "shell": {
+   "meshes": 87,
+   "vertices": 55467,
+   "triangles": 74329
+  },
+  "interior": {
+   "meshes": 92,
+   "vertices": 35196,
+   "triangles": 53901
+  }
+ },
+ "footprint": [
+  [
+   -4.75,
+   0.0,
+   1.9
+  ],
+  [
+   1.05,
+   0.0,
+   1.9
+  ],
+  [
+   1.05,
+   0.0,
+   -4.0
+  ],
+  [
+   -4.75,
+   0.0,
+   -4.0
+  ]
+ ],
+ "stations": [
+  {
+   "id": "sluice",
+   "title": "Затвор лотка: пустить воду на колесо или мимо",
+   "stand": [
+    -4.11,
+    3.5,
+    -2.6
+   ],
+   "look": [
+    -5.575,
+    5.0706,
+    -2.2
+   ]
+  },
+  {
+   "id": "hopper",
+   "title": "Ковш: засыпать зерно",
+   "stand": [
+    -2.135,
+    3.5,
+    0.41
+   ],
+   "look": [
+    -2.235,
+    5.24,
+    -1.05
+   ]
+  },
+  {
+   "id": "gears",
+   "title": "Передача под полом: смазать цапфы, сменить кулак",
+   "stand": [
+    -0.7,
+    0.0,
+    0.55
+   ],
+   "look": [
+    -3.19,
+    2.9,
+    -1.05
+   ]
+  },
+  {
+   "id": "tentering",
+   "title": "Винт подлёгчика: зазор между жерновами",
+   "stand": [
+    -2.235,
+    0.0,
+    0.7
+   ],
+   "look": [
+    -2.235,
+    1.4,
+    -0.16
+   ]
+  },
+  {
+   "id": "stones",
+   "title": "Жернова в кожухе",
+   "stand": [
+    -2.985,
+    3.5,
+    -2.41
+   ],
+   "look": [
+    -2.235,
+    4.36,
+    -1.05
+   ]
+  },
+  {
+   "id": "meal_spout",
+   "title": "Мучной рукав: проверить помол на ощупь",
+   "stand": [
+    -0.87,
+    0.0,
+    0.05
+   ],
+   "look": [
+    -0.87,
+    0.92,
+    -1.05
+   ]
+  },
+  {
+   "id": "meal_bin",
+   "title": "Ларь с мукой: выгрести помол",
+   "stand": [
+    -0.77,
+    0.0,
+    0.1
+   ],
+   "look": [
+    -0.87,
+    0.6,
+    -1.05
+   ]
+  },
+  {
+   "id": "sieve",
+   "title": "Сито: отсеять отруби",
+   "stand": [
+    -2.95,
+    0.0,
+    0.9
+   ],
+   "look": [
+    -3.85,
+    0.9,
+    0.9
+   ]
+  },
+  {
+   "id": "flour_sacks",
+   "title": "Мешки с мукой: насыпать и завязать",
+   "stand": [
+    -0.85,
+    0.0,
+    0.9
+   ],
+   "look": [
+    0.05,
+    0.45,
+    0.9
+   ]
+  },
+  {
+   "id": "scale",
+   "title": "Безмен: взвесить мешок",
+   "stand": [
+    -0.7,
+    0.0,
+    0.62
+   ],
+   "look": [
+    0.08,
+    1.84,
+    0.82
+   ]
+  },
+  {
+   "id": "bills",
+   "title": "Кирки для насечки жерновов",
+   "stand": [
+    -0.78,
+    0.0,
+    0.6
+   ],
+   "look": [
+    -0.78,
+    1.5,
+    1.35
+   ]
+  },
+  {
+   "id": "grain_sacks",
+   "title": "Мешки с зерном",
+   "stand": [
+    -1.95,
+    3.5,
+    0.62
+   ],
+   "look": [
+    -2.05,
+    3.9,
+    1.4
+   ]
+  },
+  {
+   "id": "hoist",
+   "title": "Подъёмник: дёрнуть шнур, принять мешок в двери",
+   "stand": [
+    -0.1,
+    3.5,
+    -0.62
+   ],
+   "look": [
+    1.8,
+    4.5,
+    -0.885
+   ]
+  },
+  {
+   "id": "miller",
+   "title": "Угол мельника: счёт помола",
+   "stand": [
+    -0.2,
+    3.5,
+    0.22
+   ],
+   "look": [
+    0.62,
+    4.3,
+    0.36
+   ]
+  },
+  {
+   "id": "bed",
+   "title": "Лежанка мельника",
+   "stand": [
+    -0.45,
+    3.5,
+    0.28
+   ],
+   "look": [
+    -0.3,
+    4.0,
+    1.2
+   ]
+  },
+  {
+   "id": "hoist_yard",
+   "title": "Крюк подъёмника: зацепить мешок",
+   "stand": [
+    3.2,
+    -0.1,
+    -0.885
+   ],
+   "look": [
+    1.806,
+    1.7,
+    -0.885
+   ]
+  },
+  {
+   "id": "door",
+   "title": "Дверь мельницы",
+   "stand": [
+    -1.7,
+    -0.04,
+    2.9
+   ],
+   "look": [
+    -1.7,
+    1.2,
+    1.9
+   ]
+  },
+  {
+   "id": "wheel_view",
+   "title": "Площадка у колеса",
+   "stand": [
+    -4.8,
+    -0.04,
+    2.7
+   ],
+   "look": [
+    -5.575,
+    2.3,
+    0.15
+   ]
+  },
+  {
+   "id": "bench",
+   "title": "Скамья у двери",
+   "stand": [
+    -3.25,
+    -0.04,
+    2.75
+   ],
+   "look": [
+    -3.25,
+    0.5,
+    1.9
+   ]
+  },
+  {
+   "id": "millstone_old",
+   "title": "Старый жёрнов у стены",
+   "stand": [
+    0.4,
+    -0.04,
+    3.0
+   ],
+   "look": [
+    0.4,
+    0.55,
+    2.1
+   ]
+  },
+  {
+   "id": "cart",
+   "title": "Телега под подъёмником",
+   "stand": [
+    3.25,
+    -0.1,
+    -0.1
+   ],
+   "look": [
+    1.98,
+    0.8,
+    -0.75
+   ]
+  },
+  {
+   "id": "flour_pallet",
+   "title": "Мешки с мукой под навесом щипца",
+   "stand": [
+    2.75,
+    -0.1,
+    -2.6
+   ],
+   "look": [
+    1.55,
+    0.5,
+    -2.6
+   ]
+  }
+ ],
+ "turning": [
+  {
+   "id": "wheel",
+   "title": "Водяное колесо, вал и цевочное колесо в подполье",
+   "centre": [
+    -5.575,
+    2.0,
+    -1.05
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    -0.0
+   ],
+   "radius": 2.4,
+   "ratio": 1.0,
+   "rpm": 7.0,
+   "drives": [
+    "upright"
+   ],
+   "clutch": false
+  },
+  {
+   "id": "upright",
+   "title": "Стоячий вал: цевочная шестерня, большое зубчатое колесо, верхнее колесо подъёмника",
+   "centre": [
+    -3.19,
+    3.2,
+    -1.05
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "radius": 0.764,
+   "ratio": 4.0,
+   "rpm": 28.0,
+   "drives": [
+    "runner",
+    "hoist"
+   ],
+   "clutch": false
+  },
+  {
+   "id": "runner",
+   "title": "Бегун: шестерня жернова, веретено, верхний жёрнов",
+   "centre": [
+    -2.235,
+    4.04,
+    -1.05
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "radius": 0.62,
+   "ratio": -16.0,
+   "rpm": -112.0,
+   "drives": [],
+   "clutch": false
+  },
+  {
+   "id": "hoist",
+   "title": "Вал подъёмника с барабаном",
+   "centre": [
+    -2.83,
+    6.42,
+    -1.05
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    -0.0
+   ],
+   "radius": 0.27,
+   "ratio": 12.0,
+   "rpm": 84.0,
+   "drives": [],
+   "clutch": true
+  }
+ ],
+ "water": {
+  "intake": {
+   "at": [
+    -11.9,
+    8.8,
+    -7.8
+   ],
+   "stream_level": 9.15
+  },
+  "depth": 0.12,
+  "ribbons": [
+   {
+    "name": "Head trough",
+    "half": 0.25,
+    "speed": 1.6,
+    "boarded": true,
+    "points": [
+     [
+      -11.8975,
+      8.9197,
+      -7.792
+     ],
+     [
+      -11.3379,
+      8.7906,
+      -6.0273
+     ]
+    ]
+   },
+   {
+    "name": "Head tank",
+    "half": 0.375,
+    "speed": 0.9,
+    "boarded": true,
+    "points": [
+     [
+      -11.625,
+      8.75,
+      -5.75
+     ],
+     [
+      -10.875,
+      8.75,
+      -5.75
+     ]
+    ]
+   },
+   {
+    "name": "Slide",
+    "half": 0.25,
+    "speed": 4.5,
+    "boarded": true,
+    "points": [
+     [
+      -10.85,
+      8.7,
+      -5.75
+     ],
+     [
+      -10.6,
+      8.305,
+      -5.75
+     ],
+     [
+      -5.9117,
+      5.4705,
+      -5.75
+     ],
+     [
+      -5.675,
+      5.29,
+      -5.75
+     ]
+    ]
+   },
+   {
+    "name": "Turn tank",
+    "half": 0.375,
+    "speed": 3.0,
+    "boarded": true,
+    "points": [
+     [
+      -5.575,
+      5.28,
+      -6.125
+     ],
+     [
+      -5.575,
+      5.28,
+      -5.375
+     ]
+    ]
+   },
+   {
+    "name": "Launder",
+    "half": 0.25,
+    "speed": 2.0,
+    "boarded": true,
+    "points": [
+     [
+      -5.575,
+      5.2292,
+      -5.3574
+     ],
+     [
+      -5.575,
+      4.7192,
+      -1.3374
+     ]
+    ]
+   },
+   {
+    "name": "Tail race",
+    "half": 0.45,
+    "speed": 5.0,
+    "boarded": false,
+    "points": [
+     [
+      -5.28,
+      -3.45,
+      -0.0
+     ],
+     [
+      -5.45,
+      -3.62,
+      -0.0
+     ],
+     [
+      -5.53,
+      -4.45,
+      -0.0
+     ],
+     [
+      -5.65,
+      -4.58,
+      -0.0
+     ],
+     [
+      -5.73,
+      -5.25,
+      -0.0
+     ],
+     [
+      -5.93,
+      -5.53,
+      -0.0
+     ],
+     [
+      -6.13,
+      -5.79,
+      -0.0
+     ],
+     [
+      -6.33,
+      -6.09,
+      -0.0
+     ]
+    ]
+   }
+  ],
+  "falls": [
+   {
+    "name": "Spout",
+    "lip": [
+     -5.575,
+     4.7192,
+     -1.3374
+    ],
+    "heading": 0.0,
+    "speed": 2.0,
+    "dip": 0.25,
+    "width": 0.44,
+    "spread": 0.04,
+    "depth": 0.1,
+    "approach": 0.03,
+    "floor": 4.28,
+    "sink": 0.2,
+    "behind": 0.1
+   },
+   {
+    "name": "Tail",
+    "lip": [
+     -5.575,
+     -0.1,
+     -0.1
+    ],
+    "heading": 0.0,
+    "speed": 0.12,
+    "dip": 1.2,
+    "width": 0.7,
+    "spread": 0.25,
+    "depth": 0.04,
+    "approach": 0.03,
+    "floor": -5.57,
+    "sink": 0.15,
+    "behind": 0.1
+   }
+  ],
+  "spill": {
+   "from": [
+    -6.88,
+    4.3506,
+    -2.6
+   ],
+   "to": [
+    -7.4,
+    -5.98,
+    -2.6
+   ]
+  }
+ },
+ "terrain": {
+  "lower": [
+   {
+    "rect": [
+     [
+      -4.2,
+      1.35
+     ],
+     [
+      0.5,
+      -3.45
+     ]
+    ],
+    "to": -0.1
+   }
+  ],
+  "terrace": [
+   [
+    -5.35,
+    -0.1,
+    3.55
+   ],
+   [
+    1.9,
+    -0.1,
+    1.9
+   ]
+  ],
+  "road_end": [
+   [
+    2.75,
+    -0.34,
+    3.55
+   ],
+   [
+    3.35,
+    -0.34,
+    1.93
+   ]
+  ],
+  "yard": [
+   [
+    1.05,
+    -0.1,
+    1.9
+   ],
+   [
+    4.2,
+    -0.1,
+    -4.0
+   ]
+  ],
+  "wheel_pit": [
+   [
+    -6.75,
+    -0.7,
+    1.65
+   ],
+   [
+    -4.75,
+    -0.7,
+    -3.75
+   ]
+  ],
+  "north_alley": [
+   [
+    -4.75,
+    0.5,
+    -4.0
+   ],
+   [
+    1.05,
+    0.5,
+    -4.8
+   ]
+  ],
+  "feet": [
+   {
+    "what": "head trough leg",
+    "at": [
+     -11.4212,
+     7.6775,
+     -7.6134
+    ]
+   },
+   {
+    "what": "head trough leg",
+    "at": [
+     -12.1838,
+     7.6775,
+     -7.3716
+    ]
+   },
+   {
+    "what": "head trough leg",
+    "at": [
+     -11.1612,
+     7.6175,
+     -6.7934
+    ]
+   },
+   {
+    "what": "head trough leg",
+    "at": [
+     -11.9238,
+     7.6175,
+     -6.5516
+    ]
+   },
+   {
+    "what": "head tank needle",
+    "at": [
+     -11.25,
+     8.45,
+     -7.35
+    ]
+   },
+   {
+    "what": "head tank strut",
+    "at": [
+     -11.25,
+     7.1,
+     -6.95
+    ]
+   },
+   {
+    "what": "slide needle",
+    "at": [
+     -10.6,
+     8.1091,
+     -7.05
+    ]
+   },
+   {
+    "what": "slide strut",
+    "at": [
+     -10.6,
+     6.5591,
+     -6.85
+    ]
+   },
+   {
+    "what": "slide needle",
+    "at": [
+     -9.0,
+     7.1223,
+     -7.05
+    ]
+   },
+   {
+    "what": "slide strut",
+    "at": [
+     -9.0,
+     5.5723,
+     -6.9
+    ]
+   },
+   {
+    "what": "slide needle",
+    "at": [
+     -7.4,
+     6.1356,
+     -7.9
+    ]
+   },
+   {
+    "what": "slide strut",
+    "at": [
+     -7.4,
+     4.5856,
+     -7.8
+    ]
+   },
+   {
+    "what": "trestle leg east",
+    "at": [
+     -4.63,
+     -2.5,
+     -5.75
+    ]
+   },
+   {
+    "what": "trestle leg west",
+    "at": [
+     -6.7,
+     -5.4,
+     -5.75
+    ]
+   }
+  ]
+ },
+ "windows": [
+  {
+   "at": [
+    -0.175,
+    4.875,
+    1.9
+   ],
+   "out": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "size": [
+    1.15,
+    0.95
+   ]
+  },
+  {
+   "at": [
+    -3.2,
+    4.875,
+    1.9
+   ],
+   "out": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "size": [
+    0.8,
+    0.85
+   ]
+  },
+  {
+   "at": [
+    -0.05,
+    1.675,
+    1.9
+   ],
+   "out": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "size": [
+    0.6,
+    0.65
+   ]
+  },
+  {
+   "at": [
+    1.05,
+    1.675,
+    0.675
+   ],
+   "out": [
+    1.0,
+    0.0,
+    -0.0
+   ],
+   "size": [
+    0.55,
+    0.65
+   ]
+  }
+ ]
+}
