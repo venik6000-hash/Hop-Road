@@ -48,7 +48,7 @@ static func apply(map: Node3D, terrain: TerrainSystem) -> int:
 	for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
 		var extras: Dictionary = item.get_meta("extras", {})
 		var label := str(extras.get("alpine_label", item.name))
-		if str(extras.get("alpine_group", "")) in TAVERN_GROUPS or label.begins_with("Tavern"):
+		if str(extras.get("alpine_group", "")) in TAVERN_GROUPS:
 			continue
 		var touched := false
 		for surface in item.mesh.get_surface_count():

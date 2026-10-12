@@ -1,8 +1,11 @@
 shader_type spatial;
 // Scanned ground plants of the village (VillageFlora): alpha-cut leaves that
-// take light from both sides, lean with the wind by their height, and vary a
-// little in tone from plant to plant (COLOR of the MultiMesh instance).
+// take light from both sides, lean with the wind by their height, vary a
+// little in tone from plant to plant (COLOR of the MultiMesh instance) and
+// darken in the rain.
 render_mode cull_disabled, depth_draw_opaque;
+
+#include "res://src/weather/wetness.gdshaderinc"
 
 uniform sampler2D albedo_map : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D normal_map : hint_normal, filter_linear_mipmap, repeat_enable;
@@ -10,6 +13,9 @@ uniform vec3 tint = vec3(1.0);
 // Metres the top of a plant of unit height sways.
 uniform float sway = 0.05;
 uniform float transmission = 0.35;
+// The leaves' share of the wetness of open ground: darker in the rain and no
+// film to shine, as the meadow's blades (grass.gdshader). 0: they keep dry.
+uniform float rain_darkens = 0.3;
 
 varying vec3 tone;
 
@@ -24,7 +30,11 @@ void vertex() {
 
 void fragment() {
 	vec4 c = texture(albedo_map, UV);
-	ALBEDO = c.rgb * tint * tone;
+	vec3 leaf = c.rgb * tint * tone;
+	if (rain_is_wet() && rain_darkens > 0.0) {
+		leaf = soaked_colour(leaf, rain_film(rain_darkens));
+	}
+	ALBEDO = leaf;
 	ALPHA = c.a;
 	ALPHA_SCISSOR_THRESHOLD = 0.45;
 	ALPHA_ANTIALIASING_EDGE = 0.3;
@@ -32,5 +42,5 @@ void fragment() {
 	SPECULAR = 0.25;
 	NORMAL_MAP = texture(normal_map, UV).rgb;
 	NORMAL_MAP_DEPTH = 0.7;
-	BACKLIGHT = c.rgb * tint * tone * transmission;
+	BACKLIGHT = leaf * transmission;
 }

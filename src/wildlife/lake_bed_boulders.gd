@@ -7,7 +7,7 @@ const MeshUtil = preload("res://src/common/mesh_util.gd")
 ## Groups of drowned boulders, as the glacier left them: a big stone with a
 ## few smaller ones around it, set into the silt by their lowest edge. They
 ## are the scans of the valley's shore stones, worn wet and filmed under
-## water (rock.gdshader lake_film).
+## water (rock.gdshaderinc lake_film).
 static func place(lake: LakeBed) -> void:
 	var library := lake.habitat.rocks
 	var temporary := library == null

@@ -1,9 +1,11 @@
-// Shared by every vegetation shader: wind, LOD cross-fade, cloud shadows and
-// the foliage light model. VegetationSystem sets the uniforms on each material
-// every frame (there are few materials, so no global parameters are needed).
+// Shared by every vegetation shader: wind, LOD cross-fade, cloud shadows, the
+// shade of the crowns and the foliage light model. VegetationSystem sets the
+// uniforms on each material every frame (there are few materials, so no
+// global parameters are needed).
 
 global uniform vec3 sun_direction;
 #include "res://src/sky/cloud_shadow.gdshaderinc"
+#include "res://src/vegetation/shaders/canopy.gdshaderinc"
 
 // x, y: wind direction on the ground (x, z), unit length; z: strength
 // (0 calm .. 1 fresh breeze .. 2 storm); w: gust travel speed (m/s).

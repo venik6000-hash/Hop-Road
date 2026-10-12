@@ -40,7 +40,8 @@ func _physics_process(delta: float) -> void:
 		return
 	var next := move_toward(rotation.y, target_angle, delta * 1.65)
 	var predicted := global_transform
-	predicted.basis = Basis(Vector3.UP, next)
+	# The leaf turns in its building's frame (a village building may stand at a yaw).
+	predicted.basis = get_parent_node_3d().global_basis * Basis(Vector3.UP, next)
 	if player != null:
 		var query := PhysicsShapeQueryParameters3D.new()
 		query.shape = leaf_shape.shape

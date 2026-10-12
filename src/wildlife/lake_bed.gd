@@ -78,6 +78,16 @@ const VILLAGE := Vector2(0.0, -35.0)
 const POOL := Vector2(-50.0, -119.5)
 ## The cove under the waterfall cliff: bare rock and plunging water, no reeds.
 const COVE := Rect2(-74.0, -142.0, 50.0, 38.0)
+## The village's two marsh shores (tools/pipeline/terrain/terrain_village.py:
+## the MARSH reaches of SHORE) are reed beds all the same, drawn stand by stand
+## (x, z, radius): the corner of the bay by the bridge, with windows of open
+## water between its stands, and the fishing cove, whose stands leave the way
+## from the ditch's mouth to the lake clear for a boat.
+const MARSH_STANDS: Array[Vector3] = [
+	Vector3(-35.5, -25.0, 3.4), Vector3(-36.5, -20.0, 3.8), Vector3(-33.2, -17.4, 2.8), Vector3(-32.8, -22.2, 2.2),
+	Vector3(-27.0, -72.6, 3.2), Vector3(-29.0, -69.8, 2.2), Vector3(-29.6, -74.0, 1.8), Vector3(-27.6, -81.6, 2.9),
+	Vector3(-25.4, -80.4, 1.7),
+]
 
 var habitat: WildlifeSystem
 ## Bed points under the centre of each piece of wood and each boulder group.

@@ -4,6 +4,14 @@ extends RefCounted
 
 static func setup(terrain: TerrainSystem) -> void:
 	terrain.material.shader = TerrainSystem.SHADER
+	# The opaque pass is drawn in the order of the materials' priorities and
+	# then of their shaders' ids; how far a thing stands comes after both. A
+	# shader that can discard takes no part in the GPU's hidden surface
+	# removal, so in the depth prepass the ground, drawn in its shader's
+	# turn, was shaded whole (its normals want all of fragment()) under the
+	# trees, houses and stones drawn after it. Last, it is shaded where it
+	# shows.
+	terrain.material.render_priority = Material.RENDER_PRIORITY_MAX
 	var far_texture := ImageTexture.create_from_image(terrain.far_image)
 	var near_texture := ImageTexture.create_from_image(terrain.near_image)
 	terrain.material.set_shader_parameter("near_height", near_texture)
@@ -15,6 +23,8 @@ static func setup(terrain: TerrainSystem) -> void:
 	terrain.material.set_shader_parameter("near_control", load(TerrainSystem.DATA + "near_control.png"))
 	terrain.material.set_shader_parameter("near_extra", load(TerrainSystem.DATA + "near_extra.png"))
 	terrain.material.set_shader_parameter("far_masks", load(TerrainSystem.DATA + "far_masks.png"))
+	terrain.material.set_shader_parameter("far_detail", load(TerrainSystem.DATA + "far_detail.png"))
+	terrain.material.set_shader_parameter("high_detail", terrain.high_detail)
 	terrain.material.set_shader_parameter("layer_albedo", load(TerrainSystem.DATA + "terrain_albedo.jpg"))
 	terrain.material.set_shader_parameter("layer_normal", load(TerrainSystem.DATA + "terrain_normal.jpg"))
 	terrain.material.set_shader_parameter("layer_rah", load(TerrainSystem.DATA + "terrain_rah.jpg"))

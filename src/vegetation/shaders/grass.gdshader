@@ -21,12 +21,18 @@ shader_type spatial;
 //             the ground's normal there
 //             INSTANCE_CUSTOM: r size, g cell of the atlas and, in its
 //             fraction, CROWD of how closely tall plants stand round the
-//             clump, b tone, a rank (the order in which clumps drop out with
-//             distance)
+//             clump, b tone (sward.gdshaderinc), a rank (the order in which
+//             clumps drop out with distance)
 render_mode skip_vertex_transform, cull_disabled, depth_draw_opaque;
 
-// Wind, the gust noise, cloud and ridge shadows, the foliage light model.
+// Wind, the gust noise, cloud and ridge shadows, the shade of the trees'
+// crowns, the foliage light model.
 #include "res://src/vegetation/shaders/vegetation.gdshaderinc"
+// What a clump's tone means: the green of growth, old to young, and grass
+// dried on the stalk.
+#include "res://src/vegetation/shaders/sward.gdshaderinc"
+// How wet the weather has left the land.
+#include "res://src/weather/wetness.gdshaderinc"
 
 // GrassClump.MAX_CELLS.
 const int CELLS = 32;
@@ -98,10 +104,17 @@ uniform float alpha_soft : hint_range(0.0, 0.5) = 0.22;
 // 4. Colour
 // ---------------------------------------------------------------------------
 group_uniforms colour;
-// A clump's tone lies between these two tints: older, bluer growth and
-// young, sunlit growth. Flowers keep the atlas's colours.
-uniform vec3 tone_deep = vec3(0.84, 0.94, 0.86);
-uniform vec3 tone_fresh = vec3(1.1, 1.06, 0.9);
+// A clump takes the colours of its tone (sward.gdshaderinc); flowers keep the
+// atlas's. No two plants of a sward are of one age: a clump's tone lies
+// within tone_scatter of the one the ground gave it. A plant dries from the
+// top down: its foot is left dry_foot of what its top has dried.
+uniform float tone_scatter : hint_range(0.0, 0.5) = 0.3;
+uniform float dry_foot : hint_range(0.0, 1.0) = 0.6;
+// Rain darkens the blades and leaves no film on them to shine. This is their
+// share of the wetness of open ground, the one the terrain gives the turf under
+// them (terrain.gdshader), so that the meadow is of one colour where the clumps
+// end. 0: the blades keep dry.
+uniform float rain_darkens : hint_range(0.0, 1.0) = 0.3;
 // The foot of a clump stands in the shade of its neighbours: its colour and
 // the sun on it at the ground, both back to 1 at root_height (m) or at
 // root_share of the plant's own height, whichever is higher. That is in the
@@ -153,6 +166,8 @@ const float FADE_SOFTNESS = 0.25;
 const float ROOT_SINK = 0.03;
 
 varying vec3 tint;
+// How far the plant has dried here (dried_grass() of sward.gdshaderinc).
+varying float dried;
 varying float lift;
 // Height above the root (m), and the height at which the foot's shade ends.
 varying float height;
@@ -160,8 +175,10 @@ varying float lit_height;
 // The shade at the clump's foot at this distance: of its colour, of the sun;
 // and the share of the blades' own directions left in its light.
 varying vec3 foot_shade;
-// How much of the sun the clouds and the ridges let through.
+// How much of the sun the clouds and the ridges let through, and beyond the
+// shadow map the trees; how much of the sky's light the crowns overhead do.
 varying float sun_seen;
+varying float sky_seen;
 varying vec3 card_axis;
 varying vec3 card_up;
 
@@ -216,11 +233,13 @@ void vertex() {
 	vec3 normal = vec3(0.0, 1.0, 0.0);
 	vec2 uv = vec2(0.0);
 	tint = vec3(0.0);
+	dried = 0.0;
 	lift = 0.0;
 	height = 0.0;
 	lit_height = 1.0;
 	foot_shade = vec3(1.0);
 	sun_seen = 1.0;
+	sky_seen = 1.0;
 	card_axis = vec3(1.0, 0.0, 0.0);
 	card_up = vec3(0.0, 1.0, 0.0);
 	if (grow > 0.0) {
@@ -292,12 +311,16 @@ void vertex() {
 		uv = rect.xy + vec2(0.5 + (UV.x - 0.5) * hull, UV.y) * rect.zw;
 		tint = vec3(mix(0.88, 1.1, shade_by));
 		if (!flower) {
-			tint *= mix(tone_deep, tone_fresh, INSTANCE_CUSTOM.b);
+			float tone = clamp(INSTANCE_CUSTOM.b + (hash_unit(grass_hash(h + 7u)) - 0.5) * tone_scatter, 0.0, 1.0);
+			tint *= sward_tint(tone);
+			dried = sward_dried(tone) * mix(dry_foot, 1.0, t);
 		}
 		lift = alpha_lift * cell_lift[cell];
-		// Cloud and ridge shadow where the clump stands: one answer for all
-		// of its pixels.
-		sun_seen = cloud_sun_visibility(root);
+		// Cloud and ridge shadow where the clump stands, and the crowns over
+		// it: one answer for all of its pixels.
+		sun_seen = cloud_sun_visibility(root)
+			* (1.0 - canopy_sun_shade(root.xz, CANOPY_HEIGHT, -(VIEW_MATRIX * vec4(root, 1.0)).z, 0.0));
+		sky_seen = 1.0 - canopy_sky_shade(root.xz, 1.0, 0.0);
 	}
 	VERTEX = view_position;
 	NORMAL = normalize((VIEW_MATRIX * vec4(normal, 0.0)).xyz);
@@ -313,7 +336,11 @@ void fragment() {
 	ALPHA_SCISSOR_THRESHOLD = 0.5 + alpha_soft * (dither_noise(at) * 2.0 - 1.0);
 
 	float foot = smoothstep(0.0, lit_height, height);
-	ALBEDO = plant.rgb * tint * mix(foot_shade.x, 1.0, foot);
+	vec3 blade = dried_grass(plant.rgb * tint, dried);
+	if (rain_is_wet() && rain_darkens > 0.0) {
+		blade = soaked_colour(blade, rain_film(rain_darkens));
+	}
+	ALBEDO = blade * mix(foot_shade.x, 1.0, foot);
 
 	// The blade's own direction, mirrored to the side of the card that is seen.
 	vec2 slope = texture(atlas_normal, UV).rg * 2.0 - 1.0;
@@ -328,8 +355,9 @@ void fragment() {
 	ROUGHNESS = blade_roughness;
 	// No mirror of the sky on a card: light() adds the gloss.
 	SPECULAR = 0.0;
-	// The sky reaches the roots less than the tops.
-	AO = mix(foot_shade.x, 1.0, foot);
+	// The sky reaches the roots less than the tops, and little of it comes
+	// down through a tree.
+	AO = mix(foot_shade.x, 1.0, foot) * sky_seen;
 	AO_LIGHT_AFFECT = 0.0;
 }
 

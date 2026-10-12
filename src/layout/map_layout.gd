@@ -21,6 +21,7 @@ const LayoutStore = preload("res://src/layout/layout_store.gd")
 const LayoutItem = preload("res://src/layout/layout_item.gd")
 const VILLAGE_LAYOUT = preload("res://src/village/village_layout.gd")
 const VILLAGE_MATERIALS = preload("res://src/village/village_materials.gd")
+const VILLAGE_BUILDINGS = preload("res://src/village/village_buildings.gd")
 const TAVERN_MATERIALS = preload("res://src/tavern/tavern_materials.gd")
 const VILLAGE_PACK = preload("res://src/village/village_pack.gd")
 const MAP := "res://assets/models/alpine/alpine_map.glb"
@@ -221,7 +222,7 @@ func _apply_lighting() -> void:
 	_view = []
 
 ## The Blender map as the loaded level shows it: the houses as items, the rest
-## (bridge, chapel, market, paving) and the refined tavern as scenery.
+## (bridge, campanile, market, paving) and the refined tavern as scenery.
 func _build_map(houses: Node3D) -> void:
 	var map := _scene(MAP).instantiate() as Node3D
 	map.name = "Map"
@@ -234,6 +235,7 @@ func _build_map(houses: Node3D) -> void:
 			shown[path] = true
 	var parts := {}
 	var dropped: Array[Node] = []
+	var replaced := VILLAGE_BUILDINGS.replaced()
 	for mesh: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
 		for body: Node in mesh.get_children():
 			if body is CollisionObject3D:
@@ -242,7 +244,10 @@ func _build_map(houses: Node3D) -> void:
 			dropped.append(mesh)
 			continue
 		var label := RockField.label_of(mesh)
-		if label.begins_with(HOUSE_LABEL):
+		if VILLAGE_BUILDINGS.begins(label, replaced):
+			# A building of VillageBuildings.TABLES stands on this house's lot.
+			dropped.append(mesh)
+		elif label.begins_with(HOUSE_LABEL):
 			var id := label.substr(HOUSE_LABEL.length(), 2).to_int()
 			if not parts.has(id):
 				parts[id] = []
@@ -263,7 +268,7 @@ func _build_map(houses: Node3D) -> void:
 					centre = (mesh.global_transform * mesh.get_aabb()).get_center()
 			var at := [snappedf(centre.x, 0.1), snappedf(centre.z, 0.1)]
 			spec = {"id": id, "source": at, "position": at.duplicate(), "yaw": 0}
-		var source := Vector3(spec.source[0], terrain.height_at(spec.source[0], spec.source[1]), spec.source[1])
+		var source := Vector3(spec.source[0], VILLAGE_LAYOUT.source_ground(spec, terrain), spec.source[1])
 		var lift := float(spec.get("lift", 0.0))
 		var visual := Node3D.new()
 		visual.name = "Visual"
@@ -280,6 +285,7 @@ func _build_map(houses: Node3D) -> void:
 	for node: Node in dropped:
 		if is_instance_valid(node):
 			node.free()
+	VILLAGE_LAYOUT.settle_landmarks(map, terrain)
 	_lock(map)
 	for path: String in TavernSystem.PARTS:
 		var table: Variant = LayoutStore.read(path)

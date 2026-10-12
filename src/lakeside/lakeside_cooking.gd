@@ -1,6 +1,6 @@
 extends RefCounted
-## The catch after the line: sharing, the cook's help, the campfire grill and
-## the cooked fish.
+## The catch after the line: sharing with a companion or a villager at rest,
+## the cook's help, the campfire grill and the cooked fish.
 const COOK_SECONDS := 24.0
 
 static func use_catch(lake: LakesideSystem) -> void:
@@ -14,20 +14,21 @@ static func use_catch(lake: LakesideSystem) -> void:
 	var cooked := lake.fishing.first(true)
 	if companion != null and not cooked.is_empty():
 		if not lake.fishing.take(cooked.id).is_empty():
-			var known := lake.camping._memory(companion)
-			known["shared"] = int(known.get("shared", 0)) + 1
-			lake.camping.memories[companion.name] = known
-			lake.camping._save_memory()
 			(companion.outing as NpcOuting).receive_food(fish_visual(true, 0.65))
-			lake.camping.say(companion, "Спасибо за рыбу. Хорошо посидели у озера!")
+			lake.camping.fed(companion, "fish")
 		return
 	for actor: VillageNPC in lake.interactions.population.actors:
-		if actor.job in ["chop", "stir"] and actor.global_position.distance_to(lake.player.global_position) < 2.5:
+		if actor.job in ["chop", "stir"] and actor.present() and actor.at_work() and actor.global_position.distance_to(lake.player.global_position) < 2.5:
 			var raw := lake.fishing.first(false)
 			if not raw.is_empty() and not lake.cooking.has("id"):
 				lake.fishing.cook(raw.id)
-				lake.camping.say(actor, "Отличный улов. Вот твоя порция — раздели со спутником.")
+				lake.camping.brought_catch(actor)
 				return
+	var host := lake.camping.nearest_at_rest(2.5)
+	if host != null and not cooked.is_empty():
+		if not lake.fishing.take(cooked.id).is_empty():
+			lake.camping.fed(host, "fish")
+		return
 	var fire := lake.camping.nearby_fire(lake.player.global_position, 3.0)
 	if fire != null and fire.burning and lake.cooking.is_empty():
 		var raw := lake.fishing.first(false)

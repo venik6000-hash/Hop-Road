@@ -51,6 +51,7 @@ lights_and_shadows/positional_shadow/atlas_size=8192
 lights_and_shadows/positional_shadow/atlas_quadrant_0_subdiv=4
 lights_and_shadows/positional_shadow/atlas_quadrant_1_subdiv=4
 lights_and_shadows/positional_shadow/atlas_quadrant_2_subdiv=4
+reflections/reflection_atlas/reflection_count=24
 
 [shader_globals]
 
@@ -157,4 +158,20 @@ rain_shelter_rect={
 weather_wet={
 "type": "vec4",
 "value": Vector4(0, 0, 0, 0)
+}
+canopy_cover={
+"type": "sampler2D",
+"value": ""
+}
+canopy_rect={
+"type": "vec4",
+"value": Vector4(0, 0, 1, 0)
+}
+canopy_light={
+"type": "vec2",
+"value": Vector2(0.6, 0.85)
+}
+sun_shadow_reach={
+"type": "vec2",
+"value": Vector2(136, 160)
 }

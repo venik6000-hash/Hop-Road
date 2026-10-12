@@ -93,6 +93,8 @@ func _ready() -> void:
 	if failed:
 		return
 	_set_stage("Последние приготовления…")
+	# The saved hour and weather, before the frames that warm the first view.
+	ValleyLoop.start(world)
 	world.set_process(true)
 	world.set_physics_process(true)
 	# Draw the actual materials at the actual camera. This warms the first view,

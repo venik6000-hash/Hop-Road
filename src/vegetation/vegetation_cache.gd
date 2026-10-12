@@ -18,10 +18,17 @@ const INPUTS := [
 	"res://src/vegetation/obstacle_map.gd",
 	"res://src/vegetation/tree_set.gd",
 	"res://src/village/village_layout.gd",
+	# The wear of the yards repaints the path mask the trees keep off.
+	"res://src/terrain/ground_wear.gd",
+	"res://assets/generated/layout/worn_ground.json",
 	"res://assets/generated/layout/village_plan.json",
 	"res://assets/generated/layout/herbalist_placed.glb",
 	"res://assets/generated/layout/potter_placed.glb",
 	"res://src/village/village_brook.gd",
+	"res://src/tavern/tavern_ground.gd",
+	# The village's buildings shape the ground under them and stand as obstacles.
+	"res://src/village/village_buildings.gd",
+	"res://src/village/village_building.gd",
 	"res://assets/generated/layout/village_trees.json",
 	"res://src/village/village_pack.gd",
 	"res://assets/models/village_pack/layout.json",
@@ -40,6 +47,9 @@ const INPUTS := [
 	# The rocks replace the Blender stones and cliff as obstacles.
 	"res://src/rocks/rock_field.gd",
 	"res://assets/models/rocks/rock_shapes.glb",
+	# The cliff's seat and the stream above the upper fall reshape the ground.
+	"res://assets/generated/rocks/cliff_seat.json",
+	"res://src/water/waterfall_system.gd",
 	# Stones moved by hand in the layout scene are other obstacles.
 	"res://assets/generated/layout/rocks.json",
 ]
@@ -57,6 +67,10 @@ static func source_paths() -> Array:
 		"res://src/tavern/tavern_collision.gd", "res://src/tavern/tavern_system.gd",
 		"res://assets/models/tavern/tavern.json", "res://assets/models/tavern/tavern_interior.json",
 	])
+	for table: String in preload("res://src/village/village_buildings.gd").TABLES:
+		paths.append(table)
+		for scene: String in JSON.parse_string(FileAccess.get_file_as_string(table)).scenes.values():
+			paths.append(scene)
 	var layout: Array = JSON.parse_string(FileAccess.get_file_as_string("res://assets/models/village_pack/layout.json"))
 	for entry: Dictionary in layout:
 		var source := "res://assets/models/village_pack/" + str(entry.asset) + ".glb"
@@ -173,7 +187,11 @@ static func compute(terrain: TerrainSystem, map: Node3D, exclude: Array[RID]) ->
 	var fields := VegetationTerrain.from_terrain(terrain)
 	var cache := VegetationCache.new()
 	var space := terrain.get_world_3d().direct_space_state
-	cache.obstacles = ObstacleMap.scan(space, ObstacleMap.collider_bounds(map), fields, exclude)
+	var bounds := ObstacleMap.collider_bounds(map)
+	# The village's buildings stand beside the map, the lighthouse beyond its edge.
+	for building: Node in terrain.get_tree().get_nodes_in_group(VillageBuilding.GROUP):
+		bounds = bounds.merge(ObstacleMap.collider_bounds(building))
+	cache.obstacles = ObstacleMap.scan(space, bounds, fields, exclude)
 	cache.obstacles.apply_to(fields)
 	var woodland: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://assets/models/alpine/woodland.json"))
 	# The village's own trees: by the brook and between the yards.

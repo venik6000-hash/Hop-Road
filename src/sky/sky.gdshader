@@ -44,6 +44,12 @@ uniform float sun_disk_radiance_cap = 900.0;
 // Only enabled when array reflections rebuild mip2 from full radiance before
 // it can be sampled. Single-texture incremental reflections need the old pass.
 uniform bool skip_cubemap_quarter_pass = false;
+// The clear sky as the eye sees it, deeper overhead than the light it sheds:
+// its colour times this at dir.y = zenith_reach and above, untouched at the
+// horizon. The radiance cubemap (ambient light, reflections, the colour of
+// the haze) keeps the atmosphere's own.
+uniform vec3 zenith_tint = vec3(0.48, 0.6, 0.78);
+uniform float zenith_reach = 0.5;
 
 float remap01(float value, float low, float high) {
 	return clamp((value - low) / max(high - low, 1e-5), 0.0, 1.0);
@@ -118,6 +124,10 @@ vec3 lightning_at(vec3 world_km, vec3 dir, float density) {
 	return vec3(0.72, 0.8, 1.0) * light * lightning_radiance;
 }
 
+// What the moonlit air gives a cloud by night, a little over the glow of
+// the sky behind it (night_sky): without it clouds are black holes in it.
+const vec3 NIGHT_CLOUD = vec3(0.012, 0.016, 0.026);
+
 vec3 sky_ambient() {
 	vec3 across = normalize(vec3(sun_direction.x, 0.0, sun_direction.z) + vec3(1e-4, 0.0, 0.0));
 	vec3 zenith = atmo_sky_radiance(vec3(0.0, 1.0, 0.0));
@@ -157,7 +167,7 @@ vec4 march_clouds(vec3 camera, vec3 dir, int steps, int light_steps, bool detail
 		octave_phase[o] = cloud_phase(cos_theta, octave_c);
 		octave_c *= 0.55;
 	}
-	vec3 ambient = sky_ambient();
+	vec3 ambient = sky_ambient() + NIGHT_CLOUD * night_factor;
 	float darkness = cloud_params.w;
 	bool struck = lightning_a.w + lightning_b.w > 0.0;
 	vec2 camera_xz = camera.xz * 0.001;
@@ -277,7 +287,7 @@ vec4 cirrus_layer(vec3 camera, vec3 dir) {
 	// Ice scatters hard forward: bright near the sun, pale away from it.
 	float phase = mix(henyey_greenstein(cos_theta, 0.7), henyey_greenstein(cos_theta, -0.15), 0.3);
 	vec3 radiance = sun_there * phase * alpha * 2.2
-		+ (atmo_sky_radiance(vec3(0.0, 1.0, 0.0)) * 0.6 + vec3(0.004, 0.005, 0.008) * night_factor) * alpha;
+		+ (atmo_sky_radiance(vec3(0.0, 1.0, 0.0)) * 0.6 + NIGHT_CLOUD * night_factor) * alpha;
 	// The air below it, and no edge where the layer meets the horizon.
 	float haze = 1.0 - exp(-t / 70.0);
 	radiance = mix(radiance, atmo_sky_radiance(dir) * alpha, haze);
@@ -286,7 +296,7 @@ vec4 cirrus_layer(vec3 camera, vec3 dir) {
 }
 
 vec3 night_sky(vec3 dir) {
-	vec3 result = vec3(0.0015, 0.0028, 0.006) * night_factor;
+	vec3 result = vec3(0.008, 0.014, 0.03) * night_factor;
 	vec3 p = dir * 420.0;
 	vec3 cell = floor(p);
 	float h = hash13(cell);
@@ -323,7 +333,8 @@ void sky() {
 		vec4 clouds = march_clouds(POSITION, dir, 14, 2, false, 0.5);
 		COLOR = sky_color * (1.0 - clouds.a) + clouds.rgb;
 	} else {
-		vec3 sky_color = atmo_sky_radiance(dir) + night_sky(dir);
+		vec3 sky_color = atmo_sky_radiance(dir) * mix(vec3(1.0), zenith_tint, smoothstep(0.0, zenith_reach, dir.y))
+			+ night_sky(dir);
 		float cos_sun = dot(dir, sun_direction);
 		const float SUN_RADIUS = 0.00475;
 		bool sun_up = atmo_ray_sphere(vec3(0.0, atmo_view_radius, 0.0), sun_direction, ATMO_R_GROUND) < 0.0;

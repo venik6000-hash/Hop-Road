@@ -4,11 +4,16 @@ extends RefCounted
 
 ## Old tavern meshes go; a collider under one moves up to the map to stay,
 ## unless the new pieces bring their own.
-static func replace_old(tavern: TavernSystem, labels: Array, drop: Array) -> void:
+static func replace_old(tavern: TavernSystem, labels: Array, drop: Array, moved: Array = []) -> void:
 	for item: MeshInstance3D in tavern.map.find_children("*", "MeshInstance3D", true, false):
 		var label := RockField.label_of(item)
 		if not labels.has(label):
 			continue
+		for move: Dictionary in moved:
+			if move.of == label:
+				for body in item.get_children():
+					if body is CollisionObject3D:
+						move_faces(body, move.box, move.by)
 		# The old solid walls had no service openings. Their replacement boxes
 		# come from the furnished interior, while the old porch geometry stays.
 		var replace_wall := tavern._has_interior and label in ["Continuous mortar behind interior masonry", "Annex oak plank door"]
@@ -48,6 +53,32 @@ static func add_shape(tavern: TavernSystem, item: MeshInstance3D, shape: Shape3D
 	holder.transform = item.global_transform * local
 	tavern._body.add_child(holder)
 	tavern.bodies += 1
+
+## A piece the builder stood elsewhere than the old map did takes its part
+## of the old collider along: the faces of `body` that lie in `box` (two
+## corners, world space) move by `by`.
+static func move_faces(body: CollisionObject3D, box: Array, by: Array) -> void:
+	var from := AABB(Vector3(box[0], box[1], box[2]), Vector3(box[3] - box[0], box[4] - box[1], box[5] - box[2]))
+	var offset := Vector3(by[0], by[1], by[2])
+	for holder: CollisionShape3D in body.find_children("*", "CollisionShape3D", true, false):
+		if not holder.shape is ConcavePolygonShape3D:
+			continue
+		var faces := (holder.shape as ConcavePolygonShape3D).get_faces()
+		var place := holder.global_transform
+		var shift := place.basis.inverse() * offset
+		var count := 0
+		for index in range(0, faces.size(), 3):
+			if from.has_point(place * faces[index]) and from.has_point(place * faces[index + 1]) \
+					and from.has_point(place * faces[index + 2]):
+				for corner in 3:
+					faces[index + corner] += shift
+				count += 1
+		if count == 0:
+			continue
+		var shape := ConcavePolygonShape3D.new()
+		shape.set_faces(faces)
+		shape.backface_collision = (holder.shape as ConcavePolygonShape3D).backface_collision
+		holder.shape = shape
 
 static func cut_service_openings(body: CollisionObject3D) -> void:
 	# Remove legacy stone faces intersecting the three existing service

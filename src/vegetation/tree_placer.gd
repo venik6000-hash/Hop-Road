@@ -48,11 +48,17 @@ const GROUP_BROADLEAF := 1
 const GROUP_PINE := 2
 const SPECIES_GROUP := [0, 0, 0, 0, 1, 1, 2, 2, 2]
 ## Model height (m) at scale 1, from assets/models/source/vegetation/trees_summary.json.
-const SPECIES_HEIGHT := [22.0, 17.0, 27.0, 4.5, 17.3, 14.1, 20.3, 14.8, 17.5]
+const SPECIES_HEIGHT := [24.5, 17.5, 20.0, 4.5, 17.3, 14.1, 20.3, 14.8, 17.5]
 ## Trunk-to-trunk distance (m) kept free around a tree of scale 1.
 const SPECIES_SPACING := [3.0, 2.6, 3.4, 1.3, 4.5, 4.0, 3.2, 2.8, 3.0]
 ## Crown radius (m) at scale 1: buildings stay about this far from the trunk.
-const SPECIES_CROWN := [4.2, 3.0, 5.4, 1.4, 6.5, 5.5, 4.0, 3.2, 3.6]
+const SPECIES_CROWN := [3.4, 3.0, 3.8, 1.1, 6.5, 5.5, 4.0, 3.2, 3.6]
+## How far a tree's foot spreads from its axis at scale 1, m: the root plate
+## of a scanned trunk, the collar of a grown beech, the bare stem of a trunk
+## cut to stand in the ground.
+const FOOT_REACH := [0.9, 0.9, 0.2, 0.05, 0.5, 0.45, 0.7, 0.7, 0.7]
+## A tree is let into a slope no deeper than this, m.
+const SEAT_DEPTH := 0.7
 
 ## Ground area per tree where the forest mask is 1 (a closed spruce stand).
 const AREA_PER_TREE := 30.0
@@ -81,8 +87,8 @@ const COMPOSED := {
 	"beech": [[BEECH_A, BEECH_B], 8.3, 1.35],
 	"birch": [[BEECH_B], 7.4, 1.3],
 	"Young meadow oak": [[BEECH_B, BEECH_A], 6.3, 1.25],
-	"Mountain fir": [[SPRUCE_B, SPRUCE_A], 10.5, 1.3],
-	"Narrow alpine spruce": [[SPRUCE_B], 8.5, 1.35],
+	"Mountain fir": [[SPRUCE_C, SPRUCE_B], 10.5, 1.3],
+	"Narrow alpine spruce": [[SPRUCE_C], 8.5, 1.35],
 	"Dense distant fir sprays": [[SPRUCE_B, SPRUCE_A, PINE_B, SPRUCE_B, SPRUCE_C, FIR_YOUNG, PINE_A], 11.0, 1.35],
 	"Dense distant deciduous crown": [[BEECH_A, BEECH_B], 8.5, 1.35],
 }
@@ -211,6 +217,9 @@ func _smooth(values: PackedFloat32Array, n: int, size: float, x: float, z: float
 ## `density` is the local forest density: open edges get more young firs and
 ## smaller trees; beech keeps to the lower valley, in patches. Pines stand in
 ## groups among the spruces, about a third of them, fewer towards the tree line.
+## Of the spruces, A and B have grown in a close wood and are bare for the lower
+## third of the trunk, C is green to the ground: the more open the stand, the
+## more of them are C.
 func choose(x: float, z: float, altitude: float, density: float, pick: int) -> Vector2:
 	var r1 := unit(pick)
 	var r2 := unit(hash_u32(pick ^ 0x5bd1e995))
@@ -236,7 +245,11 @@ func choose(x: float, z: float, altitude: float, density: float, pick: int) -> V
 				kind = PINE_A if t < 0.4 else (PINE_B if t < 0.7 else PINE_C)
 			else:
 				t = (t - pines) / (1.0 - pines)
-				kind = SPRUCE_A if t < 0.42 else (SPRUCE_B if t < 0.76 else SPRUCE_C)
+				var open := lerpf(0.7, 0.15, density)
+				if t < open:
+					kind = SPRUCE_C
+				else:
+					kind = SPRUCE_A if (t - open) / (1.0 - open) < 0.55 else SPRUCE_B
 	if kind != FIR_YOUNG:
 		grow *= (1.0 - 0.45 * line) * (0.82 + 0.18 * density)
 	return Vector2(kind, grow)
@@ -256,6 +269,19 @@ static func value_noise(x: float, z: float, size: float, salt: int) -> float:
 	var c := unit(cell_hash(ix, iz + 1, salt))
 	var d := unit(cell_hash(ix + 1, iz + 1, salt))
 	return lerpf(lerpf(a, b, tx), lerpf(c, d, tx), tz)
+
+## The height a tree of `kind`, grown `grow` times, stands at where the ground
+## at (x, z) is `ground` high: let into a slope until the downhill side of its
+## foot meets the ground, as the trunk of a tree that rose there would be. On
+## the level the model's own foot hides in the ground; on a slope it would
+## stand out over it like a plate.
+static func seat(fields: VegetationTerrain, x: float, z: float, ground: float, kind: int, grow: float) -> float:
+	var reach: float = FOOT_REACH[kind] * grow
+	var lowest := ground
+	for turn in 8:
+		var side := Vector2.from_angle(turn * TAU / 8.0) * reach
+		lowest = minf(lowest, fields.height(x + side.x, z + side.y))
+	return maxf(lowest, ground - SEAT_DEPTH)
 
 ## Dry, open ground: above the lake and its wet margin, off paths and beaches,
 ## and `clearance` metres from buildings and props.

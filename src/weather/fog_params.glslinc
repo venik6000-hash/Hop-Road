@@ -17,6 +17,8 @@ layout(set = 0, binding = 0, std140) uniform Params {
 	vec4 height_rect;     // the far heightfield, the same
 	vec4 room_min;        // the building the fog stays out of; w: 1 when there is one
 	vec4 room_max;        // w: debug view
+	vec4 wood;            // the fog a wood holds under its crowns. x: extinction (1/m), y: its top above the ground (m), z: falloff above the top (m), w: share of the sun and the moon the crowns let into it
+	vec4 canopy_rect;     // the crowns' cover field: origin x, origin z, cell (m), samples (0: none)
 	vec4 lit;             // x: lamps lit in the fog, y: 1 when the lake's mirror takes the fog beyond it, z: how high the lake's waves reach (m)
 	vec4 lamps[32];       // a lamp is two rows. xyz: where it is (m), w: the fog's scattering around it (1/m);
 	                      // rgb: what a metre of that fog sends on of its light, a: how far its light reaches (m)

@@ -1,5 +1,5 @@
 extends Node3D
-## A constant-speed circuit over the open lake, west of the chapel island.
+## A constant-speed circuit over the open lake, west of the island.
 const SceneUtil = preload("res://src/common/scene_util.gd")
 const CENTRE := Vector3(-155.0, 29.0, -78.0)
 const RADII := Vector2(65.0, 28.0)

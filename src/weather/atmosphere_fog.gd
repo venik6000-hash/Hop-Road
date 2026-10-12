@@ -2,8 +2,9 @@ class_name AtmosphereFog
 extends CompositorEffect
 ## The weather's fog as a compositor pass on the HDR image, after Bauer 2019,
 ## "Creating the Atmospheric World of Red Dead Redemption 2": haze, the mist
-## bank on the lake and the lowland, rain fog under the clouds, the shafts the
-## mountains' and the clouds' shadows cut into them, and the rainbow.
+## bank on the lake and the lowland, rain fog under the clouds, the damp a
+## wood holds under its crowns, the shafts the mountains' and the clouds'
+## shadows cut into them, and the rainbow.
 ##
 ## fog_volume.glsl marches a small view-aligned grid (CELLS) once a frame and
 ## fog_apply.glsl lays it over the picture by each pixel's own depth. With no
@@ -18,6 +19,7 @@ extends CompositorEffect
 ## the main thread, and the render thread only reads that snapshot.
 
 const RdUtil = preload("res://src/common/rd_util.gd")
+const CanopyField = preload("res://src/vegetation/canopy_field.gd")
 const VOLUME_SHADER := "res://src/weather/fog_volume.glsl"
 const APPLY_SHADER := "res://src/weather/fog_apply.glsl"
 ## Columns, rows and depth slices of the grid.
@@ -25,7 +27,7 @@ const CELLS := Vector3i(160, 90, 48)
 ## Far edge of the first and of the last slice, m.
 const NEAR_EDGE := 2.0
 const FAR_EDGE := 24000.0
-const PARAM_FLOATS := 228
+const PARAM_FLOATS := 236
 ## Lights in this group glow in the fog (lanterns, a campfire).
 const LAMP_GROUP := &"fog_lamp"
 ## The nearest lamps that get a halo, and how far away one may be, m.
@@ -50,6 +52,17 @@ const HAZE_HEIGHT := 420.0
 const MIST_TOP := 5.0
 const MIST_FALLOFF := 4.0
 const MIST_REACH := 55.0
+## The fog a wood holds under its crowns in mist and rain: trunks melt into it
+## over 30-100 m. Its extinction (1/m) at an amount of 1, its top above the
+## ground and the falloff above the top (m), and the share of the sun and the
+## moon the crowns let into it.
+const WOOD_EXTINCTION := 0.018
+const WOOD_TOP := 11.0
+const WOOD_FALLOFF := 7.0
+const WOOD_SUN := 0.2
+## The cover of a stand (CanopyField.wooded_at) between which it holds no fog
+## and all of it. WOOD_COVER in fog_volume.glsl.
+const WOOD_COVER := Vector2(0.1, 0.5)
 ## Metres a second the mist drifts with a wind of 1 m/s.
 const MIST_DRIFT := 0.35
 ## Height (m) the clouds' shadow on the fog is taken at, as on the ground.
@@ -70,11 +83,12 @@ const SILENT := 0.002
 @export var lake_mirror := true
 
 ## Amounts 0..1 and above (WeatherSystem writes them): fog everywhere, the
-## mist bank, rain fog, the drops left in the air, lightning's light, and how
-## much of the day the clouds take.
+## mist bank, rain fog, the fog in the woods, the drops left in the air,
+## lightning's light, and how much of the day the clouds take.
 var haze := 0.0
 var mist := 0.0
 var rain := 0.0
+var wood := 0.0
 var droplets := 0.0
 var flash := 0.0
 var gloom := 0.0
@@ -82,6 +96,9 @@ var gloom := 0.0
 var sky: SkySystem
 var terrain: TerrainSystem
 var sun_shadow: SunShadowField
+## Where the crowns close the sky: the woods that hold their own fog (none
+## without it).
+var canopy: CanopyField
 ## The sky's weather map (assets/generated/sky/cloud_weather.png).
 var weather_map: Texture2D
 ## The building the fog stays out of (none while its size is zero).
@@ -113,6 +130,7 @@ var _drift := Vector2.ZERO
 var _level := 0.0
 var _weather_texture: RID
 var _height_texture: RID
+var _canopy_texture: RID
 
 func _init() -> void:
 	effect_callback_type = EFFECT_CALLBACK_TYPE_POST_TRANSPARENT
@@ -126,7 +144,7 @@ func _notification(what: int) -> void:
 
 ## Whether there is anything in the air to draw.
 func active() -> bool:
-	return haze > SILENT or mist > SILENT or rain > SILENT or droplets > SILENT
+	return haze > SILENT or mist > SILENT or rain > SILENT or wood > SILENT or droplets > SILENT
 
 ## Takes this frame's state for the render thread. Call once a frame, with
 ## the eye's place and the lights that may glow in the fog.
@@ -138,6 +156,8 @@ func prepare(delta: float, eye := Vector3.ZERO, lamps: Array = []) -> void:
 	_level = terrain.water_level
 	_weather_texture = weather_map.get_rid() if weather_map != null else RID()
 	_height_texture = (terrain.material.get_shader_parameter("far_height") as Texture2D).get_rid()
+	var crowns := canopy.rect() if canopy != null and canopy.texture != null else Vector4.ZERO
+	_canopy_texture = canopy.texture.get_rid() if crowns.w > 0.0 else RID()
 	var sun := sky.sun_direction
 	var moon := sky.moon_direction
 	# A closed sky lets no beam through: what it passes is in the sky's light.
@@ -162,6 +182,8 @@ func prepare(delta: float, eye := Vector3.ZERO, lamps: Array = []) -> void:
 		terrain.far_origin.x, terrain.far_origin.y, terrain.far_cell, terrain.far_size,
 		building.position.x, building.position.y, building.position.z, 1.0 if building.has_volume() else 0.0,
 		building.end.x, building.end.y, building.end.z, float(debug_view),
+		wood * WOOD_EXTINCTION, WOOD_TOP, WOOD_FALLOFF, WOOD_SUN,
+		crowns.x, crowns.y, crowns.z, crowns.w,
 	])
 	var outdoors := 1.0 - EyeAdaptation.indoors(eye, rooms)
 	var rows := lamp_rows(eye, lamps, outdoors) if lamp_halos and outdoors > 0.01 else PackedFloat32Array()
@@ -171,8 +193,8 @@ func prepare(delta: float, eye := Vector3.ZERO, lamps: Array = []) -> void:
 	values.resize(PARAM_FLOATS - 40)
 	_frame = values
 
-## The fog's extinction (1/m) around `at`: the shader's haze, mist bank and
-## rain fog, without their clots.
+## The fog's extinction (1/m) around `at`: the shader's haze, mist bank, rain
+## fog and the fog of a wood, without their clots.
 func density_at(at: Vector3) -> float:
 	var above := at.y - terrain.water_level
 	var density := haze * HAZE_EXTINCTION * exp(-maxf(above, 0.0) / HAZE_HEIGHT)
@@ -183,7 +205,16 @@ func density_at(at: Vector3) -> float:
 		density += mist * MIST_EXTINCTION * low * MIST_BANKS * (1.0 if above <= top else exp(-(above - top) / MIST_FALLOFF))
 	if at.y < WeatherSystem.CLOUD_BASE:
 		density += rain * RAIN_EXTINCTION * RAIN_COVER
+	if wood > SILENT and canopy != null:
+		var crown_top := terrain.height_at(at.x, at.z) + WOOD_TOP
+		density += wood * WOOD_EXTINCTION * wood_share(canopy.wooded_at(at.x, at.z)) \
+			* (1.0 if at.y <= crown_top else exp(-(at.y - crown_top) / WOOD_FALLOFF))
 	return density
+
+## How much of its fog a stand holds, 0..1, by how much of the sky its crowns
+## close.
+static func wood_share(cover: float) -> float:
+	return smoothstep(WOOD_COVER.x, WOOD_COVER.y, cover)
 
 ## The parameter rows of the lamps that glow in the fog, the nearest to `eye`
 ## first, eight numbers a lamp: where it is and the fog's scattering there,
@@ -293,6 +324,12 @@ func _render_callback(callback_type: int, render_data: RenderData) -> void:
 	var shadows := sun_shadow.far_field.texture_rd_rid if sun_shadow != null else RID()
 	if not shadows.is_valid():
 		shadows = heights
+	# The same for the crowns' field: its rect says "none" without it.
+	var crowns := heights
+	if _canopy_texture.is_valid():
+		crowns = RenderingServer.texture_get_rd_texture(_canopy_texture)
+		if not crowns.is_valid():
+			return
 	for view in buffers.get_view_count():
 		var values := PackedFloat32Array()
 		var projection := image_projection(data.get_view_projection(view))
@@ -309,7 +346,7 @@ func _render_callback(callback_type: int, render_data: RenderData) -> void:
 			RdUtil.image(1, _fog_volume), RdUtil.image(2, _bow_volume),
 			RdUtil.sampled(3, _linear, shadows), RdUtil.sampled(4, _repeat, weather),
 			RdUtil.sampled(5, _linear, sky.atmosphere.skyview_lut.texture_rd_rid), RdUtil.sampled(6, _linear, heights),
-			RdUtil.image(7, _mirror_fog)])
+			RdUtil.image(7, _mirror_fog), RdUtil.sampled(8, _linear, crowns)])
 		var list := _rd.compute_list_begin()
 		_rd.compute_list_bind_compute_pipeline(list, _volume_pipeline)
 		_rd.compute_list_bind_uniform_set(list, volume_set, 0)

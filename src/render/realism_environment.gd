@@ -4,12 +4,21 @@ extends RefCounted
 ## aerial perspective fog driven by the physical sky. Used by the playable
 ## level and by every lookdev probe so both render the same picture.
 
+## The share of the sky's light that falls into the shade (0..1). With all of
+## it the shadows of an open day stood pale and the picture flat; with none the
+## sun alone lit the land and the shade was black: nothing could be made out
+## in it by day, and under a closed sky, whose light is all the sky's, the land
+## was close to black. This much leaves the shade deep and what stands in it
+## to be seen.
+const SKY_FILL := 0.3
+
 static func build(sky: Sky) -> Environment:
 	var environment := Environment.new()
 	environment.background_mode = Environment.BG_SKY
 	environment.sky = sky
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	environment.ambient_light_sky_contribution = 1.0
+	environment.ambient_light_color = Color.BLACK
+	environment.ambient_light_sky_contribution = SKY_FILL
 	environment.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 
 	environment.tonemap_mode = Environment.TONE_MAPPER_ACES
@@ -43,7 +52,7 @@ static func build(sky: Sky) -> Environment:
 	# them, as air does over kilometres.
 	environment.fog_enabled = true
 	environment.fog_mode = Environment.FOG_MODE_EXPONENTIAL
-	environment.fog_density = 0.00004
+	environment.fog_density = 0.00005
 	environment.fog_aerial_perspective = 1.0
 	environment.fog_sky_affect = 0.0
 	environment.fog_light_color = Color(0.62, 0.72, 0.86)

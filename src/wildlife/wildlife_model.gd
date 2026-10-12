@@ -7,6 +7,7 @@ const BIRDS := ["bird", "raven", "seagull"]
 ## Fish of a cold mountain lake: rudd, perch, trout and pike.
 const FISH := ["fish", "perch", "trout", "pike"]
 const UNDERWATER := preload("res://src/wildlife/underwater_life.gdshader")
+const OutdoorScan = preload("res://src/render/outdoor_scan.gd")
 static var scenes: Dictionary = {}
 static var materials: Dictionary = {}
 static var bird_materials: Dictionary = {}
@@ -31,6 +32,13 @@ static func instantiate(kind: String, distance: float) -> Node3D:
 			for surface in mesh.mesh.get_surface_count():
 				var original := material_for(mesh, surface) as StandardMaterial3D
 				mesh.set_surface_override_material(surface, underwater_material(original, kind))
+		else:
+			# The animals of the land stand in its weather: the sun behind the
+			# clouds and the crowns, the rain darkening their backs.
+			for surface in mesh.mesh.get_surface_count():
+				var original := material_for(mesh, surface) as StandardMaterial3D
+				if original != null:
+					mesh.set_surface_override_material(surface, OutdoorScan.material(original, 0.0))
 	return model
 
 ## Actors animate skeletons, never these material values. Keeping the original

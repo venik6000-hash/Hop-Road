@@ -27,7 +27,8 @@ static func place_composed(placer: TreePlacer, composed: Array) -> void:
 		var grow := clampf(target / TreePlacer.SPECIES_HEIGHT[kind], 0.45, 1.25 if kind != TreePlacer.FIR_YOUNG else 2.0)
 		if not placer.ground_ok(px, pz, TreePlacer.SPECIES_CROWN[kind] * grow * 0.45, 0.3):
 			continue
-		placer.trees.add(px, placer.terrain.height(px, pz), pz, float(entry.get("yaw", 0.0)), grow, 1.0, kind,
+		placer.trees.add(px, TreePlacer.seat(placer.terrain, px, pz, placer.terrain.height(px, pz), kind, grow), pz,
+			float(entry.get("yaw", 0.0)), grow, 1.0, kind,
 			TreePlacer.unit(TreePlacer.hash_u32(h + 7)), TreeSet.DETAIL | TreeSet.COMPOSED)
 		var key := Vector2i(floori(px / 8.0), floori(pz / 8.0))
 		if not placer._composed_grid.has(key):

@@ -2,10 +2,15 @@ class_name NpcPopulation
 extends Node3D
 var actors: Array[VillageNPC] = []
 var bartender: VillageNPC
+## The villagers' sheets and what has grown between them and the player.
+var people := PeopleBook.load_folder()
 
 func _ready() -> void:
-	bartender = spawn("civilian_1", "bartender", "Трактирщик", Vector3(11.6, 6.95, -12.43), PI)
-	spawn("bartender", "stir", "Повар у очага", Vector3(23.7, 6.66, -8.61))
+	bartender = settle("borr", "civilian_1", "bartender", Vector3(11.6, 6.95, -12.43), PI)
+	# The cook and his brother wear the monk's model here: the licence of
+	# theirs does not let its files be shared.
+	settle("tomas", "monk", "chop", Vector3(21.15, 6.66, -4.78))
+	settle("marta", "bartender", "stir", Vector3(23.7, 6.66, -8.61))
 	var cutting := Node3D.new()
 	cutting.name = "FoodPreparation"
 	add_child(cutting)
@@ -48,21 +53,41 @@ func _ready() -> void:
 	puff.material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	steam.mesh = puff
 	steam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	var maid := spawn("bartender", "maid", "Работница таверны", Vector3(13.9, 6.95, -10.65))
+	var maid := settle("lina", "bartender", "maid", Vector3(13.9, 6.95, -10.65))
 	if maid != null:
 		maid.route.assign([Vector3(13.9,6.95,-10.65), Vector3(13.9,6.95,-7.5), Vector3(11,6.95,-7.5), Vector3(11,6.95,-3.0)])
-	# The tested village road; no diagonal shortcuts through houses.
+	# The tested village road; no diagonal shortcuts through houses. Beside
+	# the tavern's yard its retaining wall takes the lane's east side, and
+	# the road keeps a metre further west.
 	var road: Array[Vector3] = []
 	for source_y in range(-12, 45, 4):
 		var y := float(source_y)
 		var x := -3.5 + 3.5 * sin((y + 11.0) * 0.079) - 0.09 * maxf(0.0, y) + 0.63 * maxf(0.0, -y - 3.0) - minf(10.0, maxf(0.0, (y - 20.0) * 0.5))
+		x -= smoothstep(-12.0, -8.0, y) * (1.0 - smoothstep(0.0, 4.0, y))
 		road.append(Vector3(x, 15, -y))
-	var monk := spawn("monk", "wander", "Странствующий монах", road[3])
+	var monk := settle("savva", "monk", "wander", road[3])
 	if monk != null: monk.route.assign(road)
-	# A civilian also joins the village foot traffic.
-	var villager := spawn("civilian_1", "wander", "Житель деревни", road[6])
-	if villager != null: villager.route.assign(road)
+	# The innkeeper's double and the cook's are their brothers; both join the
+	# village foot traffic.
+	for i in range(2):
+		var villager := settle(["kul", "ivar"][i], ["civilian_1", "monk"][i], "wander", road[6 + i * 3])
+		if villager != null: villager.route.assign(road)
 	_place_walkers.call_deferred()
+
+## A villager with a sheet (PeopleBook): goes by the role until the name is told.
+func settle(person: String, model: String, job: String, point: Vector3, yaw := 0.0) -> VillageNPC:
+	var actor := spawn(model, job, people.label(person), point, yaw)
+	if actor != null:
+		actor.person_id = person
+		actor.work_point = point
+		actor.work_yaw = yaw
+	return actor
+
+## Names the villagers by what the player knows of them now.
+func refresh_titles() -> void:
+	for actor in actors:
+		if people.knows(actor.person_id):
+			actor.title = people.label(actor.person_id)
 
 func spawn(model: String, job: String, title: String, point: Vector3, yaw := 0.0) -> VillageNPC:
 	var path := "res://assets/models/npc/" + model + ".glb"
@@ -99,3 +124,10 @@ func _place_walkers() -> void:
 		ray.exclude = exclude
 		var hit := get_world_3d().direct_space_state.intersect_ray(ray)
 		if not hit.is_empty(): actor.global_position = hit.position + Vector3.UP * 0.03
+
+## The villager with the sheet `person`; null when there is none.
+func actor_of(person: String) -> VillageNPC:
+	for actor in actors:
+		if actor.person_id == person:
+			return actor
+	return null

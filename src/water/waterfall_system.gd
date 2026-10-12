@@ -1,20 +1,23 @@
 class_name WaterfallSystem
 extends Node3D
-## The two falls below the plateau west of the village and the stream on the
-## shelf between them, in place of the Blender scene's modelled ribbons.
+## The two falls below the plateau west of the village, the stream that feeds
+## the upper one and the stream on the shelf between them, in place of the
+## Blender scene's modelled ribbons.
 ##
-## All of it is the lake's water: the stream, the falling sheets and the foam
+## All of it is the lake's water: the streams, the falling sheets and the foam
 ## where the lower fall lands are shaded with the lake's optics
 ## (water_look.gdshaderinc), their parameters copied from the lake's own
 ## material, which is left as it is. Each fall is a pair of sheets along the
 ## ballistic path of water leaving its lip (a front sheet and a narrower one
-## behind it, for depth), with spray and mist where it lands. The upper fall
-## lands in a basin on the 17 m shelf whose stream runs over the lower cliff's
-## rock to the lip of the lower fall; that one plunges into a cove of the lake
-## and its foam streams out over the lake's surface. The basin, the channel
-## and the cove are cut into the terrain by tools/pipeline/terrain/terrain.py
-## (SHELF_*, POOL_*), and the rock faces behind stand where
-## RockField.CLIFF_FACES puts them.
+## behind it, for depth), with spray and mist where it lands. The water rises
+## from a spring among boulders on the plateau, runs down the shoulder behind
+## the upper cliff and over the rock of its top, and falls from its brink into
+## a basin on the 17 m shelf, whose stream runs over the lower cliff's rock to
+## the lip of the lower fall; that one plunges into a cove of the lake and its
+## foam streams out over the lake's surface. The basin, the channel and the
+## cove are cut into the terrain by tools/pipeline/terrain/terrain.py
+## (SHELF_*, POOL_*), the bed above the upper fall by carve(), and the rock
+## faces stand where RockField.CLIFF_FACES puts them.
 
 const SHEET_SHADER := preload("res://src/water/waterfall.gdshader")
 const STREAM_SHADER := preload("res://src/water/stream.gdshader")
@@ -29,23 +32,41 @@ const REPLACES := ["Two stepped waterfalls - modeled ribbons", "Waterfall splash
 ## it leaves unset keep the lake shader's defaults, which the include repeats.
 const LAKE_LOOK := ["absorption", "scatter_color", "deep_color", "refraction_strength", "base_roughness",
 	"foam_color", "sss_strength", "macro_noise"]
-## lip: centre of the crest; heading: direction of the flow in degrees (0 = +z,
-## toward the lake); speed: of the water over the lip (m/s) and dip: its
-## downward speed there; width at the lip and how much wider it is at the
-## bottom; depth: the water's thickness over the lip (m); approach: seconds of
-## sheet before the lip, sliding over it; floor: the surface it falls into;
-## mist: strength of the spray and mist where it lands.
-const UPPER_FALL := {"lip": Vector3(-50.0, 29.95, -147.9), "heading": 0.0, "speed": 2.4, "dip": 0.0,
-	"width": 3.2, "spread": 1.8, "depth": 0.25, "approach": 0.25, "floor": 16.35, "mist": 0.6}
-## The lower fall leaves where the stream ends, along its last stretch (falls()).
+## A fall leaves where its stream ends, along its last stretch (falls()), which
+## gives it its lip (the centre of the crest), its heading (the direction of
+## the flow in degrees, 0 = +z, toward the lake) and its dip (the water's
+## downward speed over the lip). speed: of the water over the lip (m/s); width
+## at the lip and how much wider it is at the bottom; depth: the water's
+## thickness over the lip (m); approach: seconds of sheet before the lip,
+## sliding over it; floor: the surface it falls into; mist: strength of the
+## spray and mist where it lands.
+const UPPER_FALL := {"speed": 3.0, "width": 2.4, "spread": 2.2, "depth": 0.25, "approach": 0.03,
+	"floor": 16.35, "mist": 0.6}
 const LOWER_FALL := {"speed": 3.0, "width": 3.6, "spread": 2.0, "depth": 0.3, "approach": 0.03,
 	"floor": 0.72, "mist": 1.0}
+## The stream above the upper fall: its surface on the centre line, half the
+## water's width, the speed of the flow (m/s) and the depth of the bed carve()
+## cuts for it (m). From the spring it winds over the plateau, set into the
+## ground as the village brook is, and runs down the shoulder the cliff's seat
+## left behind the scan (tools/pipeline/rocks/cliff_seat.py), whose back rim
+## its banks close on at z = -151. From there it is over the scan's top, where
+## nothing is cut (depth 0): a film over the rock, as deep as the notch the
+## scan has there, to the brink the fall leaves from.
+const HEAD := [
+	[Vector3(-45.4, 29.66, -162.6), 0.4, 0.3, 0.3], [Vector3(-46.2, 29.63, -160.4), 0.6, 0.5, 0.3],
+	[Vector3(-47.6, 29.6, -158.6), 0.75, 0.6, 0.32], [Vector3(-49.2, 29.57, -157.2), 0.85, 0.8, 0.3],
+	[Vector3(-49.9, 29.52, -156.2), 0.9, 1.2, 0.28], [Vector3(-50.0, 29.47, -155.3), 0.9, 1.8, 0.25],
+	[Vector3(-49.9, 28.32, -153.0), 0.9, 3.4, 0.22], [Vector3(-49.8, 27.76, -151.6), 1.0, 3.6, 0.15],
+	[Vector3(-49.8, 27.64, -151.0), 1.2, 3.2, 0.05], [Vector3(-49.8, 27.55, -150.5), 1.2, 3.0, 0.0],
+	[Vector3(-49.8, 27.42, -150.0), 1.15, 3.0, 0.0], [Vector3(-49.7, 27.36, -149.5), 1.05, 3.0, 0.0],
+	[Vector3(-49.7, 27.32, -149.2), 1.05, 3.0, 0.0],
+]
 ## The shelf stream: its surface on the centre line (the water level in y, as
 ## terrain.py's SHELF_STREAM cuts the channel), half the ribbon's width and the
-## speed of the flow (m/s). From under the cliff behind the upper fall's basin
-## to the lower fall's lip; the ribbon runs into the banks but at the lip.
+## speed of the flow (m/s). From the foot of the cliff behind the upper fall's
+## basin to the lower fall's lip; the ribbon runs into the banks but at the lip.
 const STREAM := [
-	[Vector3(-50.0, 16.35, -147.6), 4.6, 0.2], [Vector3(-50.0, 16.35, -145.0), 4.9, 0.25],
+	[Vector3(-50.0, 16.35, -149.4), 4.4, 0.2], [Vector3(-50.0, 16.35, -145.0), 4.9, 0.25],
 	[Vector3(-49.8, 16.34, -142.2), 4.3, 0.5], [Vector3(-49.2, 16.32, -138.6), 2.8, 1.0],
 	[Vector3(-50.3, 16.27, -133.2), 2.8, 1.2], [Vector3(-49.7, 16.2, -130.2), 2.8, 1.8],
 	[Vector3(-49.5, 15.85, -128.6), 1.8, 3.0],
@@ -62,6 +83,11 @@ const FOAM_PRIORITY := 1
 const SHEET_PRIORITY := 2
 const MIST_PRIORITY := 3
 
+## Rows of the stream above the upper fall, as VillageBrook.rows has the
+## brook's: {at: Vector3 (the surface on the centre line), half, speed, depth,
+## step: bool (white water)}. Worked out by carve().
+static var head: Array[Dictionary] = []
+
 var map: Node3D
 var water: WaterSystem
 
@@ -75,7 +101,7 @@ func _ready() -> void:
 				item.queue_free()
 	_weather = load("res://assets/generated/sky/cloud_weather.png")
 	var all := WaterfallSystem.falls()
-	var sheet := _lake_material(SHEET_SHADER, SHEET_PRIORITY)
+	var sheet := sheet_material()
 	for index in all.size():
 		var fall := all[index]
 		var item := MeshInstance3D.new()
@@ -87,21 +113,49 @@ func _ready() -> void:
 		item.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 		add_child(item)
 		Spray.add_mist(self, WaterfallSystem.landing_of(fall), fall.width + fall.spread, fall.mist)
+	_add_head()
 	_add_stream(WaterfallSystem.landing_of(all[0]))
 	if water != null:
 		_add_plunge_foam(WaterfallSystem.landing_of(all[1]))
 
-## Both falls; the lower one leaves where the stream ends, along its last stretch.
+## Both falls, the upper one first.
 static func falls() -> Array[Dictionary]:
-	var lower := LOWER_FALL.duplicate()
-	var last: Vector3 = STREAM[-1][0]
-	var before: Vector3 = STREAM[-2][0]
+	return [WaterfallSystem._fall_from(UPPER_FALL, HEAD), WaterfallSystem._fall_from(LOWER_FALL, STREAM)]
+
+## `fall` leaving where `course` ends, along its last stretch.
+static func _fall_from(fall: Dictionary, course: Array) -> Dictionary:
+	var leaving := fall.duplicate()
+	var last: Vector3 = course[-1][0]
+	var before: Vector3 = course[-2][0]
 	var run := Vector2(last.x - before.x, last.z - before.z)
-	var speed: float = lower.speed
-	lower.lip = last
-	lower.heading = rad_to_deg(atan2(run.x, run.y))
-	lower.dip = speed * (before.y - last.y) / run.length()
-	return [UPPER_FALL, lower]
+	var speed: float = leaving.speed
+	leaving.lip = last
+	leaving.heading = rad_to_deg(atan2(run.x, run.y))
+	leaving.dip = speed * (before.y - last.y) / run.length()
+	return leaving
+
+## HEAD every VillageBrook.STEP metres.
+static func head_rows() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for k in HEAD.size() - 1:
+		var here: Array = HEAD[k]
+		var next: Array = HEAD[k + 1]
+		var a: Vector3 = here[0]
+		var b: Vector3 = next[0]
+		var count := maxi(roundi(Vector2(b.x - a.x, b.z - a.z).length() / VillageBrook.STEP), 1)
+		for s in count + (1 if k == HEAD.size() - 2 else 0):
+			var f := float(s) / count
+			var speed := lerpf(here[2], next[2], f)
+			result.append({"at": a.lerp(b, f), "half": lerpf(here[1], next[1], f), "speed": speed,
+				"depth": lerpf(here[3], next[3], f), "step": speed > 2.0})
+	return result
+
+## Cuts the bed of the stream above the upper fall into the near heightfield
+## (row z, column x at origin + index * cell), after the cliff's seat is laid
+## into it (RockField.seat), and remembers the course for the water.
+static func carve(image: Image, origin: Vector2, cell: float) -> void:
+	head = WaterfallSystem.head_rows()
+	VillageBrook.cut(image, origin, cell, head)
 
 ## Seconds the water of `fall` takes to drop `height` metres below its lip.
 static func fall_time(fall: Dictionary, height: float) -> float:
@@ -153,6 +207,10 @@ func _lake_material(shader: Shader, priority: int) -> ShaderMaterial:
 static func ribbon_mesh(course: Array, steps: int) -> ArrayMesh:
 	return Meshes.ribbon_mesh(course, steps)
 
+## The falls' shader on the lake's optics, for `fall_mesh` sheets anywhere.
+func sheet_material() -> ShaderMaterial:
+	return _lake_material(SHEET_SHADER, SHEET_PRIORITY)
+
 ## The stream shader on the lake's optics, for `ribbon_mesh` ribbons anywhere.
 func stream_material() -> ShaderMaterial:
 	var material := _lake_material(STREAM_SHADER, STREAM_PRIORITY)
@@ -160,13 +218,33 @@ func stream_material() -> ShaderMaterial:
 		material.set_shader_parameter("water_level", water.water_level)
 	return material
 
+## The ribbon of the stream above the upper fall: a brook, white where it
+## runs fast, that reaches into its banks as the village's does.
+func _add_head() -> void:
+	var course := []
+	for row: Dictionary in head:
+		course.append([row.at, row.half + VillageBrook.INTO_BANK, row.speed])
+	var material := stream_material()
+	material.set_shader_parameter("landing", Vector2(1e6, 1e6))
+	material.set_shader_parameter("rapids", 0.85)
+	# Past the brink the eye looks through it down into the basin, whose
+	# water is not in the screen copy.
+	material.set_shader_parameter("water_level", UPPER_FALL.floor)
+	material.set_shader_parameter("max_depth", 0.5)
+	material.set_shader_parameter("ripple_scale", 0.3)
+	material.set_shader_parameter("swirl_height", 0.02)
+	_add_ribbon("HeadStream", WaterfallSystem.ribbon_mesh(course, 1), material)
+
 ## The ribbon of the shelf stream.
 func _add_stream(landing: Vector3) -> void:
 	var material := stream_material()
 	material.set_shader_parameter("landing", Vector2(landing.x, landing.z))
+	_add_ribbon("ShelfStream", WaterfallSystem.ribbon_mesh(STREAM, 6), material)
+
+func _add_ribbon(ribbon_name: String, mesh: ArrayMesh, material: ShaderMaterial) -> void:
 	var item := MeshInstance3D.new()
-	item.name = "ShelfStream"
-	item.mesh = WaterfallSystem.ribbon_mesh(STREAM, 6)
+	item.name = ribbon_name
+	item.mesh = mesh
 	item.material_override = material
 	item.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	item.gi_mode = GeometryInstance3D.GI_MODE_DISABLED

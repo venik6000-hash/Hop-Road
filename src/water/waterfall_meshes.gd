@@ -5,6 +5,9 @@ extends RefCounted
 ## Front sheet and a narrower one 0.4 m behind it, from `approach` seconds
 ## before the lip (still sliding over it) to 0.8 m under the floor. The one
 ## behind comes first: the sheets are blended in the order they are drawn.
+## A small fall says otherwise: `behind`, how far back its second sheet lies,
+## and `sink`, how far under its floor it goes (the mill's spout, whose water
+## ends in the wheel's buckets).
 static func fall_mesh(fall: Dictionary) -> ArrayMesh:
 	var points := PackedVector3Array()
 	var normals := PackedVector3Array()
@@ -21,11 +24,11 @@ static func fall_mesh(fall: Dictionary) -> ArrayMesh:
 	var heading := deg_to_rad(fall.heading)
 	var ahead := Vector3(sin(heading), 0.0, cos(heading))
 	var side := Vector3(ahead.z, 0.0, -ahead.x)
-	var t_end := WaterfallSystem.fall_time(fall, lip.y - floor_y + 0.8)
+	var t_end := WaterfallSystem.fall_time(fall, lip.y - floor_y + float(fall.get("sink", 0.8)))
 	var t_start: float = -fall.approach
 	for layer: int in [1, 0]:
 		var base := points.size()
-		var behind := 0.4 * layer
+		var behind := float(fall.get("behind", 0.4)) * layer
 		var narrow := 1.0 - 0.2 * layer
 		for i in WaterfallSystem.SHEET_ROWS + 1:
 			# Rows crowd toward the lip, where the water is slow and the sheet turns.
@@ -63,8 +66,9 @@ static func _grid_indices(indices: PackedInt32Array, base: int, rows: int, colum
 ## centre line, half width, speed m/s]), `steps` rows per stretch: rows across
 ## the flow, UV = (across 0..1, metres along), UV2 = (metres from the centre
 ## line, flow speed), COLOR.r = half the width / 8, tangent across with the
-## binormal downstream.
-static func ribbon_mesh(course: Array, steps: int) -> ArrayMesh:
+## binormal downstream. A ribbon the shader is not to thin out at its edges
+## (water between boards) names its half width `edge` metres wider than it is.
+static func ribbon_mesh(course: Array, steps: int, edge := 0.0) -> ArrayMesh:
 	var points := PackedVector3Array()
 	var normals := PackedVector3Array()
 	var tangents := PackedFloat32Array()
@@ -93,7 +97,7 @@ static func ribbon_mesh(course: Array, steps: int) -> ArrayMesh:
 				normals.append(normal)
 				# w = -1: the binormal (normal x tangent) points downstream.
 				tangents.append_array([side.x, side.y, side.z, -1.0])
-				colors.append(Color(half / 8.0, 0.0, 0.0, 1.0))
+				colors.append(Color((half + edge) / 8.0, 0.0, 0.0, 1.0))
 				uvs.append(Vector2(u, along + length * f))
 				uv2s.append(Vector2(across, speed))
 			rows += 1

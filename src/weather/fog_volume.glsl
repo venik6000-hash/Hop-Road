@@ -3,7 +3,8 @@
 // The fog between the eye and everything it sees, after Bauer 2019,
 // "Creating the Atmospheric World of Red Dead Redemption 2": one data model
 // (haze thinning with height, a fog map's bank lying on the lowland and the
-// lake, rain fog under the rain clouds, a building the fog stays out of), one
+// lake, rain fog under the rain clouds, the damp a wood holds under its
+// crowns, a building the fog stays out of), one
 // lighting model (the sun through the mountains' and the clouds' shadows, two
 // phase octaves with a back-scatter floor, the sky's ambient, the moon,
 // lightning), marched once per column of a view-aligned grid and kept at
@@ -14,6 +15,8 @@
 // the haze and the bank are exponentials of height and a ray's height is
 // linear along it. One jittered sample per slice stands for what is not
 // (the shadows, the bank's noise, the cloud above).
+//
+// The import does not follow the include: see fog_apply.glsl. Block of 236 floats.
 #include "../sky/atmosphere_common.glslinc"
 #include "fog_params.glslinc"
 
@@ -31,6 +34,9 @@ layout(set = 0, binding = 3) uniform sampler2D shadow_field;
 layout(set = 0, binding = 4) uniform sampler2D cloud_weather;
 layout(set = 0, binding = 5) uniform sampler2D skyview_lut;
 layout(set = 0, binding = 6) uniform sampler2D ground_height;
+// How much of the sky the crowns close over the ground, a metre to a texel
+// with its mips (src/vegetation/canopy_field.gd).
+layout(set = 0, binding = 8) uniform sampler2D canopy_cover;
 
 const vec3 HAZE_ALBEDO = vec3(0.9, 0.94, 1.0);
 const vec3 MIST_ALBEDO = vec3(0.985);
@@ -41,6 +47,14 @@ const float PHASE_G = 0.8;
 // Extinction (1/m) over which the back-scatter floor comes up.
 const vec2 BACK_SCATTER = vec2(0.004, 0.03);
 const float SUN_SHADOW_SPREAD = 0.0093;
+// The cover of a stand between which it holds no fog and all of it.
+const vec2 WOOD_COVER = vec2(0.1, 0.5);
+// The mips of the cover a stretch reads: no finer than a stand (CANOPY_WIDE_LEVEL
+// of the surfaces' shaders), no coarser than a wood.
+const vec2 WOOD_LEVELS = vec2(2.0, 6.0);
+// Metres from the field's edge over which its fog fades: beyond it the woods
+// are impostors and nothing says where they stand.
+const float WOOD_EDGE = 80.0;
 
 float henyey_greenstein(float cos_theta, float g) {
 	float g2 = g * g;
@@ -80,8 +94,8 @@ float mean_bank(float ya, float yb, float top, float height) {
 	return (max(top - low, 0.0) + height * (exp(-above / height) - exp(-(high - top) / height))) / (high - low);
 }
 
-// The sky's cloud cover over a point of the map, as the ground shaders shade
-// by it (src/sky/cloud_shadow.gdshaderinc).
+// The sky's cloud cover over a point of the map, from the weather map the
+// ground shaders read their cloud shadows from (src/sky/cloud_shadow.gdshaderinc).
 float cloud_cover(vec2 xz) {
 	vec4 weather = textureLod(cloud_weather, (xz * 0.001 + p.drift.xy) * 0.016, 0.0);
 	float coverage = clamp(p.cloud.x + (weather.r - 0.5) * 0.95, 0.0, 1.0);
@@ -98,6 +112,23 @@ float ridge_visibility(vec3 at) {
 	float soft = p.shadow_rect.z * 0.3;
 	float half_width = max(soft, field.g * SUN_SHADOW_SPREAD);
 	return 1.0 - smoothstep(0.0, 2.0 * half_width, field.r - max(at.y - field.b, 0.0) - soft * 0.5);
+}
+
+// How much of its fog a wood holds round `at`, 0..1: the crowns' cover there,
+// taken from the mip whose texel is as long as the stretch of `length_m`
+// metres, so that the stretch's one sample stands for all of it.
+float wood_cover(vec3 at, float length_m) {
+	if (p.wood.x <= 0.0 || p.canopy_rect.w <= 0.0) {
+		return 0.0;
+	}
+	vec2 uv = ((at.xz - p.canopy_rect.xy) / p.canopy_rect.z + 0.5) / p.canopy_rect.w;
+	vec2 inside = min(uv, 1.0 - uv) * p.canopy_rect.w * p.canopy_rect.z;
+	float edge = clamp(min(inside.x, inside.y) / WOOD_EDGE, 0.0, 1.0);
+	if (edge <= 0.0) {
+		return 0.0;
+	}
+	float level = clamp(log2(max(length_m / p.canopy_rect.z, 1.0)), WOOD_LEVELS.x, WOOD_LEVELS.y);
+	return smoothstep(WOOD_COVER.x, WOOD_COVER.y, textureLod(canopy_cover, uv, level).r) * edge;
 }
 
 // The light a fog takes from the sky. Fog scatters forward, so most of what
@@ -141,8 +172,16 @@ void add_stretch(vec3 from, vec3 dir, float ta, float tb, float noise, float lev
 	}
 	float haze = p.haze.x * mean_falloff(max(ya, 0.0), max(yb, 0.0), p.haze.y);
 	float mist = 0.0;
+	float wood = wood_cover(at, length_m) * p.wood.x;
+	float ground = 0.0;
+	if (p.mist.x > 0.0 || wood > 0.0) {
+		ground = textureLod(ground_height, ((at.xz - p.height_rect.xy) / p.height_rect.z + 0.5) / p.height_rect.w, 0.0).r - level;
+	}
+	if (wood > 0.0) {
+		// The damp a wood keeps fills it to the crowns and thins above them.
+		wood *= mean_bank(ya, yb, ground + p.wood.y, p.wood.z);
+	}
 	if (p.mist.x > 0.0) {
-		float ground = textureLod(ground_height, ((at.xz - p.height_rect.xy) / p.height_rect.z + 0.5) / p.height_rect.w, 0.0).r - level;
 		// Thick on the water, thinner on the shore, gone up the slopes.
 		float low = mix(1.0, 0.45, smoothstep(0.2, 2.5, ground)) * (1.0 - smoothstep(p.mist.w * 0.35, p.mist.w, ground));
 		if (low > 0.0) {
@@ -157,7 +196,7 @@ void add_stretch(vec3 from, vec3 dir, float ta, float tb, float noise, float lev
 	if (p.rain.x > 0.0 && under_cloud > 0.0) {
 		rain = p.rain.x * mix(0.35, 1.0, cloud_cover(at.xz)) * under_cloud;
 	}
-	float extinction = haze + mist + rain;
+	float extinction = haze + mist + rain + wood;
 	float drops = p.rain.w * under_cloud;
 	if (extinction + drops <= 1e-9) {
 		return;
@@ -166,17 +205,24 @@ void add_stretch(vec3 from, vec3 dir, float ta, float tb, float noise, float lev
 	if (sun_up) {
 		sun_seen = ridge_visibility(at);
 		if (sun_seen > 0.0) {
+			// The clouds of a broken sky shade the sun in patches, as on the
+			// ground (src/sky/cloud_shadow.gdshaderinc); a closed layer has
+			// none, and its share of the sun is in p.sun_light already.
+			float broken = 1.0 - smoothstep(0.62, 0.95, p.cloud.x) * clamp(p.cloud.y, 0.0, 1.0);
 			vec2 above = at.xz + p.sun.xz / p.sun.y * (p.moon.w - at.y);
-			sun_seen *= 1.0 - cloud_cover(above) * p.sun_light.a;
+			sun_seen *= 1.0 - cloud_cover(above) * p.sun_light.a * broken;
 		}
 	}
-	vec3 light = p.sun_light.rgb * sun_seen * fog_phase(sun_cos, extinction)
-		+ p.moon_light.rgb * fog_phase(moon_cos, extinction) + ambient;
-	vec3 scattering = haze * HAZE_ALBEDO + mist * MIST_ALBEDO + rain * RAIN_ALBEDO;
+	vec3 beams = p.sun_light.rgb * sun_seen * fog_phase(sun_cos, extinction)
+		+ p.moon_light.rgb * fog_phase(moon_cos, extinction);
+	// The crowns stand between a wood's fog and the sun; the sky's light
+	// comes down through them from all round.
+	vec3 open_air = haze * HAZE_ALBEDO + mist * MIST_ALBEDO + rain * RAIN_ALBEDO;
+	vec3 sent = open_air * (beams + ambient) + wood * MIST_ALBEDO * (beams * p.wood.w + ambient);
 	float through = exp(-extinction * length_m);
 	// Light a stretch adds is itself dimmed on the way out of it.
 	float thickness = extinction > 1e-7 ? (1.0 - through) / extinction : length_m;
-	scattered += transmittance * light * scattering * thickness;
+	scattered += transmittance * sent * thickness;
 	bow += transmittance * sun_seen * drops * thickness;
 	transmittance *= through;
 }

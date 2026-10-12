@@ -45,8 +45,8 @@ const REFILL_STEP := 3.0
 const MARGIN := 6.0
 const CHUNK := 1024.0
 ## Trunk radius (m) at scale 1, from tools/pipeline/vegetation/build_trees.py
-## and, for the pines, assets/models/source/vegetation/trees_summary.json.
-const TRUNK_RADIUS := [0.18, 0.14, 0.25, 0.035, 0.3, 0.24, 0.14, 0.11, 0.12]
+## and, for the trees built on scans, assets/models/source/vegetation/trees_summary.json.
+const TRUNK_RADIUS := [0.17, 0.16, 0.13, 0.035, 0.3, 0.24, 0.14, 0.11, 0.12]
 const TRUNK_HEIGHT := 3.0
 ## How deep the shade under a crown is for what grows on the ground, by look
 ## group: spruces and firs hold their branches down to it, a beech lets
@@ -68,7 +68,7 @@ var grass: GrassField
 ## Per look group (TreePlacer.SPECIES_GROUP).
 var bark_materials: Array[ShaderMaterial] = []
 var foliage_materials: Array[ShaderMaterial] = []
-## Species index -> material of its scanned trunk (the pines).
+## Species index -> material of its scanned trunk (TreeMaterials.TRUNKS).
 var trunk_materials := {}
 var impostor_material := ShaderMaterial.new()
 ## Per species: impostor frame width, height and bottom (m at scale 1), look group.

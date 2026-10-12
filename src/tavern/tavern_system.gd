@@ -5,7 +5,11 @@ extends Node3D
 ## the same places; tavern.json names the old map objects the stages built so
 ## far replace. Their meshes go; their colliders stay where the new pieces
 ## fill the same volumes (the vegetation's obstacle scan keeps seeing them),
-## and go too where the new pieces bring their own (`drop_colliders`).
+## and go too where the new pieces bring their own or nothing stands in their
+## place (`drop_colliders`): the yard's old paving gave way to the terrain's
+## trodden earth. A piece the builder stood elsewhere takes its part of the
+## old collider with it (`moved_colliders`): the signpost left the middle of
+## the trail to the beach for the corner where that trail leaves the lane.
 ##
 ## Materials: one per table entry, found by the name the glTF surfaces carry:
 ## tavern_surface.gdshader for the building, tavern_glass.gdshader for the
@@ -15,6 +19,11 @@ extends Node3D
 ## ground outside. Reflection probes over the rooms hold their ambient light
 ## to the dim warm light of a room instead of the open sky's.
 
+##
+## The doorway: the porch ends above the vestibule's flags, and the stones
+## that join the two are laid by tavern_threshold.gd; the ground under the
+## stone floors is taken down by tavern_ground.gd as the terrain loads.
+
 ## The exported parts (build.py GROUPS): the building's shell, the interior.
 const PARTS := ["res://assets/models/tavern/tavern.json", "res://assets/models/tavern/tavern_interior.json"]
 ## The materials, the lights, the colliders and the dressing of the part
@@ -23,6 +32,7 @@ const TAVERN_MATERIALS = preload("res://src/tavern/tavern_materials.gd")
 const TAVERN_LIGHTS = preload("res://src/tavern/tavern_lights.gd")
 const TAVERN_COLLISION = preload("res://src/tavern/tavern_collision.gd")
 const TAVERN_DRESSING = preload("res://src/tavern/tavern_dressing.gd")
+const TAVERN_THRESHOLD = preload("res://src/tavern/tavern_threshold.gd")
 const SURFACE := TAVERN_MATERIALS.SURFACE
 const GLASS := TAVERN_MATERIALS.GLASS
 const FLAME := TAVERN_MATERIALS.FLAME
@@ -74,6 +84,9 @@ var _flame_seeds := PackedFloat64Array()
 var _flame_speeds := PackedFloat64Array()
 var _flame_sways := PackedFloat64Array()
 var _flame_origins := PackedVector3Array()
+## The other buildings whose rooms cast the sun's shadows as the tavern's do
+## (world space; see ROOM_SUN_LAYER).
+var room_shadow_bounds: Array[AABB] = []
 var _room_probes: Array[ReflectionProbe] = []
 var _last_probe_hour := -1000.0
 var _last_dark := -1.0
@@ -93,6 +106,7 @@ func _ready() -> void:
 		if FileAccess.file_exists(path):
 			_load_part(JSON.parse_string(FileAccess.get_file_as_string(path)))
 			parts += 1
+	TAVERN_THRESHOLD.build(self)
 	TAVERN_LIGHTS.add_hearth_fires(self)
 	_process(0.0)
 	var occlusion := preload("res://src/tavern/tavern_occlusion.gd").new()
@@ -106,7 +120,8 @@ func _load_part(table: Dictionary) -> void:
 	for seat: Dictionary in table.get("seats", []):
 		seats.append(seat)
 	TAVERN_MATERIALS.build(table, GROUND, _materials)
-	TAVERN_COLLISION.replace_old(self, table.get("replaces", []), table.get("drop_colliders", []))
+	TAVERN_COLLISION.replace_old(self, table.get("replaces", []), table.get("drop_colliders", []),
+		table.get("moved_colliders", []))
 	for path: String in table.get("scenes", []):
 		var scene := (load(path) as PackedScene).instantiate() as Node3D
 		scene.name = path.get_file().get_basename().to_pascal_case()
@@ -160,6 +175,8 @@ func _update_sun_casters() -> void:
 		return
 	var camera := get_viewport().get_camera_3d()
 	var near := camera == null or (global_transform * BUILDING_BOUNDS).grow(ROOM_SHADOW_REACH).has_point(camera.global_position)
+	for bounds: AABB in room_shadow_bounds:
+		near = near or bounds.grow(ROOM_SHADOW_REACH).has_point(camera.global_position)
 	if int(near) == _rooms_cast:
 		return
 	_rooms_cast = int(near)

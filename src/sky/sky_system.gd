@@ -15,12 +15,24 @@ const SKY_SHADER := preload("res://src/sky/sky.gdshader")
 	set(value):
 		time_of_day = fposmod(value, 24.0)
 		time_changed.emit(time_of_day)
-## Real minutes for a full day; 0 keeps the clock stopped.
-@export var day_length_minutes := 0.0
+## Real minutes the day (DayClock.DAY_START to DAY_END) and the night take;
+## the clock stands while either is 0.
+@export var day_minutes := 0.0
+@export var night_minutes := 0.0
 @export var latitude_deg := 47.0
 @export var day_of_year := 200
 ## Top-of-atmosphere sun intensity in Godot light units.
 @export var sun_energy := 4.0
+## The full moon's light at its height, in the same units: enough to walk by.
+@export var moon_energy := 0.5
+## The light a moonlit sky sends into the moon's shade, as a share of the
+## moon's own: the air that scatters it is not in the sky's shader, so it is
+## given to the environment's ambient colour (see `environment`).
+@export var night_fill := 0.5
+## The share of the sun's light on level ground that the lit land sends back
+## into the shade, by channel: grass and earth return a warm light, and
+## without it the shade has the sky's blue alone.
+@export var ground_bounce := Vector3(0.2, 0.176, 0.104)
 @export_range(0.0, 1.0) var cloud_coverage := 0.42
 @export_range(0.1, 3.0) var cloud_density := 1.0
 @export_range(-0.5, 0.5) var cloud_cumulus_bias := 0.1
@@ -55,6 +67,9 @@ var sun_irradiance := Vector3.ZERO
 var moon_irradiance := Vector3.ZERO
 var cloud_offset := Vector2(37.0, 12.0)
 var viewer: Node3D
+## The environment whose ambient colour takes the land's bounce by day and
+## the moonlit sky's light by night (none: neither).
+var environment: Environment
 ## The global shader parameter values _update last set (see _set_global).
 var _globals_sent: Array = []
 var _globals_valid := PackedByteArray()
@@ -108,8 +123,8 @@ func _process(delta: float) -> void:
 	_update(delta)
 
 func _update(delta: float) -> void:
-	if day_length_minutes > 0.0:
-		time_of_day += delta * 24.0 / (day_length_minutes * 60.0)
+	if day_minutes > 0.0 and night_minutes > 0.0:
+		time_of_day += DayClock.hours_after(time_of_day, delta, day_minutes, night_minutes)
 	sun_direction = solar_direction(time_of_day, latitude_deg, day_of_year)
 	# The moon trails the sun by roughly half a day (a full moon night).
 	moon_direction = solar_direction(time_of_day + 12.4, latitude_deg, day_of_year + 3)
@@ -131,11 +146,20 @@ func _update(delta: float) -> void:
 
 	var night := 1.0 - smoothstep(-0.12, 0.02, sun_direction.y)
 	_aim(moon, moon_direction)
-	var moonlight := 0.06 * night * smoothstep(0.0, 0.1, moon_direction.y)
+	var moonlight := moon_energy * night * smoothstep(0.0, 0.1, moon_direction.y)
 	moon.light_energy = moonlight * sun_share
 	moon.visible = moon.light_energy > 0.001
 	moon_irradiance = Vector3(moon.light_color.r, moon.light_color.g, moon.light_color.b) * (moonlight * PI)
 	moon.shadow_enabled = not sun.visible
+	if environment != null:
+		# A closed sky spreads the moon's light and keeps half of it.
+		var by_moon := moon.light_color.srgb_to_linear() * (moon_energy * night_fill * night * lerpf(0.5, 1.0, sun_share))
+		var by_sun := sun.light_color.srgb_to_linear() * (sun.light_energy * maxf(sun_direction.y, 0.0))
+		# The environment takes its colours in sRGB.
+		var colour := Color(by_moon.r + by_sun.r * ground_bounce.x, by_moon.g + by_sun.g * ground_bounce.y,
+			by_moon.b + by_sun.b * ground_bounce.z).linear_to_srgb()
+		if not environment.ambient_light_color.is_equal_approx(colour):
+			environment.ambient_light_color = colour
 
 	var radiance := Vector3.ONE * sun_energy * PI
 	_set_global(0, &"sun_direction", sun_direction)

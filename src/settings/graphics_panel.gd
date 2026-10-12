@@ -1,6 +1,8 @@
 extends CanvasLayer
 ## F10 pauses play and opens graphics options. H toggles only the hand preference.
+## The panel also keeps the pass that sharpens the picture (SharpenPost).
 const RenderQuality = preload("res://src/render/render_quality.gd")
+const SharpenPost = preload("res://src/render/sharpen_post.gd")
 var level: Node3D
 var settings: Node
 var panel: PanelContainer
@@ -8,6 +10,8 @@ var quality: OptionButton
 var render: OptionButton
 var hand: CheckButton
 var hand_resolution: OptionButton
+var sharpness: HSlider
+var sharpen: CanvasLayer
 var notice: Label
 var _mouse_mode: Input.MouseMode
 var _was_paused := false
@@ -18,6 +22,11 @@ func _ready() -> void:
 	settings = get_node("/root/GameSettings")
 	settings.hand_visibility_changed.connect(_apply_hand)
 	_apply_hand(settings.show_hand)
+	sharpen = SharpenPost.new()
+	sharpen.name = "SharpenPost"
+	add_child(sharpen)
+	settings.sharpness_changed.connect(_apply_sharpness)
+	_apply_sharpness(settings.sharpness)
 	_build()
 	hide()
 
@@ -87,6 +96,15 @@ func _build() -> void:
 	hand_resolution.select(settings.HAND_RESOLUTIONS.find(settings.hand_resolution))
 	hand_resolution.item_selected.connect(_hand_resolution_selected)
 	column.add_child(hand_resolution)
+	var sharpness_label := Label.new()
+	sharpness_label.text = "Резкость картинки"
+	column.add_child(sharpness_label)
+	sharpness = HSlider.new()
+	sharpness.max_value = 1.0
+	sharpness.step = 0.05
+	sharpness.value = settings.sharpness
+	sharpness.value_changed.connect(_sharpness_changed)
+	column.add_child(sharpness)
 	notice = Label.new()
 	notice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	notice.custom_minimum_size = Vector2(600, 96)
@@ -137,6 +155,13 @@ func _close() -> void:
 func _apply_hand(shown: bool) -> void:
 	level.player.viewmodel.set_hand_visible(shown)
 
+func _apply_sharpness(strength: float) -> void:
+	sharpen.set_strength(strength)
+
+func _sharpness_changed(strength: float) -> void:
+	var err: Error = settings.set_sharpness(strength)
+	_update_notice(err)
+
 func _hand_toggled(shown: bool) -> void:
 	var err: Error = settings.set_hand_visible(shown)
 	_update_notice(err)
@@ -161,7 +186,7 @@ func _update_notice(err: Error = OK) -> void:
 	elif settings.restart_required():
 		notice.text = "Сохранено. Текстуры изменятся после перезапуска. Прогулка начнётся у таверны."
 	else:
-		notice.text = "Текстуры меняются после перезапуска. Качество изображения и рука меняются сразу."
+		notice.text = "Текстуры меняются после перезапуска. Качество изображения, резкость и рука меняются сразу."
 
 func _restart() -> void:
 	var err: Error = settings.save_preferences()

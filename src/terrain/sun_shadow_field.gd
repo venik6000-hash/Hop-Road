@@ -44,6 +44,7 @@ var _textures := {}
 var _sets := {}
 var _ready_for_frames := false
 var _built_for := Vector3.ZERO
+var _published := false
 
 func _ready() -> void:
 	RenderingServer.call_on_render_thread(_create_gpu_resources.bind(
@@ -141,9 +142,14 @@ func _pass(list: int, uniform_set: RID, near_heights: Vector4, far_heights: Vect
 	_rd.compute_list_dispatch(list, SIZE / 8, SIZE / 8, 1)
 	_rd.compute_list_add_barrier(list)
 
+## The fields are named once: a build fills the same two textures, and a
+## texture global set again makes every material that reads it rebuild its
+## uniform set, which also redraws the shadows of the lamps around.
 func _publish(near: Vector4, far: Vector4) -> void:
-	RenderingServer.global_shader_parameter_set("sun_shadow_near", near_field)
-	RenderingServer.global_shader_parameter_set("sun_shadow_far", far_field)
+	if not _published:
+		_published = true
+		RenderingServer.global_shader_parameter_set("sun_shadow_near", near_field)
+		RenderingServer.global_shader_parameter_set("sun_shadow_far", far_field)
 	RenderingServer.global_shader_parameter_set("sun_shadow_near_rect", near)
 	RenderingServer.global_shader_parameter_set("sun_shadow_far_rect", far)
 

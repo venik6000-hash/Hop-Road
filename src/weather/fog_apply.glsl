@@ -6,6 +6,10 @@
 // Two things the grid does not hold are added here: the glow of the lamps
 // that burn in the fog, and the fog that lies between the lake and what it
 // mirrors.
+//
+// The import does not follow the include: after a change to the block in
+// fog_params.glslinc this file must change too (or be imported again by
+// hand), or it goes on reading the old layout. Block of 236 floats.
 #include "fog_params.glslinc"
 
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;

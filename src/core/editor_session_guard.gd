@@ -5,6 +5,9 @@ const POLL_SECONDS := 1.0
 var _editor_pid := 0
 var _poll_elapsed := 0.0
 var _stopping := false
+## The worker task that is asking whether the editor runs, -1 when none is.
+var _lookup := -1
+var _editor_seen := true
 
 static func editor_pid_from_args(args: PackedStringArray, self_pid: int) -> int:
 	for index in args.size():
@@ -48,9 +51,20 @@ func _find_editor_pid() -> int:
 		return 0
 	return editor_pid_from_args(str(output[0]).strip_edges().split(" ", false), self_pid)
 
+func _exit_tree() -> void:
+	if _lookup >= 0:
+		WorkerThreadPool.wait_for_task_completion(_lookup)
+		_lookup = -1
+
 func _process(delta: float) -> void:
 	if _editor_pid <= 0 or _stopping:
 		return
+	if _lookup >= 0 and WorkerThreadPool.is_task_completed(_lookup):
+		WorkerThreadPool.wait_for_task_completion(_lookup)
+		_lookup = -1
+		_editor_answered(_editor_seen)
+		if _stopping:
+			return
 	_poll_elapsed += delta
 	if _poll_elapsed < POLL_SECONDS:
 		return
@@ -58,7 +72,21 @@ func _process(delta: float) -> void:
 	_check_editor()
 
 func _check_editor() -> void:
-	if _editor_pid <= 0 or _stopping or _editor_is_running():
+	if _editor_pid <= 0 or _stopping or _lookup >= 0:
+		return
+	_ask()
+
+## The lookup starts a process, and that holds the thread that starts it for
+## 6 to 14 ms with the level loaded: a frame's worth every second. A worker
+## waits for it instead, and _process() takes the answer.
+func _ask() -> void:
+	_lookup = WorkerThreadPool.add_task(_look)
+
+func _look() -> void:
+	_editor_seen = _editor_is_running()
+
+func _editor_answered(running: bool) -> void:
+	if running or _stopping:
 		return
 	_stopping = true
 	set_process(false)

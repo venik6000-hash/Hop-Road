@@ -9,6 +9,7 @@ shader_type spatial;
 render_mode cull_disabled, depth_draw_opaque, world_vertex_coords;
 
 #include "res://src/vegetation/shaders/vegetation.gdshaderinc"
+#include "res://src/weather/wetness.gdshaderinc"
 
 const float VIEWS = 8.0;
 
@@ -24,6 +25,13 @@ uniform float leaf_wrap[3];
 uniform float leaf_transmission[3];
 uniform vec3 leaf_tint[3];
 uniform float leaf_ambient[3];
+// How far the rain wets the crowns, as the mesh foliage has it.
+uniform float rain_wets = 0.35;
+// The terrain's masks (terrain_fields.gdshaderinc; B is forest) and their
+// origin x, origin z, cell (m), samples: the wood round a tree that stands
+// beyond the canopy field.
+uniform sampler2D far_masks : filter_linear_mipmap, repeat_disable;
+uniform vec4 far_rect;
 
 varying vec2 quad_uv;
 varying flat float layer;
@@ -36,6 +44,13 @@ varying flat float tree_seed;
 varying float lod_fade;
 varying flat float fading_in;
 varying float sun_vis;
+// What the crowns of the wood round the tree leave it of the sky's light.
+varying float sky_vis;
+
+// How closed the wood is at `xz` by the terrain's forest mask.
+float mask_cover(vec2 xz) {
+	return textureLod(far_masks, ((xz - far_rect.xy) / far_rect.z + 0.5) / far_rect.w, 0.0).b * CANOPY_STAND;
+}
 
 void vertex() {
 	vec3 origin = MODEL_MATRIX[3].xyz;
@@ -66,6 +81,18 @@ void vertex() {
 	NORMAL = vec3(d.x, 0.0, d.y);
 	quad_uv = UV;
 	sun_vis = cloud_sun_visibility(origin + vec3(0.0, frame.y * scale * 0.5, 0.0));
+	// In a wood the foot of a tree stands under its neighbours' crowns and its
+	// top clear of them (as the mesh LODs have it, see tree.gdshaderinc): the
+	// foot of the card gets less of the sky and less of the sun by how closed
+	// the canopy is round the trunk, and toward the sun from it.
+	sky_vis = 1.0;
+	float under = UV.y;
+	if (under > 0.0) {
+		sky_vis = 1.0 - under * canopy_sky_shade(origin.xz, 3.0, mask_cover(origin.xz));
+		float rise = 0.4 * frame.y * scale;
+		float depth = -(VIEW_MATRIX * vec4(origin, 1.0)).z;
+		sun_vis *= 1.0 - under * canopy_sun_shade(origin.xz, rise, depth, mask_cover(origin.xz + canopy_run(rise)));
+	}
 }
 
 void fragment() {
@@ -85,11 +112,16 @@ void fragment() {
 	ALPHA = albedo.a * (1.0 + 0.3 * level);
 	ALPHA_SCISSOR_THRESHOLD = 0.5;
 	int look = int(group + 0.5);
-	ALBEDO = albedo.rgb * mix(vec3(0.9, 0.96, 1.0), vec3(1.08, 1.03, 0.9), tree_seed) * leaf_tint[look];
-	ROUGHNESS = 0.75;
+	vec3 green = albedo.rgb * mix(vec3(0.9, 0.96, 1.0), vec3(1.08, 1.03, 0.9), tree_seed) * leaf_tint[look];
+	float gloss = 0.75;
+	if (rain_is_wet() && rain_wets > 0.0) {
+		wet_surface(rain_film(rain_wets), 0.0, green, gloss);
+	}
+	ALBEDO = green;
+	ROUGHNESS = gloss;
 	// No reflection of the sky, as on the mesh LODs (see tree.gdshaderinc).
 	SPECULAR = 0.0;
-	AO = leaf_ambient[look];
+	AO = leaf_ambient[look] * sky_vis;
 }
 
 void light() {

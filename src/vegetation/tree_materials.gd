@@ -13,14 +13,26 @@ const GROUPS := [
 	["broadleaf_bark", ".png", "broadleaf_leaves", true],
 	["pine_bark", ".jpg", "pine_twig", false],
 ]
+## Species whose trunk is a scan with its own unwrap, and that scan: the
+## spruces and the fir are built on the same three trunks as the pines
+## (tools/pipeline/vegetation/build_scan_trees.py).
+const TRUNKS := {
+	TreePlacer.SPRUCE_A: "pine_trunk_a", TreePlacer.SPRUCE_B: "pine_trunk_b", TreePlacer.SPRUCE_C: "pine_trunk_a",
+	TreePlacer.FIR_YOUNG: "pine_trunk_b",
+	TreePlacer.PINE_A: "pine_trunk_a", TreePlacer.PINE_B: "pine_trunk_b", TreePlacer.PINE_C: "pine_trunk_c",
+}
 ## Foliage light per group: wrap, transmission, tint, sky light inside the
 ## crown. That light is all the shade of a crown gets: the leaves do not
 ## mirror the sky (see tree.gdshaderinc).
 const FOLIAGE_LOOK := [
-	[0.2, 0.25, Vector3(0.78, 0.84, 0.84), 0.75],
-	[0.2, 0.25, Vector3(0.6, 0.68, 0.55), 0.75],
-	[0.2, 0.25, Vector3(0.66, 0.86, 0.8), 0.75],
+	[0.18, 0.2, Vector3(0.52, 0.57, 0.45), 0.56],
+	[0.18, 0.2, Vector3(0.44, 0.49, 0.36), 0.58],
+	[0.18, 0.2, Vector3(0.48, 0.58, 0.46), 0.56],
 ]
+
+## How far the rain wets leaves and needles against open ground: the mesh
+## foliage and the impostors take the same, so the wood darkens as one.
+const RAIN_ON_LEAVES := 0.35
 
 # --- materials ----------------------------------------------------------------
 
@@ -32,12 +44,14 @@ static func make(system: VegetationSystem) -> void:
 		foliage.shader = FOLIAGE_SHADER
 		foliage.set_shader_parameter("albedo_texture", load(TEXTURES + str(group[2]) + "_albedo.png"))
 		foliage.set_shader_parameter("broadleaf", group[3])
+		foliage.set_shader_parameter("rain_wets", RAIN_ON_LEAVES)
 		system.foliage_materials.append(foliage)
-	# A pine's trunk is a scan with its own unwrap: one material per tree.
-	for kind in TreePlacer.SPECIES_NAMES.size():
-		if TreePlacer.SPECIES_GROUP[kind] == TreePlacer.GROUP_PINE:
-			var trunk := str(TreePlacer.SPECIES_NAMES[kind]).replace("pine_", "pine_trunk_")
-			system.trunk_materials[kind] = bark_material(trunk, ".jpg")
+	# A scanned trunk has its own unwrap: one material per scan.
+	var scans := {}
+	for kind: int in TRUNKS:
+		if not scans.has(TRUNKS[kind]):
+			scans[TRUNKS[kind]] = bark_material(TRUNKS[kind], ".jpg")
+		system.trunk_materials[kind] = scans[TRUNKS[kind]]
 	set_foliage_look(system, FOLIAGE_LOOK)
 	system.impostor_material.shader = IMPOSTOR_SHADER
 	system.impostor_material.set_shader_parameter("impostor_albedo", load("res://assets/generated/vegetation/impostor_albedo.png"))
@@ -50,6 +64,11 @@ static func make(system: VegetationSystem) -> void:
 		system.crowns.append(Vector2(frame.crown_radius_m, VegetationSystem.CROWN_SHADE[TreePlacer.SPECIES_GROUP[kind]]))
 	system.impostor_material.set_shader_parameter("frames", system.impostor_frames)
 	system.impostor_material.set_shader_parameter("lod_range", VegetationSystem.IMPOSTOR_RANGE)
+	system.impostor_material.set_shader_parameter("rain_wets", RAIN_ON_LEAVES)
+	# Beyond the canopy field an impostor takes the wood round it from the
+	# terrain's forest mask.
+	for param: String in ["far_masks", "far_rect"]:
+		system.impostor_material.set_shader_parameter(param, system.terrain.material.get_shader_parameter(param))
 	for material in all_materials(system):
 		material.set_shader_parameter("wind_noise", wind_noise)
 		material.set_shader_parameter("cloud_weather", wind_noise)
@@ -60,6 +79,8 @@ static func bark_material(textures: String, extension: String) -> ShaderMaterial
 	bark.set_shader_parameter("albedo_texture", load(TEXTURES + textures + "_diff" + extension))
 	bark.set_shader_parameter("normal_texture", load(TEXTURES + textures + "_nor_gl" + extension))
 	bark.set_shader_parameter("arm_texture", load(TEXTURES + textures + "_arm" + extension))
+	# Moss for the foot of the trunk: the terrain's layer array, as the rocks'.
+	bark.set_shader_parameter("moss_albedo", load("res://assets/generated/terrain/terrain_albedo.jpg"))
 	return bark
 
 ## Applies [wrap, transmission, tint, ambient] per group to the mesh foliage

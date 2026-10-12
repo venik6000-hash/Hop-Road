@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://c132sd8m6p0pc"
+path="res://.godot/imported/light_meter.glsl-e126de28fc171b848f6ffc43be625d7b.res"
+
+[deps]
+
+source_file="res://src/render/light_meter.glsl"
+dest_files=["res://.godot/imported/light_meter.glsl-e126de28fc171b848f6ffc43be625d7b.res"]
+
+[params]
+

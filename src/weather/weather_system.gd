@@ -8,7 +8,8 @@ extends Node
 ## weather is a preset of that state. What draws reads the state, never the
 ## kind: SkySystem (cloud cover and type, cirrus, lightning inside the clouds,
 ## the share of the sun that reaches the ground), AtmosphereFog (haze, the
-## mist over the lake, rain fog under the clouds, light shafts, the rainbow),
+## mist over the lake, rain fog under the clouds, the fog in the woods, light
+## shafts, the rainbow),
 ## LightningFx (the flash, the bolt, the thunder), the lake's wind, and the
 ## surfaces' shaders (how wet the ground is and how full its puddles).
 
@@ -65,6 +66,8 @@ const PUDDLE_FILL_SECONDS := 110.0
 const PUDDLE_DRY_SECONDS := 600.0
 ## How damp a mist leaves what stands in it, against a rain's 1.
 const MIST_DAMP := 0.3
+## The fog a rain raises in the woods, against a mist's 1.
+const WOOD_IN_RAIN := 0.7
 ## The clock the rings in the puddles run by wraps here, s: a whole number of
 ## both their periods (wetness.gdshaderinc).
 const RING_CLOCK_WRAP := 900.0
@@ -76,8 +79,10 @@ const CLOUD_BASE := 1700.0
 const STRIKE_HEIGHT := Vector2(-60.0, 260.0)
 ## Seconds between strikes at the height of a storm.
 const STRIKE_PAUSE := Vector2(3.5, 11.0)
-## Seconds the weather keeps a kind when it changes by itself.
-const DWELL_SECONDS := Vector2(100.0, 240.0)
+## Seconds the weather keeps a kind when it changes by itself: a quarter of an
+## hour at most, against a day of 48 minutes. A storm passes sooner.
+const DWELL_SECONDS := Vector2(360.0, 900.0)
+const STORM_DWELL_SECONDS := Vector2(180.0, 300.0)
 
 ## Seconds one weather takes to turn into the next.
 @export var transition_seconds := 25.0
@@ -112,7 +117,7 @@ var _wet_sent := Vector4(-1.0, 0.0, 0.0, 0.0)
 
 func _ready() -> void:
 	_rng.randomize()
-	_dwell = _rng.randf_range(DWELL_SECONDS.x, DWELL_SECONDS.y)
+	_dwell = _keep(kind)
 	_apply()
 
 func set_weather(new_kind: String, instant := false) -> void:
@@ -129,9 +134,23 @@ func set_weather(new_kind: String, instant := false) -> void:
 		strikes.clear()
 	if ocean != null:
 		ocean.set_preset(PRESETS[kind].lake, instant)
-	_dwell = _rng.randf_range(DWELL_SECONDS.x, DWELL_SECONDS.y)
+	_dwell = _keep(kind)
 	_apply()
 	weather_changed.emit(kind)
+
+## The weather `seconds` on, without the turns between: what a sleeper wakes
+## to. Weather that stands still stays as it is.
+func skip(seconds: float) -> void:
+	if not auto:
+		return
+	var later := after(kind, _dwell, seconds, _rng)
+	if later.kind != kind:
+		set_weather(later.kind, true)
+	_dwell = later.dwell
+
+func _keep(of_kind: String) -> float:
+	var keeps := dwell_range(of_kind)
+	return _rng.randf_range(keeps.x, keeps.y)
 
 ## The next (`step` 1) or the previous (-1) kind of the list.
 func cycle(step: int) -> void:
@@ -196,6 +215,7 @@ func _apply() -> void:
 		fog.haze = haze()
 		fog.mist = mist()
 		fog.rain = state.rain
+		fog.wood = wood_fog(mist(), state.rain, droplets)
 		fog.droplets = droplets
 		fog.flash = flash_light
 		fog.gloom = gloom()
@@ -219,6 +239,11 @@ func mist() -> float:
 		* (1.0 - smoothstep(0.9, 1.6, state.wind))
 	return maxf(state.mist, 0.7 * calm * dawn_mist(sky.sun_direction.y, sky.time_of_day))
 
+## The fog a wood holds under its crowns, 0..1: all of it in a mist, most of
+## it under rain and for as long after it as the drops hang in the air.
+static func wood_fog(mist_bank: float, rain: float, drops: float) -> float:
+	return clampf(maxf(mist_bank, WOOD_IN_RAIN * maxf(rain, drops)), 0.0, 1.0)
+
 ## 0 open sky .. 1 the dark under a storm: what the clouds take of the day.
 func gloom() -> float:
 	return (1.0 - sun_share(state.coverage, state.density, state.darkness)) * state.darkness
@@ -240,9 +265,13 @@ static func blend_states(from: Dictionary, to: Dictionary, t: float) -> Dictiona
 	return values
 
 ## The share of the sun's direct light that a cloud layer lets to the ground:
-## all of it under broken cloud, little under a closed and dark one.
+## all of it under broken cloud, little under a closed and dark one. Under
+## broken cloud the shaders of the ground shade it in patches
+## (cloud_shadow.gdshaderinc); a closed layer has no patches, and what they
+## took on average is part of this share, which dims the sun's lamp for every
+## material alike.
 static func sun_share(coverage: float, density: float, darkness: float) -> float:
-	return 1.0 - closed_sky(coverage, density) * lerpf(0.8, 0.94, darkness)
+	return 1.0 - closed_sky(coverage, density) * lerpf(0.92, 0.97, darkness)
 
 ## 0 broken cloud .. 1 a layer without a gap.
 static func closed_sky(coverage: float, density: float) -> float:
@@ -299,6 +328,21 @@ static func damp(rain: float, mist_bank: float) -> float:
 static func soak(current: float, target: float, delta: float, fill_seconds: float, dry_seconds: float) -> float:
 	var seconds := fill_seconds if target > current else dry_seconds
 	return target + (current - target) * exp(-delta / seconds)
+
+## Seconds a kind is kept for when the weather changes by itself (least, most).
+static func dwell_range(of_kind: String) -> Vector2:
+	return STORM_DWELL_SECONDS if of_kind == "storm" else DWELL_SECONDS
+
+## The kind the weather has come to `seconds` after `from` had `dwell` seconds
+## left, changing by itself, and the seconds that kind still has: {kind, dwell}.
+static func after(from: String, dwell: float, seconds: float, rng: RandomNumberGenerator) -> Dictionary:
+	var now := from
+	var left := dwell - seconds
+	while left <= 0.0:
+		now = pick_next(now, rng)
+		var keeps := dwell_range(now)
+		left += rng.randf_range(keeps.x, keeps.y)
+	return {"kind": now, "dwell": left}
 
 static func pick_next(from: String, rng: RandomNumberGenerator) -> String:
 	var odds: Dictionary = NEXT[from]

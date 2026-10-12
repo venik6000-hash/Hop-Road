@@ -27,6 +27,11 @@ const PRESETS := {
 ## The upscaler's input must stay inside its range after the sizes are
 ## rounded to whole pixels.
 const SCALE_MARGIN := 1.03
+## Texture mip bias under the temporal upscaler, on top of the engine's own
+## for the scale. The upscaler rebuilds the window's detail from jittered
+## frames, so textures bear a sharper level than the shaded pixels alone
+## would: grass blades, bark and ground read crisper at no cost in frame time.
+const TEMPORAL_MIP_BIAS := -0.5
 
 static func valid(tier: String) -> String:
 	return tier if tier in TIERS else DEFAULT
@@ -46,6 +51,10 @@ static func apply(viewport: Viewport, sky: SkySystem, tier: String) -> void:
 		for light: DirectionalLight3D in [sky.sun, sky.moon]:
 			light.directional_shadow_max_distance = preset.shadow_distance
 			light.directional_shadow_blend_splits = preset.shadow_blend
+		# Past the shadow map the trees' shadow is the canopy field's
+		# (src/vegetation/shaders/canopy.gdshaderinc).
+		RenderingServer.global_shader_parameter_set("sun_shadow_reach",
+			Vector2(sky.sun.directional_shadow_fade_start, 1.0) * preset.shadow_distance)
 		sky.sky_material.set_shader_parameter("march_steps", preset.cloud_steps)
 	print("RENDER_QUALITY tier=%s scale=%.3f internal=%s window=%s mode=%d" % [valid(tier), scale,
 		Vector2i(Vector2(viewport.size) * scale), viewport.size, viewport.scaling_3d_mode])
@@ -64,16 +73,19 @@ static func apply_resolution(viewport: Viewport, tier: String) -> float:
 		scale = clampf(scale, limits.x * SCALE_MARGIN, limits.y)
 		viewport.use_taa = false
 		viewport.scaling_3d_mode = Viewport.SCALING_3D_MODE_METALFX_TEMPORAL
+		viewport.texture_mipmap_bias = TEMPORAL_MIP_BIAS
 	elif scale < 0.999:
 		# No temporal upscaler on this device: TAA on the smaller image, then
 		# FSR 1 to the window. (FSR 2 costs more than it saves here.)
 		scale = maxf(scale, 0.5)
 		viewport.use_taa = true
 		viewport.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR
+		viewport.texture_mipmap_bias = 0.0
 	else:
 		scale = 1.0
 		viewport.use_taa = true
 		viewport.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
+		viewport.texture_mipmap_bias = 0.0
 	viewport.scaling_3d_scale = scale
 	# The engine measures the mesh LOD error in window pixels; keep it one
 	# pixel of the image that is actually shaded.

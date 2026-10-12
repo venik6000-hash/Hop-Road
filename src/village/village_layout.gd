@@ -1,7 +1,23 @@
 extends RefCounted
 ## Placement only: the tavern precinct and original resource materials stay intact.
 const ImageUtil = preload("res://src/common/image_util.gd")
+const VILLAGE_BUILDINGS = preload("res://src/village/village_buildings.gd")
 const PLAN := "res://assets/generated/layout/village_plan.json"
+## The campanile's pieces in the Blender map, where it stands (x, z) and the
+## height of the map that is set on the ground there: a hand above its base,
+## for the crown of the knoll falls a little toward the tower's corners.
+const CAMPANILE := ["Village campanile stone tower", "Bell tower terracotta spire", "Bell arch oak window"]
+const CAMPANILE_BASE := Vector3(-12.0, 2.15, -64.0)
+## The pier with the sailing boat. The pier's part of the mesh lies south of
+## PIER_SPLIT (z), the boat's north of it.
+const PIER := "Lake sailboat hull mast rigging and pier"
+const PIER_SPLIT := -47.0
+const PIER_SHIFT := Vector3(-4.5, 0.0, -10.0)
+const BOAT_SHIFT := Vector3(-1.5, 0.0, 2.8)
+## The piles stood on a shoal: what lies under PILE_FOOT (y) of them goes
+## PILE_DEEPER metres further down, to the bed off the turf bank.
+const PILE_FOOT := 0.0
+const PILE_DEEPER := 1.0
 
 static func plan() -> Dictionary:
 	return JSON.parse_string(FileAccess.get_file_as_string(PLAN))
@@ -24,9 +40,16 @@ static func cottage_shift(key: String) -> Transform3D:
 	var now := Transform3D(Basis(Vector3.UP, deg_to_rad(spec.yaw)), Vector3(spec.position[0], spec.position[1], spec.position[2]))
 	return now * was.affine_inverse()
 
+## The ground a house was built on at its place in the Blender map. The plan
+## keeps it (`ground`): the terrain there has since been shaped anew.
+static func source_ground(spec: Dictionary, terrain: TerrainSystem) -> float:
+	if spec.has("ground"):
+		return float(spec.ground)
+	return terrain.height_at(spec.source[0], spec.source[1])
+
 ## `lift` raises a house above the ground under its pivot (layout scene).
 static func house_pose(spec: Dictionary, terrain: TerrainSystem) -> Transform3D:
-	var source := Vector3(spec.source[0], terrain.height_at(spec.source[0], spec.source[1]), spec.source[1])
+	var source := Vector3(spec.source[0], source_ground(spec, terrain), spec.source[1])
 	var target := Vector3(spec.position[0], terrain.height_at(spec.position[0], spec.position[1]) + float(spec.get("lift", 0.0)), spec.position[1])
 	var basis := Basis(Vector3.UP, deg_to_rad(spec.yaw))
 	return Transform3D(basis, target - basis * source)
@@ -45,13 +68,10 @@ static func smoke_position(point: Vector3, terrain: TerrainSystem) -> Vector3:
 			return house_pose(spec, terrain) * point
 	return point
 
-## Shallow earthen house yards and the isolated inland depression. The original
-## textures, lake, island, main street and tavern elevations are retained.
+## Shallow earthen yards of the two cottages. The original textures, lake,
+## main street and tavern elevations are retained.
 static func ground_height(x: float, z: float, original: float, cottages: Dictionary) -> float:
 	var height := original
-	if x > -8 and x < 5 and z > -81 and z < -68:
-		var edge := minf(minf(x + 8, 5 - x), minf(z + 81, -68 - z))
-		height += maxf(0.0, 1.7 - height) * smoothstep(0.0, 2.0, edge)
 	if z > -18.0:
 		return height
 	for spec: Dictionary in cottages.values():
@@ -68,12 +88,58 @@ static func ground_height(x: float, z: float, original: float, cottages: Diction
 
 static func settle_ground(image: Image, origin: Vector2, cell: float) -> void:
 	var cottages: Dictionary = plan().cottages
-	for iz in range(int((-82.0 - origin.y) / cell), int((-18.0 - origin.y) / cell) + 1):
+	for iz in range(int((-56.0 - origin.y) / cell), int((-18.0 - origin.y) / cell) + 1):
 		for ix in range(int((-18.0 - origin.x) / cell), int((12.0 - origin.x) / cell) + 1):
 			var x := origin.x + ix * cell
 			var z := origin.y + iz * cell
 			var height := ground_height(x, z, image.get_pixel(ix, iz).r, cottages)
 			image.set_pixel(ix, iz, Color(height, 0, 0))
+
+## Pieces of the Blender map that the village's new ground did away with or
+## moved (tools/pipeline/terrain/terrain_village.py). The chapel and its lawn
+## are gone: the island is rock of the terrain. The campanile rises with the
+## knoll under it. The pier goes to the turf bank, where the water is deep at
+## once, and the sailing boat to the pier's side. A house on whose lot a
+## building of VillageBuildings.TABLES stands goes with its colliders.
+static func settle_landmarks(map: Node3D, terrain: TerrainSystem) -> void:
+	var lift := terrain.height_at(CAMPANILE_BASE.x, CAMPANILE_BASE.z) - CAMPANILE_BASE.y
+	var replaced := VILLAGE_BUILDINGS.replaced()
+	for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
+		var label := RockField.label_of(item)
+		if label == "Island lawn" or label.begins_with("Chapel ") or label.begins_with("Island chapel ") \
+				or VILLAGE_BUILDINGS.begins(label, replaced):
+			item.get_parent().remove_child(item)
+			item.queue_free()
+		elif label in CAMPANILE:
+			item.global_position.y += lift
+		elif label == PIER:
+			_move_pier(item)
+
+## The pier and the boat are one mesh, which every instance of the map shares:
+## a copy takes the move, each vertex by the part it belongs to.
+static func _move_pier(item: MeshInstance3D) -> void:
+	var to_local := item.global_transform.basis.inverse()
+	var source := item.mesh
+	var moved := ArrayMesh.new()
+	for surface in source.get_surface_count():
+		var arrays := source.surface_get_arrays(surface)
+		var points: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+		for i in points.size():
+			var at := item.global_transform * points[i]
+			var shift := BOAT_SHIFT
+			if at.z > PIER_SPLIT:
+				shift = PIER_SHIFT
+				if at.y < PILE_FOOT:
+					shift += Vector3.DOWN * PILE_DEEPER
+			points[i] += to_local * shift
+		arrays[Mesh.ARRAY_VERTEX] = points
+		moved.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+		moved.surface_set_material(surface, source.surface_get_material(surface))
+	item.mesh = moved
+	for holder: CollisionShape3D in item.find_children("*", "CollisionShape3D", true, false):
+		var shape := moved.create_trimesh_shape()
+		shape.backface_collision = true
+		holder.shape = shape
 
 static func settle_bridge(map: Node3D, terrain: TerrainSystem) -> void:
 	var deck: MeshInstance3D

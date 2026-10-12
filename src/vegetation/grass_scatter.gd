@@ -11,7 +11,8 @@ extends RefCounted
 ##              CROWD of how closely tall plants stand round the clump (0 a
 ##              lone tuft or low turf, lit to its foot .. 1 the thick of the
 ##              meadow, its foot in the others' shade), b tone (0 the deep
-##              green .. 1 the fresh), a rank.
+##              green .. 0.5 the fresh .. 1 grass dried on the stalk:
+##              sward.gdshaderinc), a rank.
 ##
 ## Rank (0..1) is the order in which clumps drop out with distance: the shader
 ## draws a clump while its rank is under keep(distance). Rows are written in
@@ -182,10 +183,11 @@ static func over_triangles(vertices: PackedVector3Array, normals: PackedVector3A
 			continue
 		var root := vertices[i] + (vertices[j] - vertices[i]) * s + (vertices[k] - vertices[i]) * t
 		var size := lerpf(0.9, 1.1, jitter)
-		var tone := 0.5
+		# Green growth, between the deep and the fresh.
+		var tone := 0.25
 		var seeded := 0.0
 		if patches != null:
-			tone = 0.5 + 0.5 * patches.get_noise_2d(root.x, root.z)
+			tone = 0.25 + 0.25 * patches.get_noise_2d(root.x, root.z)
 			size *= lerpf(0.8, 1.2, 0.5 + 0.5 * patches.get_noise_2d(root.x * 2.3 + 71.0, root.z * 2.3 - 19.0))
 			seeded = seeding * clampf(patches.get_noise_2d(root.x * 0.4 - 33.0, root.z * 0.4 + 57.0) * 2.0, 0.0, 1.0)
 		var kind := GrassClump.Kind.GREEN

@@ -59,11 +59,16 @@ float rain_film(float reach) {
 	return weather_wet.x * reach;
 }
 
+// The colour of a surface `soaked` 0..1 with water, for what darkens in the
+// rain and takes no film to shine by (the blades of a meadow).
+vec3 soaked_colour(vec3 albedo, float soaked) {
+	return pow(max(albedo, vec3(0.0)), vec3(1.0 + WET_DEPTH * soaked)) * (1.0 - WET_DARK * soaked);
+}
+
 // `wet` 0..1 of water on a surface: darker where it soaks in (the rougher
 // and the less metallic, the more) and smoother.
 void wet_surface(float wet, float metallic, inout vec3 albedo, inout float roughness) {
-	float soaked = wet * smoothstep(0.15, 0.55, roughness) * (1.0 - metallic);
-	albedo = pow(max(albedo, vec3(0.0)), vec3(1.0 + WET_DEPTH * soaked)) * (1.0 - WET_DARK * soaked);
+	albedo = soaked_colour(albedo, wet * smoothstep(0.15, 0.55, roughness) * (1.0 - metallic));
 	roughness = mix(roughness, WET_ROUGHNESS, wet * 0.8);
 }
 
@@ -81,12 +86,19 @@ void puddle_surface(float cover, inout vec3 albedo, inout float roughness) {
 }
 
 // What is left of the SPECULAR of a surface `wet` 0..1 whose mirror looks along
-// a ray of height `mirror` (the world y of the reflected eye ray). The engine
-// shows the sky in every mirror; a ray that leaves the ground low meets land,
-// walls and trees instead, far darker than a cloud layer.
-float wet_specular(float wet, float mirror) {
-	float sky = mix(0.15, 1.0, smoothstep(0.05, 0.5, mirror));
+// a ray of height `mirror` (the world y of the reflected eye ray) from under
+// crowns that leave `open` 0..1 of the sky. The engine shows the sky in every
+// mirror; a ray that leaves the ground low meets land, walls and trees
+// instead, and a ray from under a crown meets the crown or the trunks of the
+// wood: far darker than a cloud layer, the wood darker than open land.
+float wet_specular_under(float wet, float mirror, float open) {
+	float sky = mix(mix(0.03, 0.15, open), 1.0, smoothstep(0.05, 0.5, mirror) * open);
 	return mix(1.0, sqrt(sky), wet);
+}
+
+// The same under the open sky.
+float wet_specular(float wet, float mirror) {
+	return wet_specular_under(wet, mirror, 1.0);
 }
 
 vec3 ring_hash(vec2 p) {

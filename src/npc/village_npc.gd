@@ -7,9 +7,22 @@ const SPEED := 0.85
 const GRAVITY := 18.0
 ## Seconds between checks of whether the actor stands inside the tavern.
 const LAMP_ZONE_SECONDS := 0.25
+## How far behind a face that was met its top is looked for.
+const LIP := 0.06
+## Seconds one who walks about their work stands on once a story they tell no
+## longer holds them (stop_to_talk).
+const TALK_HOLD := 1.5
+## The ground speed, m/s, the "walk" clip is drawn for: measured from the
+## planted foot, 1.0 to 1.5 over the four models.
+const WALK_STRIDE := 1.1
+## The clip is played no faster than this many times its own pace: the feet
+## of one who hurries more than that slide.
+const WALK_HASTE := 2.0
 var model_path := ""
 var job := "wander"
 var title := "Житель"
+## The villager's sheet in PeopleBook; "" for a passer-by without one.
+var person_id := ""
 var route: Array[Vector3] = []
 var animation: AnimationPlayer
 var skeleton: Skeleton3D
@@ -27,6 +40,15 @@ var _cleaning := false
 var _left_hand := -1
 var _right_hand := -1
 var outing: Node
+## Where the villager's day has them (VillagerPresence): "" as the job says,
+## else one of VillagerDay.PLACES.
+var place := ""
+## Where the villager works and which way they face there (NpcPopulation.settle).
+var work_point := Vector3.ZERO
+var work_yaw := 0.0
+## Sits on a seat of the hall (VillagerPresence): the body has no collision
+## and is not moved.
+var seated := false
 var _hall_navigation: TavernNavigation
 var _hall_path := PackedVector3Array()
 var _hall_target := -1
@@ -43,6 +65,7 @@ var near_lit_lamp := false:
 			_light_for_zone(self)
 var _lamp_zone_clock := 0.0
 var _pace := BodyPace.new()
+var _ground_ray: PhysicsRayQueryParameters3D
 
 
 func _ready() -> void:
@@ -140,9 +163,16 @@ func _light_for_zone(root: Node) -> void:
 func play(clip: String, loop := true) -> void:
 	if animation == null: return
 	if not animation.has_animation(clip): clip = "idle"
+	animation.speed_scale = 1.0
 	if animation.current_animation == clip and animation.is_playing(): return
 	animation.get_animation(clip).loop_mode = Animation.LOOP_LINEAR if loop else Animation.LOOP_NONE
 	animation.play(clip, 0.18)
+
+## Walks at `speed`, m/s: the "walk" clip, played as fast as the feet need.
+func stride(speed: float) -> void:
+	play("walk" if animation != null and animation.has_animation("walk") else "source_walk")
+	if animation != null:
+		animation.speed_scale = clampf(speed / WALK_STRIDE, 1.0, WALK_HASTE)
 
 func _physics_process(delta: float) -> void:
 	delta = _pace.begin(delta)
@@ -158,13 +188,48 @@ func _physics_process(delta: float) -> void:
 	velocity.z = 0.0
 	if outing != null:
 		outing.drive(delta)
-	elif job == "bartender":
+	elif place in ["hall", "yard"]:
+		play("idle")
+	elif job == "bartender" and at_work():
 		_update_bar(delta)
 	elif not route.is_empty():
 		_walk_route(delta)
 	else:
 		play(job)
+	if seated:
+		return
+	var step := Vector3(velocity.x, 0.0, velocity.z) * delta
 	_pace.slide(self, delta)
+	# The lane has kerbs and stairs: a walker held by one steps onto it.
+	if outing == null and job == "wander" and step != Vector3.ZERO and is_on_wall():
+		for index in get_slide_collision_count():
+			var met := get_slide_collision(index)
+			if met.get_normal().y < 0.7 and not met.get_collider() is CharacterBody3D and step_onto(met, step):
+				break
+
+## A kerb, a stair, the edge of a cobble: what stands no higher than a step is
+## stepped on, if the `step` over it is free. Its top is found just behind the
+## face that was met.
+func step_onto(collision: KinematicCollision3D, step: Vector3) -> bool:
+	if _ground_ray == null:
+		_ground_ray = PhysicsRayQueryParameters3D.new()
+		_ground_ray.collision_mask = 1
+		_ground_ray.exclude = [get_rid()]
+	var behind := collision.get_position() - collision.get_normal() * LIP
+	_ground_ray.from = Vector3(behind.x, global_position.y + Player.STEP_HEIGHT + 0.05, behind.z)
+	_ground_ray.to = Vector3(behind.x, global_position.y - 0.1, behind.z)
+	var top := get_world_3d().direct_space_state.intersect_ray(_ground_ray)
+	if top.is_empty():
+		return false
+	var rise: float = top.position.y - global_position.y + 0.03
+	if rise <= 0.03 or test_move(global_transform, Vector3.UP * rise):
+		return false
+	var elevated := global_transform
+	elevated.origin.y += rise
+	if test_move(elevated, step):
+		return false
+	global_position.y += rise
+	return true
 
 func _walk_route(delta: float) -> void:
 	if job == "maid" and not _hall_ready:
@@ -301,3 +366,48 @@ func interact(player: Player) -> bool:
 		mug.visible = false
 		return true
 	return false
+
+## One who walks about their work is telling a story to someone at `listener`:
+## they stand where they are and turn to them, and walk on `hold` seconds
+## after the last call. Those who keep to one place do not turn from it.
+func stop_to_talk(listener: Vector3, delta: float, hold := TALK_HOLD) -> void:
+	if job != "maid" or not at_work() or seated:
+		return
+	_wait = maxf(_wait, hold)
+	_cleaning = false
+	var offset := listener - global_position
+	if Vector2(offset.x, offset.z).length() > 0.3:
+		rotation.y = lerp_angle(rotation.y, atan2(-offset.x, -offset.z), minf(delta * 4.0, 1.0))
+
+## Puts the bar back in order when the innkeeper leaves it: nothing is being
+## poured and nothing stands ready.
+func clear_bar() -> void:
+	if job != "bartender":
+		return
+	state = "working"
+	_beer = 0.0
+	mug.visible = false
+	utensil.visible = false
+	stream.visible = false
+
+## Whether the villager is in the valley, not away at home.
+func present() -> bool:
+	return place != "home"
+
+## Whether the villager keeps to one place, where the player may come up and
+## talk to them.
+func at_rest() -> bool:
+	return outing == null and (place in ["work", "hall", "yard"] or (place == "" and job != "wander"))
+
+## Whether the villager is free to be asked along on an outing.
+func invitable() -> bool:
+	return outing == null and (place in ["road", "yard", "hall"] or (place == "" and job == "wander"))
+
+## Whether the villager is at their work: behind the bar, in the kitchen, about
+## the hall.
+func at_work() -> bool:
+	return outing == null and (place == "work" or (place == "" and job != "wander"))
+
+## Whether the villager walks their road.
+func on_road() -> bool:
+	return outing == null and job == "wander" and place in ["", "road"]

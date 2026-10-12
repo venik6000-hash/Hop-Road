@@ -60,7 +60,8 @@ func _register_geometry() -> void:
 			material = geometry.get_active_material(0) as ShaderMaterial
 		if material != null and material.shader != null and material.shader.resource_path in [
 			"res://src/terrain/terrain.gdshader", "res://src/rocks/rock.gdshader",
-			"res://src/wildlife/underwater_life.gdshader", "res://src/wildlife/reed.gdshader"]:
+			"res://src/rocks/rock_cliff.gdshader", "res://src/wildlife/underwater_life.gdshader",
+			"res://src/wildlife/reed.gdshader"]:
 			geometry.layers |= LAYER
 
 func _process(_delta: float) -> void:

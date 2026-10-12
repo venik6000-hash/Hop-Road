@@ -4,6 +4,7 @@ extends Node
 signal hand_visibility_changed(shown: bool)
 signal hand_resolution_changed(mode: String)
 signal render_quality_changed(tier: String)
+signal sharpness_changed(strength: float)
 const RenderQuality = preload("res://src/render/render_quality.gd")
 const MANIFEST := "res://assets/generated/texture_quality/manifest.json"
 const TIERS := ["maximum", "medium", "low"]
@@ -15,6 +16,9 @@ var show_hand := true
 var hand_resolution := DEFAULT_HAND_RESOLUTION
 ## Render budget (RenderQuality.TIERS); takes effect at once.
 var render_quality := RenderQuality.DEFAULT
+## How far the finished picture is sharpened (SharpenPost), 0..1; 0: not at
+## all. Takes effect at once.
+var sharpness := 0.0
 var config_path := "user://graphics.cfg"
 var texture_error := ""
 var _textures: Array[Texture2D] = []
@@ -31,6 +35,8 @@ func _enter_tree() -> void:
 			hand_resolution = valid_hand_resolution(arg.trim_prefix("--hand-resolution="))
 		if arg.begins_with("--render-quality="):
 			render_quality = RenderQuality.valid(arg.trim_prefix("--render-quality="))
+		if arg.begins_with("--sharpness="):
+			sharpness = clampf(arg.trim_prefix("--sharpness=").to_float(), 0.0, 1.0)
 	install_textures()
 
 static func valid_tier(value: String) -> String:
@@ -48,6 +54,8 @@ func load_preferences() -> void:
 	show_hand = saved_hand if saved_hand is bool else true
 	hand_resolution = valid_hand_resolution(str(config.get_value("graphics", "hand_resolution", DEFAULT_HAND_RESOLUTION)))
 	render_quality = RenderQuality.valid(str(config.get_value("graphics", "render", RenderQuality.DEFAULT)))
+	var saved_sharpness: Variant = config.get_value("graphics", "sharpness", 0.0)
+	sharpness = clampf(saved_sharpness, 0.0, 1.0) if saved_sharpness is float else 0.0
 
 func save_preferences() -> Error:
 	var config := ConfigFile.new()
@@ -55,6 +63,7 @@ func save_preferences() -> Error:
 	config.set_value("graphics", "show_hand", show_hand)
 	config.set_value("graphics", "hand_resolution", hand_resolution)
 	config.set_value("graphics", "render", render_quality)
+	config.set_value("graphics", "sharpness", sharpness)
 	return config.save(config_path)
 
 func set_hand_visible(shown: bool) -> Error:
@@ -70,6 +79,11 @@ func set_hand_resolution(mode: String) -> Error:
 func set_render_quality(tier: String) -> Error:
 	render_quality = RenderQuality.valid(tier)
 	render_quality_changed.emit(render_quality)
+	return save_preferences()
+
+func set_sharpness(strength: float) -> Error:
+	sharpness = clampf(strength, 0.0, 1.0)
+	sharpness_changed.emit(sharpness)
 	return save_preferences()
 
 func set_texture_quality(tier: String) -> Error:

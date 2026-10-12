@@ -3,6 +3,9 @@ extends SkeletonModifier3D
 ## Solve limbs in world space: the three imported rigs have different axes/scales.
 var actor: VillageNPC
 var seated := false
+## The height of what is sat on over the actor's origin: a log by a fire, or a
+## chair of the tavern.
+var seat_height := 0.28
 var toast_weight := 0.0
 var food_weight := 0.0
 var _bones: Dictionary = {}
@@ -20,8 +23,8 @@ func _process_modification() -> void:
 	var forward := -actor.global_basis.z.normalized()
 	var right := actor.global_basis.x.normalized()
 	var origin := actor.global_position
-	# Seat top is 0.28 m: pelvis sits just above it, with the body over the log.
-	_set_origin(skeleton, _bones.Hips, origin + Vector3.UP * 0.40 - forward * 0.025)
+	# The pelvis sits just above the seat's top, with the body over the seat.
+	_set_origin(skeleton, _bones.Hips, origin + Vector3.UP * (seat_height + 0.12) - forward * 0.025)
 	_rotate_world(skeleton, _bones.Spine, Quaternion(right, -0.08))
 	for side: String in ["L", "R"]:
 		var sign_side := 1.0 if side == "R" else -1.0
@@ -38,7 +41,7 @@ func _process_modification() -> void:
 			var foot_pose := skeleton.get_bone_global_pose(foot)
 			foot_pose.basis = (_rest["Foot_" + side] as Transform3D).basis
 			_set_global(skeleton, foot, foot_pose)
-		var hand_target := origin + right * sign_side * 0.22 + forward * 0.32 + Vector3.UP * 0.54
+		var hand_target := origin + right * sign_side * 0.22 + forward * 0.32 + Vector3.UP * (seat_height + 0.26)
 		var lift := toast_weight if side == "R" else food_weight
 		hand_target += Vector3.UP * lift * 0.48 + forward * lift * 0.03
 		var elbow_pole := right * sign_side * 0.6 + Vector3.DOWN * 0.8

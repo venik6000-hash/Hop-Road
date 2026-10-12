@@ -6,9 +6,12 @@ var staged_loading := false
 ## terrain, the FFT lake and the Blender buildings on top of it.
 const VILLAGE_LAYOUT = preload("res://src/village/village_layout.gd")
 const VILLAGE_MATERIALS = preload("res://src/village/village_materials.gd")
+const GROUND_WEAR = preload("res://src/terrain/ground_wear.gd")
+const GROUND_TRACKS = preload("res://src/terrain/ground_tracks.gd")
 const VILLAGE_PACK = preload("res://src/village/village_pack.gd")
 const COTTAGE = preload("res://src/village/herbalist_cottage.gd")
 const POTTER = preload("res://src/village/potter_cottage.gd")
+const VILLAGE_BUILDINGS = preload("res://src/village/village_buildings.gd")
 ## The HUD, the chimney smoke and the debug keys live in these helpers.
 const LEVEL_HUD = preload("res://src/alpine/level_hud.gd")
 const CHIMNEY_SMOKE = preload("res://src/alpine/chimney_smoke.gd")
@@ -21,7 +24,7 @@ const SPAWN := Vector3(0, 12, 15)
 ## above it lets the lens pass skip its water block.
 const LENS_CREST_BOUND := 30.0
 const VIEW_DISTANCE := 24000.0
-## The middle of the built-up land (tavern, village, island chapel), x and z:
+## The middle of the built-up land (tavern, village, island), x and z:
 ## what RainShelter maps for the rain to fall on.
 const SHELTER_CENTRE := Vector2(-24.0, -44.0)
 var manifest: Dictionary
@@ -38,9 +41,12 @@ var terrain: TerrainSystem
 var sun_shadow: SunShadowField
 var water: WaterSystem
 var vegetation: VegetationSystem
+var litter: ForestLitter
 var rocks: RockField
 var tavern: TavernSystem
 var tavern_interactions: TavernInteractions
+## The brewery and the lighthouse (VillageBuildings.TABLES).
+var buildings: Array[VillageBuilding] = []
 var npc_population: NpcPopulation
 var camping: CampSystem
 var wildlife: WildlifeSystem
@@ -96,14 +102,22 @@ func _ready() -> void:
 		await _loading_step("Открываем таверну…")
 	setup_tavern()
 	settle_map_surfaces($Map)
+	VILLAGE_LAYOUT.settle_landmarks($Map, terrain)
 	VILLAGE_LAYOUT.place_houses($Map, terrain)
 	VILLAGE_LAYOUT.settle_bridge($Map, terrain)
 	VILLAGE_MATERIALS.apply($Map, terrain)
 	VILLAGE_LAYOUT.paint_aprons($Map, terrain)
+	GROUND_WEAR.apply(terrain)
+	var tracks := GROUND_TRACKS.new()
+	tracks.name = "Tracks"
+	tracks.terrain = terrain
+	tracks.walker = player
+	add_child(tracks)
 	if staged_loading:
 		await _loading_step("Собираем деревню…")
 	setup_cottage()
 	setup_potter()
+	setup_buildings()
 	if staged_loading:
 		await setup_village_pack()
 	else:
@@ -255,6 +269,7 @@ func setup_lighting() -> void:
 	add_child(weather)
 	add_child(sky_system)
 	$WorldEnvironment.environment = RealismEnvironment.build(sky_system.make_sky())
+	sky_system.environment = $WorldEnvironment.environment
 	for config: Dictionary in manifest.lights:
 		var lamp := OmniLight3D.new()
 		lamp.name = "TavernLantern"
@@ -361,6 +376,9 @@ func setup_lamps() -> void:
 		var lantern: OmniLight3D = cottage.lantern
 		lamp_guard.lamps.append(lantern)
 		far_lights.add_glow(lantern.global_position, lantern.light_color, 0.2)
+	for building: VillageBuilding in buildings:
+		lamp_guard.lamps.append_array(building.shadowed_lanterns())
+		building.light_from_afar(far_lights)
 	far_lights.build()
 	lamp_guard.roots = [wildlife, village_pack]
 	lamp_guard.population = npc_population
@@ -378,6 +396,21 @@ func setup_potter() -> void:
 	cottage.name = "PotterCottage"
 	$Map.add_child(cottage)
 	cottage.install($Map, sky_system)
+
+## The brewery behind the tavern and the lighthouse on the island; before the
+## vegetation, whose obstacle scan must see their colliders. The ground under
+## them is shaped as the terrain loads (VillageBuildings.settle_ground).
+func setup_buildings() -> void:
+	for table: Dictionary in VILLAGE_BUILDINGS.tables():
+		var building := VillageBuilding.new()
+		building.name = str(table.title)
+		building.table = table
+		building.sky_system = sky_system
+		building.falls = waterfall
+		add_child(building)
+		buildings.append(building)
+		eye_adaptation.rooms.append_array(building.room_boxes())
+		tavern.room_shadow_bounds.append(building.bounds)
 
 ## Scanned boulders and cliff faces in place of the Blender blockout stones;
 ## before the vegetation, whose obstacle scan must see their colliders.
@@ -411,7 +444,8 @@ func setup_brook() -> void:
 	brook.falls = waterfall
 	add_child(brook)
 
-## Trees placed from the terrain masks, kept off the Blender buildings.
+## Trees placed from the terrain masks, kept off the Blender buildings, and
+## what they have shed onto the ground.
 func setup_vegetation() -> void:
 	vegetation = VegetationSystem.new()
 	vegetation.name = "Vegetation"
@@ -424,6 +458,13 @@ func setup_vegetation() -> void:
 	for body: CollisionObject3D in rocks.find_children("*", "CollisionObject3D", true, false):
 		vegetation.exclude.append(body.get_rid())
 	add_child(vegetation)
+	litter = ForestLitter.new()
+	litter.name = "Litter"
+	litter.terrain = terrain
+	litter.woods = vegetation.grid
+	litter.canopy = vegetation.grass.canopy
+	litter.rocks = rocks
+	add_child(litter)
 
 ## The hot air and the rain's rings, the weather's fog, then the underwater
 ## view, waterline and vignette, as compositor passes for every camera; and
@@ -433,12 +474,17 @@ func setup_lens() -> void:
 	fog.sky = sky_system
 	fog.terrain = terrain
 	fog.sun_shadow = sun_shadow
+	fog.canopy = vegetation.grass.canopy
 	fog.weather_map = load("res://assets/generated/sky/cloud_weather.png")
 	var rooms := tavern.room_boxes()
 	for index in rooms.size():
 		fog.building = rooms[index] if index == 0 else fog.building.merge(rooms[index])
+	# From here on every room of the village: the tavern's and the buildings'.
+	rooms = eye_adaptation.rooms
 	fog.rooms = rooms
 	weather.fog = fog
+	eye_adaptation.canopy = vegetation.grass.canopy
+	eye_adaptation.terrain = terrain
 	lightning = LightningFx.new()
 	lightning.name = "Lightning"
 	lightning.weather = weather
@@ -463,8 +509,11 @@ func setup_lens() -> void:
 	# First what bends the picture itself (hot air, the rain's rings on the
 	# lake), then the fog that lies before it all, then the lens.
 	refraction = RefractionPost.new()
+	# The eye meters the picture as the air leaves it, before the lens darkens
+	# its corners.
+	eye_adaptation.meter = LightMeter.new()
 	var compositor := Compositor.new()
-	compositor.compositor_effects = [refraction, fog, lens]
+	compositor.compositor_effects = [refraction, fog, eye_adaptation.meter, lens]
 	$WorldEnvironment.compositor = compositor
 
 func _process(delta: float) -> void:
@@ -516,6 +565,8 @@ func _process(delta: float) -> void:
 
 func setup_smoke() -> void:
 	CHIMNEY_SMOKE.build(self, manifest, terrain)
+	for building: VillageBuilding in buildings:
+		building.take_plumes(CHIMNEY_SMOKE.over(self, building.smoke_vents()))
 
 func setup_interface() -> void:
 	status = LEVEL_HUD.build(self)

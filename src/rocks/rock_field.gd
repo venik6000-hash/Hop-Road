@@ -15,12 +15,18 @@ extends Node3D
 ## Drawing: a MultiMesh per shape and 64 m tile, so Godot's automatic mesh LOD
 ## is chosen per tile; INSTANCE_CUSTOM = (array layer, moss, tone seed, 0).
 ## Collision: the convex hull of each stone, the coarse copy of each cliff face.
+##
+## A cliff face is a shell, open at the back, and the terrain is its core:
+## seat() lays the ground it stands against into the heightfield.
 
 const MeshUtil = preload("res://src/common/mesh_util.gd")
 const LayoutStore = preload("res://src/layout/layout_store.gd")
 const SHAPES := preload("res://assets/models/rocks/rock_shapes.glb")
 const SHADER := preload("res://src/rocks/rock.gdshader")
+const CLIFF_SHADER := preload("res://src/rocks/rock_cliff.gdshader")
 const DATA := "res://assets/generated/rocks/"
+## The ground behind the cliff's faces (tools/pipeline/rocks/cliff_seat.py).
+const SEAT := DATA + "cliff_seat.json"
 const TILE := 64.0
 ## Array layers in tools/pipeline/rocks/rock_textures.py order, and their
 ## grades: rgb tint carrying the exposure gain, and saturation. The scanned
@@ -58,12 +64,31 @@ const BATHING := Rect2(-110.0, -45.0, 75.0, 63.0)
 ## to about 7 m along z = -129, both between x = -66 and -33; the water falls
 ## at x = -50. The scans face +z, toward the lake: coastal_cliff_02 is a shell
 ## whose face lies about 2 m in front of its pivot, its top curling 4 m back.
+## The upper face stands 2.5 m short of the plateau: the ground comes down to
+## the back of its top as a shoulder (cliff_seat.py, which has this face too),
+## and the water crosses that top to fall from its brink (WaterfallSystem.HEAD).
 ## The lower face is tall enough for its top to be the lip of the lower fall:
 ## a ledge at the stream's level from z = -130 to -128.5 (terrain.py carries
 ## the shelf forward to meet it).
+## Past the ends of those two the steps turn into the flanks of the butte and
+## of the shelf, and under the lower fall into the banks of its cove: slopes
+## too steep for the terrain's textures. There lie rock_face_01 scans, which
+## lean back as those slopes do (foot 1.9 m before the pivot, top as far behind).
+## None stands further forward than the great face beside it: the ground that
+## seat() lays under it would show a bare side there.
+## That scan is cut square at its -x end and runs out low at the other: a scale
+## of -x turns it over, so that the square end is the one inside the next face.
 const CLIFF_FACES := [
 	{"scan": "coastal_cliff_02", "at": Vector3(-49.5, 15.6, -149.3), "yaw": 0.0, "scale": Vector3(0.82, 1.44, 0.9)},
 	{"scan": "coastal_cliff_02", "at": Vector3(-47.0, 0.0, -128.8), "yaw": 7.0, "scale": Vector3(0.8, 1.9, 0.8)},
+	{"scan": "rock_face_01", "at": Vector3(-29.4, 16.0, -158.25), "yaw": 90.0, "scale": Vector3(-4.5, 4.0, 1.9)},
+	{"scan": "rock_face_01", "at": Vector3(-70.1, 14.5, -158.25), "yaw": -90.0, "scale": Vector3(4.5, 4.3, 2.0)},
+	{"scan": "rock_face_01", "at": Vector3(-68.3, 6.0, -128.7), "yaw": -20.0, "scale": Vector3(-2.7, 3.2, 1.6)},
+	{"scan": "rock_face_01", "at": Vector3(-29.3, 8.5, -129.2), "yaw": 10.0, "scale": Vector3(1.4, 1.9, 1.2)},
+	{"scan": "rock_face_01", "at": Vector3(-59.2, -1.5, -121.0), "yaw": 90.0, "scale": Vector3(-2.2, 2.2, 1.0)},
+	{"scan": "rock_face_01", "at": Vector3(-41.8, -1.5, -123.5), "yaw": -90.0, "scale": Vector3(2.0, 2.25, 1.0)},
+	{"scan": "rock_face_01", "at": Vector3(-29.6, 16.0, -149.45), "yaw": 10.0, "scale": Vector3(1.9, 4.0, 1.5)},
+	{"scan": "rock_face_01", "at": Vector3(-69.4, 14.5, -149.45), "yaw": -10.0, "scale": Vector3(-1.9, 4.3, 1.5)},
 ]
 
 var terrain: TerrainSystem
@@ -118,6 +143,21 @@ func _ready() -> void:
 	_build_multimeshes()
 	print("ROCKS stones=%d groups=%d replaced=%d load=%.2fs" % [stone_count, _groups.size(), removed,
 		(Time.get_ticks_usec() - start) / 1e6])
+
+## Lays the ground the cliff's faces stand against into the near heightfield
+## (row z, column x at origin + index * cell): the heights cliff_seat.py worked
+## out for the samples round each face. Before anything is built on the
+## heightfield or cut into it.
+static func seat(image: Image, origin: Vector2, cell: float) -> void:
+	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(SEAT))
+	for face: Dictionary in data.faces:
+		var corner := Vector2i(((Vector2(face.origin[0], face.origin[1]) - origin) / cell).round())
+		var heights: Array = face.heights
+		for row in heights.size():
+			var line: Array = heights[row]
+			for column in line.size():
+				if line[column] != null:
+					image.set_pixel(corner.x + column, corner.y + row, Color(float(line[column]), 0.0, 0.0))
 
 static func label_of(item: Node) -> String:
 	var extras: Dictionary = item.get_meta("extras", {})
@@ -201,12 +241,14 @@ func _load_shapes() -> void:
 func _make_materials() -> void:
 	var weather := load("res://assets/generated/sky/cloud_weather.png")
 	var moss := load("res://assets/generated/terrain/terrain_albedo.jpg")
-	_boulder_material = _material("boulder", BOULDER_GRADES, weather, moss)
-	_cliff_material = _material("cliff", CLIFF_GRADES, weather, moss)
+	var grain := load("res://assets/generated/terrain/terrain_normal.jpg")
+	_boulder_material = _material(SHADER, "boulder", BOULDER_GRADES, weather, moss, grain)
+	_cliff_material = _material(CLIFF_SHADER, "cliff", CLIFF_GRADES, weather, moss, grain)
 
-func _material(prefix: String, grades: Array, weather: Texture2D, moss: TextureLayered) -> ShaderMaterial:
+func _material(shader: Shader, prefix: String, grades: Array, weather: Texture2D, moss: TextureLayered,
+		grain: TextureLayered) -> ShaderMaterial:
 	var material := ShaderMaterial.new()
-	material.shader = SHADER
+	material.shader = shader
 	material.set_shader_parameter("rock_albedo", load(DATA + prefix + "_albedo.jpg"))
 	material.set_shader_parameter("rock_normal", load(DATA + prefix + "_normal.jpg"))
 	material.set_shader_parameter("rock_rah", load(DATA + prefix + "_rah.jpg"))
@@ -216,8 +258,10 @@ func _material(prefix: String, grades: Array, weather: Texture2D, moss: TextureL
 	padded.resize(8)
 	material.set_shader_parameter("layer_grade", padded)
 	material.set_shader_parameter("moss_albedo", moss)
+	material.set_shader_parameter("grain_normal", grain)
 	material.set_shader_parameter("cloud_weather", weather)
-	material.set_shader_parameter("water_level", terrain.water_level)
+	# The heights the stones' feet are measured against, and the water level.
+	terrain.share_fields(material)
 	material.set_shader_parameter("water_absorption", WaterSystem.ABSORPTION)
 	material.set_shader_parameter("water_scattering", WaterSystem.SCATTERING)
 	return material
@@ -279,6 +323,12 @@ func _add_stone(box: AABB, place: String) -> void:
 	var moss: float = 0.25 if mossy else MOSS[place]
 	_place_stone(index, xform, moss, rng.randf())
 
+## The boulders' material, for stones drawn elsewhere (ForestLitter). An
+## instance tells it the layer of its scan (its place in BOULDER_SCANS), how
+## bare of moss it is and its tone, as _place_stone() does.
+func boulder_material() -> ShaderMaterial:
+	return _boulder_material
+
 ## One stone of shape `index` as drawn and as a collider.
 func _place_stone(index: int, xform: Transform3D, moss: float, tone: float) -> void:
 	var info: Dictionary = _shapes[index]
@@ -299,9 +349,15 @@ func _ground_under(at: Vector3, reach: Vector3) -> float:
 func _add_cliff_face(face: Dictionary) -> void:
 	var index: int = _by_name[face.scan]
 	var info: Dictionary = _shapes[index]
-	var basis := Basis(Vector3.UP, deg_to_rad(face.yaw)) * Basis.from_scale(face.scale)
-	var xform := Transform3D(basis, face.at)
-	_instance(index, xform, Color(info.layer, 0.6, 0.5, 0.0), 1000.0)
+	var turn := Basis(Vector3.UP, deg_to_rad(face.yaw))
+	var xform := Transform3D(turn * Basis.from_scale(face.scale), face.at)
+	# A face turned over is drawn as a mirrored copy of the mesh, set upright:
+	# an instance of a MultiMesh that mirrors shows its triangles from behind.
+	if face.scale.x < 0.0:
+		_instance(_mirror_of(index), Transform3D(turn * Basis.from_scale(face.scale.abs()), face.at),
+			Color(info.layer, 0.6, 0.5, 0.0), 1000.0)
+	else:
+		_instance(index, xform, Color(info.layer, 0.6, 0.5, 0.0), 1000.0)
 	var coarse: Mesh = info.get("coarse", info.mesh)
 	var holder := CollisionShape3D.new()
 	var shape := ConcavePolygonShape3D.new()
@@ -309,6 +365,39 @@ func _add_cliff_face(face: Dictionary) -> void:
 	shape.backface_collision = true
 	holder.shape = shape
 	_body.add_child(holder)
+
+## The shape that is `index` in a mirror (x turned over), made on first use.
+func _mirror_of(index: int) -> int:
+	var info: Dictionary = _shapes[index]
+	if not info.has("mirror"):
+		var source: Mesh = info.mesh
+		var mesh := ArrayMesh.new()
+		for surface in source.get_surface_count():
+			var arrays := source.surface_get_arrays(surface)
+			var points: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+			var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+			var tangents: PackedFloat32Array = arrays[Mesh.ARRAY_TANGENT]
+			for i in points.size():
+				points[i].x = -points[i].x
+				normals[i].x = -normals[i].x
+				tangents[i * 4] = -tangents[i * 4]
+				tangents[i * 4 + 3] = -tangents[i * 4 + 3]
+			var corners: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+			for i in range(0, corners.size(), 3):
+				var held := corners[i + 1]
+				corners[i + 1] = corners[i + 2]
+				corners[i + 2] = held
+			arrays[Mesh.ARRAY_VERTEX] = points
+			arrays[Mesh.ARRAY_NORMAL] = normals
+			arrays[Mesh.ARRAY_TANGENT] = tangents
+			arrays[Mesh.ARRAY_INDEX] = corners
+			mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+		var copy := info.duplicate()
+		copy.name = info.name + "~mirror"
+		copy.mesh = mesh
+		info.mirror = _shapes.size()
+		_shapes.append(copy)
+	return info.mirror
 
 func _instance(shape: int, xform: Transform3D, custom: Color, reach: float) -> void:
 	var tile := Vector2i(floori(xform.origin.x / TILE), floori(xform.origin.z / TILE))

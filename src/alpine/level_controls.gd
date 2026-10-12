@@ -1,7 +1,8 @@
 extends RefCounted
-## The level's debug keys: overview camera, teleports, the weather, the wind
-## on the lake, time of day and screenshots. `level` is the alpine level node
-## (level.gd).
+## The level's own keys: Tab for the controls help, and the debug ones —
+## overview camera, teleports, the weather, the wind on the lake, time of day
+## and screenshots. `level` is the alpine level node (level.gd).
+const LEVEL_HUD = preload("res://src/alpine/level_hud.gd")
 
 ## Standing on the bay's south beach, facing the island and the far lake.
 const BEACH := Vector3(-58, 4, -6)
@@ -14,7 +15,9 @@ static func key_input(level: Node3D, event: InputEvent) -> void:
 	if not event is InputEventKey or not event.pressed or event.echo:
 		return
 	var key: Key = event.physical_keycode
-	if key == KEY_F9:
+	if key == KEY_TAB:
+		LEVEL_HUD.toggle_help(level)
+	elif key == KEY_F9:
 		toggle_overview(level)
 	elif key == KEY_R:
 		teleport(level, level.spawn_position, -30.0, 10.0)

@@ -33,9 +33,18 @@ static func fade(light: Light3D, kind: String) -> void:
 	light.distance_fade_shadow = range.shadow
 
 ## A glow of `radius` metres at `at` (world space). `facing` is the way a
-## window looks; a lamp, seen from all round, leaves it zero.
-func add_glow(at: Vector3, color: Color, radius: float, facing := Vector3.ZERO) -> void:
-	_glows.append({"at": at, "color": color, "radius": radius, "facing": facing})
+## window looks; a lamp, seen from all round, leaves it zero. Returns the
+## glow's index, for set_lit().
+func add_glow(at: Vector3, color: Color, radius: float, facing := Vector3.ZERO) -> int:
+	_glows.append({"at": at, "color": color, "radius": radius, "facing": facing, "lit": true})
+	return _glows.size() - 1
+
+## Puts the glow `index` out, or lights it again: a fire that is kept for a
+## part of the day only.
+func set_lit(index: int, lit: bool) -> void:
+	_glows[index].lit = lit
+	if multimesh != null:
+		multimesh.set_instance_color(index, _glows[index].color if lit else Color.BLACK)
 
 func build() -> void:
 	var quad := QuadMesh.new()
@@ -57,7 +66,7 @@ func build() -> void:
 		var facing: Vector3 = glow.facing
 		var basis := Basis(Vector3(glow.radius, 0.0, 0.0), Vector3.UP, facing.normalized() if facing != Vector3.ZERO else Vector3.ZERO)
 		multimesh.set_instance_transform(index, Transform3D(basis, local))
-		multimesh.set_instance_color(index, glow.color)
+		multimesh.set_instance_color(index, glow.color if glow.lit else Color.BLACK)
 		bounds = AABB(local, Vector3.ZERO) if index == 0 else bounds.expand(local)
 	# The quads are sized on the screen: no box around them holds them all.
 	multimesh.custom_aabb = bounds.grow(6.0)

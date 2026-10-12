@@ -23,19 +23,21 @@ extends Node3D
 ## frame, a jump) is finished before that frame is drawn, the ring beyond is
 ## made ahead of the walk.
 ##
-## What grows where is the job's to say (grass_tile_job.gd): tall grass in
-## seed on the open meadow, leafy stalks on wet ground and along walls, turf
-## on the verges and the heights, little under a tree's crown and shrubs
-## round its fringe. Clumps keep
-## off paths, beach, the stream's bed, rock, water, snow and steep ground by
-## the terrain's grass_cover() (so the ground the terrain darkens under the
-## plants is the ground that has them) and off the buildings' footprints
-## (ObstacleMap). Flowers stand among the grass, thickest where the terrain's
-## flower mask says so, one kind to a patch of meadow.
+## What grows where is the job's to say (grass_tile_job.gd): swathes of rank
+## grass in seed beside swathes of poor turf in tussocks on the open meadow,
+## leafy stalks on wet ground and along walls, turf on the verges and the
+## heights, little under a tree's crown and shrubs round its fringe. Clumps
+## keep off paths, beach, the stream's bed, rock, water, snow and steep
+## ground and thin out under the trees by the terrain's grass_cover() (so the
+## ground the terrain darkens under the plants is the ground that has them)
+## and off the buildings' footprints (ObstacleMap). Flowers stand among the
+## grass, thickest where the terrain's flower mask says so, one kind to a
+## patch of meadow.
 ##
 ## The plants cast no shadows; they receive those of the trees and houses.
 
 const TileJob = preload("res://src/vegetation/grass_tile_job.gd")
+const CanopyField = preload("res://src/vegetation/canopy_field.gd")
 const ImageUtil = preload("res://src/common/image_util.gd")
 const SHADER := preload("res://src/vegetation/shaders/grass.gdshader")
 ## Side (m) of a tile, and of the patches a tile near the camera is held as.
@@ -107,6 +109,9 @@ var obstacles: ObstacleMap
 ## at scale 1 (m) and how deep its shade is (0..1).
 var woods: TreeLodGrid
 var crowns := PackedVector2Array()
+## The cover of those crowns as a field, for every shader outdoors and for
+## the jobs: the grass gives way to a wood where its trees stand.
+var canopy: CanopyField
 var material := ShaderMaterial.new()
 ## Jobs done: count, total and longest time (us), clumps made.
 var job_stats := Vector4i.ZERO
@@ -140,6 +145,13 @@ func _ready() -> void:
 	_mat_mesh = GrassClump.mat_mesh()
 	for mesh: ArrayMesh in _meshes + _flower_meshes + [_mat_mesh]:
 		mesh.surface_set_material(0, material)
+	# Made here and not by VegetationSystem, which holds the same trees: that
+	# script is an input of the baked placement (VegetationCache.INPUTS), and
+	# the field is no part of where a tree stands.
+	if woods != null:
+		canopy = canopy_of(woods, crowns)
+		canopy.publish()
+		print("CANOPY trees=%d side=%d build=%.0fms" % [canopy.tree_count, canopy.samples, canopy.build_usec / 1000.0])
 	_ground_key = _key()
 	_read_ground()
 
@@ -147,6 +159,8 @@ func _exit_tree() -> void:
 	for tile: Tile in _pending:
 		WorkerThreadPool.wait_for_task_completion(tile.task)
 	_pending.clear()
+	if canopy != null:
+		canopy.withdraw()
 
 ## Keeps the tiles round the camera; VegetationSystem calls it every frame.
 func follow(eye: Vector3, wind: Vector4) -> void:
@@ -178,6 +192,14 @@ func clump_count() -> Vector2i:
 	for item: MultiMeshInstance3D in get_children():
 		count += Vector2i(item.multimesh.instance_count, item.multimesh.visible_instance_count if item.visible else 0)
 	return count
+
+## The cover of the crowns of every tree of `grid` that has a mesh, over the
+## square those trees stand in. `shades` holds, per species, a crown's radius
+## at scale 1 (m) and how deep its shade is (0..1).
+static func canopy_of(grid: TreeLodGrid, shades: PackedVector2Array) -> CanopyField:
+	var span := Vector2(grid.size) * TreeLodGrid.CELL
+	return CanopyField.new(grid.near(Rect2(grid.origin, span), shades), grid.origin,
+		int(maxf(span.x, span.y) / CanopyField.CELL))
 
 ## The level a tile must hold to show `share` of its clumps (-1: none of them).
 static func level_for(share: float) -> int:
@@ -239,6 +261,7 @@ func _read_ground() -> void:
 		ground.cover_origin = obstacles.origin
 		ground.cover_cell = obstacles.cell
 		ground.cover_size = obstacles.size
+	ground.canopy = canopy
 	ground.cells = GrassClump.sheet().cells
 	_ground = ground
 
@@ -385,11 +408,7 @@ func _start(tile: Tile, level: int, piece: float, matted: bool) -> void:
 		zs[n] = tile.rect.position.y + (n - 1) * TileJob.GRAIN
 	job.heights = terrain.heights_at_grid(xs, zs)
 	if woods != null:
-		job.trees = woods.near(tile.rect)
-		for at in range(0, job.trees.size(), 4):
-			var crown := crowns[int(job.trees[at + 3])]
-			job.trees[at + 2] *= crown.x
-			job.trees[at + 3] = crown.y
+		job.trees = woods.near(tile.rect, crowns)
 	tile.job = job
 	tile.task = WorkerThreadPool.add_task(job.run)
 	_pending.append(tile)

@@ -6,6 +6,9 @@ const LayoutStore = preload("res://src/layout/layout_store.gd")
 const DIRECTORY := "res://assets/models/village_pack/"
 const ACTOR = preload("res://src/wildlife/pack_animal.gd")
 const FOLIAGE = preload("res://src/village/pack_foliage.gdshader")
+const OutdoorScan = preload("res://src/render/outdoor_scan.gd")
+## The forest floor's scans whose leaves are cut out of cards; the rest are solid.
+const FOREST_LEAVES: Array[String] = ["fern", "clover"]
 ## Convex colliders of the solid forest pieces, baked by
 ## tools/pipeline/village_pack/bake_hulls.gd. Building them at load reads the
 ## mesh back from the GPU, which can time out on Metal while the level loads.
@@ -242,16 +245,24 @@ func _forest_mesh(asset: String) -> Dictionary:
 		transform = parent.transform * transform
 		parent = parent.get_parent()
 	var mesh := instance.mesh.duplicate() as ArrayMesh
-	if asset in ["fern", "clover"]:
-		for i in mesh.get_surface_count():
-			var old := mesh.surface_get_material(i) as StandardMaterial3D
-			if old == null or old.albedo_texture == null:
-				continue
-			var mat := ShaderMaterial.new()
-			mat.shader = FOLIAGE
-			mat.set_shader_parameter("albedo_map", old.albedo_texture)
-			mat.set_shader_parameter("tint", old.albedo_color)
-			mesh.surface_set_material(i, mat)
+	# Every scan takes the light of the ground it lies on, whatever material
+	# it came with: some are unlit photogrammetry.
+	for i in mesh.get_surface_count():
+		var old := mesh.surface_get_material(i) as StandardMaterial3D
+		if old == null or old.albedo_texture == null:
+			continue
+		if asset not in FOREST_LEAVES:
+			# Bracken soaks as leaves do and takes no shine from the rain; dead
+			# wood a little: a wet mirror of the whole sky on it stands pale
+			# in the dim light under a closed one.
+			mesh.surface_set_material(i, OutdoorScan.material(old, 0.0 if asset == "bracken" else 0.3))
+			continue
+		var mat := ShaderMaterial.new()
+		mat.shader = FOLIAGE
+		mat.set_shader_parameter("albedo_map", old.albedo_texture)
+		mat.set_shader_parameter("tint", old.albedo_color)
+		mat.set_shader_parameter("cloud_weather", load("res://assets/generated/sky/cloud_weather.png"))
+		mesh.surface_set_material(i, mat)
 	source.free()
 	return {"mesh": mesh, "transform": transform}
 

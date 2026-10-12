@@ -29,14 +29,23 @@ const PATCH_QUADS := 32
 const LOD0_SIZE := 8.0
 const LEVELS := 12
 const MAX_NODES := 1400
-const LAYER_TILES := [3.2, 3.4, 3.6, 2.8, 3.4, 7.0, 6.0, 38.0, 1.9, 2.3, 2.6, 3.2, 5.0, 3.0]
-## rgb tint and saturation per layer (see terrain.gdshader grade()).
+## Metres to a repeat of each layer (the L_* of terrain.gdshader). The last
+## is no scan of its own: a yard's trodden earth, the scan of the forest's
+## floor laid finer.
+const LAYER_TILES := [3.2, 3.4, 3.6, 2.8, 3.4, 7.0, 6.0, 38.0, 1.9, 2.3, 2.6, 3.2, 5.0, 3.0, 2.7]
+## rgb tint and saturation per layer (see terrain.gdshader grade()). The
+## forest's floor is graded to rust: dry needles, not the scan's dull earth,
+## and darker than the sward beside it in the same light; a yard's earth is
+## that scan nearly as it was shot. The two rock scans are of red-brown rock: they
+## are held to the grey of the scanned cliffs and boulders that stand on them
+## (RockField.CLIFF_GRADES, rock_grey of rock.gdshaderinc), red to green 1.08
+## and blue to green 0.89 in the mean of the graded scan, as those have.
 const LAYER_GRADES := [
-	Vector4(0.2, 0.47, 0.12, 0.7), Vector4(1.29, 2.39, 1.67, 0.7), Vector4(0.95, 0.95, 0.9, 0.9),
-	Vector4(1.0, 0.97, 0.92, 0.75), Vector4(1.0, 1.0, 1.0, 0.55), Vector4(1.0, 1.0, 1.06, 0.3),
-	Vector4(1.0, 1.0, 1.05, 0.35), Vector4(0.9, 1.0, 0.8, 1.15), Vector4(1.0, 1.0, 1.0, 0.9),
+	Vector4(0.2, 0.47, 0.12, 0.7), Vector4(1.29, 2.39, 1.67, 0.7), Vector4(0.65, 0.635, 0.515, 1.5),
+	Vector4(1.0, 0.97, 0.92, 0.75), Vector4(1.0, 1.0, 1.0, 0.55), Vector4(0.92, 1.0, 0.97, 0.2),
+	Vector4(0.95, 1.0, 0.98, 0.25), Vector4(0.9, 1.0, 0.8, 1.15), Vector4(1.0, 1.0, 1.0, 0.9),
 	Vector4(1.0, 1.0, 1.0, 0.8), Vector4(1.0, 0.94, 0.84, 0.55), Vector4(1.0, 1.0, 1.0, 0.9),
-	Vector4(0.98, 0.99, 1.02, 1.0), Vector4(0.92, 1.03, 0.9, 1.05),
+	Vector4(0.98, 0.99, 1.02, 1.0), Vector4(0.92, 1.03, 0.9, 1.05), Vector4(1.0, 0.98, 0.94, 0.85),
 ]
 
 ## Uniforms of terrain_fields.gdshaderinc, which other materials share.
@@ -45,6 +54,15 @@ const FIELD_PARAMS := ["near_height", "far_height", "near_control", "near_extra"
 
 ## LOD k is used out to lod_distance * (size of a level-k node); larger = denser.
 @export var lod_distance := 2.4
+## Ground that stands high shows its outline against the sky from kilometres
+## away, where a patch is drawn with quads of 64 to 128 m. Its patches are
+## chosen as if it were nearer: by 1 + z above the height y (m), not at all
+## below x. The shader morphs by the same measure.
+@export var high_detail := Vector3(150.0, 700.0, 2.5):
+	set(value):
+		high_detail = value
+		material.set_shader_parameter("high_detail", value)
+		_selection_valid = false
 @export var collision_enabled := true
 @export var camera: Camera3D
 
@@ -91,7 +109,11 @@ func _ready() -> void:
 	far_cell = meta.far.cell
 	far_size = int(meta.far.size)
 	near_image = _load_height("near_height.bin", near_size)
+	RockField.seat(near_image, near_origin, near_cell)
+	WaterfallSystem.carve(near_image, near_origin, near_cell)
 	preload("res://src/village/village_layout.gd").settle_ground(near_image, near_origin, near_cell)
+	preload("res://src/tavern/tavern_ground.gd").settle(near_image, near_origin, near_cell)
+	preload("res://src/village/village_buildings.gd").settle_ground(near_image, near_origin, near_cell)
 	VillageBrook.carve(near_image, near_origin, near_cell, water_level)
 	far_image = _load_height("far_height.bin", far_size)
 	_load_minmax()
@@ -219,11 +241,14 @@ func _commit(instance: MultiMeshInstance3D, buffer: PackedFloat32Array, count: i
 ## covers that area at its own, coarser level).
 func _visit(x: float, z: float, size: float, level: int, eye: Vector3, planes: Array[Plane]) -> bool:
 	var bounds := _bounds(x, z, size)
-	if not _within(bounds, eye, _ranges[level]):
+	# No point of the node can measure nearer than its nearest point does at
+	# the boost of its highest ground.
+	var boost := detail_boost(bounds.end.y)
+	if not _within(bounds, eye, _ranges[level] * boost):
 		return false
 	if not _visible(bounds, planes):
 		return true
-	if level == 0 or not _within(bounds, eye, _ranges[level - 1]):
+	if level == 0 or not _within(bounds, eye, _ranges[level - 1] * boost):
 		_emit(false, x, z, size, level)
 		return true
 	var half := size * 0.5
@@ -305,6 +330,10 @@ func _bounds(x: float, z: float, size: float) -> AABB:
 	var low := data[(iz * count + ix) * 2]
 	var high := data[(iz * count + ix) * 2 + 1]
 	return AABB(Vector3(x, low - 2.0, z), Vector3(size, high - low + 4.0, size))
+
+## How much nearer ground at `height` counts than it is (see high_detail).
+func detail_boost(height: float) -> float:
+	return 1.0 + high_detail.z * smoothstep(high_detail.x, high_detail.y, height)
 
 static func _within(bounds: AABB, eye: Vector3, radius: float) -> bool:
 	var nearest := eye.clamp(bounds.position, bounds.end)

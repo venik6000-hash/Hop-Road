@@ -109,7 +109,8 @@ static func place_detail(placer: TreePlacer) -> void:
 			if Composed.near_composed(placer, px, pz, spacing):
 				continue
 			current[ix + 1] = Vector3(px, pz, spacing)
-			placer.trees.add(px, altitude + t.water_level, pz, TreePlacer.unit(TreePlacer.hash_u32(h + 11)) * TAU, grow, 1.0, kind,
+			placer.trees.add(px, TreePlacer.seat(t, px, pz, altitude + t.water_level, kind, grow), pz,
+				TreePlacer.unit(TreePlacer.hash_u32(h + 11)) * TAU, grow, 1.0, kind,
 				TreePlacer.unit(TreePlacer.hash_u32(h + 13)), TreeSet.DETAIL)
 		var swap := previous
 		previous = current

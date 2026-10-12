@@ -2,13 +2,20 @@ class_name VillageBrook
 extends Node3D
 ## The village brook: from a spring among boulders in the wood above the
 ## tavern meadow, down the meadow in steps and pools, over the scarp west of
-## the lane as a cascade, under the arched footbridge and out into the lake.
+## the lane as a cascade, under the arched footbridge and out into the lake
+## across the gravel fan it has built there.
 ##
 ## It is the lake's water (WaterfallSystem's stream shader on the lake's
 ## optics) on a ribbon that follows a channel cut into the terrain: carve()
 ## shapes the heightfield before the terrain is drawn or made solid, paint()
 ## lays the pebble bed and the wet margin into the terrain masks, stones()
 ## gives RockField the boulders of the steps, banks and spring.
+##
+## The street's rill is drawn here too: a spring below the brewery's lane,
+## water two hands wide past the well, along the upper lane and the cross
+## lane, and a fall over stones into the pond. Its groove, its pebbles and
+## its wet margin come with the village's ground
+## (tools/pipeline/terrain/terrain_village.py: RILL).
 
 const ImageUtil = preload("res://src/common/image_util.gd")
 ## Centre line downstream (x, z) and the half width of the water there.
@@ -19,7 +26,7 @@ const POINTS: Array[Vector3] = [
 	Vector3(-17.6, -13.0, 1.1), Vector3(-14.4, -17.5, 1.1), Vector3(-13.4, -21.5, 1.0),
 	Vector3(-14.6, -25.2, 1.3), Vector3(-18.2, -27.0, 1.5), Vector3(-22.0, -27.6, 1.5),
 	Vector3(-23.5, -30.0, 1.4), Vector3(-24.6, -32.4, 1.5), Vector3(-27.6, -34.2, 1.7),
-	Vector3(-31.5, -35.0, 2.2), Vector3(-35.5, -35.3, 3.0),
+	Vector3(-31.5, -35.0, 2.2), Vector3(-36.5, -35.5, 2.5), Vector3(-42.8, -35.8, 3.0),
 ]
 ## Blender pieces this replaces (their alpine_label).
 const REPLACES := ["Village brook current", "Village brook rock banks"]
@@ -29,6 +36,9 @@ const STEP := 0.5
 const SET_IN := 0.3
 ## Least fall toward the lake (m per m), so the lowest reach still runs.
 const LEAST_FALL := 0.022
+## The gravel fan at the mouth (m of the course): the water spreads over it
+## and asks for no fall of its own.
+const FAN := 7.0
 ## The ribbon reaches this far into its banks.
 const INTO_BANK := 0.45
 ## The footbridge: no boulders on its abutments.
@@ -36,10 +46,27 @@ const BRIDGE := Rect2(-29.0, -32.2, 11.0, 4.4)
 
 ## The beach trail fords the brook where it crosses this z.
 const FORD_Z := 9.5
+## The street's rill downstream, as POINTS: terrain_village.py's RILL, with the
+## half width of its water. A cell of the heightfield is half a metre: no
+## narrower water has a bed everywhere along it.
+const RILL: Array[Vector3] = [
+	Vector3(13.2, -29.3, 0.3), Vector3(13.4, -31.0, 0.32), Vector3(12.7, -33.0, 0.32), Vector3(11.0, -34.8, 0.32),
+	Vector3(10.3, -37.0, 0.34), Vector3(10.2, -40.0, 0.34), Vector3(10.0, -46.0, 0.34), Vector3(9.0, -49.8, 0.34),
+	Vector3(4.5, -50.4, 0.34), Vector3(0.5, -50.8, 0.32), Vector3(-3.2, -52.4, 0.3), Vector3(-5.0, -53.2, 0.3),
+]
+## Its water is this deep, lies this far under its banks, and those stand that
+## high within this many metres of the water (the brook's: SET_IN in 1.2 m).
+const RILL_DEPTH := 0.1
+const RILL_SET_IN := 0.1
+const RILL_BANK := 0.5
+## Where it falls faster than this (m per m) it breaks white over its stones.
+const RILL_STEEP := 0.16
 
 ## Rows of the course downstream: {at: Vector3 (the surface on the centre
 ## line), half, speed, depth, step: bool}. Worked out by carve().
 static var rows: Array[Dictionary] = []
+## The rill's rows, as `rows`.
+static var rill: Array[Dictionary] = []
 
 var map: Node3D
 var falls: WaterfallSystem
@@ -50,40 +77,47 @@ func _ready() -> void:
 			if RockField.label_of(item) in REPLACES:
 				item.get_parent().remove_child(item)
 				item.queue_free()
-	var course := []
-	for row: Dictionary in rows:
-		course.append([row.at, row.half + INTO_BANK, row.speed])
+	_add_water("Water", rows, 0.8, 0.3, 0.02)
+	_add_water("Rill", rill, RILL_DEPTH * 2.0, 0.2, 0.008)
+	print("BROOK rows=%d length=%.0fm spring=%s mouth=%s rill=%.0fm from %s" % [rows.size(), rows.size() * STEP,
+		rows[0].at, rows[-1].at, rill.size() * STEP, rill[0].at])
+
+## The ribbon of the water of `course`: nowhere deeper than `depth`, its
+## ripples the lake's smallest shrunk by `ripples`, its swirls `swirls` high.
+func _add_water(ribbon: String, course: Array[Dictionary], depth: float, ripples: float, swirls: float) -> void:
+	var line := []
+	for row: Dictionary in course:
+		line.append([row.at, row.half + INTO_BANK, row.speed])
 	var material := falls.stream_material()
 	material.set_shader_parameter("landing", Vector2(1e6, 1e6))
 	material.set_shader_parameter("rapids", 0.85)
 	# Its bed by the bridge lies under the lake's level without the lake
 	# being behind it: nothing of the lake shows through this water.
 	material.set_shader_parameter("water_level", -100.0)
-	material.set_shader_parameter("max_depth", 0.8)
-	material.set_shader_parameter("ripple_scale", 0.3)
-	material.set_shader_parameter("swirl_height", 0.02)
+	material.set_shader_parameter("max_depth", depth)
+	material.set_shader_parameter("ripple_scale", ripples)
+	material.set_shader_parameter("swirl_height", swirls)
 	var item := MeshInstance3D.new()
-	item.name = "Water"
-	item.mesh = WaterfallSystem.ribbon_mesh(course, 1)
+	item.name = ribbon
+	item.mesh = WaterfallSystem.ribbon_mesh(line, 1)
 	item.material_override = material
 	item.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	item.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 	add_child(item)
-	print("BROOK rows=%d length=%.0fm spring=%s mouth=%s" % [rows.size(), rows.size() * STEP, rows[0].at, rows[-1].at])
 
-## The centre line every STEP metres: (x, z, half width).
-static func centre_line() -> Array[Vector3]:
+## The centre line through `points` every STEP metres: (x, z, half width).
+static func centre_line(points: Array[Vector3] = POINTS) -> Array[Vector3]:
 	var dense: Array[Vector3] = []
-	for k in POINTS.size() - 1:
-		var p0 := POINTS[maxi(k - 1, 0)]
-		var p1 := POINTS[k]
-		var p2 := POINTS[k + 1]
-		var p3 := POINTS[mini(k + 2, POINTS.size() - 1)]
+	for k in points.size() - 1:
+		var p0 := points[maxi(k - 1, 0)]
+		var p1 := points[k]
+		var p2 := points[k + 1]
+		var p3 := points[mini(k + 2, points.size() - 1)]
 		for s in 16:
 			var t := s / 16.0
 			dense.append(0.5 * ((2.0 * p1) + (p2 - p0) * t + (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * t * t
 				+ (3.0 * p1 - p0 - 3.0 * p2 + p3) * t * t * t))
-	dense.append(POINTS[-1])
+	dense.append(points[-1])
 	var line: Array[Vector3] = [dense[0]]
 	var carried := 0.0
 	for i in range(1, dense.size()):
@@ -109,7 +143,7 @@ static func plan(height: Callable, water_level: float) -> Array[Dictionary]:
 	var low := INF
 	for i in count:
 		low = minf(low, float(height.call(line[i].x, line[i].y)) - SET_IN)
-		surface[i] = maxf(low, water_level + 0.02 + LEAST_FALL * (count - 1 - i) * STEP)
+		surface[i] = maxf(low, water_level + 0.02 + LEAST_FALL * maxf((count - 1 - i) * STEP - FAN, 0.0))
 	var result: Array[Dictionary] = []
 	for i in count:
 		result.append({"at": Vector3(line[i].x, surface[i], line[i].y), "half": line[i].z, "speed": 1.0,
@@ -155,36 +189,79 @@ static func plan(height: Callable, water_level: float) -> Array[Dictionary]:
 		row.step = false
 	return result
 
-## Cuts the channel into the near heightfield (row z, column x at origin +
-## index * cell) and remembers the course for the water and the stones.
+## The rill's course over the ground `height` (x, z -> m) gives: its water
+## lies in the groove dug for it and never runs uphill, slow where the street
+## is level and white where it falls to the pond, under whose surface (the
+## lake's, `water_level`) its last rows slip.
+static func plan_rill(height: Callable, water_level: float) -> Array[Dictionary]:
+	var line := centre_line(RILL)
+	var count := line.size()
+	var result: Array[Dictionary] = []
+	var low := INF
+	for i in count:
+		low = minf(low, float(height.call(line[i].x, line[i].y)))
+		result.append({"at": Vector3(line[i].x, maxf(low, water_level + 0.02), line[i].y), "half": line[i].z, "speed": 0.5,
+			"depth": RILL_DEPTH, "step": false})
+	for i in count:
+		var from: Vector3 = result[maxi(i - 2, 0)].at
+		var to: Vector3 = result[mini(i + 2, count - 1)].at
+		var fall := (from.y - to.y) / maxf(Vector2(to.x - from.x, to.z - from.z).length(), STEP)
+		result[i].speed = clampf(0.4 + 9.0 * fall, 0.4, 3.2)
+		result[i].step = fall > RILL_STEEP
+	for k in 3:
+		var row: Dictionary = result[count - 1 - k]
+		var at: Vector3 = row.at
+		at.y = minf(at.y, water_level - 0.06 + 0.04 * k)
+		row.at = at
+		row.speed = 0.4
+		row.step = false
+	return result
+
+## Cuts the channels into the near heightfield (row z, column x at origin +
+## index * cell) and remembers the courses for the water and the stones.
 static func carve(image: Image, origin: Vector2, cell: float, water_level: float) -> void:
 	var sample := func(x: float, z: float) -> float:
 		return image.get_pixel(int(round((x - origin.x) / cell)), int(round((z - origin.y) / cell))).r
 	rows = plan(sample, water_level)
-	var nearest := _nearest(origin, cell, 4.0)
+	cut(image, origin, cell, rows)
+	rill = plan_rill(sample, water_level)
+	cut(image, origin, cell, rill, RILL_SET_IN, RILL_BANK)
+
+## Cuts the channel of `course` (rows as `rows`) into the heightfield: the
+## stream above the upper fall takes its bed from here too
+## (WaterfallSystem.carve). Where a row has no depth the water runs over bare
+## rock and nothing is cut. The banks stand `set_in` over the water from `bank`
+## metres off its edge, and the ground comes back to its own over twice that.
+static func cut(image: Image, origin: Vector2, cell: float, course: Array[Dictionary], set_in := SET_IN,
+		bank := 1.2) -> void:
+	# The brook's own distances, for a narrower bank drawn in.
+	var wide := bank / 1.2
+	var nearest := nearest_cells(course, origin, cell, 4.0 * wide)
 	for key: Vector2i in nearest:
 		var entry: Vector2 = nearest[key]
-		var row: Dictionary = rows[int(entry.x)]
+		var row: Dictionary = course[int(entry.x)]
 		var d := entry.y
 		var half: float = row.half
 		var depth: float = row.depth
 		var surface: float = row.at.y
+		if depth <= 0.0:
+			continue
 		var target: float
 		if d < half:
 			var t := d / half
 			target = surface - depth * (1.0 - 0.85 * t * t)
 		else:
-			target = surface - 0.15 * depth + (0.15 * depth + SET_IN) * smoothstep(half, half + 1.2, d)
-		var weight := 1.0 - smoothstep(half + 1.0, half + 3.4, d)
+			target = surface - 0.15 * depth + (0.15 * depth + set_in) * smoothstep(half, half + bank, d)
+		var weight := 1.0 - smoothstep(half + 1.0 * wide, half + 3.4 * wide, d)
 		var before := image.get_pixel(key.x, key.y).r
 		image.set_pixel(key.x, key.y, Color(lerpf(before, target, weight), 0, 0))
 
-## Cells of a grid within `reach` metres of the water's edge: cell -> (row
-## index, distance to the centre line).
-static func _nearest(origin: Vector2, cell: float, reach: float) -> Dictionary:
+## Cells of a grid within `reach` metres of the water's edge of `course`:
+## cell -> (row index, distance to the centre line).
+static func nearest_cells(course: Array[Dictionary], origin: Vector2, cell: float, reach: float) -> Dictionary:
 	var nearest := {}
-	for index in rows.size():
-		var row: Dictionary = rows[index]
+	for index in course.size():
+		var row: Dictionary = course[index]
 		var at := Vector2(row.at.x, row.at.z)
 		var radius: float = row.half + reach
 		var lo := Vector2i(((at - Vector2.ONE * radius - origin) / cell).floor())
@@ -199,30 +276,32 @@ static func _nearest(origin: Vector2, cell: float, reach: float) -> Dictionary:
 					nearest[key] = Vector2(index, d)
 	return nearest
 
-## The bed's pebbles and the wet margin in the terrain's masks, which the
-## grass and the trees read too: neither grows in the water.
+## The beds' pebbles and the wet margins in the terrain's masks, which the
+## grass and the trees read too: neither grows in the water. Of the brook and
+## of the stream above the upper fall (WaterfallSystem.head).
 static func paint(terrain: TerrainSystem) -> void:
 	var config: Dictionary = terrain.meta.masks
 	var origin := Vector2(config.origin[0], config.origin[1])
 	var cell: float = config.cell
 	var control := _image(terrain, "near_control")
 	var extra := _image(terrain, "near_extra")
-	var nearest := _nearest(origin, cell, 3.0)
-	for key: Vector2i in nearest:
-		var entry: Vector2 = nearest[key]
-		var row: Dictionary = rows[int(entry.x)]
-		var half: float = row.half
-		var bed := 1.0 - smoothstep(half - 0.1, half + 1.1, entry.y)
-		var color := control.get_pixel(key.x, key.y)
-		color.r *= 1.0 - bed
-		color.g = maxf(color.g, bed)
-		color.a *= 1.0 - bed
-		control.set_pixel(key.x, key.y, color)
-		var more := extra.get_pixel(key.x, key.y)
-		more.g = maxf(more.g, 1.0 - smoothstep(half + 0.2, half + 1.5, entry.y))
-		if row.step:
-			more.r = maxf(more.r, 0.7 * (1.0 - smoothstep(half, half + 1.8, entry.y)))
-		extra.set_pixel(key.x, key.y, more)
+	for course: Array[Dictionary] in [rows, WaterfallSystem.head]:
+		var nearest := nearest_cells(course, origin, cell, 3.0)
+		for key: Vector2i in nearest:
+			var entry: Vector2 = nearest[key]
+			var row: Dictionary = course[int(entry.x)]
+			var half: float = row.half
+			var bed := 1.0 - smoothstep(half - 0.1, half + 1.1, entry.y)
+			var color := control.get_pixel(key.x, key.y)
+			color.r *= 1.0 - bed
+			color.g = maxf(color.g, bed)
+			color.a *= 1.0 - bed
+			control.set_pixel(key.x, key.y, color)
+			var more := extra.get_pixel(key.x, key.y)
+			more.g = maxf(more.g, 1.0 - smoothstep(half + 0.2, half + 1.5, entry.y))
+			if row.step:
+				more.r = maxf(more.r, 0.7 * (1.0 - smoothstep(half, half + 1.8, entry.y)))
+			extra.set_pixel(key.x, key.y, more)
 	terrain.material.set_shader_parameter("near_control", ImageTexture.create_from_image(control))
 	terrain.material.set_shader_parameter("near_extra", ImageTexture.create_from_image(extra))
 

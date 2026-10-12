@@ -19,7 +19,6 @@ const ACTIONS := {
 	"eat_potato": [KEY_F],
 	"camp_secondary": [KEY_Q],
 	"guide_outing": [KEY_G],
-	"camp_talk": [KEY_T],
 	"camp_refill": [KEY_X],
 	"release_mouse": [KEY_ESCAPE],
 }

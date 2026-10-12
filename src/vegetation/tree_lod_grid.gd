@@ -92,9 +92,10 @@ static func instance_row(trees: TreeSet, i: int) -> PackedFloat32Array:
 func tree_count() -> int:
 	return xs.size()
 
-## The trees whose crowns may reach over `rect` (x, z): x, z, scale and
-## species of each, one after another.
-func near(rect: Rect2) -> PackedFloat32Array:
+## The trees whose crowns may reach over `rect` (x, z): x, z, the crown's
+## radius (m) and how deep its shade is (0..1) of each, one after another.
+## `crowns` holds, per species, the radius at scale 1 and the shade.
+func near(rect: Rect2, crowns: PackedVector2Array) -> PackedFloat32Array:
 	var found := PackedFloat32Array()
 	var reach := rect.grow(MAX_CROWN)
 	if xs.is_empty() or not Rect2(origin, Vector2(size) * CELL).intersects(reach):
@@ -105,10 +106,11 @@ func near(rect: Rect2) -> PackedFloat32Array:
 		for cx in range(first.x, last.x + 1):
 			var cell := cz * size.x + cx
 			for slot in range(offsets[cell * kinds], offsets[(cell + 1) * kinds]):
+				var crown := crowns[int(rows[slot * STRIDE + 13])]
 				found.append(xs[slot])
 				found.append(zs[slot])
-				found.append(rows[slot * STRIDE + 5])
-				found.append(rows[slot * STRIDE + 13])
+				found.append(rows[slot * STRIDE + 5] * crown.x)
+				found.append(crown.y)
 	return found
 
 ## Tiles per side of the window that select() covers for bands reaching `reach` m.
