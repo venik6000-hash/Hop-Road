@@ -1,0 +1,1209 @@
+{
+ "title": "Hop kiln",
+ "description": "Хмелесушильня на северном краю деревни: квадратная каменная башня с топкой у земли и решётчатым сушильным настилом, под высокой пирамидой из дранки с поворотным колпаком; к ней пристроен дощатый склад в полтора этажа с холодильным полом и набивкой мешков. Авторская геометрия на библиотеке таверны, её же CC0-сканы.",
+ "scenes": {
+  "shell": "res://assets/models/hop_kiln/hop_kiln.glb",
+  "interior": "res://assets/models/hop_kiln/hop_kiln_interior.glb"
+ },
+ "origin": [
+  8.2,
+  2.85,
+  -85.6
+ ],
+ "yaw": 12.0,
+ "materials": {
+  "kiln_boarding": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.9,
+    0.88,
+    0.85
+   ],
+   "desaturate": 0.85,
+   "uv_scale": 1.2,
+   "roughness": 1.0,
+   "grime": 0.2,
+   "moss": 0.0,
+   "albedo_gain": 1.15,
+   "lichen": 0.15
+  },
+  "kiln_coal": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/bark_brown_02_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/bark_brown_02_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/bark_brown_02_arm_1k.jpg",
+   "tint": [
+    0.05,
+    0.05,
+    0.055
+   ],
+   "desaturate": 0.8,
+   "uv_scale": 0.22,
+   "roughness": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal_strength": 1.6
+  },
+  "kiln_green_hops": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "tint": [
+    0.44,
+    0.6,
+    0.24
+   ],
+   "desaturate": 0.8,
+   "uv_scale": 0.6,
+   "roughness": 1.0,
+   "normal_strength": 2.2,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "kiln_haircloth": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/wool_boucle_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/wool_boucle_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/wool_boucle_arm_1k.jpg",
+   "tint": [
+    0.2,
+    0.17,
+    0.14
+   ],
+   "desaturate": 1.0,
+   "albedo_gain": 1.25,
+   "uv_scale": 0.2,
+   "roughness": 1.0,
+   "normal_strength": 0.9,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "kiln_hops": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "tint": [
+    0.72,
+    0.66,
+    0.3
+   ],
+   "desaturate": 0.8,
+   "uv_scale": 0.6,
+   "roughness": 1.0,
+   "normal_strength": 2.2,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "kiln_pocket": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/hessian_230_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/hessian_230_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/hessian_230_arm_1k.jpg",
+   "tint": [
+    0.9,
+    0.82,
+    0.66
+   ],
+   "desaturate": 0.3,
+   "uv_scale": 0.22,
+   "roughness": 1.0,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "kiln_shingle": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.94,
+    0.92,
+    0.88
+   ],
+   "desaturate": 1.0,
+   "uv_scale": 1.0,
+   "roughness": 1.0,
+   "grime": 0.2,
+   "moss": 0.3,
+   "albedo_gain": 1.3,
+   "lichen": 0.3
+  },
+  "kiln_wicker": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/hessian_230_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/hessian_230_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/hessian_230_arm_1k.jpg",
+   "tint": [
+    0.6,
+    0.48,
+    0.32
+   ],
+   "desaturate": 0.4,
+   "uv_scale": 0.06,
+   "roughness": 1.0,
+   "normal_strength": 1.5,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_ash": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "tint": [
+    0.36,
+    0.34,
+    0.32
+   ],
+   "desaturate": 1.0,
+   "uv_scale": 0.35,
+   "roughness": 1.0,
+   "normal_strength": 0.6,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_bark": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/bark_brown_02_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/bark_brown_02_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/bark_brown_02_arm_1k.jpg",
+   "tint": [
+    0.72,
+    0.62,
+    0.52
+   ],
+   "desaturate": 0.3,
+   "uv_scale": 0.45,
+   "roughness": 1.0,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_board": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.7,
+    0.56,
+    0.42
+   ],
+   "desaturate": 0.85,
+   "uv_scale": 1.2,
+   "roughness": 1.0,
+   "grime": 0.2,
+   "moss": 0.0
+  },
+  "tav_candle": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "tint": [
+    0.95,
+    0.9,
+    0.76
+   ],
+   "desaturate": 1.0,
+   "albedo_gain": 1.5,
+   "uv_scale": 0.15,
+   "roughness": 0.55,
+   "normal_strength": 0.2,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_ember": {
+   "shader": "flame",
+   "color": [
+    1.0,
+    0.32,
+    0.08
+   ],
+   "energy": 2.6,
+   "wildness": 0.05,
+   "tint": [
+    1.0,
+    0.35,
+    0.1
+   ],
+   "emission": 5.0,
+   "emission_color": [
+    1.0,
+    0.35,
+    0.1
+   ]
+  },
+  "tav_fire": {
+   "shader": "flame",
+   "color": [
+    1.0,
+    0.5,
+    0.18
+   ],
+   "energy": 5.0,
+   "wildness": 0.8,
+   "tint": [
+    1.0,
+    0.5,
+    0.2
+   ],
+   "emission": 8.0,
+   "emission_color": [
+    1.0,
+    0.5,
+    0.2
+   ]
+  },
+  "tav_floor": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/wood_table_worn_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/wood_table_worn_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/wood_table_worn_arm_1k.jpg",
+   "tint": [
+    0.66,
+    0.55,
+    0.45
+   ],
+   "desaturate": 0.25,
+   "uv_scale": 1.5,
+   "roughness": 0.95,
+   "normal_strength": 1.0,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_glass": {
+   "shader": "glass",
+   "tint": [
+    0.86,
+    0.92,
+    0.88
+   ],
+   "alpha": 0.1,
+   "roughness": 0.04,
+   "wave": 0.05
+  },
+  "tav_iron": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "tint": [
+    0.34,
+    0.31,
+    0.29
+   ],
+   "desaturate": 0.7,
+   "uv_scale": 0.6,
+   "roughness": 0.9,
+   "metallic": 0.55,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_lantern_flame": {
+   "shader": "flame",
+   "color": [
+    1.0,
+    0.6,
+    0.24
+   ],
+   "energy": 3.5,
+   "wildness": 0.12,
+   "dusk_only": true,
+   "tint": [
+    1.0,
+    0.6,
+    0.3
+   ],
+   "emission": 6.0,
+   "emission_color": [
+    1.0,
+    0.6,
+    0.3
+   ]
+  },
+  "tav_lead": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "tint": [
+    0.62,
+    0.64,
+    0.66
+   ],
+   "desaturate": 1.0,
+   "albedo_gain": 1.0,
+   "uv_scale": 0.8,
+   "roughness": 0.75,
+   "normal_strength": 0.3,
+   "metallic": 0.25,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_limewash": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/white_plaster_rough_01_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/white_plaster_rough_01_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/white_plaster_rough_01_arm_1k.jpg",
+   "tint": [
+    0.93,
+    0.9,
+    0.84
+   ],
+   "desaturate": 0.7,
+   "uv_scale": 1.6,
+   "roughness": 1.0,
+   "normal_strength": 0.8,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_linen": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_linen_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_linen_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_linen_arm_1k.jpg",
+   "tint": [
+    0.94,
+    0.91,
+    0.85
+   ],
+   "desaturate": 0.5,
+   "uv_scale": 0.35,
+   "roughness": 1.0,
+   "normal_strength": 0.8,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_mortar": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "tint": [
+    0.6,
+    0.57,
+    0.52
+   ],
+   "desaturate": 0.6,
+   "uv_scale": 1.2,
+   "roughness": 1.0,
+   "grime": 0.6,
+   "moss": 0.2
+  },
+  "tav_oak": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.62,
+    0.43,
+    0.27
+   ],
+   "desaturate": 0.85,
+   "uv_scale": 1.4,
+   "roughness": 1.0,
+   "grime": 0.25,
+   "moss": 0.0
+  },
+  "tav_oak_end": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.42,
+    0.29,
+    0.19
+   ],
+   "desaturate": 0.85,
+   "uv_scale": 0.35,
+   "roughness": 1.0,
+   "grime": 0.2,
+   "moss": 0.0
+  },
+  "tav_oak_smooth": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/wood_table_worn_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/wood_table_worn_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/wood_table_worn_arm_1k.jpg",
+   "tint": [
+    0.92,
+    0.84,
+    0.78
+   ],
+   "desaturate": 0.1,
+   "uv_scale": 1.2,
+   "roughness": 0.9,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_plank": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.86,
+    0.74,
+    0.6
+   ],
+   "desaturate": 0.75,
+   "uv_scale": 1.1,
+   "roughness": 1.0,
+   "normal_strength": 0.9,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_rope": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/hessian_230_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/hessian_230_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/hessian_230_arm_1k.jpg",
+   "tint": [
+    0.7,
+    0.58,
+    0.42
+   ],
+   "desaturate": 0.5,
+   "uv_scale": 0.08,
+   "roughness": 1.0,
+   "normal_strength": 1.4,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_stone": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "tint": [
+    0.86,
+    0.86,
+    0.86
+   ],
+   "desaturate": 0.7,
+   "albedo_gain": 1.12,
+   "uv_scale": 1.6,
+   "roughness": 1.0,
+   "normal_strength": 1.2,
+   "grime": 0.55,
+   "moss": 0.35
+  }
+ },
+ "color_range": 2.0,
+ "lights": [
+  {
+   "name": "Kiln fire",
+   "position": [
+    0.0,
+    0.7,
+    0.6
+   ],
+   "type": "point",
+   "color": [
+    1.0,
+    0.5,
+    0.20000000298023224
+   ],
+   "energy": 3.0,
+   "range": 12.0,
+   "shadow": true,
+   "flicker": 0.4,
+   "night": 0.0,
+   "layer": "exterior",
+   "size": 0.3,
+   "speed": 1.5,
+   "sway": 0.0
+  },
+  {
+   "name": "Kiln glow",
+   "position": [
+    0.0,
+    0.9,
+    3.7
+   ],
+   "type": "point",
+   "color": [
+    1.0,
+    0.5,
+    0.20000000298023224
+   ],
+   "energy": 0.9,
+   "range": 6.5,
+   "shadow": false,
+   "flicker": 0.3,
+   "night": 0.0,
+   "layer": "exterior",
+   "size": 0.05,
+   "speed": 1.5,
+   "sway": 0.0
+  },
+  {
+   "name": "Store lantern",
+   "position": [
+    8.55,
+    1.416,
+    2.378
+   ],
+   "type": "point",
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 0.9,
+   "range": 4.5,
+   "shadow": false,
+   "flicker": 0.12,
+   "night": 0.0,
+   "layer": "exterior",
+   "size": 0.05,
+   "speed": 0.8,
+   "sway": 0.0
+  }
+ ],
+ "probes": [
+  {
+   "name": "kiln",
+   "position": [
+    0.0,
+    3.34,
+    -0.0
+   ],
+   "extents": [
+    2.200000047683716,
+    3.3399999141693115,
+    2.200000047683716
+   ],
+   "ambient": [
+    0.05,
+    0.04,
+    0.03
+   ],
+   "room": "kiln"
+  },
+  {
+   "name": "cone",
+   "position": [
+    0.0,
+    7.615,
+    -0.0
+   ],
+   "extents": [
+    1.5,
+    0.9350001811981201,
+    1.5
+   ],
+   "ambient": [
+    0.05,
+    0.04,
+    0.03
+   ],
+   "room": "cone"
+  },
+  {
+   "name": "store",
+   "position": [
+    6.049,
+    1.635,
+    -0.0
+   ],
+   "extents": [
+    3.5989999771118164,
+    1.6349999904632568,
+    2.5480000972747803
+   ],
+   "ambient": [
+    0.05,
+    0.04,
+    0.03
+   ],
+   "room": "store"
+  },
+  {
+   "name": "loft",
+   "position": [
+    6.224,
+    3.775,
+    -0.0
+   ],
+   "extents": [
+    3.423999786376953,
+    0.505000114440918,
+    1.350000023841858
+   ],
+   "ambient": [
+    0.05,
+    0.04,
+    0.03
+   ],
+   "room": "loft"
+  }
+ ],
+ "stats": {
+  "shell": {
+   "meshes": 81,
+   "vertices": 44558,
+   "triangles": 55695
+  },
+  "interior": {
+   "meshes": 76,
+   "vertices": 25218,
+   "triangles": 38898
+  }
+ },
+ "footprint": [
+  [
+   -2.8,
+   0.0,
+   2.8
+  ],
+  [
+   2.8,
+   0.0,
+   2.8
+  ],
+  [
+   2.8,
+   0.0,
+   2.7
+  ],
+  [
+   9.8,
+   0.0,
+   2.7
+  ],
+  [
+   9.8,
+   0.0,
+   -2.7
+  ],
+  [
+   2.8,
+   0.0,
+   -2.7
+  ],
+  [
+   2.8,
+   0.0,
+   -2.8
+  ],
+  [
+   -2.8,
+   0.0,
+   -2.8
+  ]
+ ],
+ "roofs": [
+  [
+   [
+    -3.1,
+    6.26,
+    3.1
+   ],
+   [
+    3.1,
+    6.26,
+    -3.1
+   ]
+  ],
+  [
+   [
+    2.8,
+    3.306,
+    3.05
+   ],
+   [
+    10.1,
+    3.306,
+    -3.05
+   ]
+  ]
+ ],
+ "stations": [
+  {
+   "id": "firebox",
+   "title": "Топка",
+   "stand": [
+    0.0,
+    0.0,
+    1.3
+   ],
+   "look": [
+    0.0,
+    0.473,
+    -0.225
+   ]
+  },
+  {
+   "id": "fuel",
+   "title": "Уголь для топки",
+   "stand": [
+    -0.92,
+    0.0,
+    1.0
+   ],
+   "look": [
+    -1.76,
+    0.5,
+    1.76
+   ]
+  },
+  {
+   "id": "ash",
+   "title": "Зольник",
+   "stand": [
+    1.08,
+    0.0,
+    -1.62
+   ],
+   "look": [
+    1.82,
+    0.35,
+    -1.66
+   ]
+  },
+  {
+   "id": "drying_floor",
+   "title": "Сушильный настил",
+   "stand": [
+    1.65,
+    2.5,
+    -0.0
+   ],
+   "look": [
+    -0.5,
+    2.75,
+    -0.0
+   ]
+  },
+  {
+   "id": "press",
+   "title": "Набивка: утоптать хмель в мешок",
+   "stand": [
+    3.7,
+    2.5,
+    -0.52
+   ],
+   "look": [
+    3.7,
+    2.35,
+    -1.35
+   ]
+  },
+  {
+   "id": "pocket",
+   "title": "Мешок под люком: зашить и взвесить",
+   "stand": [
+    3.7,
+    0.0,
+    -0.42
+   ],
+   "look": [
+    3.7,
+    1.2,
+    -1.35
+   ]
+  },
+  {
+   "id": "store",
+   "title": "Склад мешков",
+   "stand": [
+    4.2,
+    0.0,
+    1.25
+   ],
+   "look": [
+    4.2,
+    1.1,
+    2.178
+   ]
+  },
+  {
+   "id": "cooling_floor",
+   "title": "Холодильный пол",
+   "stand": [
+    4.6,
+    2.5,
+    0.3
+   ],
+   "look": [
+    4.4,
+    2.7,
+    1.8
+   ]
+  },
+  {
+   "id": "baskets",
+   "title": "Корзины свежего хмеля",
+   "stand": [
+    6.8,
+    0.008,
+    3.95
+   ],
+   "look": [
+    7.86,
+    0.4777,
+    3.5
+   ]
+  },
+  {
+   "id": "poles",
+   "title": "Шесты про запас",
+   "stand": [
+    5.3,
+    -0.2771,
+    -4.55
+   ],
+   "look": [
+    5.375,
+    0.4751,
+    -3.36
+   ]
+  }
+ ],
+ "vents": [
+  {
+   "id": "cowl",
+   "kind": "smoke",
+   "fire": "Kiln fire",
+   "at": [
+    0.0,
+    12.234,
+    -0.0
+   ]
+  }
+ ],
+ "fires": [
+  {
+   "name": "Kiln fire",
+   "at": [
+    0.0,
+    0.47,
+    -0.225
+   ],
+   "along": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "width": 0.8,
+   "height": 0.38,
+   "lamps": [
+    "Kiln fire",
+    "Kiln glow"
+   ],
+   "far": {
+    "radius": 0.4,
+    "out": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  }
+ ],
+ "hours": {
+  "Kiln fire": [
+   14.0,
+   23.0
+  ],
+  "Kiln glow": [
+   14.0,
+   23.0
+  ],
+  "Store lantern": [
+   19.5,
+   23.0
+  ]
+ },
+ "vanes": [
+  {
+   "id": "cowl",
+   "pivot": [
+    0.0,
+    10.66,
+    -0.0
+   ],
+   "lee": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  }
+ ],
+ "terrain": {
+  "lower": [
+   {
+    "rect": [
+     [
+      -2.2,
+      2.2
+     ],
+     [
+      2.2,
+      -2.2
+     ]
+    ],
+    "to": -0.12
+   },
+   {
+    "rect": [
+     [
+      2.8,
+      2.45
+     ],
+     [
+      9.55,
+      -2.45
+     ]
+    ],
+    "to": -0.1
+   }
+  ],
+  "walls_reach": -0.8
+ },
+ "worn": {
+  "yards": [
+   {
+    "name": "hop kiln",
+    "outline": [
+     [
+      -4.6,
+      6.2
+     ],
+     [
+      10.4,
+      6.2
+     ],
+     [
+      10.4,
+      2.4
+     ],
+     [
+      2.8,
+      2.4
+     ],
+     [
+      2.8,
+      2.5
+     ],
+     [
+      -4.6,
+      2.5
+     ]
+    ]
+   },
+   {
+    "name": "behind the store",
+    "outline": [
+     [
+      2.8,
+      -2.4
+     ],
+     [
+      10.4,
+      -2.4
+     ],
+     [
+      10.4,
+      -4.62
+     ],
+     [
+      2.8,
+      -4.62
+     ]
+    ]
+   }
+  ],
+  "routes": [
+   {
+    "name": "the cart from the lane to the store's door",
+    "kind": "cart",
+    "points": [
+     [
+      -5.0,
+      5.3
+     ],
+     [
+      -1.0,
+      5.1
+     ],
+     [
+      4.0,
+      4.7
+     ],
+     [
+      6.4,
+      3.7
+     ]
+    ]
+   },
+   {
+    "name": "the lane's end round the corner to the kiln's door",
+    "kind": "foot",
+    "points": [
+     [
+      -5.42,
+      0.48
+     ],
+     [
+      -4.3,
+      2.7
+     ],
+     [
+      -2.3,
+      4.0
+     ],
+     [
+      0.0,
+      3.5
+     ]
+    ]
+   },
+   {
+    "name": "from the kiln's door to the store's",
+    "kind": "foot",
+    "points": [
+     [
+      0.0,
+      3.5
+     ],
+     [
+      3.2,
+      4.1
+     ],
+     [
+      6.4,
+      3.6
+     ]
+    ]
+   },
+   {
+    "name": "the back door to the hop garden",
+    "kind": "foot",
+    "points": [
+     [
+      8.95,
+      -3.0
+     ],
+     [
+      10.0,
+      -5.0
+     ],
+     [
+      11.2,
+      -7.6
+     ]
+    ]
+   },
+   {
+    "name": "the back door to the poles",
+    "kind": "foot",
+    "points": [
+     [
+      8.95,
+      -3.0
+     ],
+     [
+      8.4,
+      -4.4
+     ],
+     [
+      5.3,
+      -4.55
+     ]
+    ]
+   }
+  ],
+  "stands": [
+   {
+    "name": "kiln door",
+    "radius": 1.3,
+    "at": [
+     [
+      0.0,
+      3.7
+     ]
+    ]
+   },
+   {
+    "name": "store door",
+    "radius": 1.2,
+    "at": [
+     [
+      6.4,
+      3.5
+     ]
+    ]
+   },
+   {
+    "name": "back door",
+    "radius": 0.9,
+    "at": [
+     [
+      8.95,
+      -3.4
+     ]
+    ]
+   },
+   {
+    "name": "handcart",
+    "radius": 1.2,
+    "at": [
+     [
+      9.2,
+      5.3
+     ]
+    ]
+   },
+   {
+    "name": "poles",
+    "radius": 0.8,
+    "at": [
+     [
+      4.0,
+      -4.22
+     ],
+     [
+      6.75,
+      -4.22
+     ]
+    ]
+   }
+  ],
+  "cinder": [
+   {
+    "name": "before the kiln's door",
+    "fade": 1.4,
+    "outline": [
+     [
+      -0.9,
+      4.6
+     ],
+     [
+      0.9,
+      4.6
+     ],
+     [
+      0.9,
+      2.8
+     ],
+     [
+      -0.9,
+      2.8
+     ]
+    ]
+   }
+  ]
+ },
+ "replaces": [
+  "Village house 13 "
+ ]
+}

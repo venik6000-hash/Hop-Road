@@ -1559,5 +1559,9 @@
  ],
  "replaces": [
   "Village house 14 "
+ ],
+ "outdoors": [
+  "Roof slates",
+  "Roof lead"
  ]
 }

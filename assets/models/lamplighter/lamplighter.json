@@ -1,0 +1,1251 @@
+{
+ "title": "Lamplighter",
+ "description": "Дом фонарщика на втором участке деревни: каменный низ с мастерской за свинцовым окном, два фахверковых этажа с выносом, крутая сланцевая крыша со слуховым окном и резной драконьей головой на коньке. Внутрь не входят: мастерская видна сквозь стекло. Авторская геометрия на библиотеке таверны, её же CC0-сканы.",
+ "scenes": {
+  "shell": "res://assets/models/lamplighter/lamplighter.glb",
+  "interior": "res://assets/models/lamplighter/lamplighter_interior.glb"
+ },
+ "origin": [
+  1.1,
+  3.2,
+  -35.5
+ ],
+ "yaw": 5.0,
+ "materials": {
+  "lamp_glow_curtain": {
+   "shader": "flame",
+   "color": [
+    1.0,
+    0.66,
+    0.36
+   ],
+   "energy": 1.25,
+   "wildness": 0.0,
+   "dusk_only": true,
+   "tint": [
+    1.0,
+    0.66,
+    0.36
+   ],
+   "emission": 2.75,
+   "emission_color": [
+    1.0,
+    0.66,
+    0.36
+   ]
+  },
+  "lamp_glow_deep": {
+   "shader": "flame",
+   "color": [
+    1.0,
+    0.42,
+    0.14
+   ],
+   "energy": 2.0,
+   "wildness": 0.0,
+   "dusk_only": true,
+   "tint": [
+    1.0,
+    0.42,
+    0.14
+   ],
+   "emission": 4.4,
+   "emission_color": [
+    1.0,
+    0.42,
+    0.14
+   ]
+  },
+  "lamp_glow_pale": {
+   "shader": "flame",
+   "color": [
+    1.0,
+    0.82,
+    0.56
+   ],
+   "energy": 2.6,
+   "wildness": 0.0,
+   "dusk_only": true,
+   "tint": [
+    1.0,
+    0.82,
+    0.56
+   ],
+   "emission": 5.720000000000001,
+   "emission_color": [
+    1.0,
+    0.82,
+    0.56
+   ]
+  },
+  "lamp_glow_slit": {
+   "shader": "flame",
+   "color": [
+    1.0,
+    0.7,
+    0.4
+   ],
+   "energy": 2.6,
+   "wildness": 0.0,
+   "dusk_only": true,
+   "tint": [
+    1.0,
+    0.7,
+    0.4
+   ],
+   "emission": 5.720000000000001,
+   "emission_color": [
+    1.0,
+    0.7,
+    0.4
+   ]
+  },
+  "lamp_glow_warm": {
+   "shader": "flame",
+   "color": [
+    1.0,
+    0.62,
+    0.27
+   ],
+   "energy": 2.4,
+   "wildness": 0.0,
+   "dusk_only": true,
+   "tint": [
+    1.0,
+    0.62,
+    0.27
+   ],
+   "emission": 5.28,
+   "emission_color": [
+    1.0,
+    0.62,
+    0.27
+   ]
+  },
+  "lamp_water": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "tint": [
+    0.05,
+    0.06,
+    0.06
+   ],
+   "desaturate": 1.0,
+   "albedo_gain": 1.2,
+   "uv_scale": 0.6,
+   "roughness": 0.08,
+   "normal_strength": 0.05,
+   "metallic": 0.0,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_bark": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/bark_brown_02_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/bark_brown_02_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/bark_brown_02_arm_1k.jpg",
+   "tint": [
+    0.72,
+    0.62,
+    0.52
+   ],
+   "desaturate": 0.3,
+   "uv_scale": 0.45,
+   "roughness": 1.0,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_board": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.7,
+    0.56,
+    0.42
+   ],
+   "desaturate": 0.85,
+   "uv_scale": 1.2,
+   "roughness": 1.0,
+   "grime": 0.2,
+   "moss": 0.0
+  },
+  "tav_brass": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "tint": [
+    0.92,
+    0.72,
+    0.36
+   ],
+   "desaturate": 0.95,
+   "albedo_gain": 1.6,
+   "uv_scale": 0.35,
+   "roughness": 0.45,
+   "metallic": 0.85,
+   "normal_strength": 0.2,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_candle": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "tint": [
+    0.95,
+    0.9,
+    0.76
+   ],
+   "desaturate": 1.0,
+   "albedo_gain": 1.5,
+   "uv_scale": 0.15,
+   "roughness": 0.55,
+   "normal_strength": 0.2,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_ceramic": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/grey_plaster_03_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/grey_plaster_03_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/grey_plaster_03_arm_2k.jpg",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "desaturate": 1.0,
+   "albedo_gain": 1.9,
+   "uv_scale": 0.6,
+   "roughness": 0.35,
+   "normal_strength": 0.25,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_ember": {
+   "shader": "flame",
+   "color": [
+    1.0,
+    0.32,
+    0.08
+   ],
+   "energy": 2.6,
+   "wildness": 0.05,
+   "tint": [
+    1.0,
+    0.35,
+    0.1
+   ],
+   "emission": 5.0,
+   "emission_color": [
+    1.0,
+    0.35,
+    0.1
+   ]
+  },
+  "tav_floor": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/wood_table_worn_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/wood_table_worn_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/wood_table_worn_arm_1k.jpg",
+   "tint": [
+    0.66,
+    0.55,
+    0.45
+   ],
+   "desaturate": 0.25,
+   "uv_scale": 1.5,
+   "roughness": 0.95,
+   "normal_strength": 1.0,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_glass": {
+   "shader": "glass",
+   "tint": [
+    0.86,
+    0.92,
+    0.88
+   ],
+   "alpha": 0.1,
+   "roughness": 0.04,
+   "wave": 0.05
+  },
+  "tav_iron": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "tint": [
+    0.34,
+    0.31,
+    0.29
+   ],
+   "desaturate": 0.7,
+   "uv_scale": 0.6,
+   "roughness": 0.9,
+   "metallic": 0.55,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_lantern_flame": {
+   "shader": "flame",
+   "color": [
+    1.0,
+    0.6,
+    0.24
+   ],
+   "energy": 3.5,
+   "wildness": 0.12,
+   "dusk_only": true,
+   "tint": [
+    1.0,
+    0.6,
+    0.3
+   ],
+   "emission": 6.0,
+   "emission_color": [
+    1.0,
+    0.6,
+    0.3
+   ]
+  },
+  "tav_lead": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "tint": [
+    0.62,
+    0.64,
+    0.66
+   ],
+   "desaturate": 1.0,
+   "albedo_gain": 1.0,
+   "uv_scale": 0.8,
+   "roughness": 0.75,
+   "normal_strength": 0.3,
+   "metallic": 0.25,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_limewash": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/white_plaster_rough_01_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/white_plaster_rough_01_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/white_plaster_rough_01_arm_1k.jpg",
+   "tint": [
+    0.93,
+    0.9,
+    0.84
+   ],
+   "desaturate": 0.7,
+   "uv_scale": 1.6,
+   "roughness": 1.0,
+   "normal_strength": 0.8,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_linen": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_linen_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_linen_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_linen_arm_1k.jpg",
+   "tint": [
+    0.94,
+    0.91,
+    0.85
+   ],
+   "desaturate": 0.5,
+   "uv_scale": 0.35,
+   "roughness": 1.0,
+   "normal_strength": 0.8,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_oak": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.62,
+    0.43,
+    0.27
+   ],
+   "desaturate": 0.85,
+   "uv_scale": 1.4,
+   "roughness": 1.0,
+   "grime": 0.25,
+   "moss": 0.0
+  },
+  "tav_oak_end": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.42,
+    0.29,
+    0.19
+   ],
+   "desaturate": 0.85,
+   "uv_scale": 0.35,
+   "roughness": 1.0,
+   "grime": 0.2,
+   "moss": 0.0
+  },
+  "tav_oak_smooth": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/wood_table_worn_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/wood_table_worn_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/wood_table_worn_arm_1k.jpg",
+   "tint": [
+    0.92,
+    0.84,
+    0.78
+   ],
+   "desaturate": 0.1,
+   "uv_scale": 1.2,
+   "roughness": 0.9,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_paint": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "desaturate": 1.0,
+   "albedo_gain": 3.0,
+   "uv_scale": 1.2,
+   "roughness": 0.9,
+   "grime": 0.2,
+   "moss": 0.0
+  },
+  "tav_plank": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.86,
+    0.74,
+    0.6
+   ],
+   "desaturate": 0.75,
+   "uv_scale": 1.1,
+   "roughness": 1.0,
+   "normal_strength": 0.9,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_plaster": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/grey_plaster_03_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/grey_plaster_03_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/grey_plaster_03_arm_2k.jpg",
+   "tint": [
+    1.0,
+    0.96,
+    0.87
+   ],
+   "desaturate": 0.85,
+   "albedo_gain": 2.3,
+   "uv_scale": 2.4,
+   "roughness": 1.0,
+   "grime": 0.45,
+   "moss": 0.0
+  },
+  "tav_slate": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "desaturate": 1.0,
+   "albedo_gain": 1.25,
+   "uv_scale": 0.9,
+   "roughness": 0.85,
+   "normal_strength": 0.8,
+   "grime": 0.0,
+   "moss": 0.25,
+   "lichen": 0.3
+  },
+  "tav_soot": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "tint": [
+    0.05,
+    0.045,
+    0.04
+   ],
+   "desaturate": 1.0,
+   "uv_scale": 0.5,
+   "roughness": 1.0,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_stone": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "tint": [
+    0.86,
+    0.86,
+    0.86
+   ],
+   "desaturate": 0.7,
+   "albedo_gain": 1.12,
+   "uv_scale": 1.6,
+   "roughness": 1.0,
+   "normal_strength": 1.2,
+   "grime": 0.55,
+   "moss": 0.35
+  },
+  "tav_straw": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/hessian_230_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/hessian_230_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/hessian_230_arm_1k.jpg",
+   "tint": [
+    0.95,
+    0.8,
+    0.5
+   ],
+   "desaturate": 0.4,
+   "uv_scale": 0.12,
+   "roughness": 1.0,
+   "normal_strength": 1.2,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_wax": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "tint": [
+    0.97,
+    0.93,
+    0.8
+   ],
+   "desaturate": 1.0,
+   "albedo_gain": 1.35,
+   "uv_scale": 0.2,
+   "roughness": 0.55,
+   "normal_strength": 0.15,
+   "grime": 0.0,
+   "moss": 0.0
+  }
+ },
+ "color_range": 2.0,
+ "lights": [
+  {
+   "name": "Workshop spill",
+   "position": [
+    -0.625,
+    1.75,
+    2.56
+   ],
+   "type": "spot",
+   "color": [
+    1.0,
+    0.7200000286102295,
+    0.41999998688697815
+   ],
+   "energy": 2.0,
+   "range": 6.5,
+   "shadow": false,
+   "flicker": 0.0,
+   "night": 1.0,
+   "layer": "exterior",
+   "size": 0.05,
+   "speed": 1.0,
+   "sway": 0.0,
+   "direction": [
+    0.0,
+    -0.609,
+    0.7932
+   ],
+   "angle": 62.0
+  },
+  {
+   "name": "Eaves lantern",
+   "position": [
+    -0.1,
+    1.927,
+    2.8
+   ],
+   "type": "point",
+   "color": [
+    1.0,
+    0.6399999856948853,
+    0.3400000035762787
+   ],
+   "energy": 1.4,
+   "range": 6.5,
+   "shadow": true,
+   "flicker": 0.1,
+   "night": 1.0,
+   "layer": "exterior",
+   "size": 0.05,
+   "speed": 0.8,
+   "sway": 0.0
+  },
+  {
+   "name": "Smoky lantern",
+   "position": [
+    1.9,
+    1.877,
+    2.8
+   ],
+   "type": "point",
+   "color": [
+    1.0,
+    0.46000000834465027,
+    0.17000000178813934
+   ],
+   "energy": 0.9,
+   "range": 4.5,
+   "shadow": false,
+   "flicker": 0.5,
+   "night": 0.0,
+   "layer": "exterior",
+   "size": 0.05,
+   "speed": 0.45,
+   "sway": 0.01
+  },
+  {
+   "name": "Workshop lamp",
+   "position": [
+    -0.25,
+    1.16,
+    -0.36
+   ],
+   "type": "point",
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.27000001072883606
+   ],
+   "energy": 1.5,
+   "range": 5.0,
+   "shadow": false,
+   "flicker": 0.1,
+   "night": 0.0,
+   "layer": "interior",
+   "size": 0.06,
+   "speed": 0.7,
+   "sway": 0.0
+  },
+  {
+   "name": "Workshop lantern",
+   "position": [
+    -0.6,
+    1.98,
+    1.3
+   ],
+   "type": "point",
+   "color": [
+    1.0,
+    0.800000011920929,
+    0.550000011920929
+   ],
+   "energy": 1.3,
+   "range": 4.5,
+   "shadow": false,
+   "flicker": 0.06,
+   "night": 0.0,
+   "layer": "interior",
+   "size": 0.06,
+   "speed": 0.6,
+   "sway": 0.0
+  }
+ ],
+ "probes": [
+  {
+   "name": "workshop",
+   "position": [
+    0.0,
+    1.4,
+    0.65
+   ],
+   "extents": [
+    1.600000023841858,
+    1.399999976158142,
+    1.350000023841858
+   ],
+   "ambient": [
+    0.05,
+    0.04,
+    0.03
+   ],
+   "room": "workshop"
+  }
+ ],
+ "stats": {
+  "shell": {
+   "meshes": 116,
+   "vertices": 46850,
+   "triangles": 52126
+  },
+  "interior": {
+   "meshes": 41,
+   "vertices": 4001,
+   "triangles": 6132
+  }
+ },
+ "footprint": [
+  [
+   -2.1,
+   0.0,
+   2.5
+  ],
+  [
+   2.1,
+   0.0,
+   2.5
+  ],
+  [
+   2.1,
+   0.0,
+   -2.5
+  ],
+  [
+   0.62,
+   0.0,
+   -2.5
+  ],
+  [
+   0.62,
+   0.0,
+   -2.9
+  ],
+  [
+   -0.62,
+   0.0,
+   -2.9
+  ],
+  [
+   -0.62,
+   0.0,
+   -2.5
+  ],
+  [
+   -2.1,
+   0.0,
+   -2.5
+  ]
+ ],
+ "roofs": [
+  [
+   [
+    -2.96,
+    7.02,
+    3.64
+   ],
+   [
+    2.96,
+    7.02,
+    -2.8
+   ]
+  ]
+ ],
+ "stations": [
+  {
+   "id": "counter",
+   "title": "Прилавок фонарщика",
+   "stand": [
+    -0.625,
+    0.1052,
+    3.6
+   ],
+   "look": [
+    -0.625,
+    1.5,
+    2.5
+   ]
+  },
+  {
+   "id": "door",
+   "title": "Дверь фонарщика",
+   "stand": [
+    1.19,
+    -0.113,
+    2.9
+   ],
+   "look": [
+    1.19,
+    1.5,
+    2.5
+   ]
+  },
+  {
+   "id": "butt",
+   "title": "Бочка под водостоком",
+   "stand": [
+    -1.62,
+    -0.8563,
+    -3.84
+   ],
+   "look": [
+    -1.72,
+    0.1064,
+    -3.01
+   ]
+  },
+  {
+   "id": "bench",
+   "title": "Лавка у стены",
+   "stand": [
+    3.17,
+    -0.4139,
+    1.1
+   ],
+   "look": [
+    2.4,
+    0.0653,
+    1.1
+   ]
+  },
+  {
+   "id": "ladder",
+   "title": "Лестница и шест",
+   "stand": [
+    3.75,
+    -0.5655,
+    -0.95
+   ],
+   "look": [
+    2.8,
+    1.4,
+    -1.15
+   ]
+  },
+  {
+   "id": "woodpile",
+   "title": "Поленница",
+   "stand": [
+    3.27,
+    -0.7052,
+    -2.1
+   ],
+   "look": [
+    2.48,
+    -0.3087,
+    -2.0
+   ]
+  },
+  {
+   "id": "candles",
+   "title": "Рама со свечами",
+   "stand": [
+    -3.22,
+    -0.3497,
+    1.55
+   ],
+   "look": [
+    -2.5,
+    1.0,
+    1.55
+   ]
+  }
+ ],
+ "vents": [
+  {
+   "id": "stack",
+   "kind": "smoke",
+   "at": [
+    0.0,
+    13.21,
+    -2.64
+   ]
+  }
+ ],
+ "hours": {
+  "Workshop lamp": [
+   21.0,
+   5.0
+  ],
+  "Workshop lantern": [
+   21.0,
+   5.0
+  ],
+  "Workshop spill": [
+   21.0,
+   5.0
+  ],
+  "Smoky lantern": [
+   20.0,
+   6.0
+  ]
+ },
+ "terrain": {
+  "walls_reach": -1.2
+ },
+ "worn": {
+  "yards": [
+   {
+    "name": "lamplighter",
+    "outline": [
+     [
+      -3.7,
+      4.4
+     ],
+     [
+      3.9,
+      4.4
+     ],
+     [
+      3.9,
+      -3.0
+     ],
+     [
+      2.6,
+      -3.9
+     ],
+     [
+      -2.7,
+      -3.9
+     ],
+     [
+      -3.7,
+      -0.3
+     ]
+    ]
+   }
+  ],
+  "routes": [
+   {
+    "name": "the lane's approach to the counter",
+    "kind": "foot",
+    "points": [
+     [
+      3.08,
+      3.78
+     ],
+     [
+      -0.4,
+      3.48
+     ],
+     [
+      -0.62,
+      3.6
+     ]
+    ]
+   },
+   {
+    "name": "the approach to the door",
+    "kind": "foot",
+    "points": [
+     [
+      1.9,
+      3.7
+     ],
+     [
+      1.19,
+      3.2
+     ],
+     [
+      1.19,
+      2.9
+     ]
+    ]
+   },
+   {
+    "name": "along the east wall to the bench, the ladder and the wood",
+    "kind": "foot",
+    "points": [
+     [
+      3.08,
+      3.78
+     ],
+     [
+      3.2,
+      2.2
+     ],
+     [
+      3.15,
+      1.1
+     ],
+     [
+      3.55,
+      -0.6
+     ],
+     [
+      3.2,
+      -2.1
+     ]
+    ]
+   },
+   {
+    "name": "round the back to the butt",
+    "kind": "foot",
+    "points": [
+     [
+      3.2,
+      -2.1
+     ],
+     [
+      2.4,
+      -3.45
+     ],
+     [
+      0.0,
+      -3.7
+     ],
+     [
+      -1.62,
+      -3.84
+     ]
+    ]
+   },
+   {
+    "name": "the counter to the tapers in the alley",
+    "kind": "foot",
+    "points": [
+     [
+      -0.62,
+      3.6
+     ],
+     [
+      -2.4,
+      3.2
+     ],
+     [
+      -3.22,
+      1.55
+     ]
+    ]
+   }
+  ],
+  "stands": [
+   {
+    "name": "counter",
+    "radius": 1.0,
+    "at": [
+     [
+      -0.62,
+      3.6
+     ]
+    ]
+   },
+   {
+    "name": "doorstep",
+    "radius": 0.7,
+    "at": [
+     [
+      1.19,
+      3.25
+     ]
+    ]
+   },
+   {
+    "name": "bench",
+    "radius": 0.7,
+    "at": [
+     [
+      3.17,
+      1.1
+     ]
+    ]
+   },
+   {
+    "name": "ladder and woodpile",
+    "radius": 0.6,
+    "at": [
+     [
+      3.75,
+      -0.95
+     ],
+     [
+      3.27,
+      -2.1
+     ]
+    ]
+   },
+   {
+    "name": "water butt",
+    "radius": 0.8,
+    "at": [
+     [
+      -1.62,
+      -3.84
+     ]
+    ]
+   },
+   {
+    "name": "candle rack",
+    "radius": 0.6,
+    "at": [
+     [
+      -3.22,
+      1.55
+     ]
+    ]
+   }
+  ]
+ },
+ "windows": [
+  {
+   "at": [
+    2.1,
+    1.6,
+    1.05
+   ],
+   "out": [
+    1.0,
+    0.0,
+    -0.0
+   ],
+   "size": [
+    0.9,
+    0.8
+   ]
+  },
+  {
+   "at": [
+    -1.05,
+    4.25,
+    2.92
+   ],
+   "out": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "size": [
+    0.8,
+    1.0
+   ]
+  },
+  {
+   "at": [
+    1.05,
+    4.25,
+    2.92
+   ],
+   "out": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "size": [
+    0.8,
+    1.0
+   ]
+  },
+  {
+   "at": [
+    2.32,
+    4.25,
+    0.5
+   ],
+   "out": [
+    1.0,
+    0.0,
+    -0.0
+   ],
+   "size": [
+    0.8,
+    1.0
+   ]
+  },
+  {
+   "at": [
+    -2.32,
+    4.25,
+    0.5
+   ],
+   "out": [
+    -1.0,
+    -0.0,
+    0.0
+   ],
+   "size": [
+    0.8,
+    1.0
+   ]
+  },
+  {
+   "at": [
+    0.0,
+    10.702,
+    4.51
+   ],
+   "out": [
+    0.7071,
+    0.0,
+    0.7071
+   ],
+   "size": [
+    0.22,
+    0.4
+   ]
+  }
+ ],
+ "glows": [
+  {
+   "parts": [
+    "Bench lamp",
+    "Hanging lantern",
+    "Sill lamps",
+    "Counter lantern"
+   ],
+   "hours": [
+    21.0,
+    5.0
+   ]
+  },
+  {
+   "parts": [
+    "Window light"
+   ],
+   "hours": [
+    20.0,
+    23.0
+   ]
+  },
+  {
+   "parts": [
+    "Shutter light"
+   ],
+   "hours": [
+    20.0,
+    23.5
+   ]
+  },
+  {
+   "parts": [
+    "Eaves lantern",
+    "Ridge dragon"
+   ],
+   "hours": [
+    20.0,
+    6.0
+   ]
+  }
+ ],
+ "replaces": [
+  "Village house 06 "
+ ]
+}

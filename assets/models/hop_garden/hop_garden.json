@@ -1,0 +1,1109 @@
+{
+ "title": "Hop garden",
+ "description": "Хмельник на террасах над хмелесушильней: шестовой, по-старому. Земляные холмики рядами вдоль уступов, на каждом два-три окорённых шеста, плети вьются по ним по часовой стрелке и свешиваются с верхушек рукавами в шишках. У сушильни сбор уже начат: обобранные холмики, шесты в козлах, ларь с холстом, корзины, шестодёр. По крутым откосам лежит собранный с гряд камень. Авторская геометрия на библиотеке таверны, её же CC0-сканы; лист и шишка нарисованы скриптом.",
+ "scenes": {
+  "shell": "res://assets/models/hop_garden/hop_garden.glb"
+ },
+ "origin": [
+  13.0,
+  3.0,
+  -101.0
+ ],
+ "yaw": 0.0,
+ "materials": {
+  "hop_bine": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.46,
+    0.42,
+    0.2
+   ],
+   "desaturate": 1.0,
+   "albedo_gain": 1.5,
+   "uv_scale": 0.2,
+   "roughness": 0.8,
+   "normal_strength": 0.2,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "hop_earth": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "tint": [
+    0.3,
+    0.22,
+    0.15
+   ],
+   "desaturate": 0.9,
+   "uv_scale": 0.6,
+   "roughness": 1.0,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "hop_leaf": {
+   "shader": "foliage",
+   "albedo": "res://assets/generated/hop_garden/hops_albedo.png",
+   "normal": "res://assets/generated/hop_garden/hops_normal.png",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "roughness": 0.8,
+   "normal_strength": 0.9,
+   "wrap": 0.35,
+   "transmission": 0.5,
+   "flutter": 0.025
+  },
+  "tav_iron": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "tint": [
+    0.34,
+    0.31,
+    0.29
+   ],
+   "desaturate": 0.7,
+   "uv_scale": 0.6,
+   "roughness": 0.9,
+   "metallic": 0.55,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_stone": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "tint": [
+    0.86,
+    0.86,
+    0.86
+   ],
+   "desaturate": 0.7,
+   "albedo_gain": 1.12,
+   "uv_scale": 1.6,
+   "roughness": 1.0,
+   "normal_strength": 1.2,
+   "grime": 0.55,
+   "moss": 0.35
+  },
+  "tmb_end": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    1.0,
+    0.9,
+    0.76
+   ],
+   "desaturate": 0.85,
+   "uv_scale": 0.35,
+   "roughness": 1.0,
+   "grime": 0.3,
+   "moss": 0.0,
+   "albedo_gain": 1.2
+  },
+  "tmb_linen": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_linen_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_linen_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_linen_arm_1k.jpg",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "desaturate": 1.0,
+   "uv_scale": 0.3,
+   "roughness": 1.0,
+   "normal_strength": 0.8,
+   "grime": 0.0,
+   "moss": 0.0,
+   "albedo_gain": 1.25
+  },
+  "tmb_pole": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    1.0,
+    0.93,
+    0.83
+   ],
+   "desaturate": 0.88,
+   "uv_scale": 0.8,
+   "roughness": 1.0,
+   "grime": 0.5,
+   "moss": 0.3,
+   "albedo_gain": 1.45,
+   "lichen": 0.2
+  },
+  "tmb_withy": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/bark_brown_02_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/bark_brown_02_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/bark_brown_02_arm_1k.jpg",
+   "tint": [
+    1.0,
+    0.86,
+    0.7
+   ],
+   "desaturate": 0.6,
+   "uv_scale": 0.16,
+   "roughness": 1.0,
+   "grime": 0.3,
+   "moss": 0.1,
+   "albedo_gain": 1.2,
+   "normal_strength": 0.6
+  }
+ },
+ "color_range": 2.0,
+ "lights": [],
+ "probes": [],
+ "stats": {
+  "shell": {
+   "meshes": 28,
+   "vertices": 62206,
+   "triangles": 61188
+  }
+ },
+ "stations": [
+  {
+   "id": "cut_bine",
+   "title": "Срезать плеть",
+   "stand": [
+    5.25,
+    -0.6623,
+    8.245
+   ],
+   "look": [
+    5.25,
+    -0.3238,
+    7.125
+   ]
+  },
+  {
+   "id": "pull_pole",
+   "title": "Выдернуть шест",
+   "stand": [
+    -3.1964,
+    -0.7739,
+    7.1597
+   ],
+   "look": [
+    -3.625,
+    0.5282,
+    6.125
+   ]
+  },
+  {
+   "id": "pick_cones",
+   "title": "Обобрать шишки",
+   "stand": [
+    0.5003,
+    -0.6744,
+    7.0674
+   ],
+   "look": [
+    0.75,
+    0.0357,
+    8.2
+   ]
+  },
+  {
+   "id": "carry_basket",
+   "title": "Отнести корзину",
+   "stand": [
+    3.349,
+    -0.7125,
+    8.4587
+   ],
+   "look": [
+    2.5,
+    -0.335,
+    8.5
+   ]
+  }
+ ],
+ "worn": {
+  "yards": [
+   {
+    "name": "hop garden, tread 1 from below",
+    "outline": [
+     [
+      -4.06,
+      11.44
+     ],
+     [
+      10.31,
+      8.81
+     ],
+     [
+      10.31,
+      5.56
+     ],
+     [
+      9.06,
+      3.94
+     ],
+     [
+      -0.31,
+      0.06
+     ],
+     [
+      -5.19,
+      -0.06
+     ],
+     [
+      -7.94,
+      0.69
+     ],
+     [
+      -9.44,
+      1.44
+     ],
+     [
+      -11.81,
+      4.06
+     ],
+     [
+      -12.31,
+      5.69
+     ],
+     [
+      -11.94,
+      7.44
+     ],
+     [
+      -9.81,
+      9.94
+     ],
+     [
+      -6.69,
+      10.19
+     ]
+    ]
+   },
+   {
+    "name": "hop garden, tread 2 from below",
+    "outline": [
+     [
+      7.81,
+      9.31
+     ],
+     [
+      17.06,
+      7.44
+     ],
+     [
+      17.06,
+      6.81
+     ],
+     [
+      16.06,
+      3.94
+     ],
+     [
+      14.94,
+      2.81
+     ],
+     [
+      10.81,
+      0.56
+     ],
+     [
+      8.06,
+      -2.56
+     ],
+     [
+      6.44,
+      -3.44
+     ],
+     [
+      3.56,
+      -3.69
+     ],
+     [
+      0.69,
+      -5.56
+     ],
+     [
+      -3.44,
+      -5.81
+     ],
+     [
+      -7.69,
+      -3.69
+     ],
+     [
+      -11.81,
+      1.06
+     ],
+     [
+      -11.69,
+      4.06
+     ],
+     [
+      -9.56,
+      6.44
+     ],
+     [
+      -8.19,
+      6.69
+     ],
+     [
+      -4.81,
+      5.44
+     ],
+     [
+      -1.94,
+      5.31
+     ]
+    ]
+   },
+   {
+    "name": "hop garden, tread 3 from below",
+    "outline": [
+     [
+      13.06,
+      8.19
+     ],
+     [
+      18.69,
+      7.06
+     ],
+     [
+      19.44,
+      4.44
+     ],
+     [
+      18.06,
+      1.31
+     ],
+     [
+      12.94,
+      -2.69
+     ],
+     [
+      12.81,
+      -4.94
+     ],
+     [
+      10.69,
+      -7.44
+     ],
+     [
+      5.56,
+      -8.56
+     ],
+     [
+      -0.19,
+      -8.44
+     ],
+     [
+      -1.94,
+      -5.94
+     ],
+     [
+      -1.69,
+      -2.69
+     ],
+     [
+      4.56,
+      1.31
+     ],
+     [
+      8.31,
+      5.56
+     ]
+    ]
+   },
+   {
+    "name": "hop garden, tread 4 from below",
+    "outline": [
+     [
+      15.31,
+      5.31
+     ],
+     [
+      17.56,
+      4.69
+     ],
+     [
+      18.81,
+      3.31
+     ],
+     [
+      19.56,
+      0.94
+     ],
+     [
+      19.31,
+      -0.94
+     ],
+     [
+      17.31,
+      -4.06
+     ],
+     [
+      13.81,
+      -7.06
+     ],
+     [
+      12.19,
+      -7.56
+     ],
+     [
+      10.19,
+      -7.19
+     ],
+     [
+      7.81,
+      -5.06
+     ],
+     [
+      8.06,
+      -1.81
+     ],
+     [
+      9.94,
+      1.69
+     ],
+     [
+      12.31,
+      4.06
+     ]
+    ]
+   }
+  ],
+  "routes": [
+   {
+    "name": "from the kiln's path across the rows to the top tread",
+    "kind": "foot",
+    "points": [
+     [
+      4.58,
+      5.64
+     ],
+     [
+      4.85,
+      4.15
+     ],
+     [
+      3.7,
+      2.2
+     ],
+     [
+      1.6,
+      -0.1
+     ],
+     [
+      0.3,
+      -2.6
+     ],
+     [
+      0.0,
+      -3.5
+     ],
+     [
+      0.0,
+      -5.2
+     ],
+     [
+      2.6,
+      -5.6
+     ],
+     [
+      5.4,
+      -5.3
+     ],
+     [
+      7.0,
+      -5.4
+     ],
+     [
+      7.2,
+      -7.1
+     ],
+     [
+      9.6,
+      -6.0
+     ],
+     [
+      11.3,
+      -4.9
+     ]
+    ]
+   },
+   {
+    "name": "alley 1 (tread 1 from below)",
+    "kind": "foot",
+    "points": [
+     [
+      -6.07,
+      5.75
+     ],
+     [
+      -5.19,
+      5.45
+     ],
+     [
+      -3.88,
+      5.12
+     ],
+     [
+      -2.12,
+      5.12
+     ],
+     [
+      -0.79,
+      5.46
+     ],
+     [
+      0.45,
+      6.21
+     ],
+     [
+      2.19,
+      7.02
+     ],
+     [
+      4.96,
+      8.08
+     ]
+    ]
+   },
+   {
+    "name": "alley 2 (tread 2 from below)",
+    "kind": "foot",
+    "points": [
+     [
+      -7.17,
+      1.09
+     ],
+     [
+      -5.49,
+      0.69
+     ],
+     [
+      -3.38,
+      0.5
+     ],
+     [
+      -1.26,
+      0.57
+     ],
+     [
+      0.25,
+      0.76
+     ],
+     [
+      2.22,
+      1.49
+     ],
+     [
+      6.12,
+      3.28
+     ],
+     [
+      7.89,
+      3.96
+     ],
+     [
+      9.6,
+      4.62
+     ],
+     [
+      11.05,
+      5.34
+     ],
+     [
+      12.71,
+      6.54
+     ]
+    ]
+   },
+   {
+    "name": "alley 3 (tread 2 from below)",
+    "kind": "foot",
+    "points": [
+     [
+      -4.0,
+      -1.5
+     ],
+     [
+      -2.33,
+      -1.62
+     ],
+     [
+      -0.26,
+      -1.35
+     ],
+     [
+      4.82,
+      0.6
+     ],
+     [
+      6.4,
+      1.33
+     ]
+    ]
+   },
+   {
+    "name": "alley 4 (tread 3 from below)",
+    "kind": "foot",
+    "points": [
+     [
+      3.61,
+      -5.12
+     ],
+     [
+      5.11,
+      -4.12
+     ],
+     [
+      6.61,
+      -3.12
+     ],
+     [
+      8.21,
+      -1.83
+     ],
+     [
+      9.39,
+      -0.39
+     ],
+     [
+      10.39,
+      0.73
+     ],
+     [
+      11.62,
+      1.63
+     ],
+     [
+      13.05,
+      2.47
+     ],
+     [
+      14.61,
+      3.38
+     ]
+    ]
+   },
+   {
+    "name": "alley 5 (tread 4 from below)",
+    "kind": "foot",
+    "points": [
+     [
+      13.12,
+      -2.74
+     ],
+     [
+      14.03,
+      -1.17
+     ],
+     [
+      14.96,
+      -0.21
+     ]
+    ]
+   },
+   {
+    "name": "the kiln's path to the baskets and the crib",
+    "kind": "foot",
+    "points": [
+     [
+      3.94,
+      8.43
+     ],
+     [
+      3.35,
+      8.46
+     ],
+     [
+      0.5,
+      7.07
+     ]
+    ]
+   },
+   {
+    "name": "the crib to the stook and the next hill",
+    "kind": "foot",
+    "points": [
+     [
+      0.5,
+      7.07
+     ],
+     [
+      -3.2,
+      7.16
+     ]
+    ]
+   }
+  ]
+ },
+ "hills": [
+  {
+   "at": [
+    -7.0,
+    5.38
+   ],
+   "tread": 1,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    -5.5,
+    4.5
+   ],
+   "tread": 1,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    -3.88,
+    4.12
+   ],
+   "tread": 1,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    -2.12,
+    4.12
+   ],
+   "tread": 1,
+   "row": 1,
+   "picked": true
+  },
+  {
+   "at": [
+    -0.5,
+    4.5
+   ],
+   "tread": 1,
+   "row": 1,
+   "picked": true
+  },
+  {
+   "at": [
+    1.0,
+    5.38
+   ],
+   "tread": 1,
+   "row": 1,
+   "picked": true
+  },
+  {
+   "at": [
+    2.62,
+    6.12
+   ],
+   "tread": 1,
+   "row": 1,
+   "picked": true
+  },
+  {
+   "at": [
+    5.25,
+    7.12
+   ],
+   "tread": 1,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    -3.62,
+    6.12
+   ],
+   "tread": 1,
+   "row": 2,
+   "picked": false
+  },
+  {
+   "at": [
+    -1.88,
+    6.25
+   ],
+   "tread": 1,
+   "row": 2,
+   "picked": true
+  },
+  {
+   "at": [
+    -6.75,
+    2.0
+   ],
+   "tread": 2,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    -5.12,
+    1.62
+   ],
+   "tread": 2,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    -3.38,
+    1.5
+   ],
+   "tread": 2,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    -1.62,
+    1.5
+   ],
+   "tread": 2,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    0.12,
+    1.75
+   ],
+   "tread": 2,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    1.75,
+    2.38
+   ],
+   "tread": 2,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    5.88,
+    4.25
+   ],
+   "tread": 2,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    7.5,
+    4.88
+   ],
+   "tread": 2,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    9.12,
+    5.5
+   ],
+   "tread": 2,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    10.62,
+    6.25
+   ],
+   "tread": 2,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    12.0,
+    7.25
+   ],
+   "tread": 2,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    -4.0,
+    -0.5
+   ],
+   "tread": 2,
+   "row": 2,
+   "picked": false
+  },
+  {
+   "at": [
+    -2.25,
+    -0.62
+   ],
+   "tread": 2,
+   "row": 2,
+   "picked": false
+  },
+  {
+   "at": [
+    -0.5,
+    -0.38
+   ],
+   "tread": 2,
+   "row": 2,
+   "picked": false
+  },
+  {
+   "at": [
+    4.38,
+    1.5
+   ],
+   "tread": 2,
+   "row": 2,
+   "picked": false
+  },
+  {
+   "at": [
+    6.0,
+    2.25
+   ],
+   "tread": 2,
+   "row": 2,
+   "picked": false
+  },
+  {
+   "at": [
+    3.12,
+    -4.25
+   ],
+   "tread": 3,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    4.62,
+    -3.25
+   ],
+   "tread": 3,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    6.12,
+    -2.25
+   ],
+   "tread": 3,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    7.5,
+    -1.12
+   ],
+   "tread": 3,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    8.62,
+    0.25
+   ],
+   "tread": 3,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    9.75,
+    1.5
+   ],
+   "tread": 3,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    11.12,
+    2.5
+   ],
+   "tread": 3,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    12.62,
+    3.38
+   ],
+   "tread": 3,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    14.12,
+    4.25
+   ],
+   "tread": 3,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    7.75,
+    -3.62
+   ],
+   "tread": 3,
+   "row": 2,
+   "picked": false
+  },
+  {
+   "at": [
+    12.25,
+    -2.25
+   ],
+   "tread": 4,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    13.12,
+    -0.75
+   ],
+   "tread": 4,
+   "row": 1,
+   "picked": false
+  },
+  {
+   "at": [
+    14.25,
+    0.5
+   ],
+   "tread": 4,
+   "row": 1,
+   "picked": false
+  }
+ ]
+}

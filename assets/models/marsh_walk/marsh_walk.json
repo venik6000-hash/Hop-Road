@@ -1,0 +1,211 @@
+{
+ "title": "Marsh walk",
+ "description": "Гать на сырых отрезках тропы через плавни, от моста к южному пляжу: поперечные жерди на лежнях, наполовину ушедшие в землю, прижимные жерди под кольями крест-накрест, вешки со стороны плавней. Авторская геометрия на библиотеке таверны, её же CC0-сканы.",
+ "scenes": {
+  "shell": "res://assets/models/marsh_walk/marsh_walk.glb"
+ },
+ "origin": [
+  -28.0,
+  0.72,
+  -19.0
+ ],
+ "yaw": 0.0,
+ "materials": {
+  "tmb_bark": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/bark_brown_02_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/bark_brown_02_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/bark_brown_02_arm_1k.jpg",
+   "tint": [
+    0.86,
+    0.82,
+    0.78
+   ],
+   "desaturate": 0.5,
+   "uv_scale": 0.4,
+   "roughness": 1.0,
+   "grime": 0.4,
+   "moss": 0.45
+  },
+  "tmb_end": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    1.0,
+    0.9,
+    0.76
+   ],
+   "desaturate": 0.85,
+   "uv_scale": 0.35,
+   "roughness": 1.0,
+   "grime": 0.3,
+   "moss": 0.0,
+   "albedo_gain": 1.2
+  },
+  "tmb_plank": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    1.0,
+    0.93,
+    0.83
+   ],
+   "desaturate": 0.88,
+   "uv_scale": 1.1,
+   "roughness": 1.0,
+   "grime": 0.4,
+   "moss": 0.12,
+   "albedo_gain": 1.5
+  },
+  "tmb_pole": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    1.0,
+    0.93,
+    0.83
+   ],
+   "desaturate": 0.88,
+   "uv_scale": 0.8,
+   "roughness": 1.0,
+   "grime": 0.5,
+   "moss": 0.3,
+   "albedo_gain": 1.45,
+   "lichen": 0.2
+  },
+  "tmb_wet": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.46,
+    0.42,
+    0.36
+   ],
+   "desaturate": 0.9,
+   "uv_scale": 0.9,
+   "roughness": 0.6,
+   "grime": 0.5,
+   "moss": 0.55
+  }
+ },
+ "color_range": 2.0,
+ "lights": [],
+ "probes": [],
+ "stats": {
+  "shell": {
+   "meshes": 14,
+   "vertices": 7761,
+   "triangles": 10161
+  }
+ },
+ "trail": "Marsh trail",
+ "wet": 0.145,
+ "runs": [
+  {
+   "id": "run_1",
+   "title": "Гать у моста",
+   "trail": [
+    5.05,
+    10.45
+   ],
+   "length": 5.4,
+   "width": 1.8,
+   "ends": [
+    [
+     -1.02,
+     -6.52
+    ],
+    [
+     2.39,
+     -2.38
+    ]
+   ],
+   "map": [
+    [
+     -29.02,
+     -25.52
+    ],
+    [
+     -25.61,
+     -21.38
+    ]
+   ]
+  },
+  {
+   "id": "run_2",
+   "title": "Гать под откосом",
+   "trail": [
+    15.55,
+    26.0
+   ],
+   "length": 10.45,
+   "width": 1.8,
+   "ends": [
+    [
+     1.34,
+     2.3
+    ],
+    [
+     -8.0,
+     6.6
+    ]
+   ],
+   "map": [
+    [
+     -26.66,
+     -16.7
+    ],
+    [
+     -36.0,
+     -12.4
+    ]
+   ]
+  }
+ ],
+ "worn": {
+  "routes": [
+   {
+    "name": "the marsh trail",
+    "kind": "foot",
+    "points": [
+     [
+      -2.6,
+      -11.0
+     ],
+     [
+      -2.9,
+      -9.6
+     ],
+     [
+      -1.6,
+      -7.2
+     ],
+     [
+      2.4,
+      -2.5
+     ],
+     [
+      2.2,
+      1.6
+     ],
+     [
+      -1.5,
+      4.6
+     ],
+     [
+      -8.0,
+      6.6
+     ]
+    ]
+   }
+  ]
+ }
+}
