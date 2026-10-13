@@ -3,6 +3,83 @@
  "drop_colliders": [
   "Interior oak floor beams bar and tables"
  ],
+ "indoor": {
+  "materials": {
+   "tav_floor": {
+    "wear": 1.0
+   },
+   "tav_limewash": {
+    "indoor_grime": 0.4,
+    "soot": 0.75
+   },
+   "tav_mortar": {
+    "crevice": 0.6,
+    "indoor_grime": 0.6,
+    "indoor_tint": [
+     0.8,
+     0.75,
+     0.68
+    ],
+    "soot": 0.7
+   },
+   "tav_oak": {
+    "handled": 0.25,
+    "indoor_tint": [
+     0.88,
+     0.82,
+     0.76
+    ],
+    "soot": 0.8
+   },
+   "tav_oak_end": {
+    "indoor_tint": [
+     0.88,
+     0.82,
+     0.76
+    ],
+    "soot": 0.8
+   },
+   "tav_oak_smooth": {
+    "handled": 0.7,
+    "indoor_tint": [
+     0.82,
+     0.76,
+     0.7
+    ]
+   },
+   "tav_plank": {
+    "indoor_grime": 0.3,
+    "indoor_tint": [
+     0.86,
+     0.8,
+     0.72
+    ],
+    "soot": 0.85
+   },
+   "tav_plaster": {
+    "indoor_grime": 0.4,
+    "soot": 0.55
+   },
+   "tav_stone": {
+    "crevice": 0.85,
+    "indoor_grime": 0.5,
+    "indoor_tint": [
+     1.05,
+     0.99,
+     0.9
+    ],
+    "soot": 0.7,
+    "wear": 0.55
+   }
+  },
+  "storeys": [
+   6.6,
+   10.86,
+   14.875,
+   20.698
+  ],
+  "walked": 6.93
+ },
  "lights": [
   {
    "color": [
@@ -13,12 +90,12 @@
    "energy": 0.5,
    "flicker": 0.08,
    "layer": "interior",
-   "name": "Stammtisch candle",
+   "name": "Great table candle",
    "night": 0.0,
    "position": [
-    5.84,
-    7.912,
-    -1.48
+    12.92,
+    8.066,
+    -4.55
    ],
    "range": 3.2,
    "shadow": false,
@@ -33,38 +110,15 @@
     0.6399999856948853,
     0.3400000035762787
    ],
-   "energy": 0.6,
-   "flicker": 0.08,
-   "layer": "interior",
-   "name": "West table candles",
-   "night": 0.0,
-   "position": [
-    6.2198,
-    8.1118,
-    -5.0401
-   ],
-   "range": 3.6,
-   "shadow": false,
-   "size": 0.05,
-   "speed": 1.0,
-   "sway": 0.0,
-   "type": "point"
-  },
-  {
-   "color": [
-    1.0,
-    0.6399999856948853,
-    0.3400000035762787
-   ],
    "energy": 0.45,
    "flicker": 0.08,
    "layer": "interior",
-   "name": "Round table 0 candle",
+   "name": "\u0421\u0442\u043e\u043b \u0443 \u0437\u0430\u043f\u0430\u0434\u043d\u044b\u0445 \u043e\u043a\u043e\u043d: \u0441\u0432\u0435\u0447\u0430",
    "night": 0.0,
    "position": [
-    9.03,
-    8.083,
-    -3.88
+    6.7759,
+    8.0187,
+    -5.0966
    ],
    "range": 3.0,
    "shadow": false,
@@ -82,12 +136,12 @@
    "energy": 0.45,
    "flicker": 0.08,
    "layer": "interior",
-   "name": "Round table 1 candle",
+   "name": "\u0421\u0442\u043e\u043b \u0443 \u0432\u0445\u043e\u0434\u0430: \u0441\u0432\u0435\u0447\u0430",
    "night": 0.0,
    "position": [
-    13.38,
-    8.0936,
-    -4.08
+    9.1577,
+    8.0225,
+    -3.8406
    ],
    "range": 3.0,
    "shadow": false,
@@ -105,12 +159,12 @@
    "energy": 0.45,
    "flicker": 0.08,
    "layer": "interior",
-   "name": "Round table 2 candle",
+   "name": "\u0421\u0442\u043e\u043b\u0438\u043a \u0443 \u0441\u0442\u043e\u0439\u043a\u0438: \u0441\u0432\u0435\u0447\u0430",
    "night": 0.0,
    "position": [
-    12.88,
-    8.0784,
-    -8.23
+    12.5577,
+    8.0267,
+    -8.8406
    ],
    "range": 3.0,
    "shadow": false,
@@ -125,17 +179,17 @@
     0.6399999856948853,
     0.3400000035762787
    ],
-   "energy": 0.55,
+   "energy": 0.45,
    "flicker": 0.08,
    "layer": "interior",
-   "name": "East table lantern",
+   "name": "\u0421\u0442\u043e\u043b \u0443 \u043a\u0443\u0445\u043d\u0438: \u0441\u0432\u0435\u0447\u0430",
    "night": 0.0,
    "position": [
-    14.86,
-    7.835,
-    -8.43
+    14.9574,
+    8.0175,
+    -9.2819
    ],
-   "range": 3.4,
+   "range": 3.0,
    "shadow": false,
    "size": 0.05,
    "speed": 1.0,
@@ -178,7 +232,7 @@
    "night": 0.0,
    "position": [
     7.09,
-    9.755,
+    9.835,
     -10.3
    ],
    "range": 3.0,
@@ -201,7 +255,7 @@
    "night": 0.0,
    "position": [
     10.82,
-    9.66,
+    9.61,
     -4.7
    ],
    "range": 7.5,
@@ -224,7 +278,7 @@
    "night": 0.0,
    "position": [
     10.82,
-    9.66,
+    9.61,
     -8.7
    ],
    "range": 7.5,
@@ -269,9 +323,9 @@
    "name": "Bar lantern",
    "night": 0.0,
    "position": [
-    13.2,
-    8.155,
-    -11.42
+    13.05,
+    8.21,
+    -11.43
    ],
    "range": 3.6,
    "shadow": false,
@@ -823,6 +877,42 @@
    ],
    "uv_scale": 0.25
   },
+  "tav_clay": {
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "desaturate": 0.6,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "normal_strength": 0.6,
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.78,
+    0.47,
+    0.32
+   ],
+   "uv_scale": 0.4
+  },
+  "tav_copper": {
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "albedo_gain": 1.6,
+   "desaturate": 0.95,
+   "grime": 0.0,
+   "metallic": 0.8,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "normal_strength": 0.25,
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "roughness": 0.5,
+   "shader": "surface",
+   "tint": [
+    0.95,
+    0.52,
+    0.32
+   ],
+   "uv_scale": 0.35
+  },
   "tav_ember": {
    "color": [
     1.0,
@@ -897,11 +987,26 @@
    "roughness": 0.95,
    "shader": "surface",
    "tint": [
-    0.66,
-    0.55,
-    0.45
+    0.5,
+    0.4,
+    0.31
    ],
    "uv_scale": 1.5
+  },
+  "tav_fur": {
+   "albedo": "res://assets/generated/tavern/fur_albedo.png",
+   "flutter": 0.0,
+   "normal": "res://assets/generated/tavern/fur_normal.png",
+   "normal_strength": 0.6,
+   "roughness": 0.85,
+   "shader": "foliage",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "transmission": 0.12,
+   "wrap": 0.5
   },
   "tav_garlic": {
    "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
@@ -920,6 +1025,38 @@
     0.84
    ],
    "uv_scale": 0.12
+  },
+  "tav_gilt": {
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "albedo_gain": 3.0,
+   "desaturate": 0.95,
+   "grime": 0.0,
+   "metallic": 0.1,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "normal_strength": 0.5,
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "roughness": 0.55,
+   "shader": "surface",
+   "tint": [
+    0.9,
+    0.7,
+    0.36
+   ],
+   "uv_scale": 0.3
+  },
+  "tav_glass_old": {
+   "alpha": 0.16,
+   "pane": 0.27,
+   "quarry": 0.05,
+   "roughness": 0.18,
+   "shader": "glass",
+   "tint": [
+    0.9,
+    0.88,
+    0.74
+   ],
+   "wave": 0.12
   },
   "tav_herb": {
    "albedo": "res://assets/generated/tavern/bark_brown_02_diff_1k.jpg",
@@ -954,6 +1091,38 @@
     0.29
    ],
    "uv_scale": 0.6
+  },
+  "tav_ivy_stem": {
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "desaturate": 0.8,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "normal_strength": 0.6,
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.5,
+    0.42,
+    0.33
+   ],
+   "uv_scale": 0.25
+  },
+  "tav_leaf": {
+   "albedo": "res://assets/generated/tavern/plants_albedo.png",
+   "flutter": 0.012,
+   "normal": "res://assets/generated/tavern/plants_normal.png",
+   "normal_strength": 0.8,
+   "roughness": 0.6,
+   "shader": "foliage",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "transmission": 0.45,
+   "wrap": 0.3
   },
   "tav_leather": {
    "albedo": "res://assets/generated/tavern/brown_leather_diff_1k.jpg",
@@ -1104,6 +1273,19 @@
    ],
    "uv_scale": 0.12
   },
+  "tav_painting": {
+   "albedo": "res://assets/generated/tavern/paintings.png",
+   "grime": 0.0,
+   "moss": 0.0,
+   "roughness": 0.5,
+   "shader": "surface",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "uv_scale": 1.0
+  },
   "tav_paper": {
    "albedo": "res://assets/generated/tavern/rough_linen_diff_1k.jpg",
    "albedo_gain": 1.15,
@@ -1121,6 +1303,23 @@
     0.7
    ],
    "uv_scale": 0.3
+  },
+  "tav_pelt": {
+   "albedo": "res://assets/generated/tavern/brown_leather_diff_1k.jpg",
+   "albedo_gain": 2.9,
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/brown_leather_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/brown_leather_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "uv_scale": 0.4
   },
   "tav_pewter": {
    "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
@@ -1191,6 +1390,24 @@
    ],
    "uv_scale": 0.3
   },
+  "tav_sash": {
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "albedo_gain": 1.5,
+   "desaturate": 0.9,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "normal_strength": 0.7,
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "roughness": 0.9,
+   "shader": "surface",
+   "tint": [
+    0.78,
+    0.77,
+    0.71
+   ],
+   "uv_scale": 0.6
+  },
   "tav_slateboard": {
    "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
    "albedo_gain": 0.55,
@@ -1209,6 +1426,22 @@
    ],
    "uv_scale": 0.8
   },
+  "tav_soil": {
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "desaturate": 0.9,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.3,
+    0.22,
+    0.15
+   ],
+   "uv_scale": 0.4
+  },
   "tav_soot": {
    "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
    "desaturate": 1.0,
@@ -1224,6 +1457,24 @@
     0.04
    ],
    "uv_scale": 0.5
+  },
+  "tav_stem": {
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "albedo_gain": 1.5,
+   "desaturate": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "normal_strength": 0.2,
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "roughness": 0.8,
+   "shader": "surface",
+   "tint": [
+    0.36,
+    0.5,
+    0.17
+   ],
+   "uv_scale": 0.3
   },
   "tav_stone": {
    "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
@@ -1297,6 +1548,7 @@
    "uv_scale": 0.3
   }
  },
+ "moved_colliders": [],
  "probes": [
   {
    "ambient": [
@@ -1325,13 +1577,13 @@
    ],
    "extents": [
     4.212499618530273,
-    4.225499961853028,
+    4.225500106811523,
     5.255000114440918
    ],
    "name": "Probe kitchen",
    "position": [
     22.5425,
-    10.815500038146972,
+    10.8155,
     -6.5
    ],
    "room": "kitchen"
@@ -1462,697 +1714,594 @@
   {
    "exits": [
     [
-     10.2933,
+     14.4328,
      6.93,
-     -4.7866
+     -5.7748
     ],
     [
-     9.9604,
+     14.0199,
      6.93,
-     -5.1728
+     -6.0741
     ]
    ],
    "facing": [
-    -0.8708,
+    -0.7342,
     -0.0,
-    0.4916
+    0.6789
    ],
-   "height": 0.46,
-   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 1",
+   "height": 0.47,
+   "name": "\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u043e\u043b",
    "position": [
-    9.5531,
+    13.8087,
     6.93,
-    -4.3687
+    -5.1978
    ]
   },
   {
    "exits": [
     [
-     7.6265,
+     12.5775,
      6.93,
-     -4.9686
+     -6.3114
     ],
     [
-     7.4034,
+     12.1121,
      6.93,
-     -4.5101
+     -6.1032
     ]
    ],
    "facing": [
-    0.796,
+    0.2213,
     -0.0,
-    0.6054
+    0.9752
    ],
-   "height": 0.46,
-   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 1.001",
+   "height": 0.47,
+   "name": "\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u043e\u043b.001",
    "position": [
-    8.303,
+    12.7657,
     6.93,
-    -4.454
+    -5.4825
    ]
   },
   {
    "exits": [
     [
-     8.7526,
+     11.1314,
      6.93,
-     -2.4068
+     -4.9203
     ],
     [
-     9.2596,
+     11.1063,
      6.93,
-     -2.4603
+     -4.411
     ]
    ],
    "facing": [
-    0.0922,
+    0.9698,
     -0.0,
-    -0.9957
+    0.2441
    ],
-   "height": 0.46,
-   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 1.002",
+   "height": 0.47,
+   "name": "\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u043e\u043b.002",
    "position": [
-    8.8309,
+    11.9557,
     6.93,
-    -3.2532
+    -4.7128
    ]
   },
   {
    "exits": [
     [
-     14.6665,
+     12.0127,
      6.93,
-     -4.9861
+     -2.8319
     ],
     [
-     14.3365,
+     12.4916,
      6.93,
-     -5.3747
+     -2.6569
     ]
    ],
    "facing": [
-    -0.8744,
+    0.5209,
     -0.0,
-    0.4852
+    -0.8536
    ],
-   "height": 0.46,
-   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 2",
+   "height": 0.47,
+   "name": "\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u043e\u043b.003",
    "position": [
-    13.9233,
+    12.4554,
     6.93,
-    -4.5736
+    -3.5575
    ]
   },
   {
    "exits": [
     [
-     12.8265,
+     13.3647,
      6.93,
-     -5.7637
+     -2.3819
     ],
     [
-     12.37,
+     13.8397,
      6.93,
-     -5.5364
+     -2.5672
     ]
    ],
    "facing": [
-    0.2614,
+    -0.1736,
     -0.0,
-    0.9652
+    -0.9848
    ],
    "height": 0.46,
-   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 2.001",
+   "name": "\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u043e\u043b.004",
    "position": [
-    13.0487,
+    13.2084,
     6.93,
-    -4.9432
+    -3.2682
    ]
   },
   {
    "exits": [
     [
-     11.7316,
+     15.0284,
      6.93,
-     -3.6354
+     -3.9065
     ],
     [
-     11.9996,
+     15.0613,
      6.93,
-     -3.2016
+     -4.4153
     ]
    ],
    "facing": [
-    0.9373,
+    -0.9659,
     -0.0,
-    -0.3485
+    -0.2588
    ],
    "height": 0.46,
-   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 2.002",
+   "name": "\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u043e\u043b.005",
    "position": [
-    12.5283,
+    14.1591,
     6.93,
-    -3.9316
+    -4.1394
    ]
   },
   {
    "exits": [
     [
-     13.6752,
+     8.2683,
      6.93,
-     -2.6368
+     -5.7125
     ],
     [
-     14.1314,
+     7.9654,
      6.93,
-     -2.8645
+     -6.1227
     ]
    ],
    "facing": [
-    -0.2625,
+    -0.9053,
     -0.0,
-    -0.9649
+    0.4248
    ],
-   "height": 0.46,
-   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 2.003",
-   "position": [
-    13.4521,
-    6.93,
-    -3.457
-   ]
-  },
-  {
-   "exits": [
-    [
-     14.3077,
-     6.93,
-     -8.2645
-    ],
-    [
-     14.2352,
-     6.93,
-     -8.7693
-    ]
-   ],
-   "facing": [
-    -0.9985,
-    -0.0,
-    -0.0548
-   ],
-   "height": 0.46,
-   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 3",
-   "position": [
-    13.4589,
-    6.93,
-    -8.3111
-   ]
-  },
-  {
-   "exits": [
-    [
-     11.7045,
-     6.93,
-     -9.5078
-    ],
-    [
-     11.4004,
-     6.93,
-     -9.0985
-    ]
-   ],
-   "facing": [
-    0.6702,
-    -0.0,
-    0.7422
-   ],
-   "height": 0.46,
-   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 3.001",
-   "position": [
-    12.2742,
-    6.93,
-    -8.877
-   ]
-  },
-  {
-   "exits": [
-    [
-     11.9116,
-     6.93,
-     -7.0345
-    ],
-    [
-     12.3869,
-     6.93,
-     -6.8501
-    ]
-   ],
-   "facing": [
-    0.5375,
-    -0.0,
-    -0.8433
-   ],
-   "height": 0.46,
-   "name": "\u041a\u0440\u0443\u0433\u043b\u044b\u0439 \u0441\u0442\u043e\u043b 3.002",
-   "position": [
-    12.3684,
-    6.93,
-    -7.7513
-   ]
-  },
-  {
-   "exits": [
-    [
-     5.3,
-     6.93,
-     -3.58
-    ],
-    [
-     7.95,
-     6.93,
-     -4.38
-    ]
-   ],
-   "facing": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "height": 0.46,
+   "height": 0.47,
    "name": "\u0421\u0442\u043e\u043b \u0443 \u0437\u0430\u043f\u0430\u0434\u043d\u044b\u0445 \u043e\u043a\u043e\u043d",
    "position": [
-    5.3,
+    7.4988,
     6.93,
-    -4.38
+    -5.3514
    ]
   },
   {
    "exits": [
     [
-     6.2,
+     6.1764,
      6.93,
-     -3.58
+     -6.5706
     ],
     [
-     7.95,
+     5.7411,
      6.93,
-     -4.38
+     -6.3052
     ]
    ],
    "facing": [
-    0.0,
-    0.0,
-    -1.0
+    0.343,
+    -0.0,
+    0.9393
    ],
-   "height": 0.46,
+   "height": 0.47,
    "name": "\u0421\u0442\u043e\u043b \u0443 \u0437\u0430\u043f\u0430\u0434\u043d\u044b\u0445 \u043e\u043a\u043e\u043d.001",
    "position": [
-    6.2,
+    6.468,
     6.93,
-    -4.38
+    -5.7722
    ]
   },
   {
    "exits": [
     [
-     7.1,
+     5.2029,
      6.93,
-     -3.58
+     -4.4097
     ],
     [
-     7.95,
+     5.4746,
      6.93,
-     -4.38
+     -3.9782
     ]
    ],
    "facing": [
-    0.0,
-    0.0,
-    -1.0
+    0.9343,
+    -0.0,
+    -0.3565
    ],
-   "height": 0.46,
+   "height": 0.47,
    "name": "\u0421\u0442\u043e\u043b \u0443 \u0437\u0430\u043f\u0430\u0434\u043d\u044b\u0445 \u043e\u043a\u043e\u043d.002",
    "position": [
-    7.1,
+    5.9971,
     6.93,
-    -4.38
+    -4.7127
    ]
   },
   {
    "exits": [
     [
-     5.3,
+     7.4816,
      6.93,
-     -6.42
+     -3.5119
     ],
     [
-     7.95,
+     7.8862,
      6.93,
-     -5.62
+     -3.8223
     ]
    ],
    "facing": [
-    0.0,
-    0.0,
-    1.0
+    -0.4412,
+    -0.0,
+    -0.8974
    ],
-   "height": 0.46,
+   "height": 0.47,
    "name": "\u0421\u0442\u043e\u043b \u0443 \u0437\u0430\u043f\u0430\u0434\u043d\u044b\u0445 \u043e\u043a\u043e\u043d.003",
    "position": [
-    5.3,
+    7.1066,
     6.93,
-    -5.62
+    -4.2747
    ]
   },
   {
    "exits": [
     [
-     6.2,
+     9.9317,
      6.93,
-     -6.42
+     -5.2173
     ],
     [
-     7.95,
+     9.4396,
      6.93,
-     -5.62
+     -5.3509
     ]
    ],
    "facing": [
-    0.0,
-    0.0,
-    1.0
+    -0.4463,
+    -0.0,
+    0.8949
    ],
-   "height": 0.46,
-   "name": "\u0421\u0442\u043e\u043b \u0443 \u0437\u0430\u043f\u0430\u0434\u043d\u044b\u0445 \u043e\u043a\u043e\u043d.004",
+   "height": 0.47,
+   "name": "\u0421\u0442\u043e\u043b \u0443 \u0432\u0445\u043e\u0434\u0430",
    "position": [
-    6.2,
+    9.5524,
     6.93,
-    -5.62
+    -4.4566
    ]
   },
   {
    "exits": [
     [
-     7.1,
+     7.5453,
      6.93,
-     -6.42
+     -3.8256
     ],
     [
-     7.95,
+     7.6224,
      6.93,
-     -5.62
+     -3.3216
     ]
    ],
    "facing": [
-    0.0,
-    0.0,
-    1.0
+    0.999,
+    -0.0,
+    0.0457
    ],
-   "height": 0.46,
-   "name": "\u0421\u0442\u043e\u043b \u0443 \u0437\u0430\u043f\u0430\u0434\u043d\u044b\u0445 \u043e\u043a\u043e\u043d.005",
+   "height": 0.47,
+   "name": "\u0421\u0442\u043e\u043b \u0443 \u0432\u0445\u043e\u0434\u0430.001",
    "position": [
-    7.1,
+    8.3944,
     6.93,
-    -5.62
+    -3.7868
    ]
   },
   {
    "exits": [
     [
-     13.45,
+     10.0227,
      6.93,
-     -8.4
+     -2.3358
     ],
     [
-     14.3,
+     10.4046,
      6.93,
-     -10.85
-    ],
-    [
-     14.3,
-     6.93,
-     -7.5
+     -2.6736
     ]
    ],
    "facing": [
-    1.0,
-    0.0,
-    -0.0
+    -0.5028,
+    -0.0,
+    -0.8644
    ],
-   "height": 0.46,
-   "name": "\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u043e\u043b \u0443 \u043a\u0443\u0445\u043d\u0438",
+   "height": 0.47,
+   "name": "\u0421\u0442\u043e\u043b \u0443 \u0432\u0445\u043e\u0434\u0430.002",
    "position": [
-    14.3,
+    9.5953,
     6.93,
-    -8.4
+    -3.0705
    ]
   },
   {
    "exits": [
     [
-     13.45,
+     13.4207,
      6.93,
-     -9.15
+     -10.1762
     ],
     [
-     14.3,
+     12.9374,
      6.93,
-     -10.85
-    ],
-    [
-     14.3,
-     6.93,
-     -7.5
+     -10.3389
     ]
    ],
    "facing": [
-    1.0,
-    0.0,
-    -0.0
+    -0.4988,
+    -0.0,
+    0.8667
    ],
-   "height": 0.46,
-   "name": "\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u043e\u043b \u0443 \u043a\u0443\u0445\u043d\u0438.001",
+   "height": 0.47,
+   "name": "\u0421\u0442\u043e\u043b\u0438\u043a \u0443 \u0441\u0442\u043e\u0439\u043a\u0438",
    "position": [
-    14.3,
+    12.9967,
     6.93,
-    -9.15
+    -9.4394
    ]
   },
   {
    "exits": [
     [
-     13.45,
+     10.9986,
      6.93,
-     -9.9
+     -8.6906
     ],
     [
-     14.3,
+     11.1171,
      6.93,
-     -10.85
-    ],
-    [
-     14.3,
-     6.93,
-     -7.5
+     -8.1946
     ]
    ],
    "facing": [
-    1.0,
-    0.0,
-    -0.0
+    0.9993,
+    -0.0,
+    -0.0371
    ],
-   "height": 0.46,
-   "name": "\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u043e\u043b \u0443 \u043a\u0443\u0445\u043d\u0438.002",
+   "height": 0.47,
+   "name": "\u0421\u0442\u043e\u043b\u0438\u043a \u0443 \u0441\u0442\u043e\u0439\u043a\u0438.001",
    "position": [
-    14.3,
+    11.848,
     6.93,
-    -9.9
+    -8.7221
    ]
   },
   {
    "exits": [
     [
-     16.35,
+     13.5665,
      6.93,
-     -8.4
+     -7.501
     ],
     [
-     15.5,
+     13.9008,
      6.93,
-     -10.85
+     -7.8861
+    ]
+   ],
+   "facing": [
+    -0.612,
+    -0.0,
+    -0.7909
+   ],
+   "height": 0.47,
+   "name": "\u0421\u0442\u043e\u043b\u0438\u043a \u0443 \u0441\u0442\u043e\u0439\u043a\u0438.002",
+   "position": [
+    13.0463,
+    6.93,
+    -8.1732
+   ]
+  },
+  {
+   "exits": [
+    [
+     16.5709,
+     6.93,
+     -9.1879
     ],
     [
-     15.5,
+     16.4745,
      6.93,
-     -7.5
+     -9.6886
+    ]
+   ],
+   "facing": [
+    -1.0,
+    -0.0,
+    -0.0072
+   ],
+   "height": 0.47,
+   "name": "\u0421\u0442\u043e\u043b \u0443 \u043a\u0443\u0445\u043d\u0438",
+   "position": [
+    15.7209,
+    6.93,
+    -9.194
+   ]
+  },
+  {
+   "exits": [
+    [
+     14.7918,
+     6.93,
+     -10.8634
+    ],
+    [
+     14.2994,
+     6.93,
+     -10.7311
+    ]
+   ],
+   "facing": [
+    0.0649,
+    -0.0,
+    0.9979
+   ],
+   "height": 0.47,
+   "name": "\u0421\u0442\u043e\u043b \u0443 \u043a\u0443\u0445\u043d\u0438.001",
+   "position": [
+    14.847,
+    6.93,
+    -10.0152
+   ]
+  },
+  {
+   "exits": [
+    [
+     14.951,
+     6.93,
+     -7.5381
+    ],
+    [
+     15.4477,
+     6.93,
+     -7.6534
+    ]
+   ],
+   "facing": [
+    -0.0306,
+    -0.0,
+    -0.9995
+   ],
+   "height": 0.47,
+   "name": "\u0421\u0442\u043e\u043b \u0443 \u043a\u0443\u0445\u043d\u0438.002",
+   "position": [
+    14.9249,
+    6.93,
+    -8.3877
+   ]
+  },
+  {
+   "exits": [
+    [
+     9.6985,
+     6.93,
+     -9.7904
+    ],
+    [
+     10.1985,
+     6.93,
+     -9.8904
+    ]
+   ],
+   "facing": [
+    -0.0,
+    -0.0,
+    -1.0
+   ],
+   "height": 0.68,
+   "name": "\u0423 \u0441\u0442\u043e\u0439\u043a\u0438",
+   "position": [
+    9.6985,
+    6.93,
+    -10.6404
+   ]
+  },
+  {
+   "exits": [
+    [
+     10.5086,
+     6.93,
+     -9.752
+    ],
+    [
+     11.0086,
+     6.93,
+     -9.852
+    ]
+   ],
+   "facing": [
+    -0.0,
+    -0.0,
+    -1.0
+   ],
+   "height": 0.68,
+   "name": "\u0423 \u0441\u0442\u043e\u0439\u043a\u0438.001",
+   "position": [
+    10.5086,
+    6.93,
+    -10.602
+   ]
+  },
+  {
+   "exits": [
+    [
+     12.6925,
+     6.93,
+     -9.8092
+    ],
+    [
+     13.1925,
+     6.93,
+     -9.9092
+    ]
+   ],
+   "facing": [
+    -0.0,
+    -0.0,
+    -1.0
+   ],
+   "height": 0.68,
+   "name": "\u0423 \u0441\u0442\u043e\u0439\u043a\u0438.002",
+   "position": [
+    12.6925,
+    6.93,
+    -10.6592
+   ]
+  },
+  {
+   "exits": [
+    [
+     9.3,
+     6.93,
+     -9.6
     ]
    ],
    "facing": [
     -1.0,
     0.0,
-    -0.0
-   ],
-   "height": 0.46,
-   "name": "\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u043e\u043b \u0443 \u043a\u0443\u0445\u043d\u0438.003",
-   "position": [
-    15.5,
-    6.93,
-    -8.4
-   ]
-  },
-  {
-   "exits": [
-    [
-     16.35,
-     6.93,
-     -9.15
-    ],
-    [
-     15.5,
-     6.93,
-     -10.85
-    ],
-    [
-     15.5,
-     6.93,
-     -7.5
-    ]
-   ],
-   "facing": [
-    -1.0,
-    0.0,
-    -0.0
-   ],
-   "height": 0.46,
-   "name": "\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u043e\u043b \u0443 \u043a\u0443\u0445\u043d\u0438.004",
-   "position": [
-    15.5,
-    6.93,
-    -9.15
-   ]
-  },
-  {
-   "exits": [
-    [
-     16.35,
-     6.93,
-     -9.9
-    ],
-    [
-     15.5,
-     6.93,
-     -10.85
-    ],
-    [
-     15.5,
-     6.93,
-     -7.5
-    ]
-   ],
-   "facing": [
-    -1.0,
-    0.0,
-    -0.0
-   ],
-   "height": 0.46,
-   "name": "\u0411\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u043e\u043b \u0443 \u043a\u0443\u0445\u043d\u0438.005",
-   "position": [
-    15.5,
-    6.93,
-    -9.9
-   ]
-  },
-  {
-   "exits": [
-    [
-     7.4,
-     6.93,
-     -1.5
-    ],
-    [
-     6.7,
-     6.93,
-     -2.9
-    ]
-   ],
-   "facing": [
-    -1.0,
-    0.0,
-    -0.1
-   ],
-   "height": 0.46,
-   "name": "\u0421\u0442\u043e\u043b \u0437\u0430\u0432\u0441\u0435\u0433\u0434\u0430\u0442\u0430\u0435\u0432",
-   "position": [
-    6.56,
-    6.93,
-    -1.5
-   ]
-  },
-  {
-   "exits": [
-    [
-     5.4,
-     6.93,
-     -3.1
-    ],
-    [
-     6.7,
-     6.93,
-     -2.9
-    ]
-   ],
-   "facing": [
-    0.1,
-    0.0,
-    1.0
-   ],
-   "height": 0.46,
-   "name": "\u0421\u0442\u043e\u043b \u0437\u0430\u0432\u0441\u0435\u0433\u0434\u0430\u0442\u0430\u0435\u0432.001",
-   "position": [
-    5.4,
-    6.93,
-    -2.3
-   ]
-  },
-  {
-   "exits": [
-    [
-     9.4,
-     6.93,
-     -9.3
-    ]
-   ],
-   "facing": [
-    -1.0,
-    0.0,
-    -0.0
+    0.3
    ],
    "height": 0.46,
    "name": "\u041a\u0440\u0435\u0441\u043b\u043e \u0443 \u043a\u0430\u043c\u0438\u043d\u0430",
    "position": [
-    8.32,
+    8.5,
     6.93,
-    -9.55
-   ]
-  },
-  {
-   "exits": [
-    [
-     7.3,
-     6.93,
-     -11.6
-    ]
-   ],
-   "facing": [
-    -0.83,
-    0.0,
-    0.56
-   ],
-   "height": 0.46,
-   "name": "\u0421\u0442\u043e\u043b\u0438\u043a \u0443 \u043a\u0430\u043c\u0438\u043d\u0430",
-   "position": [
-    8.15,
-    6.93,
-    -11.18
+    -10.3
    ]
   },
   {

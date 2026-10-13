@@ -74,7 +74,7 @@
 		"res://assets/models/smithy/smithy_interior.glb": "0d18412191e8d660a76e9f3d95df248e29c164bc13e6a0f80bc7383c77c1d50e",
 		"res://assets/models/smithy/smithy_interior.glb.import": "835ffc89d20626bf082438449f3295c5c14078c03eb4a82e1040d7f81fb21d57",
 		"res://assets/models/tavern/tavern.json": "76adfb61340fe4e981f2f4ad3b03e08433673989dbcdbd1cfff9bc16c85dea89",
-		"res://assets/models/tavern/tavern_interior.json": "de9a40b4f7d193941ed9be3c636863f29e7b456e7a81e93a0560ba680215de2e",
+		"res://assets/models/tavern/tavern_interior.json": "236041e07eb6439a0bdd21e64040f47949f98e88bfd67f8d9b94cede1c156858",
 		"res://assets/models/village_pack/barrel.glb": "3d06a4fcf4403f59d3ef7a7c56a01302b7db0e5df04be484b89903d87fbaa943",
 		"res://assets/models/village_pack/barrel.glb.import": "f9bf185629de4182987a936fbb1f40b3759afe927e0cd2db84a9676c21360125",
 		"res://assets/models/village_pack/basket.glb": "d9407ed3a41b82e107fee43a5a8d6e18b1f6bfcd645ffd87c875c37b1cd6fc46",
@@ -129,7 +129,7 @@
 		"res://src/rocks/rock_field.gd": "015c6cece36140edebab86c19558520a56abd7699b5a2fc95289aae7d2dbfc1a",
 		"res://src/tavern/tavern_collision.gd": "cc56c311f1aee8393cc8e0d121f585199edff36e55e0195b0ec402ce834d8842",
 		"res://src/tavern/tavern_ground.gd": "dbd481183e70e2e0895611c02265d674d6a89561e1c8baba177b8e1477a8b220",
-		"res://src/tavern/tavern_system.gd": "2130b69d862e85ecc411d687fb21407f37f86f47eaed40c913ec4023280589e4",
+		"res://src/tavern/tavern_system.gd": "d64be805fcb9381e03856e0d44bf499246d3b9b8a83a0952f120f856a60a47ae",
 		"res://src/terrain/ground_wear.gd": "bdd2955875a16104dec3bde16db863e0412fff45ff51d502aeb5ded9ae859e75",
 		"res://src/terrain/terrain_collision.gd": "d0b97d64d3e61b2e30dbddce710f32f37c36c99097ba134866d0e19a575495a4",
 		"res://src/terrain/terrain_heights.gd": "71500862b3b55429da235891ff8b8e033b2043e79bbbcabc3398c9603693f82c",
@@ -155,7 +155,7 @@
 		"res://src/water/waterfall_system.gd": "5b16f0749f1bb8b0701dbc25598756c7a7e2a8efd936ee3e8782e84118ddea0c",
 		"res://tools/pipeline/village_pack/deduplicate_textures.gd": "64860740e78d94da7f500c4eac345dbb0e34a3ca4afe3c18534b08bca1cd47d3"
 	},
-	"key": "728699a6a790de0447c842e07589c408e40335cdc89a1f7b347ba8a05da72e23",
-	"placement_sha256": "4cd1320b975ceefd56e8de6402e59b6056aa5e4c15fb280e516841e170070bd0",
+	"key": "baa6b149d6dda19ac67faea5e29d1a2ffe91863a5b76566b99ed666f6483073c",
+	"placement_sha256": "6d48151b32145715964f4d7b2414dc38bbe76e6b380913075042f39997f25754",
 	"tree_placer_version": 2
 }
