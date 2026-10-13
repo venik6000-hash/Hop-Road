@@ -3,20 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c8u0dmw7ce36h"
-path="res://.godot/imported/R_eye_LP_1_baseColor.png-c17d535488723f1567f44b661a9f768b.ctex"
+path.bptc="res://.godot/imported/R_eye_LP_1_baseColor.png-c17d535488723f1567f44b661a9f768b.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/village_pack/goat/textures/R_eye_LP_1_baseColor.png"
-dest_files=["res://.godot/imported/R_eye_LP_1_baseColor.png-c17d535488723f1567f44b661a9f768b.ctex"]
+dest_files=["res://.godot/imported/R_eye_LP_1_baseColor.png-c17d535488723f1567f44b661a9f768b.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dp62i1tpl3oim"
-path="res://.godot/imported/anvil_Anvil_and_Stump_metallicRoughness.png-9e76b471acdc8260dbf13f090c03d22e.ctex"
+path.bptc="res://.godot/imported/anvil_Anvil_and_Stump_metallicRoughness.png-9e76b471acdc8260dbf13f090c03d22e.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "a9e87123e588a00cf717e92245ed81b0"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/anvil_Anvil_and_Stump_metallicRoughness.png"
-dest_files=["res://.godot/imported/anvil_Anvil_and_Stump_metallicRoughness.png-9e76b471acdc8260dbf13f090c03d22e.ctex"]
+dest_files=["res://.godot/imported/anvil_Anvil_and_Stump_metallicRoughness.png-9e76b471acdc8260dbf13f090c03d22e.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

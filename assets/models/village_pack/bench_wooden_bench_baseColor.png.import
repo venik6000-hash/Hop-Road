@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bxjsiut47wtk2"
-path="res://.godot/imported/bench_wooden_bench_baseColor.png-9dad4b384188021ff541b3a9dc86ef9d.ctex"
+path.bptc="res://.godot/imported/bench_wooden_bench_baseColor.png-9dad4b384188021ff541b3a9dc86ef9d.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "ee5b59810fbdb0ecd22bcbac60249a64"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/bench_wooden_bench_baseColor.png"
-dest_files=["res://.godot/imported/bench_wooden_bench_baseColor.png-9dad4b384188021ff541b3a9dc86ef9d.ctex"]
+dest_files=["res://.godot/imported/bench_wooden_bench_baseColor.png-9dad4b384188021ff541b3a9dc86ef9d.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

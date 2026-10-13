@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d2jgr8e1t68b7"
-path="res://.godot/imported/stump_material_baseColor.jpg-ba1ad6ddc603e6ac889c47f7cde73536.ctex"
+path.bptc="res://.godot/imported/stump_material_baseColor.jpg-ba1ad6ddc603e6ac889c47f7cde73536.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "21e14c26b95d3a735612d97faa59887c"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/stump_material_baseColor.jpg"
-dest_files=["res://.godot/imported/stump_material_baseColor.jpg-ba1ad6ddc603e6ac889c47f7cde73536.ctex"]
+dest_files=["res://.godot/imported/stump_material_baseColor.jpg-ba1ad6ddc603e6ac889c47f7cde73536.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

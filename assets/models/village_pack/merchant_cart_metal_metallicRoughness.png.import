@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c23y3uy1a2w6y"
-path="res://.godot/imported/merchant_cart_metal_metallicRoughness.png-77c817f91457b25e5c9fdc92c9771d2b.ctex"
+path.bptc="res://.godot/imported/merchant_cart_metal_metallicRoughness.png-77c817f91457b25e5c9fdc92c9771d2b.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "0d2d30c892b7e84f14e5540bd2bad490"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/merchant_cart_metal_metallicRoughness.png"
-dest_files=["res://.godot/imported/merchant_cart_metal_metallicRoughness.png-77c817f91457b25e5c9fdc92c9771d2b.ctex"]
+dest_files=["res://.godot/imported/merchant_cart_metal_metallicRoughness.png-77c817f91457b25e5c9fdc92c9771d2b.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

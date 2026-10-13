@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dh4k5rsfxajm8"
-path="res://.godot/imported/handcart_Chariot_metallicRoughness.png-0bdbb8c5f6a7b5a1d967674c3f94535f.ctex"
+path.bptc="res://.godot/imported/handcart_Chariot_metallicRoughness.png-0bdbb8c5f6a7b5a1d967674c3f94535f.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "a303ac5632b3cb8ea3e36b8592b42540"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/handcart_Chariot_metallicRoughness.png"
-dest_files=["res://.godot/imported/handcart_Chariot_metallicRoughness.png-0bdbb8c5f6a7b5a1d967674c3f94535f.ctex"]
+dest_files=["res://.godot/imported/handcart_Chariot_metallicRoughness.png-0bdbb8c5f6a7b5a1d967674c3f94535f.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://de03pv7j43wth"
-path="res://.godot/imported/merchant_cart_wheels_baseColor.png-846a2195d829731e096a3b2061704b5b.ctex"
+path.bptc="res://.godot/imported/merchant_cart_wheels_baseColor.png-846a2195d829731e096a3b2061704b5b.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "13d832c11cfffe3c702a4ab960260157"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/merchant_cart_wheels_baseColor.png"
-dest_files=["res://.godot/imported/merchant_cart_wheels_baseColor.png-846a2195d829731e096a3b2061704b5b.ctex"]
+dest_files=["res://.godot/imported/merchant_cart_wheels_baseColor.png-846a2195d829731e096a3b2061704b5b.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

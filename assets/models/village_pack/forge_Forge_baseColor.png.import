@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bvxnuhk2vtti4"
-path="res://.godot/imported/forge_Forge_baseColor.png-f1b8d101a5ac1115121466b29c9e21db.ctex"
+path.bptc="res://.godot/imported/forge_Forge_baseColor.png-f1b8d101a5ac1115121466b29c9e21db.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "4b7b063f846c9c9fbabb8b57a0bd7da9"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/forge_Forge_baseColor.png"
-dest_files=["res://.godot/imported/forge_Forge_baseColor.png-f1b8d101a5ac1115121466b29c9e21db.ctex"]
+dest_files=["res://.godot/imported/forge_Forge_baseColor.png-f1b8d101a5ac1115121466b29c9e21db.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

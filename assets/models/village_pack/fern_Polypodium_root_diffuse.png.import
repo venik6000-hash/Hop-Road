@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://0t61c562hfkc"
-path="res://.godot/imported/fern_Polypodium_root_diffuse.png-ae31c0ce9e3fe8052aa76fc0e44f3543.ctex"
+path.bptc="res://.godot/imported/fern_Polypodium_root_diffuse.png-ae31c0ce9e3fe8052aa76fc0e44f3543.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "d3912bc91ddc8899b7619112236a7b9b"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/fern_Polypodium_root_diffuse.png"
-dest_files=["res://.godot/imported/fern_Polypodium_root_diffuse.png-ae31c0ce9e3fe8052aa76fc0e44f3543.ctex"]
+dest_files=["res://.godot/imported/fern_Polypodium_root_diffuse.png-ae31c0ce9e3fe8052aa76fc0e44f3543.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

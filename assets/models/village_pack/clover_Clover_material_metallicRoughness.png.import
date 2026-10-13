@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b6t7pik77eu21"
-path="res://.godot/imported/clover_Clover_material_metallicRoughness.png-2caa10881e888e0719978bcb6cc9eeeb.ctex"
+path.bptc="res://.godot/imported/clover_Clover_material_metallicRoughness.png-2caa10881e888e0719978bcb6cc9eeeb.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "d2fdb1f35b356a8bb0bc1a868d3d786f"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/clover_Clover_material_metallicRoughness.png"
-dest_files=["res://.godot/imported/clover_Clover_material_metallicRoughness.png-2caa10881e888e0719978bcb6cc9eeeb.ctex"]
+dest_files=["res://.godot/imported/clover_Clover_material_metallicRoughness.png-2caa10881e888e0719978bcb6cc9eeeb.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c6o05j6f4lpme"
-path="res://.godot/imported/well_Material_baseColor.png-d31f2571d9546793f36493183961a0fa.ctex"
+path.bptc="res://.godot/imported/well_Material_baseColor.png-d31f2571d9546793f36493183961a0fa.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "9704d11c9a4832c5849b6ca0b8a67bfd"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/well_Material_baseColor.png"
-dest_files=["res://.godot/imported/well_Material_baseColor.png-d31f2571d9546793f36493183961a0fa.ctex"]
+dest_files=["res://.godot/imported/well_Material_baseColor.png-d31f2571d9546793f36493183961a0fa.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

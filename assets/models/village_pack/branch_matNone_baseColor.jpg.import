@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://6ultya2exqul"
-path="res://.godot/imported/branch_matNone_baseColor.jpg-a88bd15e0f6b07f44d68d90943dbffc6.ctex"
+path.bptc="res://.godot/imported/branch_matNone_baseColor.jpg-a88bd15e0f6b07f44d68d90943dbffc6.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "b3265c253063e5a3a3028f29db749aea"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/branch_matNone_baseColor.jpg"
-dest_files=["res://.godot/imported/branch_matNone_baseColor.jpg-a88bd15e0f6b07f44d68d90943dbffc6.ctex"]
+dest_files=["res://.godot/imported/branch_matNone_baseColor.jpg-a88bd15e0f6b07f44d68d90943dbffc6.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

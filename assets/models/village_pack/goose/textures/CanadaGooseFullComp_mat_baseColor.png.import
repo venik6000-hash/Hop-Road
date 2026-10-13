@@ -3,20 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dos2p5r2e8514"
-path="res://.godot/imported/CanadaGooseFullComp_mat_baseColor.png-aed3244adf19d9b9bf884fa18f9cb2ff.ctex"
+path.bptc="res://.godot/imported/CanadaGooseFullComp_mat_baseColor.png-aed3244adf19d9b9bf884fa18f9cb2ff.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/village_pack/goose/textures/CanadaGooseFullComp_mat_baseColor.png"
-dest_files=["res://.godot/imported/CanadaGooseFullComp_mat_baseColor.png-aed3244adf19d9b9bf884fa18f9cb2ff.ctex"]
+dest_files=["res://.godot/imported/CanadaGooseFullComp_mat_baseColor.png-aed3244adf19d9b9bf884fa18f9cb2ff.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

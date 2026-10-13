@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dq6eu6vsw2knl"
-path="res://.godot/imported/trough_1001_normal.png-6d08d0819c4edd8dbcd4bd9c0d58c712.ctex"
+path.s3tc="res://.godot/imported/trough_1001_normal.png-6d08d0819c4edd8dbcd4bd9c0d58c712.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "3088ea44d6fc08673655237a303c9c27"
@@ -14,17 +15,17 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/trough_1001_normal.png"
-dest_files=["res://.godot/imported/trough_1001_normal.png-6d08d0819c4edd8dbcd4bd9c0d58c712.ctex"]
+dest_files=["res://.godot/imported/trough_1001_normal.png-6d08d0819c4edd8dbcd4bd9c0d58c712.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=2
+compress/normal_map=1
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1

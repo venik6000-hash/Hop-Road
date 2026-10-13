@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://3s4c1mcneaol"
-path="res://.godot/imported/fern_Polypodium_01b_specularGlossiness.png-9ac1971eaba14546dc73c8f78a38682a.ctex"
+path.bptc="res://.godot/imported/fern_Polypodium_01b_specularGlossiness.png-9ac1971eaba14546dc73c8f78a38682a.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "a9813fa383e3b6c6186cfc04455efcaf"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/fern_Polypodium_01b_specularGlossiness.png"
-dest_files=["res://.godot/imported/fern_Polypodium_01b_specularGlossiness.png-9ac1971eaba14546dc73c8f78a38682a.ctex"]
+dest_files=["res://.godot/imported/fern_Polypodium_01b_specularGlossiness.png-9ac1971eaba14546dc73c8f78a38682a.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

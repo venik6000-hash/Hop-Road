@@ -3,20 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c2yjvbae8wmg4"
-path="res://.godot/imported/Material_0_metallicRoughness.png-99df89672fd75f0dfb6ea40af567ea89.ctex"
+path.bptc="res://.godot/imported/Material_0_metallicRoughness.png-99df89672fd75f0dfb6ea40af567ea89.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/village_pack/dog/textures/Material_0_metallicRoughness.png"
-dest_files=["res://.godot/imported/Material_0_metallicRoughness.png-99df89672fd75f0dfb6ea40af567ea89.ctex"]
+dest_files=["res://.godot/imported/Material_0_metallicRoughness.png-99df89672fd75f0dfb6ea40af567ea89.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

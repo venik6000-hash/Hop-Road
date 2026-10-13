@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://fajumh3jgbmy"
-path="res://.godot/imported/farm_cart_gildirak_baseColor.jpg-09d615b1cb970305f5968f349cdd22aa.ctex"
+path.bptc="res://.godot/imported/farm_cart_gildirak_baseColor.jpg-09d615b1cb970305f5968f349cdd22aa.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "a7292c99da1a3823c7969586df37125b"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/farm_cart_gildirak_baseColor.jpg"
-dest_files=["res://.godot/imported/farm_cart_gildirak_baseColor.jpg-09d615b1cb970305f5968f349cdd22aa.ctex"]
+dest_files=["res://.godot/imported/farm_cart_gildirak_baseColor.jpg-09d615b1cb970305f5968f349cdd22aa.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

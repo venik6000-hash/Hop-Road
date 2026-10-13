@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bfse607i0nuo6"
-path="res://.godot/imported/merchant_cart_hatches_metallicRoughness.png-4ecf52ab70d8639cc2ba21f31e2fea94.ctex"
+path.bptc="res://.godot/imported/merchant_cart_hatches_metallicRoughness.png-4ecf52ab70d8639cc2ba21f31e2fea94.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "3eb98f59b09b9f3ecacfa9fded5da943"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/merchant_cart_hatches_metallicRoughness.png"
-dest_files=["res://.godot/imported/merchant_cart_hatches_metallicRoughness.png-4ecf52ab70d8639cc2ba21f31e2fea94.ctex"]
+dest_files=["res://.godot/imported/merchant_cart_hatches_metallicRoughness.png-4ecf52ab70d8639cc2ba21f31e2fea94.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

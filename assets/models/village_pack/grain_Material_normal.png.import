@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bn4q8mytn8su2"
-path="res://.godot/imported/grain_Material_normal.png-1982059d2a4fa688b3df478d0d2dcb62.ctex"
+path.s3tc="res://.godot/imported/grain_Material_normal.png-1982059d2a4fa688b3df478d0d2dcb62.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "650659459a1dc53350c64bc5c9a197c7"
@@ -14,17 +15,17 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/grain_Material_normal.png"
-dest_files=["res://.godot/imported/grain_Material_normal.png-1982059d2a4fa688b3df478d0d2dcb62.ctex"]
+dest_files=["res://.godot/imported/grain_Material_normal.png-1982059d2a4fa688b3df478d0d2dcb62.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=2
+compress/normal_map=1
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1

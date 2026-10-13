@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bwy4gh7tngwr2"
-path="res://.godot/imported/basket_Scene_-_Root_baseColor.png-e10be98d819b7b5145579095ec8070d6.ctex"
+path.bptc="res://.godot/imported/basket_Scene_-_Root_baseColor.png-e10be98d819b7b5145579095ec8070d6.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "0731cf6374e2f1c69ce5ef115250646f"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/basket_Scene_-_Root_baseColor.png"
-dest_files=["res://.godot/imported/basket_Scene_-_Root_baseColor.png-e10be98d819b7b5145579095ec8070d6.ctex"]
+dest_files=["res://.godot/imported/basket_Scene_-_Root_baseColor.png-e10be98d819b7b5145579095ec8070d6.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

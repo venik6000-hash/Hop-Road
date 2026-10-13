@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ftv2wdrcyxiq"
-path="res://.godot/imported/table_standardSurface1SG_baseColor.jpg-3883c7b777eb21c6a9c2888e21c37444.ctex"
+path.bptc="res://.godot/imported/table_standardSurface1SG_baseColor.jpg-3883c7b777eb21c6a9c2888e21c37444.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "207c1b3dff21157043df2f6d5ba5513a"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/table_standardSurface1SG_baseColor.jpg"
-dest_files=["res://.godot/imported/table_standardSurface1SG_baseColor.jpg-3883c7b777eb21c6a9c2888e21c37444.ctex"]
+dest_files=["res://.godot/imported/table_standardSurface1SG_baseColor.jpg-3883c7b777eb21c6a9c2888e21c37444.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

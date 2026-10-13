@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://wmg1lfkr408s"
-path="res://.godot/imported/sack_Closed_Burlap_Sack_baseColor.png-f920217e9360c3141125ec55b1c9873b.ctex"
+path.bptc="res://.godot/imported/sack_Closed_Burlap_Sack_baseColor.png-f920217e9360c3141125ec55b1c9873b.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "fd1fbb415f6301d028abb1b247679c44"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/sack_Closed_Burlap_Sack_baseColor.png"
-dest_files=["res://.godot/imported/sack_Closed_Burlap_Sack_baseColor.png-f920217e9360c3141125ec55b1c9873b.ctex"]
+dest_files=["res://.godot/imported/sack_Closed_Burlap_Sack_baseColor.png-f920217e9360c3141125ec55b1c9873b.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

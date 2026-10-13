@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://crvmdmqxah8nc"
-path="res://.godot/imported/merchant_cart_Bottle_22.png-56636b26d471a834a2f0b606cde811ef.ctex"
+path.bptc="res://.godot/imported/merchant_cart_Bottle_22.png-56636b26d471a834a2f0b606cde811ef.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "a838c6c7905a085f007ff9e3e33060ca"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/merchant_cart_Bottle_22.png"
-dest_files=["res://.godot/imported/merchant_cart_Bottle_22.png-56636b26d471a834a2f0b606cde811ef.ctex"]
+dest_files=["res://.godot/imported/merchant_cart_Bottle_22.png-56636b26d471a834a2f0b606cde811ef.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dxfdkf3alyw8l"
-path="res://.godot/imported/workbench_Workbench_baseColor.png-eb1f51385685534f21380148cf177073.ctex"
+path.bptc="res://.godot/imported/workbench_Workbench_baseColor.png-eb1f51385685534f21380148cf177073.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "b4405fee3cd308bdf953e46c8e5c3e89"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/workbench_Workbench_baseColor.png"
-dest_files=["res://.godot/imported/workbench_Workbench_baseColor.png-eb1f51385685534f21380148cf177073.ctex"]
+dest_files=["res://.godot/imported/workbench_Workbench_baseColor.png-eb1f51385685534f21380148cf177073.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

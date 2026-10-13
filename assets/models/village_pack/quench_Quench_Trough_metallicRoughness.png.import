@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bwcifgdm5ijvx"
-path="res://.godot/imported/quench_Quench_Trough_metallicRoughness.png-b3a8a19133cd8fc49c0286b814560f6b.ctex"
+path.bptc="res://.godot/imported/quench_Quench_Trough_metallicRoughness.png-b3a8a19133cd8fc49c0286b814560f6b.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "1181adb115784c9477fd072e085c9d84"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/quench_Quench_Trough_metallicRoughness.png"
-dest_files=["res://.godot/imported/quench_Quench_Trough_metallicRoughness.png-b3a8a19133cd8fc49c0286b814560f6b.ctex"]
+dest_files=["res://.godot/imported/quench_Quench_Trough_metallicRoughness.png-b3a8a19133cd8fc49c0286b814560f6b.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

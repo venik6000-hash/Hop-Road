@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cchel452il46t"
-path="res://.godot/imported/handcart_Chariot_baseColor.png-a66c18a029e8d5d9ac7f633aa7219439.ctex"
+path.bptc="res://.godot/imported/handcart_Chariot_baseColor.png-a66c18a029e8d5d9ac7f633aa7219439.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "5bbf8819a8cece0cce9c6b278b0b8d20"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/handcart_Chariot_baseColor.png"
-dest_files=["res://.godot/imported/handcart_Chariot_baseColor.png-a66c18a029e8d5d9ac7f633aa7219439.ctex"]
+dest_files=["res://.godot/imported/handcart_Chariot_baseColor.png-a66c18a029e8d5d9ac7f633aa7219439.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

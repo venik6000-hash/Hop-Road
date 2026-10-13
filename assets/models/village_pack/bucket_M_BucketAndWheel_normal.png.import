@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cla3k88pixhe0"
-path="res://.godot/imported/bucket_M_BucketAndWheel_normal.png-59b6985e2193cd718ab00310c035d643.ctex"
+path.s3tc="res://.godot/imported/bucket_M_BucketAndWheel_normal.png-59b6985e2193cd718ab00310c035d643.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "8e224caf2323cf6d74a9f9be85441df0"
@@ -14,17 +15,17 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/bucket_M_BucketAndWheel_normal.png"
-dest_files=["res://.godot/imported/bucket_M_BucketAndWheel_normal.png-59b6985e2193cd718ab00310c035d643.ctex"]
+dest_files=["res://.godot/imported/bucket_M_BucketAndWheel_normal.png-59b6985e2193cd718ab00310c035d643.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=2
+compress/normal_map=1
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1

@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b6si2urm7f5kj"
-path="res://.godot/imported/table_standardSurface1SG_metallicRoughness.png-27baee08940854e76f22e841aad69e8a.ctex"
+path.bptc="res://.godot/imported/table_standardSurface1SG_metallicRoughness.png-27baee08940854e76f22e841aad69e8a.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "639dbb974e3d33e8e0100305bb981909"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/table_standardSurface1SG_metallicRoughness.png"
-dest_files=["res://.godot/imported/table_standardSurface1SG_metallicRoughness.png-27baee08940854e76f22e841aad69e8a.ctex"]
+dest_files=["res://.godot/imported/table_standardSurface1SG_metallicRoughness.png-27baee08940854e76f22e841aad69e8a.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

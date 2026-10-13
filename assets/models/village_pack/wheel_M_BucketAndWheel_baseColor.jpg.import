@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c80j2fbvjrvrj"
-path="res://.godot/imported/wheel_M_BucketAndWheel_baseColor.jpg-41e76077f304ec57fbfbef63413a0c28.ctex"
+path.bptc="res://.godot/imported/wheel_M_BucketAndWheel_baseColor.jpg-41e76077f304ec57fbfbef63413a0c28.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "1fc72a66c10859be34033040557d91b6"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/wheel_M_BucketAndWheel_baseColor.jpg"
-dest_files=["res://.godot/imported/wheel_M_BucketAndWheel_baseColor.jpg-41e76077f304ec57fbfbef63413a0c28.ctex"]
+dest_files=["res://.godot/imported/wheel_M_BucketAndWheel_baseColor.jpg-41e76077f304ec57fbfbef63413a0c28.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

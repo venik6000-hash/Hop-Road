@@ -3,20 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://drhwb18vxi818"
-path="res://.godot/imported/Material_0_baseColor.png-c491b216a27bbe04a76f0714739f94d7.ctex"
+path.bptc="res://.godot/imported/Material_0_baseColor.png-c491b216a27bbe04a76f0714739f94d7.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/village_pack/duck/textures/Material_0_baseColor.png"
-dest_files=["res://.godot/imported/Material_0_baseColor.png-c491b216a27bbe04a76f0714739f94d7.ctex"]
+dest_files=["res://.godot/imported/Material_0_baseColor.png-c491b216a27bbe04a76f0714739f94d7.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

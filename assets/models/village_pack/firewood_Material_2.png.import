@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cugj22tpq7pyf"
-path="res://.godot/imported/firewood_Material_2.png-ab79e01b2086dc92b539138e5c41f9ae.ctex"
+path.bptc="res://.godot/imported/firewood_Material_2.png-ab79e01b2086dc92b539138e5c41f9ae.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "afd48faf02a9aa8b596263a4cb5e3014"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/firewood_Material_2.png"
-dest_files=["res://.godot/imported/firewood_Material_2.png-ab79e01b2086dc92b539138e5c41f9ae.ctex"]
+dest_files=["res://.godot/imported/firewood_Material_2.png-ab79e01b2086dc92b539138e5c41f9ae.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

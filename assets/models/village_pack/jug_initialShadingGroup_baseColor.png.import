@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b2qixf1n1jlff"
-path="res://.godot/imported/jug_initialShadingGroup_baseColor.png-1d3b97fb38c9900ed1c9865ba5f0298e.ctex"
+path.bptc="res://.godot/imported/jug_initialShadingGroup_baseColor.png-1d3b97fb38c9900ed1c9865ba5f0298e.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "c8b29c84f8bff7f6b0c82d44b2462938"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/jug_initialShadingGroup_baseColor.png"
-dest_files=["res://.godot/imported/jug_initialShadingGroup_baseColor.png-1d3b97fb38c9900ed1c9865ba5f0298e.ctex"]
+dest_files=["res://.godot/imported/jug_initialShadingGroup_baseColor.png-1d3b97fb38c9900ed1c9865ba5f0298e.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

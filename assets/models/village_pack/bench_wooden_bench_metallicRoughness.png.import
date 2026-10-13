@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d3acp88wry2ub"
-path="res://.godot/imported/bench_wooden_bench_metallicRoughness.png-ff494bfa89be03da4046dddf9c985c9f.ctex"
+path.bptc="res://.godot/imported/bench_wooden_bench_metallicRoughness.png-ff494bfa89be03da4046dddf9c985c9f.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "dd3b48322cd4de76308b2e3607cbaaf3"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/bench_wooden_bench_metallicRoughness.png"
-dest_files=["res://.godot/imported/bench_wooden_bench_metallicRoughness.png-ff494bfa89be03da4046dddf9c985c9f.ctex"]
+dest_files=["res://.godot/imported/bench_wooden_bench_metallicRoughness.png-ff494bfa89be03da4046dddf9c985c9f.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bip32qxcbg5j5"
-path="res://.godot/imported/forge_Forge_metallicRoughness.png-4546bd3b8abc9895d4be44c28f2bbda1.ctex"
+path.bptc="res://.godot/imported/forge_Forge_metallicRoughness.png-4546bd3b8abc9895d4be44c28f2bbda1.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "abf845ce1f2a731e630a6c5a774d58f7"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/forge_Forge_metallicRoughness.png"
-dest_files=["res://.godot/imported/forge_Forge_metallicRoughness.png-4546bd3b8abc9895d4be44c28f2bbda1.ctex"]
+dest_files=["res://.godot/imported/forge_Forge_metallicRoughness.png-4546bd3b8abc9895d4be44c28f2bbda1.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

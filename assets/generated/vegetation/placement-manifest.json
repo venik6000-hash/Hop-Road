@@ -129,12 +129,12 @@
 		"res://src/rocks/rock_field.gd": "d62229bb81946e68b1179846cf5bd586d7c47e8f95ff07d652dcb04e55463759",
 		"res://src/tavern/tavern_collision.gd": "cc56c311f1aee8393cc8e0d121f585199edff36e55e0195b0ec402ce834d8842",
 		"res://src/tavern/tavern_ground.gd": "dbd481183e70e2e0895611c02265d674d6a89561e1c8baba177b8e1477a8b220",
-		"res://src/tavern/tavern_system.gd": "296089f246c6903a81a2348ebb132dc9c3e2557eac846a9ca0c1d51595de74b0",
+		"res://src/tavern/tavern_system.gd": "dab2e1c6be1d735808d4f0c77ac9ab116fc628b5d95250773d7571ceb47ac1a1",
 		"res://src/terrain/ground_wear.gd": "bdd2955875a16104dec3bde16db863e0412fff45ff51d502aeb5ded9ae859e75",
 		"res://src/terrain/terrain_collision.gd": "d0b97d64d3e61b2e30dbddce710f32f37c36c99097ba134866d0e19a575495a4",
 		"res://src/terrain/terrain_heights.gd": "71500862b3b55429da235891ff8b8e033b2043e79bbbcabc3398c9603693f82c",
 		"res://src/terrain/terrain_material.gd": "98a12dbb8a506dba65db45fced09676a68fce80c513ce45d4f0c94b6f0f6fa05",
-		"res://src/terrain/terrain_system.gd": "601bce9aabed8db4227598dfe69e502867e1c7c4ab806578f36bacbca3e5f875",
+		"res://src/terrain/terrain_system.gd": "2943d929d8d16a68735e44db9d25faf1c1c8a515a4e01771b073a9a83a11374c",
 		"res://src/vegetation/obstacle_map.gd": "c724ebb656233f0b2f935b7c81cdc7e5829777cb99b254ccbaae74af67edf744",
 		"res://src/vegetation/tree_pass_composed.gd": "1f37a144ebce8a7d73872ab6536d02a7699311735923fde0c54cec0e4ad094f6",
 		"res://src/vegetation/tree_pass_detail.gd": "ed31e0299b63e7c0d1664f1fa27ba4db18641eae854279eff29569cbd5b9fe02",
@@ -155,7 +155,7 @@
 		"res://src/water/waterfall_system.gd": "5b16f0749f1bb8b0701dbc25598756c7a7e2a8efd936ee3e8782e84118ddea0c",
 		"res://tools/pipeline/village_pack/deduplicate_textures.gd": "64860740e78d94da7f500c4eac345dbb0e34a3ca4afe3c18534b08bca1cd47d3"
 	},
-	"key": "fcd00d7d3f3b6f4f34d9ddd2eecb69e4963fcce0758346490cdb3abe052e8b25",
-	"placement_sha256": "4afd210aeab26f01356ebf5860a2d21da40e79f60289bd8218204f280d8ddc8e",
+	"key": "b659118bb86fc03456456d183bf8131610ceb59f3163a8faffb6d779bae6b534",
+	"placement_sha256": "98bd6c045a38824c72c4994b574608a8c2cc2818c01af2a12e65859476b6f0f9",
 	"tree_placer_version": 2
 }

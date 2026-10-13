@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://epjsj1iwlhuk"
-path="res://.godot/imported/axe_material_metallicRoughness.png-908d51f30832a56aa6d2edda8fa84dc2.ctex"
+path.bptc="res://.godot/imported/axe_material_metallicRoughness.png-908d51f30832a56aa6d2edda8fa84dc2.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "78ab51bc43f2cd1f63f5907992a0a6bb"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/axe_material_metallicRoughness.png"
-dest_files=["res://.godot/imported/axe_material_metallicRoughness.png-908d51f30832a56aa6d2edda8fa84dc2.ctex"]
+dest_files=["res://.godot/imported/axe_material_metallicRoughness.png-908d51f30832a56aa6d2edda8fa84dc2.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b6uqmyo5rt4rs"
-path="res://.godot/imported/shovel_shovel_baseColor.png-b81d4b5b17f289e36a4c7109d02b6acc.ctex"
+path.bptc="res://.godot/imported/shovel_shovel_baseColor.png-b81d4b5b17f289e36a4c7109d02b6acc.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "dad2291e5d34cded121ec3d65fa16c37"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/shovel_shovel_baseColor.png"
-dest_files=["res://.godot/imported/shovel_shovel_baseColor.png-b81d4b5b17f289e36a4c7109d02b6acc.ctex"]
+dest_files=["res://.godot/imported/shovel_shovel_baseColor.png-b81d4b5b17f289e36a4c7109d02b6acc.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

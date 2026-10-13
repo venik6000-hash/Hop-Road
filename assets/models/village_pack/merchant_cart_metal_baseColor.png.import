@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d3clrco7csok5"
-path="res://.godot/imported/merchant_cart_metal_baseColor.png-e04ad961d8cdf29334eddd5edfa39e1b.ctex"
+path.bptc="res://.godot/imported/merchant_cart_metal_baseColor.png-e04ad961d8cdf29334eddd5edfa39e1b.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "f2a5fa5d281f2bae0f848b6165b4b01f"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/village_pack/merchant_cart_metal_baseColor.png"
-dest_files=["res://.godot/imported/merchant_cart_metal_baseColor.png-e04ad961d8cdf29334eddd5edfa39e1b.ctex"]
+dest_files=["res://.godot/imported/merchant_cart_metal_baseColor.png-e04ad961d8cdf29334eddd5edfa39e1b.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
