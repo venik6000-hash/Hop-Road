@@ -202,7 +202,7 @@
     0.5,
     0.20000000298023224
    ],
-   "energy": 4.0,
+   "energy": 5.0,
    "flicker": 0.22,
    "layer": "interior",
    "name": "Hall hearth fire",
@@ -248,7 +248,7 @@
     0.6399999856948853,
     0.3400000035762787
    ],
-   "energy": 1.4,
+   "energy": 2.2,
    "flicker": 0.05,
    "layer": "interior",
    "name": "Chandelier 1",
@@ -258,7 +258,7 @@
     9.61,
     -4.7
    ],
-   "range": 7.5,
+   "range": 8.5,
    "shadow": false,
    "size": 0.05,
    "speed": 1.0,
@@ -271,7 +271,7 @@
     0.6399999856948853,
     0.3400000035762787
    ],
-   "energy": 1.4,
+   "energy": 2.2,
    "flicker": 0.05,
    "layer": "interior",
    "name": "Chandelier 2",
@@ -281,7 +281,7 @@
     9.61,
     -8.7
    ],
-   "range": 7.5,
+   "range": 8.5,
    "shadow": false,
    "size": 0.05,
    "speed": 1.0,
@@ -707,6 +707,9 @@
   "tav_ash": {
    "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
    "desaturate": 1.0,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 0.8,
    "grime": 0.0,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
@@ -724,6 +727,9 @@
   "tav_bark": {
    "albedo": "res://assets/generated/tavern/bark_brown_02_diff_1k.jpg",
    "desaturate": 0.3,
+   "detail": "wood",
+   "detail_scale": 2.5,
+   "detail_strength": 0.6,
    "grime": 0.0,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/bark_brown_02_nor_gl_1k.jpg",
@@ -794,6 +800,9 @@
   "tav_carpet": {
    "albedo": "res://assets/generated/tavern/dirty_carpet_diff_1k.jpg",
    "desaturate": 0.05,
+   "detail": "cloth",
+   "detail_scale": 10.4,
+   "detail_strength": 0.5,
    "grime": 0.0,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/dirty_carpet_nor_gl_1k.jpg",
@@ -846,6 +855,9 @@
   "tav_char": {
    "albedo": "res://assets/generated/tavern/bark_brown_02_diff_1k.jpg",
    "desaturate": 0.8,
+   "detail": "wood",
+   "detail_scale": 2.5,
+   "detail_strength": 0.6,
    "grime": 0.0,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/bark_brown_02_nor_gl_1k.jpg",
@@ -880,6 +892,9 @@
   "tav_clay": {
    "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
    "desaturate": 0.6,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 0.7,
    "grime": 0.0,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
@@ -979,6 +994,10 @@
   "tav_floor": {
    "albedo": "res://assets/generated/tavern/wood_table_worn_diff_1k.jpg",
    "desaturate": 0.25,
+   "detail": "wood",
+   "detail_scale": 2.5,
+   "detail_strength": 0.5,
+   "detail_turn": 1,
    "grime": 0.0,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/wood_table_worn_nor_gl_1k.jpg",
@@ -1143,6 +1162,9 @@
   "tav_limewash": {
    "albedo": "res://assets/generated/tavern/white_plaster_rough_01_diff_1k.jpg",
    "desaturate": 0.7,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 0.6,
    "grime": 0.0,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/white_plaster_rough_01_nor_gl_1k.jpg",
@@ -1160,6 +1182,9 @@
   "tav_linen": {
    "albedo": "res://assets/generated/tavern/rough_linen_diff_1k.jpg",
    "desaturate": 0.5,
+   "detail": "cloth",
+   "detail_scale": 10.4,
+   "detail_strength": 0.8,
    "grime": 0.0,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/rough_linen_nor_gl_1k.jpg",
@@ -1194,6 +1219,9 @@
   "tav_mortar": {
    "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
    "desaturate": 0.6,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 0.9,
    "grime": 0.6,
    "moss": 0.2,
    "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
@@ -1210,6 +1238,9 @@
   "tav_oak": {
    "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
    "desaturate": 0.85,
+   "detail": "wood",
+   "detail_scale": 2.5,
+   "detail_strength": 0.8,
    "grime": 0.25,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
@@ -1226,6 +1257,9 @@
   "tav_oak_end": {
    "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
    "desaturate": 0.85,
+   "detail": "wood",
+   "detail_scale": 2.5,
+   "detail_strength": 0.5,
    "grime": 0.2,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
@@ -1242,6 +1276,10 @@
   "tav_oak_smooth": {
    "albedo": "res://assets/generated/tavern/wood_table_worn_diff_1k.jpg",
    "desaturate": 0.1,
+   "detail": "wood",
+   "detail_scale": 2.5,
+   "detail_strength": 0.4,
+   "detail_turn": 1,
    "grime": 0.0,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/wood_table_worn_nor_gl_1k.jpg",
@@ -1343,6 +1381,9 @@
   "tav_plank": {
    "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
    "desaturate": 0.75,
+   "detail": "wood",
+   "detail_scale": 2.5,
+   "detail_strength": 0.9,
    "grime": 0.0,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
@@ -1360,6 +1401,9 @@
   "tav_rope": {
    "albedo": "res://assets/generated/tavern/hessian_230_diff_1k.jpg",
    "desaturate": 0.5,
+   "detail": "cloth",
+   "detail_scale": 10.4,
+   "detail_strength": 0.5,
    "grime": 0.0,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/hessian_230_nor_gl_1k.jpg",
@@ -1377,6 +1421,9 @@
   "tav_sack": {
    "albedo": "res://assets/generated/tavern/hessian_230_diff_1k.jpg",
    "desaturate": 0.3,
+   "detail": "cloth",
+   "detail_scale": 10.4,
+   "detail_strength": 1.0,
    "grime": 0.0,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/hessian_230_nor_gl_1k.jpg",
@@ -1394,6 +1441,9 @@
    "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
    "albedo_gain": 1.5,
    "desaturate": 0.9,
+   "detail": "wood",
+   "detail_scale": 2.5,
+   "detail_strength": 0.6,
    "grime": 0.0,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
@@ -1429,6 +1479,9 @@
   "tav_soil": {
    "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
    "desaturate": 0.9,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 0.8,
    "grime": 0.0,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
@@ -1445,6 +1498,9 @@
   "tav_soot": {
    "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
    "desaturate": 1.0,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 0.6,
    "grime": 0.0,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
@@ -1480,6 +1536,9 @@
    "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
    "albedo_gain": 1.12,
    "desaturate": 0.7,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 1.0,
    "grime": 0.55,
    "moss": 0.35,
    "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
@@ -1533,6 +1592,9 @@
    "albedo": "res://assets/generated/tavern/wool_boucle_diff_1k.jpg",
    "albedo_gain": 1.25,
    "desaturate": 1.0,
+   "detail": "cloth",
+   "detail_scale": 10.4,
+   "detail_strength": 0.6,
    "grime": 0.0,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/wool_boucle_nor_gl_1k.jpg",
@@ -1549,6 +1611,400 @@
   }
  },
  "moved_colliders": [],
+ "portal_floors": [
+  {
+   "height": 10.86,
+   "holes": [
+    [
+     15.95,
+     -6.6,
+     17.74,
+     -3.1
+    ]
+   ]
+  },
+  {
+   "height": 14.875,
+   "holes": [
+    [
+     8.85,
+     -8.08,
+     9.65,
+     -7.34
+    ]
+   ]
+  }
+ ],
+ "portals": [
+  {
+   "inward": [
+    0,
+    0,
+    -1
+   ],
+   "name": "hall_front_w",
+   "position": [
+    7.55,
+    8.775,
+    -0.0
+   ],
+   "sill": 7.6,
+   "top": 9.95,
+   "width": 1.3
+  },
+  {
+   "inward": [
+    0,
+    0,
+    -1
+   ],
+   "name": "hall_front_e",
+   "position": [
+    14.45,
+    8.775,
+    -0.0
+   ],
+   "sill": 7.6,
+   "top": 9.95,
+   "width": 1.3
+  },
+  {
+   "inward": [
+    1,
+    0,
+    0
+   ],
+   "name": "hall_west_s",
+   "position": [
+    4.0,
+    8.75,
+    -3.0
+   ],
+   "sill": 7.6,
+   "top": 9.9,
+   "width": 1.2
+  },
+  {
+   "inward": [
+    1,
+    0,
+    0
+   ],
+   "name": "hall_west_n",
+   "position": [
+    4.0,
+    8.75,
+    -6.8
+   ],
+   "sill": 7.6,
+   "top": 9.9,
+   "width": 1.2
+  },
+  {
+   "inward": [
+    0,
+    0,
+    1
+   ],
+   "name": "hall_rear",
+   "position": [
+    16.3,
+    8.8,
+    -14.0
+   ],
+   "sill": 7.7,
+   "top": 9.9,
+   "width": 1.1
+  },
+  {
+   "inward": [
+    0,
+    0,
+    1
+   ],
+   "name": "back_door",
+   "position": [
+    5.6,
+    7.925,
+    -14.0
+   ],
+   "sill": 6.6,
+   "top": 9.25,
+   "width": 1.15
+  },
+  {
+   "inward": [
+    0,
+    0,
+    -1
+   ],
+   "name": "kitchen_front",
+   "position": [
+    25.3,
+    7.9,
+    -1.0
+   ],
+   "sill": 7.35,
+   "top": 8.45,
+   "width": 0.9
+  },
+  {
+   "inward": [
+    -1,
+    0,
+    0
+   ],
+   "name": "kitchen_east",
+   "position": [
+    27.0,
+    7.9,
+    -4.2
+   ],
+   "sill": 7.35,
+   "top": 8.45,
+   "width": 0.9
+  },
+  {
+   "inward": [
+    0,
+    0,
+    1
+   ],
+   "name": "kitchen_rear",
+   "position": [
+    22.6,
+    7.9,
+    -12.0
+   ],
+   "sill": 7.35,
+   "top": 8.45,
+   "width": 0.9
+  },
+  {
+   "inward": [
+    0,
+    0,
+    -1
+   ],
+   "name": "front_upper_w",
+   "position": [
+    8.3,
+    12.8712,
+    0.12
+   ],
+   "sill": 11.9352,
+   "top": 13.8072,
+   "width": 1.9
+  },
+  {
+   "inward": [
+    0,
+    0,
+    -1
+   ],
+   "name": "front_upper_e",
+   "position": [
+    13.7,
+    12.8712,
+    0.12
+   ],
+   "sill": 11.9352,
+   "top": 13.8072,
+   "width": 1.9
+  },
+  {
+   "inward": [
+    0,
+    0,
+    -1
+   ],
+   "name": "attic",
+   "position": [
+    11.0,
+    17.5044,
+    0.12
+   ],
+   "sill": 16.5274,
+   "top": 18.4814,
+   "width": 1.6
+  },
+  {
+   "inward": [
+    -1,
+    0,
+    0
+   ],
+   "name": "east_upper_s",
+   "position": [
+    18.12,
+    12.8244,
+    -5.25
+   ],
+   "sill": 12.0244,
+   "top": 13.6244,
+   "width": 1.3
+  },
+  {
+   "inward": [
+    -1,
+    0,
+    0
+   ],
+   "name": "east_upper_n",
+   "position": [
+    18.12,
+    12.8244,
+    -12.25
+   ],
+   "sill": 12.0244,
+   "top": 13.6244,
+   "width": 1.3
+  },
+  {
+   "inward": [
+    1,
+    0,
+    0
+   ],
+   "name": "west_upper_s",
+   "position": [
+    3.88,
+    12.8244,
+    -5.25
+   ],
+   "sill": 12.0244,
+   "top": 13.6244,
+   "width": 1.3
+  },
+  {
+   "inward": [
+    1,
+    0,
+    0
+   ],
+   "name": "west_upper_n",
+   "position": [
+    3.88,
+    12.8244,
+    -12.25
+   ],
+   "sill": 12.0244,
+   "top": 13.6244,
+   "width": 1.3
+  },
+  {
+   "inward": [
+    0,
+    0,
+    1
+   ],
+   "name": "rear_upper_w",
+   "position": [
+    9.0,
+    12.8244,
+    -14.19
+   ],
+   "sill": 12.0244,
+   "top": 13.6244,
+   "width": 1.4
+  },
+  {
+   "inward": [
+    0,
+    0,
+    1
+   ],
+   "name": "rear_upper_e",
+   "position": [
+    13.0,
+    12.8244,
+    -14.19
+   ],
+   "sill": 12.0244,
+   "top": 13.6244,
+   "width": 1.4
+  },
+  {
+   "inward": [
+    0,
+    0,
+    -1
+   ],
+   "name": "annex_front",
+   "position": [
+    24.5,
+    9.876,
+    -0.83
+   ],
+   "sill": 9.256,
+   "top": 10.496,
+   "width": 1.3
+  },
+  {
+   "inward": [
+    -1,
+    0,
+    0
+   ],
+   "name": "annex_east",
+   "position": [
+    27.15,
+    9.8292,
+    -7.1
+   ],
+   "sill": 9.2292,
+   "top": 10.4292,
+   "width": 1.35
+  },
+  {
+   "inward": [
+    -1,
+    0,
+    0
+   ],
+   "name": "dormer",
+   "position": [
+    16.28,
+    17.45,
+    -8.0
+   ],
+   "sill": 16.95,
+   "top": 17.95,
+   "width": 1.2
+  },
+  {
+   "inward": [
+    0,
+    0,
+    -1
+   ],
+   "name": "entrance",
+   "position": [
+    11.0,
+    8.6592,
+    0.17
+   ],
+   "sill": 6.6,
+   "top": 10.7184,
+   "width": 2.88
+  },
+  {
+   "inward": [
+    0,
+    0,
+    -1
+   ],
+   "name": "annex_door",
+   "position": [
+    20.4,
+    7.76,
+    -1.0
+   ],
+   "sill": 6.62,
+   "top": 8.9,
+   "width": 1.3
+  }
+ ],
  "probes": [
   {
    "ambient": [
@@ -2450,6 +2906,188 @@
     10.86,
     -11.32
    ]
+  }
+ ],
+ "windows": [
+  {
+   "floor": 6.93,
+   "inward": [
+    0,
+    0,
+    -1
+   ],
+   "name": "hall_front_w",
+   "position": [
+    7.55,
+    8.775,
+    -0.0
+   ],
+   "reveal": 0.31,
+   "room": "hall",
+   "sill": 7.6,
+   "spring": 9.3,
+   "top": 9.95,
+   "width": 1.3
+  },
+  {
+   "floor": 6.93,
+   "inward": [
+    0,
+    0,
+    -1
+   ],
+   "name": "hall_front_e",
+   "position": [
+    14.45,
+    8.775,
+    -0.0
+   ],
+   "reveal": 0.31,
+   "room": "hall",
+   "sill": 7.6,
+   "spring": 9.3,
+   "top": 9.95,
+   "width": 1.3
+  },
+  {
+   "floor": 6.93,
+   "inward": [
+    1,
+    0,
+    0
+   ],
+   "name": "hall_west_s",
+   "position": [
+    4.0,
+    8.75,
+    -3.0
+   ],
+   "reveal": 0.31,
+   "room": "hall",
+   "sill": 7.6,
+   "spring": 9.3,
+   "top": 9.9,
+   "width": 1.2
+  },
+  {
+   "floor": 6.93,
+   "inward": [
+    1,
+    0,
+    0
+   ],
+   "name": "hall_west_n",
+   "position": [
+    4.0,
+    8.75,
+    -6.8
+   ],
+   "reveal": 0.31,
+   "room": "hall",
+   "sill": 7.6,
+   "spring": 9.3,
+   "top": 9.9,
+   "width": 1.2
+  },
+  {
+   "floor": 6.93,
+   "inward": [
+    0,
+    0,
+    1
+   ],
+   "name": "hall_rear",
+   "position": [
+    16.3,
+    8.8,
+    -14.0
+   ],
+   "reveal": 0.31,
+   "room": "hall",
+   "sill": 7.7,
+   "spring": 9.35,
+   "top": 9.9,
+   "width": 1.1
+  },
+  {
+   "floor": 6.64,
+   "inward": [
+    0,
+    0,
+    -1
+   ],
+   "name": "kitchen_front",
+   "position": [
+    25.3,
+    7.9,
+    -1.0
+   ],
+   "reveal": 0.225,
+   "room": "kitchen",
+   "sill": 7.35,
+   "spring": 8.45,
+   "top": 8.45,
+   "width": 0.9
+  },
+  {
+   "floor": 6.64,
+   "inward": [
+    -1,
+    0,
+    0
+   ],
+   "name": "kitchen_east",
+   "position": [
+    27.0,
+    7.9,
+    -4.2
+   ],
+   "reveal": 0.225,
+   "room": "kitchen",
+   "sill": 7.35,
+   "spring": 8.45,
+   "top": 8.45,
+   "width": 0.9
+  },
+  {
+   "floor": 6.64,
+   "inward": [
+    0,
+    0,
+    1
+   ],
+   "name": "kitchen_rear",
+   "position": [
+    22.6,
+    7.9,
+    -12.0
+   ],
+   "reveal": 0.225,
+   "room": "kitchen",
+   "sill": 7.35,
+   "spring": 8.45,
+   "top": 8.45,
+   "width": 0.9
+  },
+  {
+   "floor": 6.6,
+   "inward": [
+    0,
+    0,
+    -1
+   ],
+   "name": "entrance",
+   "position": [
+    11.0,
+    8.6592,
+    0.17
+   ],
+   "reveal": 0.48,
+   "room": "hall",
+   "sill": 6.6,
+   "spring": 9.057,
+   "top": 10.7184,
+   "width": 2.88
   }
  ]
 }
