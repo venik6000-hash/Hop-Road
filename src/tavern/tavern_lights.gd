@@ -62,6 +62,8 @@ static func add_light(tavern: TavernSystem, config: Dictionary) -> void:
 			light.light_cull_mask = TavernSystem.LAYER
 			light.shadow_caster_mask = TavernSystem.SHADOW_LAYER
 			FarLights.fade(light, "interior")
+			if config.get("night", 0.0) <= 0.5:
+				tavern.steady_lamps.append(light)
 		"exterior":
 			FarLights.fade(light, "spill" if config.type == "spot" else "lantern")
 			# Outside: the ground and the tavern's own still walls, not the

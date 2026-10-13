@@ -9,14 +9,18 @@ extends Node
 ## the opening's rectangle, carried on without end. What stands outside every
 ## wedge cannot be seen, and the systems outdoors do not draw it: the trees'
 ## and the grass's tiles ask `sight` themselves (they come and go as the eye
-## walks), the stones, the old map's pieces and the village's buildings are
-## looked over here. What is not seen but throws its shadow into a wedge or
+## walks), the stones, the old map's pieces, the lake bed's and the village's
+## buildings are looked over here. What is not seen but throws its shadow into a wedge or
 ## onto the building keeps casting it. Glass is seen through; a door's leaf
 ## standing shut closes what it covers of its opening. Walls between the eye
 ## and an opening are not asked about: an opening of another room gives its
 ## wedge all the same. The floors are (the table's `portal_floors`: the
 ## height of each and the one hole in it, the stairs' or the hatch's): an
 ## opening of another storey is seen only through the holes between.
+##
+## The same floors hide the rooms' own lamps (watch_lamps()): one on another
+## storey burns for the eye only while its light comes through a hole
+## between, or the eye sees through the hole what it lights (floors_hide()).
 ##
 ## The wedges are those of an eye anywhere within a step of where it was
 ## looked from (step_at(): longer the further the openings are), so they
@@ -87,6 +91,16 @@ const KEEP := 1.0
 ## A village building is drawn while a wedge comes this near it (m): the
 ## reach of the lamps it hangs out.
 const LAMP_REACH := 10.0
+## A floor is no longer between an eye and a lamp once the eye is this near
+## its height (m): on the stairs it sees both storeys.
+const FLOOR_PASSED := 0.5
+## The eye's sight through a floor's hole is closed in on in this many
+## steps, each a third nearer (seen_through()), and what comes within
+## SEARCH_MARGIN (m) of a lamp's reach counts as lit by it.
+const SEARCH_STEPS := 16
+const SEARCH_MARGIN := 0.05
+## The lamps are looked over again once the eye has moved this far, m.
+const LAMP_STEP := 0.1
 ## Seconds between two lines of the log (see `debug`).
 const LOG_EVERY := 1.0
 
@@ -115,6 +129,10 @@ var _looked_light := Vector3.ZERO
 ## state}; `cast` is the node's own shadow setting, -1 for a building.
 var _watched := {}
 var _watched_key := -1
+## The rooms' lamps the floors may hide, and how many of them they do now.
+var _lamps: Array[Light3D] = []
+var _lamps_hidden := 0
+var _lamps_from := Vector3.INF
 var _logged := 0.0
 
 ## What an eye sees of the outdoors: the wedges, as planes whose normals look
@@ -463,6 +481,75 @@ func is_inside(eye: Vector3) -> bool:
 			return true
 	return false
 
+## Whether the floors keep from an eye within `slack` of `eye` all the light
+## of a lamp at `at` that reaches `reach` m: some floor between the two whose
+## hole the light does not reach, and through whose hole the eye sees nothing
+## the lamp lights.
+func floors_hide(eye: Vector3, at: Vector3, reach: float, slack := 0.0) -> bool:
+	for slab: Dictionary in _floors:
+		var height: float = slab.height
+		if (eye.y < height) == (at.y < height) or absf(eye.y - height) <= FLOOR_PASSED + slack:
+			continue
+		var hole: Rect2 = slab.hole
+		var nearest := Vector3(clampf(at.x, hole.position.x, hole.end.x), height, clampf(at.z, hole.position.y, hole.end.y))
+		if at.distance_to(nearest) > reach and not seen_through(eye, height, hole, at, reach, slack):
+			return true
+	return false
+
+## Whether an eye within `slack` of `eye` sees, through the `hole` of a floor
+## at `height`, anything within `reach` of `at`. What an eye sees past the
+## floor is the hole carried on from it: `t` times as far as the floor, the
+## hole `t` times as far from the eye every way. From `at` to that rectangle
+## is a way convex in `t`, so its least is closed in on from both sides.
+static func seen_through(eye: Vector3, height: float, hole: Rect2, at: Vector3, reach: float, slack := 0.0) -> bool:
+	var rise := height - eye.y
+	var low := Vector2(hole.position.x - eye.x - slack, hole.position.y - eye.z - slack)
+	var high := Vector2(hole.end.x - eye.x + slack, hole.end.y - eye.z + slack)
+	var to := at - eye
+	# Further on the rectangle is past the lamp's reach by its height alone.
+	var from := 1.0
+	var till := maxf((absf(to.y) + reach) / absf(rise), 1.0)
+	for halving in SEARCH_STEPS:
+		var third := (till - from) / 3.0
+		if hole_gap(from + third, low, high, rise, to, slack) < hole_gap(till - third, low, high, rise, to, slack):
+			till -= third
+		else:
+			from += third
+	return hole_gap((from + till) * 0.5, low, high, rise, to, slack) <= reach + SEARCH_MARGIN
+
+## From a point `to` (from the eye) to the hole carried `t` times as far as
+## its floor (see seen_through()), m. The hole's sides `low` and `high` are
+## from the eye too and already `slack` wider: so far an eye off its place
+## moves the carried hole sideways, and (t - 1) times as far up or down.
+static func hole_gap(t: float, low: Vector2, high: Vector2, rise: float, to: Vector3, slack: float) -> float:
+	return Vector3(maxf(maxf(low.x * t - to.x, to.x - high.x * t), 0.0),
+		maxf(absf(rise * t - to.y) - slack * (t - 1.0), 0.0),
+		maxf(maxf(low.y * t - to.z, to.z - high.y * t), 0.0)).length()
+
+## Gives the rooms' lamps that burn all the time: from now on the floors hide
+## them from an eye in the rooms (floors_hide()).
+func watch_lamps(lamps: Array[Light3D]) -> void:
+	_lamps = lamps
+
+## Hides each watched lamp the floors keep from `eye`; shows them all when
+## `hiding` is not set.
+func _cull_lamps(hiding: bool, eye: Vector3) -> void:
+	if not hiding:
+		if _lamps_hidden == 0:
+			return
+		eye = Vector3.INF
+	elif eye.distance_to(_lamps_from) < LAMP_STEP:
+		return
+	_lamps_from = eye
+	_lamps_hidden = 0
+	for lamp: Light3D in _lamps:
+		var reach: float = (lamp as OmniLight3D).omni_range if lamp is OmniLight3D else (lamp as SpotLight3D).spot_range
+		var hidden := hiding and floors_hide(eye, lamp.global_position, reach, LAMP_STEP + SLACK)
+		_lamps_hidden += int(hidden)
+		if lamp.visible == hidden:
+			lamp.visible = not hidden
+	counts[&"lamps"] = Vector2i(_lamps_hidden, _lamps.size())
+
 ## How far an eye at `eye` may move before it is looked from again, m.
 func step_at(eye: Vector3) -> float:
 	var nearest := INF
@@ -532,6 +619,8 @@ func _process(delta: float) -> void:
 	var camera := get_viewport().get_camera_3d()
 	var inside := enabled and camera != null and tavern != null and not _openings.is_empty() \
 		and is_inside(camera.global_position) and not _shelter_drawing()
+	# A reflection probe must be captured with every lamp that lights its room.
+	_cull_lamps(inside and not tavern.probes_awaited(), camera.global_position if inside else Vector3.ZERO)
 	if not inside:
 		if sight.active:
 			sight = Sight.new()
@@ -582,14 +671,16 @@ static func set_shadow_reach(sky: SkySystem, reach: float) -> void:
 		Vector2(sky.sun.directional_shadow_fade_start, 1.0) * distance)
 
 ## Takes under watch what stands still outdoors and holds its own place: the
-## stones, the old map's pieces, each village building as one. Again whenever
-## the level has other children than at the last look.
+## stones, the old map's pieces, the lake bed's, each village building as
+## one. Again whenever the level has other children than at the last look.
 func _collect() -> void:
 	var level := tavern.get_parent()
 	var key := level.get_child_count()
 	for child: Node in level.get_children():
 		if child is RockField or child.name == &"Map":
 			key = key * 31 + child.get_child_count()
+		elif child is WildlifeSystem and (child as WildlifeSystem).bed != null:
+			key = key * 31 + (child as WildlifeSystem).bed.get_child_count()
 	if key == _watched_key:
 		return
 	_release()
@@ -610,6 +701,11 @@ func _collect() -> void:
 				elif item is MultiMeshInstance3D and (item as MultiMeshInstance3D).multimesh.custom_aabb.has_volume():
 					_watch(item, item.global_transform * (item as MultiMeshInstance3D).multimesh.custom_aabb,
 						item.cast_shadow, keep)
+		elif child is WildlifeSystem and (child as WildlifeSystem).bed != null:
+			var bed := (child as WildlifeSystem).bed
+			for item: GeometryInstance3D in bed.find_children("*", "GeometryInstance3D", true, false):
+				if item.is_visible_in_tree():
+					_watch(item, bed.seen_bounds(item), item.cast_shadow, keep)
 
 func _watch(node: Node3D, box: AABB, cast: int, keep: AABB) -> void:
 	if box.intersects(keep):

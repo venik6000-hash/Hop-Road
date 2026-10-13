@@ -68,6 +68,11 @@ const PLANTS := {
 	"reed": {"variants": 3, "height": 2.2, "depth": Vector2(-0.4, 0.9), "slope": 0.6, "spacing": 0.8,
 		"patches": 28, "radius": Vector2(2.0, 5.5), "range": 150.0, "size": Vector2(0.8, 1.15)},
 }
+## Through the water a thing is seen nearer the eye than it lies, by no more
+## than this share of its depth (the steepest a ray goes down under a flat
+## surface, and what the waves add), and this much (m) for its swaying.
+const SEEN_SPREAD := 1.5
+const SEEN_SWAY := 1.0
 ## Where the lake is searched (world x, z).
 const LAKE := Rect2(-192.0, -114.0, 165.0, 124.0)
 ## The village beach and pier (the beach zone of
@@ -145,3 +150,21 @@ func _slope(point: Vector3) -> float:
 
 func _reed_shore(point: Vector3) -> bool:
 	return Plants.reed_shore(self, point)
+
+## The box an eye over the lake may see `piece` in (seen_box()).
+func seen_bounds(piece: GeometryInstance3D) -> AABB:
+	return seen_box(piece.global_transform * piece.get_aabb(), habitat.terrain.water_level)
+
+## The box an eye over water at `water_level` may see in what fills `box`:
+## the box itself, up to the surface over it, and as much wider as the water
+## shifts what lies deep.
+static func seen_box(box: AABB, water_level: float) -> AABB:
+	box = box.grow(SEEN_SWAY)
+	var depth := water_level - box.position.y
+	if depth <= 0.0:
+		return box
+	var spread := depth * SEEN_SPREAD
+	box.position -= Vector3(spread, 0.0, spread)
+	box.size += Vector3(spread, 0.0, spread) * 2.0
+	box.size.y = maxf(box.size.y, depth)
+	return box

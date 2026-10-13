@@ -92,9 +92,10 @@ func _process(_delta: float) -> void:
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS if render else SubViewport.UPDATE_DISABLED
 	water.material.set_shader_parameter("refraction_ready", active and warm)
 	if not active: return
-	# Half the window's own pixels: the visible rect is the 1080p canvas the
-	# interface is laid out on, whatever the window measures.
-	var size := Vector2i(Vector2(get_viewport().size) * 0.5)
+	# Half the pixels the scene itself is shaded in: a window larger than the
+	# render tier's budget is enlarged from them, and the lake's bed needs no
+	# more than the lake.
+	var size := Vector2i(Vector2(get_viewport().size) * (get_viewport().scaling_3d_scale * 0.5))
 	size.x = clampi(size.x,320,960)
 	size.y = clampi(size.y,180,540)
 	if viewport.size != size:

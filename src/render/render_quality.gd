@@ -3,12 +3,12 @@ extends RefCounted
 ##
 ## "maximum" is the picture as it was authored, 1280 x 720 shaded pixels
 ## resolved by TAA, in a window of that size or smaller. Every tier shades a
-## fixed number of pixels, whatever the window measures, and lets MetalFX
-## rebuild a larger window's resolution from them over the frames. That upscaler resolves the same
-## per-frame jitter TAA does (cloud march, foliage alpha, the trees' LOD
-## dither), so nothing that relies on it changes. The tiers also shorten the
-## work whose cost does not fall with the pixel count: the sun's shadow range,
-## the cloud march and the ambient occlusion.
+## fixed number of pixels, whatever the window measures; a larger window gets
+## them resolved by TAA and enlarged by FSR 1. (MetalFX's temporal upscaler
+## left a grid of dots along every hard edge of a still picture, which
+## flickered from frame to frame; FSR 2 costs more than it saves here.) The
+## tiers also shorten the work whose cost does not fall with the pixel count:
+## the sun's shadow range, the cloud march and the ambient occlusion.
 
 const TIERS := ["performance", "balanced", "maximum"]
 const DEFAULT := "balanced"
@@ -24,15 +24,6 @@ const PRESETS := {
 	"maximum": {"pixels": 921600, "ssao": RenderingServer.ENV_SSAO_QUALITY_MEDIUM,
 		"shadow_distance": 160.0, "shadow_size": 4096, "shadow_blend": true, "cloud_steps": 64},
 }
-## The upscaler's input must stay inside its range after the sizes are
-## rounded to whole pixels.
-const SCALE_MARGIN := 1.03
-## Texture mip bias under the temporal upscaler, on top of the engine's own
-## for the scale. The upscaler rebuilds the window's detail from jittered
-## frames, so textures bear a sharper level than the shaded pixels alone
-## would: grass blades, bark and ground read crisper at no cost in frame time.
-const TEMPORAL_MIP_BIAS := -0.5
-
 static func valid(tier: String) -> String:
 	return tier if tier in TIERS else DEFAULT
 
@@ -65,35 +56,19 @@ static func apply_resolution(viewport: Viewport, tier: String) -> float:
 	if size.x * size.y > budget:
 		scale = sqrt(budget / (size.x * size.y))
 	viewport.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
-	var limits := _temporal_upscale_range()
-	if scale < 0.999 and limits.y > 0.0:
-		scale = clampf(scale, limits.x * SCALE_MARGIN, limits.y)
-		viewport.use_taa = false
-		viewport.scaling_3d_mode = Viewport.SCALING_3D_MODE_METALFX_TEMPORAL
-		viewport.texture_mipmap_bias = TEMPORAL_MIP_BIAS
-	elif scale < 0.999:
-		# No temporal upscaler on this device: TAA on the smaller image, then
-		# FSR 1 to the window. (FSR 2 costs more than it saves here.)
+	if scale < 0.999:
 		scale = maxf(scale, 0.5)
-		viewport.use_taa = true
 		viewport.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR
-		viewport.texture_mipmap_bias = 0.0
+		# FSR's own sharpening off (2 is none): it sharpened what TAA had left
+		# of its jitter, and a still picture crawled. SharpenPost sharpens.
+		viewport.fsr_sharpness = 2.0
 	else:
 		scale = 1.0
-		viewport.use_taa = true
 		viewport.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
-		viewport.texture_mipmap_bias = 0.0
+	viewport.use_taa = true
+	viewport.texture_mipmap_bias = 0.0
 	viewport.scaling_3d_scale = scale
 	# The engine measures the mesh LOD error in window pixels; keep it one
 	# pixel of the image that is actually shaded.
 	viewport.mesh_lod_threshold = 1.0 / scale
 	return scale
-
-## Smallest and largest 3D scale MetalFX's temporal scaler takes (0, 0 where
-## the device or the renderer has none).
-static func _temporal_upscale_range() -> Vector2:
-	var device := RenderingServer.get_rendering_device()
-	if device == null or not device.has_feature(RenderingDevice.SUPPORTS_METALFX_TEMPORAL):
-		return Vector2.ZERO
-	return Vector2(device.limit_get(RenderingDevice.LIMIT_METALFX_TEMPORAL_SCALER_MIN_SCALE),
-		device.limit_get(RenderingDevice.LIMIT_METALFX_TEMPORAL_SCALER_MAX_SCALE)) / 1e6

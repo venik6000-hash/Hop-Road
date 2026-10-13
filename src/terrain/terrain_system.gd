@@ -29,6 +29,8 @@ const PATCH_QUADS := 32
 const LOD0_SIZE := 8.0
 const LEVELS := 12
 const MAX_NODES := 1400
+## A tile this near an opening's wedge (m) is drawn for an eye indoors.
+const SIGHT_MARGIN := 4.0
 ## Metres to a repeat of each layer (the L_* of terrain.gdshader). The last
 ## is no scan of its own: a yard's trodden earth, the scan of the forest's
 ## floor laid finer.
@@ -98,6 +100,9 @@ var _selection_valid := false
 var _selection_eye := Vector3.ZERO
 var _selection_planes: Array[Plane] = []
 var _selection_origin := Vector2.ZERO
+## The revision of the tavern's portals the tiles were chosen by (-1: outdoors).
+var _selection_sight := -1
+var _sight: TavernPortals.Sight
 
 func _ready() -> void:
 	meta = JSON.parse_string(FileAccess.get_file_as_string(DATA + "terrain.json"))
@@ -217,9 +222,15 @@ func _process(_delta: float) -> void:
 	var eye := view.global_position
 	material.set_shader_parameter("terrain_camera", eye)
 	var planes: Array[Plane] = view.get_frustum()
+	# An eye in the tavern's rooms sees the ground through the openings alone.
+	var portals := TavernPortals.current if camera == null else null
+	var sight: TavernPortals.Sight = portals.sight if portals != null and portals.sight.active else null
+	var revision := portals.revision if sight != null else -1
 	if _selection_valid and eye == _selection_eye and planes == _selection_planes \
-			and far_origin == _selection_origin:
+			and far_origin == _selection_origin and revision == _selection_sight:
 		return
+	_sight = sight
+	_selection_sight = revision
 	_selection_valid = true
 	_selection_eye = eye
 	_selection_planes = planes
@@ -246,7 +257,7 @@ func _visit(x: float, z: float, size: float, level: int, eye: Vector3, planes: A
 	var boost := detail_boost(bounds.end.y)
 	if not _within(bounds, eye, _ranges[level] * boost):
 		return false
-	if not _visible(bounds, planes):
+	if not _seen(bounds, planes):
 		return true
 	if level == 0 or not _within(bounds, eye, _ranges[level - 1] * boost):
 		_emit(false, x, z, size, level)
@@ -257,7 +268,7 @@ func _visit(x: float, z: float, size: float, level: int, eye: Vector3, planes: A
 	for index: int in 4:
 		var child := Vector2(x + half if index & 1 else x, z + half if index & 2 else z)
 		if not _visit(child.x, child.y, half, level - 1, eye, planes):
-			if _visible(_bounds(child.x, child.y, half), planes):
+			if _seen(_bounds(child.x, child.y, half), planes):
 				_emit(true, child.x, child.y, half, level)
 	return true
 
@@ -338,6 +349,11 @@ func detail_boost(height: float) -> float:
 static func _within(bounds: AABB, eye: Vector3, radius: float) -> bool:
 	var nearest := eye.clamp(bounds.position, bounds.end)
 	return nearest.distance_squared_to(eye) <= radius * radius
+
+## In the view, and for an eye indoors behind an opening: the box is taken
+## SIGHT_MARGIN larger, for the lake's refraction, which looks a little aside.
+func _seen(bounds: AABB, planes: Array[Plane]) -> bool:
+	return _visible(bounds, planes) and (_sight == null or _sight.sees_box(bounds.grow(SIGHT_MARGIN)))
 
 static func _visible(bounds: AABB, planes: Array[Plane]) -> bool:
 	for plane in planes:

@@ -69,6 +69,10 @@ const SUN_LAYERS := SUN_LAYER | ROOM_SUN_LAYER
 const RESTLESS_LAYER := 8192
 ## Metres from the building within which the rooms cast the sun's shadows.
 const ROOM_SHADOW_REACH := 10.0
+## A room's reflection probe is captured in at most this many drawn frames,
+## one probe at a time: its six faces, then its roughness levels, the first
+## of them face by face.
+const PROBE_FRAMES := 24
 ## The floor of the tavern in the map (the builder's FLOOR), for the grime.
 const GROUND := 6.6
 const PROBE_PADDING := TAVERN_LIGHTS.PROBE_PADDING
@@ -91,6 +95,9 @@ var mesh_count := 0
 var replaced := 0
 var bodies := 0
 var doors: Array[TavernDoor] = []
+## The rooms' lamps that burn day and night (TavernLights.add_light): the
+## floors between hide them from an eye on another storey (TavernPortals).
+var steady_lamps: Array[Light3D] = []
 var seats: Array[Dictionary] = []
 
 var _materials := {}
@@ -115,6 +122,10 @@ var _flame_origins := PackedVector3Array()
 var room_shadow_bounds: Array[AABB] = []
 var _room_probes: Array[ReflectionProbe] = []
 var _last_probe_hour := -1000.0
+## The probes were told to capture and may not be done before the frame
+## counted here is drawn (see await_probes()).
+var _probes_awaited := false
+var _probes_done_at := 0
 var _last_dark := -1.0
 var _rooms_cast := -1
 var _body: StaticBody3D
@@ -140,6 +151,9 @@ func _ready() -> void:
 	TAVERN_LIGHTS.add_hearth_fires(self)
 	TAVERN_LIGHTS.add_halos(self)
 	contact_shadows.watch(room_lamps(), room_boxes(), global_transform * BUILDING_BOUNDS)
+	if portals != null:
+		portals.watch_lamps(steady_lamps)
+	await_probes()
 	_process(0.0)
 	var occlusion := preload("res://src/tavern/tavern_occlusion.gd").new()
 	occlusion.name = "InteriorOcclusion"
@@ -220,6 +234,10 @@ func _process(_delta: float) -> void:
 				(lantern.light as Light3D).light_energy = lantern.energy * dark
 				(lantern.light as Light3D).visible = dark > 0.01
 	_update_room_lighting()
+	if _probes_awaited and Engine.get_frames_drawn() > _probes_done_at:
+		_probes_awaited = false
+		for probe: ReflectionProbe in _room_probes:
+			RenderingServer.instance_set_ignore_culling(probe.get_instance(), false)
 	_update_sun_casters()
 	var camera := get_viewport().get_camera_3d()
 	if camera != null:
@@ -276,6 +294,20 @@ func _update_room_lighting() -> void:
 		# Requeue one capture when the sun changes, rather than keeping daytime
 		# reflections at night or rendering eight cubemaps every frame.
 		probe.update_mode = ReflectionProbe.UPDATE_ONCE
+	await_probes()
+
+## The probes are to capture their rooms. The engine captures a probe only
+## once a camera's culling has let it through, so until all have had their
+## frames none of them is culled, and probes_awaited() tells whoever hides a
+## lamp of the rooms to leave it burning.
+func await_probes() -> void:
+	_probes_awaited = true
+	_probes_done_at = Engine.get_frames_drawn() + PROBE_FRAMES * _room_probes.size()
+	for probe: ReflectionProbe in _room_probes:
+		RenderingServer.instance_set_ignore_culling(probe.get_instance(), true)
+
+func probes_awaited() -> bool:
+	return _probes_awaited
 
 ## Hands the worn floors their map of where the ground floor is walked
 ## (tavern_wear.gd), once every part's colliders, doors and seats are in.

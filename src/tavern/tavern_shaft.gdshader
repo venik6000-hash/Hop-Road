@@ -10,7 +10,7 @@ shader_type spatial;
 // height of the springing over the sill and the opening's number.
 render_mode unshaded, blend_add, cull_front, depth_test_disabled, depth_draw_never, shadows_disabled, fog_disabled;
 
-const int STEPS = 12;
+const int STEPS = 16;
 
 uniform sampler2D depth_texture : hint_depth_texture, filter_nearest, repeat_disable;
 // The sun's way through the room (a unit vector) and how far the beam is followed, m.
@@ -93,11 +93,11 @@ void fragment() {
 		discard;
 	}
 	float pace = (span.y - span.x) / float(STEPS);
-	// Each pixel starts its steps elsewhere: bands become grain.
-	float start = fract(52.9829189 * fract(dot(FRAGCOORD.xy, vec2(0.06711056, 0.00583715))));
+	// The steps are taken at the same places in every pixel: the beam's
+	// edges are soft enough to show no bands, and grain would crawl.
 	float sum = 0.0;
 	for (int i = 0; i < STEPS; i++) {
-		float s = span.x + (float(i) + start) * pace;
+		float s = span.x + (float(i) + 0.5) * pace;
 		float along = (along_at + along_by * s) / reach;
 		float u = abs(u_at + u_by * s);
 		float v = left_at.y + left_by.y * s;
