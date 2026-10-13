@@ -54,6 +54,12 @@ const ROOM_SUN_LAYER := 4096
 ## Both are the sun's alone: a lantern's shadow map must leave them out, or
 ## the ivy they carry is drawn into it again in every frame.
 const SUN_LAYERS := SUN_LAYER | ROOM_SUN_LAYER
+## What never stands still outdoors and casts the sun's shadow: a mill's
+## wheel, a goat. A lamp with a shadow draws its map again in every frame in
+## which such a thing moves in its light, in the map or not. A village
+## building's lamp outdoors that casts a shadow leaves this layer to a twin
+## that casts none (VillageBuilding.twin_for_the_restless).
+const RESTLESS_LAYER := 8192
 ## Metres from the building within which the rooms cast the sun's shadows.
 const ROOM_SHADOW_REACH := 10.0
 ## The floor of the tavern in the map (the builder's FLOOR), for the grime.

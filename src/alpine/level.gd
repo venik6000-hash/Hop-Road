@@ -409,8 +409,12 @@ func setup_buildings() -> void:
 		building.falls = waterfall
 		add_child(building)
 		buildings.append(building)
-		eye_adaptation.rooms.append_array(building.room_boxes())
-		tavern.room_shadow_bounds.append(building.bounds)
+		var rooms := building.room_boxes()
+		eye_adaptation.rooms.append_array(rooms)
+		# Only a building with rooms has pieces indoors for the sun to shade
+		# (a boardwalk or a row of lanterns has none, and may be as long as the village).
+		if not rooms.is_empty():
+			tavern.room_shadow_bounds.append(building.bounds)
 
 ## Scanned boulders and cliff faces in place of the Blender blockout stones;
 ## before the vegetation, whose obstacle scan must see their colliders.
@@ -562,6 +566,8 @@ func _process(delta: float) -> void:
 		var heading := deg_to_rad(ocean.wind_direction_deg)
 		vegetation.wind = Vector4(cos(heading), sin(heading), minf(pow(ocean.wind_speed / 9.0, 1.6), 2.2), ocean.wind_speed)
 		_wind_sent = vegetation.wind
+		for building: VillageBuilding in buildings:
+			building.take_wind(heading)
 
 func setup_smoke() -> void:
 	CHIMNEY_SMOKE.build(self, manifest, terrain)

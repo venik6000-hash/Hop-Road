@@ -10,8 +10,8 @@ extends TavernSystem
 ## for that part of the day only: the forge's, the smith's candle. With the
 ## lamp of a fire the table draws (`fires`) go its flames and the hot air
 ## over them, the smoke of its vent and its glow from afar. What the table
-## has moving (`turning`, `moving`) is BuildingMachinery's, and a fire the
-## bellows blow flares with their air; its `water` is MillWater's.
+## has moving (`turning`, `moving`, `vanes`) is BuildingMachinery's, and a
+## fire the bellows blow flares with their air; its `water` is MillWater's.
 
 const VILLAGE_BUILDINGS = preload("res://src/village/village_buildings.gd")
 ## The buildings in the tree: the vegetation's obstacle scan reaches as far as
@@ -19,6 +19,10 @@ const VILLAGE_BUILDINGS = preload("res://src/village/village_buildings.gd")
 const GROUP := &"village_building"
 ## A candle's light behind a window, for the glow the window is from afar.
 const WINDOW_GLOW := Color(1.0, 0.64, 0.34)
+## How far a room's probe reaches past the room. The tavern's walls are half
+## a metre of stone; a wall here may be a board, and a probe that reached
+## through it would give the wall's weather side the room's darkness.
+const PROBE_REACH := 0.12
 ## A fire under a full draught of the bellows: how much taller its flames
 ## stand, and how much brighter its lamps burn.
 const FLARE := 0.45
@@ -33,7 +37,7 @@ var bounds := AABB()
 ## The falls, whose water a mill's is (the table's `water`); set before it
 ## enters the tree.
 var falls: WaterfallSystem
-## What moves, where the table has `turning` or `moving`.
+## What moves, where the table has `turning`, `moving` or `vanes`.
 var machinery: BuildingMachinery
 
 ## What the table's `hours` keep burning, by the name they share: {from, to
@@ -43,6 +47,8 @@ var _kept := {}
 ## The table's `fires`: {fire: HearthFire, blown (the machinery's group whose
 ## air it takes), flames (its lamps' places in _flames), draught}.
 var _fires: Array[Dictionary] = []
+## The lamps that leave what never stands outdoors to a twin: {lamp, twin}.
+var _twins: Array[Dictionary] = []
 var _far: FarLights
 
 func _ready() -> void:
@@ -62,7 +68,7 @@ func _ready() -> void:
 		optic.sky_system = sky_system
 		add_child(optic)
 		optic.configure(table.optic)
-	if table.has("turning") or table.has("moving"):
+	if table.has("turning") or table.has("moving") or table.has("vanes"):
 		machinery = BuildingMachinery.new()
 		machinery.name = "Machinery"
 		add_child(machinery)
@@ -77,13 +83,15 @@ func _ready() -> void:
 			var box := item.global_transform * item.mesh.get_aabb()
 			bounds = box if mesh_count == 0 else bounds.merge(box)
 			TAVERN_DRESSING.dress(self, item, room)
+			if not room and stands_outdoors(str(item.name), table):
+				item.layers &= ~LAYER
 		# The flames the model has stand for the pictures: the game draws its own.
 		if table.has("fires"):
 			TAVERN_DRESSING.remove_replaced_fire(scene)
 		if optic != null:
 			optic.take(scene)
 		if machinery != null:
-			machinery.take(scene)
+			machinery.take(scene, room)
 		_batch(scene, room)
 	var hours: Dictionary = table.get("hours", {})
 	for kept: String in hours:
@@ -96,10 +104,13 @@ func _ready() -> void:
 		light.shadow_enabled = config.shadow or config.get("layer", "interior") == "interior"
 		if _kept.has(config.name):
 			_kept[config.name].lamps.append(light)
+		if light.shadow_enabled and config.get("layer", "interior") == "exterior":
+			_twins.append({"lamp": light, "twin": twin_for_the_restless(light)})
 	for config: Dictionary in table.get("fires", []):
 		_add_fire(config)
 	for config: Dictionary in table.get("probes", []):
 		TAVERN_LIGHTS.add_probe(self, config)
+		_room_probes[-1].size = probe_size(config.extents)
 	if table.has("water") and falls != null:
 		var water := MillWater.new()
 		water.name = "Water"
@@ -130,6 +141,8 @@ func _process(delta: float) -> void:
 	super(delta)
 	for entry: Dictionary in _fires:
 		_blow(entry)
+	for pair: Dictionary in _twins:
+		(pair.twin as Light3D).light_energy = (pair.lamp as Light3D).light_energy
 	if sky_system == null:
 		return
 	var hour := sky_system.time_of_day
@@ -161,6 +174,38 @@ func _blow(entry: Dictionary) -> void:
 	for index: int in entry.flames:
 		if index < _flame_energies.size():
 			_flame_energies[index] = float(_flames[index].energy) * (1.0 + FLARE_LIGHT * draught)
+
+## The wind blows along `wind_heading` (OceanFFT.wind_direction_deg, in
+## radians): what the building has for the wind to turn comes round to it.
+func take_wind(wind_heading: float) -> void:
+	if machinery != null:
+		machinery.face(global_basis.inverse() * Vector3(cos(wind_heading), 0.0, sin(wind_heading)))
+
+## A lamp outdoors that casts a shadow would draw its map again in every
+## frame beside a wheel that never stands or a goat that grazes
+## (TavernSystem.RESTLESS_LAYER). It leaves them out of its light; its twin,
+## the lamp once more with no shadow, lights nothing else. The twin is the
+## lamp's child: it is lit and put out with it.
+static func twin_for_the_restless(lamp: Light3D) -> Light3D:
+	lamp.light_cull_mask &= ~TavernSystem.RESTLESS_LAYER
+	var twin := lamp.duplicate(0) as Light3D
+	twin.name = "OnTheRestless"
+	twin.transform = Transform3D.IDENTITY
+	twin.shadow_enabled = false
+	twin.light_cull_mask = TavernSystem.RESTLESS_LAYER
+	lamp.add_child(twin)
+	return twin
+
+## The box of the probe over a room of these half-extents.
+static func probe_size(extents: Array) -> Vector3:
+	return (Vector3(extents[0], extents[1], extents[2]) + Vector3.ONE * PROBE_REACH) * 2.0
+
+## Whether the shell's piece `piece` stands outside every room (the table's
+## `outdoors`, by how the names begin). Such a piece takes no room's probe
+## and no room's lamp: a round tower's stone lies in the corners of the box
+## its stair's probe is.
+static func stands_outdoors(piece: String, table: Dictionary) -> bool:
+	return VILLAGE_BUILDINGS.begins(piece, PackedStringArray(table.get("outdoors", [])))
 
 ## Whether a fire kept from `from` to `to` (hours of the day; past midnight
 ## when `to` is the smaller) burns at `hour`.

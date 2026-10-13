@@ -1,6 +1,6 @@
 # Hop Road
 
-Тестовая карта игры «Хмельная тропа»: альпийская долина с таверной, озером и деревней. По ней можно ходить, плавать, рыбачить с лодки, разжигать костёр, менять погоду и время суток. В деревне стоят пивоварня, кузница и мельница с водяным колесом, на острове — маяк; у жителей свой распорядок дня, с ними можно разговаривать.
+Тестовая карта игры «Хмельная тропа»: альпийская долина с таверной, озером и деревней. По ней можно ходить, плавать, рыбачить с лодки, разжигать костёр, менять погоду и время суток. В деревне стоят пивоварня, кузница, мельница с водяным колесом, бондарня, дом фонарщика и хмелесушильня с хмельником, на острове — маяк, у причала — каменная пристань; дороги ночью освещают фонари. У жителей свой распорядок дня, с ними можно разговаривать.
 
 Проект Godot 4.7.2 (Forward+). Проверен на macOS (Apple M1, Metal); на Windows и Linux не запускался.
 
@@ -55,11 +55,11 @@
 
 В этой версии нет кисти руки, которая держит кружку, и модели одного из жителей: лицензия Sketchfab Standard не разрешает выкладывать файлы этих моделей. Кружку держит один рукав; повар и его брат-фонарщик выглядят как монах, одного из прохожих нет.
 
-Пивоварня, кузница, мельница и маяк добавлены 12 октября 2026 года: по ним можно ходить, но материалы и свет на них ещё не подбирались.
+Постройки деревни добавлены 12 октября 2026 года: пивоварня, кузница, мельница, маяк, дом фонарщика, хмелесушильня с хмельником, бондарня, гать через плавни, мостки для стирки, пристань и восемь фонарей дороги. По ним можно ходить, но яркость ламп и материалы на них ещё не подбирались.
 
 ## In English
 
-A test map of the game "The Hop Road": an alpine valley with a tavern, a lake and a village. You can walk, swim, fish from a boat, light a campfire, and change the weather and the time of day. The village has a brewery, a smithy and a water mill, and a lighthouse stands on the island; the villagers keep their own hours and can be talked to.
+A test map of the game "The Hop Road": an alpine valley with a tavern, a lake and a village. You can walk, swim, fish from a boat, light a campfire, and change the weather and the time of day. The village has a brewery, a smithy, a water mill, a cooperage, a lamplighter's house and a hop kiln with its hop garden; a lighthouse stands on the island, a stone quay at the pier, and lanterns light the roads at night. The villagers keep their own hours and can be talked to.
 
 To run it, install [Godot 4.7.2](https://godotengine.org/download/archive/4.7.2-stable/) (standard build), download this repository (about 1.7 GB), import `project.godot` in the Godot project manager, wait for the first import (about seven minutes on an Apple M1, 1.3 GB more in `.godot/`) and press F5. Run it from the editor: an exported build has not been tested end to end. The first launch takes longer because the shaders compile. Tested on macOS (Apple M1, Metal) only.
 
@@ -67,4 +67,4 @@ Keys: WASD and mouse to move, Shift to run, E to interact, V to drink, K for a c
 
 Third-party assets keep their own licences (CC0, CC BY 4.0, CC BY 3.0, CC BY-SA 3.0, MIT): see the `CREDITS.*`, `SOURCES.json` and `license.txt` files next to them in `assets/`.
 
-The hand that holds the mug and one villager model are left out: their Sketchfab Standard licence does not allow sharing the model files. The cook and his brother wear the monk's model instead. The brewery, the smithy, the mill and the lighthouse are new (12 October 2026): they can be walked through, their materials and lights are not tuned yet.
+The hand that holds the mug and one villager model are left out: their Sketchfab Standard licence does not allow sharing the model files. The cook and his brother wear the monk's model instead. The village's buildings are new (12 October 2026): the brewery, the smithy, the mill, the lighthouse, the lamplighter's house, the hop kiln and hop garden, the cooperage, a corduroy road through the marsh, a washing stage, the quay and eight road lanterns. They can be walked through; their lamps and materials are not tuned yet.

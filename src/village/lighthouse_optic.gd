@@ -46,6 +46,9 @@ func take(scene: Node3D) -> void:
 	for item: MeshInstance3D in scene.find_children("*", "MeshInstance3D", true, false):
 		if int(item.get_meta("extras", {}).get("lh_turning", 0)) == 1:
 			item.reparent(_turn, true)
+			# The optic never stands: casting a shadow, it would have the
+			# candle on the landing below draw its map again in every frame.
+			item.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 func _add_beam(beam: Dictionary) -> void:
 	var d: Array = beam.direction

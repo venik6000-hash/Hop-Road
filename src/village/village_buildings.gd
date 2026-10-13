@@ -9,6 +9,14 @@ const TABLES: Array[String] = [
 	"res://assets/models/lighthouse/lighthouse.json",
 	"res://assets/models/smithy/smithy.json",
 	"res://assets/models/mill/mill.json",
+	"res://assets/models/lamplighter/lamplighter.json",
+	"res://assets/models/hop_kiln/hop_kiln.json",
+	"res://assets/models/marsh_walk/marsh_walk.json",
+	"res://assets/models/wash_stage/wash_stage.json",
+	"res://assets/models/quay/quay.json",
+	"res://assets/models/road_lanterns/road_lanterns.json",
+	"res://assets/models/cooperage/cooperage.json",
+	"res://assets/models/hop_garden/hop_garden.json",
 ]
 
 static func tables() -> Array[Dictionary]:

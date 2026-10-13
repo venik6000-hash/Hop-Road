@@ -40,6 +40,10 @@ func _ready() -> void:
 		mesh.visibility_range_end = 100.0
 		mesh.visibility_range_end_margin = 10.0
 		mesh.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
+		# An animal never stands still: beside a lamp that casts a shadow it
+		# would have the lamp draw its map again in every frame (the goats ten
+		# metres from the forge did, all day).
+		mesh.layers = TavernSystem.RESTLESS_LAYER
 	if not reuse:
 		_bounds_cache[kind] = {"transform": global_transform, "bounds": bounds}
 	var factor := height / maxf(bounds.size.y, 0.001)

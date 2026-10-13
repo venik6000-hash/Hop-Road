@@ -80,8 +80,14 @@ void fragment() {
 	float foot = smoothstep(ground_level + 1.3, ground_level + 0.05, world_pos.y) * (1.0 - max(n.y, 0.0) * 0.6);
 	base *= 1.0 - grime * foot * mix(0.3, 0.55, weather.b) * open;
 
+	// As tavern_surface.gdshader does: a wall that runs along the map's
+	// diagonal x = z climbs the noise by the other diagonal, or its moss and
+	// lichen would be slanting stripes.
+	float turned = 1.0 - smoothstep(-0.15, -0.02, n.x * n.z);
+	vec2 climb = world_pos.y * vec2(1.0, -1.0);
 	if (moss > 0.0 && open > 0.01) {
-		float patch = texture(cloud_weather, world_pos.xz / 3.1 + vec2(world_pos.y * 0.21)).g;
+		float patch = mix(texture(cloud_weather, world_pos.xz / 3.1 + vec2(world_pos.y * 0.21)).g,
+				texture(cloud_weather, world_pos.xz / 3.1 + climb * 0.21).g, turned);
 		float cover = smoothstep(0.55, 0.95, n.y + (patch - 0.5) * 1.1 + (0.8 - orm.r) * 0.8) * moss * open;
 		if (cover > 0.01) {
 			vec3 green = grade(texture(moss_albedo, vec3(world_pos.xz / 2.4, moss_layer)).rgb, moss_grade);
@@ -90,7 +96,8 @@ void fragment() {
 		}
 	}
 	if (lichen > 0.0 && open > 0.01) {
-		float spots = texture(cloud_weather, world_pos.xz * 0.9 + vec2(world_pos.y * 0.7)).r;
+		float spots = mix(texture(cloud_weather, world_pos.xz * 0.9 + vec2(world_pos.y * 0.7)).r,
+				texture(cloud_weather, world_pos.xz * 0.9 + climb * 0.7).r, turned);
 		float cover = smoothstep(0.6, 0.68, spots) * smoothstep(-0.2, 0.4, n.y) * lichen * open;
 		base = mix(base, vec3(0.5, 0.46, 0.27) * (0.8 + 0.4 * spots), cover);
 	}

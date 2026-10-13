@@ -17,6 +17,11 @@ extends Node3D
 ## the hand. Where a piece names the place a hand takes hold of it (`hand`),
 ## a WorkHandle stands for its group there, for the player's hand; it goes
 ## by the title of the table's station named as the group.
+##
+## `vanes` (the hop kiln's cowl): pieces the wind turns about the vertical
+## through `pivot` (`tav_vane`: their id). `lee` is where the piece points as
+## built; face() tells where the wind blows to, and the piece comes round to
+## point there.
 
 ## Seconds a stroke takes, and the share of it that is the pull.
 const STROKE := 2.6
@@ -31,6 +36,8 @@ const DRAUGHT_FALL := 0.45
 const SPIN := 9.0
 const RUN_DOWN := 3.5
 const STANDS := 0.2
+## How fast a vane comes round to a new wind, radians a second.
+const VANE_PACE := 0.5
 
 ## The wheel's turns since the building loaded.
 var turns := 0.0
@@ -40,6 +47,8 @@ var _pivots := {}                     # id -> Node3D the pieces of that id hang 
 var _shafts: Array[Dictionary] = []   # {pivot, axis, ratio}
 var _parts: Array[Dictionary] = []    # {pivot, origin, axis, kind, travel, group}
 var _groups := {}                     # group -> {spins, strokes, phase, shut, draught, speed, angle, moved}
+var _vanes: Array[Dictionary] = []    # {pivot, built (the heading it points to as built), yaw, to}
+var _faced := false
 
 ## Stands in the building's frame; `table` is the building's.
 func configure(table: Dictionary) -> void:
@@ -73,16 +82,23 @@ func configure(table: Dictionary) -> void:
 			handle.group = group
 			handle.position = _vector(part.hand)
 			add_child(handle)
-	set_process(not _shafts.is_empty() or not _groups.is_empty())
+	for vane: Dictionary in table.get("vanes", []):
+		_vanes.append({"pivot": _pivot(str(vane.id), vane.pivot), "built": heading(_vector(vane.lee)), "yaw": 0.0, "to": 0.0})
+	set_process(not _shafts.is_empty() or not _groups.is_empty() or not _vanes.is_empty())
 
 ## Takes the marked pieces of a part scene onto their pivots, where they
-## stand; the scene is in the building's frame, as this node is. What moves
-## stays out of the lamps' shadow maps: a lamp draws its map again in every
-## frame in which a caster in its reach moves (TavernSystem.SHADOW_LAYER).
-func take(scene: Node3D) -> void:
+## stand; the scene is in the building's frame, as this node is (`indoors`:
+## it is the scene of the rooms). What moves stays out of the lamps' shadow
+## maps (TavernSystem.SHADOW_LAYER). That is not enough for what never
+## stands: a lamp draws its map again in every frame in which a shadow caster
+## it lights moves, in the map or not. So a shaft's pieces cast no shadow
+## indoors, and outdoors, where the sun needs the wheel's, they are on
+## TavernSystem.RESTLESS_LAYER alone: the rooms' lamps do not light it, and a
+## lamp outdoors that casts a shadow leaves it to its twin.
+func take(scene: Node3D, indoors := false) -> void:
 	for item: MeshInstance3D in scene.find_children("*", "MeshInstance3D", true, false):
 		var extras: Dictionary = item.get_meta("extras", {})
-		var id := str(extras.get("mill_turning", extras.get("tav_moving", "")))
+		var id := str(extras.get("mill_turning", extras.get("tav_moving", extras.get("tav_vane", ""))))
 		if not _pivots.has(id):
 			continue
 		var holder: Node3D = _pivots[id]
@@ -95,6 +111,11 @@ func take(scene: Node3D) -> void:
 		holder.add_child(item)
 		item.transform = (transform * holder.transform).affine_inverse() * placed
 		item.layers &= ~TavernSystem.SHADOW_LAYER
+		if extras.has("mill_turning"):
+			if indoors:
+				item.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			else:
+				item.layers = TavernSystem.RESTLESS_LAYER
 
 ## The hand on `group`: four strokes of what is pulled, a push to what spins.
 func work(group: String) -> void:
@@ -109,6 +130,20 @@ func work(group: String) -> void:
 ## How hard (0..1) the pulls of `group` blow now: the bellows' air on the fire.
 func draught(group: String) -> float:
 	return float(_groups[group].draught) if _groups.has(group) else 0.0
+
+## The wind blows towards `downwind` (the building's frame): the vanes come
+## round to point there. The first wind finds them there already.
+func face(downwind: Vector3) -> void:
+	for vane: Dictionary in _vanes:
+		vane.to = wrapf(heading(downwind) - float(vane.built), -PI, PI)
+		if not _faced:
+			vane.yaw = vane.to
+			(vane.pivot as Node3D).basis = Basis(Vector3.UP, float(vane.yaw))
+	_faced = true
+
+## The angle about the vertical of a direction: a turn by it takes +z there.
+static func heading(direction: Vector3) -> float:
+	return atan2(direction.x, direction.z)
 
 ## The node the pieces marked `id` hang on, or null.
 func pivot(id: String) -> Node3D:
@@ -126,6 +161,13 @@ func _process(delta: float) -> void:
 			var axis: Vector3 = shaft.axis
 			var ratio: float = shaft.ratio
 			(shaft.pivot as Node3D).basis = Basis(axis, TAU * fposmod(turns * ratio, 1.0))
+	for vane: Dictionary in _vanes:
+		var off := angle_difference(float(vane.yaw), float(vane.to))
+		if off == 0.0:
+			continue
+		var step := VANE_PACE * delta
+		vane.yaw = float(vane.to) if absf(off) <= step else float(vane.yaw) + signf(off) * step
+		(vane.pivot as Node3D).basis = Basis(Vector3.UP, float(vane.yaw))
 	for state: Dictionary in _groups.values():
 		_advance(state, delta)
 	for part: Dictionary in _parts:
