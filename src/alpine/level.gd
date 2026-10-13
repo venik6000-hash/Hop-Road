@@ -353,6 +353,7 @@ func setup_tavern() -> void:
 	tavern.name = "Tavern"
 	tavern.map = $Map
 	tavern.sky_system = sky_system
+	tavern.terrain = terrain
 	add_child(tavern)
 	eye_adaptation = EyeAdaptation.new()
 	eye_adaptation.name = "EyeAdaptation"
@@ -470,9 +471,10 @@ func setup_vegetation() -> void:
 	litter.rocks = rocks
 	add_child(litter)
 
-## The hot air and the rain's rings, the weather's fog, then the underwater
-## view, waterline and vignette, as compositor passes for every camera; and
-## what a storm adds to the land.
+## The contact shadows of the tavern's lamps on the opaque picture; then,
+## after the transparent things, the hot air and the rain's rings, the
+## weather's fog, the underwater view, waterline and vignette, as compositor
+## passes for every camera; and what a storm adds to the land.
 func setup_lens() -> void:
 	fog = AtmosphereFog.new()
 	fog.sky = sky_system
@@ -517,7 +519,7 @@ func setup_lens() -> void:
 	# its corners.
 	eye_adaptation.meter = LightMeter.new()
 	var compositor := Compositor.new()
-	compositor.compositor_effects = [refraction, fog, eye_adaptation.meter, lens]
+	compositor.compositor_effects = [tavern.contact_shadows, refraction, fog, eye_adaptation.meter, lens]
 	$WorldEnvironment.compositor = compositor
 
 func _process(delta: float) -> void:

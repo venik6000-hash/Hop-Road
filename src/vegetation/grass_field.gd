@@ -19,6 +19,10 @@ extends Node3D
 ## the low growth that hides the ground between the plants from an eye that
 ## looks down.
 ##
+## For an eye in the tavern's rooms the tiles and pieces no opening shows are
+## not drawn (TavernPortals); they are scattered and kept as ever, so that
+## nothing has to be waited for when the eye turns to another window.
+##
 ## Nothing in view is ever waited for: a tile needed at once (the first
 ## frame, a jump) is finished before that frame is drawn, the ring beyond is
 ## made ahead of the walk.
@@ -130,6 +134,10 @@ var _fade := Vector4.ZERO
 var _mat_fade := Vector2.ZERO
 var _wind := Vector4.ZERO
 var _wind_sent := false
+## What an eye in the tavern's rooms sees of the outdoors (null: all of it),
+## and the TavernPortals.revision the pieces were last shown by.
+var _sight: TavernPortals.Sight
+var _portal_revision := 0
 
 func _ready() -> void:
 	# Bounds are set in world space.
@@ -178,12 +186,22 @@ func follow(eye: Vector3, wind: Vector4) -> void:
 		_clear()
 	var fade := GrassScatter.fade_of(material)
 	var mat_fade := GrassScatter.mat_fade_of(material)
+	var portals := TavernPortals.current
+	var revision := portals.revision if portals != null else 0
+	_sight = portals.sight if portals != null and portals.sight.active else null
 	if not _surveyed or eye.distance_to(_eye) >= REFRESH_STEP or fade != _fade or mat_fade != _mat_fade:
 		_surveyed = true
 		_eye = eye
 		_fade = fade
 		_mat_fade = mat_fade
 		_look_over(eye, fade)
+	elif revision != _portal_revision:
+		for tile: Tile in _tiles.values():
+			_resee(tile)
+	if revision != _portal_revision:
+		_portal_revision = revision
+		if portals != null:
+			portals.counts[&"grass"] = hidden_count()
 	_collect(UPLOADS_PER_FRAME)
 
 ## Clumps and flowers the tiles hold, and how many of them are drawn; for the probes.
@@ -192,6 +210,20 @@ func clump_count() -> Vector2i:
 	for item: MultiMeshInstance3D in get_children():
 		count += Vector2i(item.multimesh.instance_count, item.multimesh.visible_instance_count if item.visible else 0)
 	return count
+
+## The pieces that hold clumps to draw and are hidden from an eye indoors,
+## and how many hold clumps to draw; for the portals' log.
+func hidden_count() -> Vector2i:
+	var count := Vector2i.ZERO
+	for item: MultiMeshInstance3D in get_children():
+		if item.multimesh.visible_instance_count != 0:
+			count += Vector2i(int(not item.visible), 1)
+	return count
+
+## Whether a piece with the bounds `box` is drawn for an eye that sees the
+## outdoors as `sight` has it (null: all of it).
+static func seen(sight: TavernPortals.Sight, box: AABB) -> bool:
+	return sight == null or sight.sees_box(box)
 
 ## The cover of the crowns of every tree of `grid` that has a mesh, over the
 ## square those trees stand in. `shades` holds, per species, a crown's radius
@@ -341,26 +373,71 @@ func _provide(tile: Tile, now: int, soon: int, distance: float) -> bool:
 ## distance, the first rows of what it holds, with the mesh that distance
 ## asks for.
 func _trim(tile: Tile, eye: Vector3, fade: Vector4) -> void:
+	if _out_of_sight(tile):
+		return
+	# A tile in one piece is seen as the tile is.
+	var whole := tile.piece == TILE
 	for key: Vector2i in tile.pieces:
+		var item: MultiMeshInstance3D = tile.pieces[key]
 		var distance := distance_to_tile(eye, Rect2(Vector2(key) * tile.piece, Vector2(tile.piece, tile.piece)), tile.span)
-		_limit(tile.pieces[key], tile.piece_rows[key], tile.piece_ranks[key],
-			GrassScatter.share(maxf(distance - REFRESH_STEP, 0.0), fade), _meshes[detail_for(distance)])
+		_limit(item, tile.piece_rows[key], tile.piece_ranks[key],
+			GrassScatter.share(maxf(distance - REFRESH_STEP, 0.0), fade), _meshes[detail_for(distance)],
+			whole or seen(_sight, item.custom_aabb))
 	if tile.flowers != null:
 		var distance := distance_to_tile(eye, tile.rect, tile.span)
 		_limit(tile.flowers, tile.flower_rows, tile.flower_ranks,
-			GrassScatter.share(maxf(distance - REFRESH_STEP, 0.0), fade, true), _flower_meshes[maxi(detail_for(distance), 1)])
+			GrassScatter.share(maxf(distance - REFRESH_STEP, 0.0), fade, true), _flower_meshes[maxi(detail_for(distance), 1)],
+			true)
 	# The mat has one mesh, so its rows are never asked for again.
 	for key: Vector2i in tile.mats:
+		var item: MultiMeshInstance3D = tile.mats[key]
 		var distance := distance_to_tile(eye, Rect2(Vector2(key) * MAT_PIECE, Vector2(MAT_PIECE, MAT_PIECE)), tile.span)
-		_limit(tile.mats[key], PackedFloat32Array(), tile.mat_ranks[key],
-			GrassScatter.mat_share(maxf(distance - REFRESH_STEP, 0.0), _mat_fade), _mat_mesh)
+		_limit(item, PackedFloat32Array(), tile.mat_ranks[key],
+			GrassScatter.mat_share(maxf(distance - REFRESH_STEP, 0.0), _mat_fade), _mat_mesh,
+			seen(_sight, item.custom_aabb))
+
+## True, with all it holds hidden unasked, for a tile no opening of the
+## tavern shows; it is trimmed when it is seen again.
+func _out_of_sight(tile: Tile) -> bool:
+	if seen(_sight, AABB(Vector3(tile.rect.position.x, tile.span.x, tile.rect.position.y),
+			Vector3(TILE, tile.span.y - tile.span.x, TILE)).grow(GrassClump.REACH)):
+		return false
+	for item: MultiMeshInstance3D in tile.pieces.values() + tile.mats.values():
+		item.visible = false
+	if tile.flowers != null:
+		tile.flowers.visible = false
+	return true
+
+## After the sight has changed and the eye has not: hides what of a tile
+## has gone out of sight, and trims the tile again when anything of it has
+## come back into sight.
+func _resee(tile: Tile) -> void:
+	if _out_of_sight(tile):
+		return
+	var back := false
+	var asked: Array = tile.mats.values() if tile.piece == TILE else tile.pieces.values() + tile.mats.values()
+	for item: MultiMeshInstance3D in asked:
+		if seen(_sight, item.custom_aabb):
+			back = back or not item.visible
+		elif item.visible:
+			item.visible = false
+	if tile.piece == TILE:
+		for item: MultiMeshInstance3D in tile.pieces.values():
+			back = back or not item.visible
+	if back or (tile.flowers != null and not tile.flowers.visible):
+		_trim(tile, _eye, _fade)
 
 ## The mesh (an index of GrassClump.DETAIL) a piece `distance` metres away is drawn with.
 static func detail_for(distance: float) -> int:
 	return 0 if distance <= NEAR_REACH else (1 if distance <= FAR_REACH else 2)
 
 static func _limit(item: MultiMeshInstance3D, rows: PackedFloat32Array, ranks: PackedFloat32Array, share: float,
-		mesh: ArrayMesh) -> void:
+		mesh: ArrayMesh, in_sight: bool) -> void:
+	# A piece out of sight keeps what it had: it is asked again when seen.
+	if not in_sight:
+		if item.visible:
+			item.visible = false
+		return
 	# Another mesh means another MultiMesh, filled from the rows again: giving
 	# a filled one a new mesh makes the renderer read its instances back from
 	# the GPU, which waits for every frame under way.

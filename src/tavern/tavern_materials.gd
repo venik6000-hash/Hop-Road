@@ -8,6 +8,16 @@ const SURFACE := preload("res://src/tavern/tavern_surface.gdshader")
 const GLASS := preload("res://src/tavern/tavern_glass.gdshader")
 const FLAME := preload("res://src/tavern/tavern_flame.gdshader")
 const FOLIAGE := preload("res://src/tavern/tavern_foliage.gdshader")
+## The fine normal maps of a table entry's `detail` (tools/pipeline/tavern/detail_textures.py).
+const DETAIL_MAPS := {
+	"wood": "res://assets/generated/tavern/detail_wood_normal.png",
+	"stone": "res://assets/generated/tavern/detail_stone_normal.png",
+	"cloth": "res://assets/generated/tavern/detail_cloth_normal.png",
+}
+## Repeats of a detail map per metre of UV when the entry gives no `detail_scale`.
+const DETAIL_SCALE := 2.5
+## False builds every material without its detail, to compare the look with and without.
+static var detail_enabled := true
 
 ## Adds a material to `materials` for each table entry it does not hold yet;
 ## ground_level is the floor height the surface shader puts the grime at.
@@ -70,6 +80,15 @@ static func build(table: Dictionary, ground_level: float, materials: Dictionary)
 		material.set_shader_parameter("grime", spec.get("grime", 0.0))
 		material.set_shader_parameter("moss", spec.get("moss", 0.0))
 		material.set_shader_parameter("lichen", spec.get("lichen", 0.0))
+		var detail: String = spec.get("detail", "")
+		if detail_enabled and not detail.is_empty():
+			if DETAIL_MAPS.has(detail):
+				material.set_shader_parameter("detail_map", load(DETAIL_MAPS[detail]))
+				material.set_shader_parameter("detail_scale", spec.get("detail_scale", DETAIL_SCALE))
+				material.set_shader_parameter("detail_strength", spec.get("detail_strength", 1.0))
+				material.set_shader_parameter("detail_turn", spec.get("detail_turn", 0.0))
+			else:
+				push_warning("tavern material %s: no detail map called %s" % [name, detail])
 		material.set_shader_parameter("color_range", range_)
 		material.set_shader_parameter("ground_level", ground_level)
 		material.set_shader_parameter("cloud_weather", weather)

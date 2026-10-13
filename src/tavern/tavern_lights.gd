@@ -7,6 +7,18 @@ extends RefCounted
 const PROBE_PADDING := 0.45
 const PROBE_BLEND := 0.1
 const BUILDING_BOUNDS := AABB(Vector3(3.6, 6.6, -14.4), Vector3(23.8, 14.2, 14.8))
+const HALO := preload("res://src/tavern/tavern_halo.gdshader")
+## The rooms' candle flames carry this material; a flame taller than
+## HALO_TALLEST is no candle's.
+const CANDLE_FLAME := "tav_flame"
+const HALO_TALLEST := 0.14
+## A halo's half-width for a flame's height, and its bounds, m.
+const HALO_PER_HEIGHT := 5.0
+const HALO_RADIUS := Vector2(0.14, 0.3)
+## Vertices this near each other (across, up) are one flame's, m.
+const ONE_FLAME := Vector2(0.035, 0.12)
+## Halos are not drawn from further than this, m.
+const HALO_REACH := 40.0
 
 static func add_light(tavern: TavernSystem, config: Dictionary) -> void:
 	var light: Light3D
@@ -108,3 +120,60 @@ static func add_hearth_fires(tavern: TavernSystem) -> void:
 		fire.name = "HearthFire%d" % tavern.get_child_count()
 		tavern.add_child(fire)
 		fire.configure(config[0], config[1], config[2], config[3])
+
+## Notes where the candle flames of `scene` burn (in the tavern's space) and
+## how tall they are, before its meshes are batched: `tavern._candles` gets a
+## Vector4 (x, y, z, height) for each.
+static func find_candles(tavern: TavernSystem, scene: Node3D) -> void:
+	var to_tavern := tavern.global_transform.affine_inverse()
+	for item: MeshInstance3D in scene.find_children("*", "MeshInstance3D", true, false):
+		for surface in item.mesh.get_surface_count():
+			var material := item.mesh.surface_get_material(surface)
+			if material == null or material.resource_name != CANDLE_FLAME:
+				continue
+			var placed := to_tavern * item.global_transform
+			var flames: Array[AABB] = []
+			for vertex: Vector3 in item.mesh.surface_get_arrays(surface)[Mesh.ARRAY_VERTEX]:
+				var at := placed * vertex
+				var found := false
+				for index in flames.size():
+					var middle := flames[index].get_center()
+					if Vector2(at.x - middle.x, at.z - middle.z).length() < ONE_FLAME.x and absf(at.y - middle.y) < ONE_FLAME.y:
+						flames[index] = flames[index].expand(at)
+						found = true
+						break
+				if not found:
+					flames.append(AABB(at, Vector3.ZERO))
+			for flame: AABB in flames:
+				if flame.size.y <= HALO_TALLEST:
+					var middle := flame.get_center()
+					tavern._candles.append(Vector4(middle.x, middle.y, middle.z, flame.size.y))
+
+## The glow round every candle flame found (tavern_halo.gdshader), in one
+## MultiMesh.
+static func add_halos(tavern: TavernSystem) -> void:
+	if tavern._candles.is_empty():
+		return
+	var quad := QuadMesh.new()
+	quad.size = Vector2(2.0, 2.0)
+	var material := ShaderMaterial.new()
+	material.shader = HALO
+	quad.material = material
+	var multimesh := MultiMesh.new()
+	multimesh.transform_format = MultiMesh.TRANSFORM_3D
+	multimesh.mesh = quad
+	multimesh.instance_count = tavern._candles.size()
+	for index in tavern._candles.size():
+		var candle := tavern._candles[index]
+		var radius := clampf(candle.w * HALO_PER_HEIGHT, HALO_RADIUS.x, HALO_RADIUS.y)
+		multimesh.set_instance_transform(index, Transform3D(Basis.from_scale(Vector3.ONE * radius),
+			Vector3(candle.x, candle.y, candle.z)))
+	multimesh.custom_aabb = BUILDING_BOUNDS
+	var halos := MultiMeshInstance3D.new()
+	halos.name = "CandleHalos"
+	halos.multimesh = multimesh
+	halos.layers = TavernSystem.LAYER
+	halos.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	halos.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
+	halos.visibility_range_end = HALO_REACH + BUILDING_BOUNDS.get_longest_axis_size()
+	tavern.add_child(halos)

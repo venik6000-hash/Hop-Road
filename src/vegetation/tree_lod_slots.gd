@@ -72,11 +72,12 @@ static func slot_node(system: VegetationSystem, slot: int) -> MultiMeshInstance3
 	system._slots[slot] = item
 	return item
 
-## Moves the trees around `flat` into the band buffers.
-static func refill(system: VegetationSystem, flat: Vector2) -> void:
+## Moves the trees around `flat` into the band buffers; for an eye in the
+## tavern's rooms those of them `sight` shows or needs the shadows of.
+static func refill(system: VegetationSystem, flat: Vector2, sight: TavernPortals.Sight = null) -> void:
 	var start := Time.get_ticks_usec()
 	system._last_eye = flat
-	system.grid.select(flat, system._bands, system._spare, system._boxes)
+	system.grid.select(flat, system._bands, system._spare, system._boxes, sight, system._band_shadows)
 	system.select_usec = Time.get_ticks_usec() - start
 	var uploads := 0
 	for slot in system._slots.size():
@@ -103,6 +104,27 @@ static func refill(system: VegetationSystem, flat: Vector2) -> void:
 	system.refill_usec = Time.get_ticks_usec() - start
 	system.refill_stats += Vector4i(1, system.refill_usec, 0, uploads)
 	system.refill_stats.z = maxi(system.refill_stats.z, system.refill_usec)
+	var hidden := 0
+	for chunk: MultiMeshInstance3D in system._impostor_chunks:
+		var drawn := wanted(sight, chunk.multimesh.custom_aabb, false)
+		hidden += int(not drawn)
+		if chunk.visible != drawn:
+			chunk.visible = drawn
+	if TavernPortals.current != null:
+		var cells := system.grid.unseen
+		TavernPortals.current.counts[&"tree cells"] = Vector2i(cells.x, cells.y)
+		TavernPortals.current.counts[&"tree shadow cells"] = Vector2i(cells.z, cells.w)
+		TavernPortals.current.counts[&"impostor chunks"] = Vector2i(hidden, system._impostor_chunks.size())
+
+## Whether trees within the bounds `box` are drawn for an eye that sees the
+## outdoors as `sight` has it (null: all of it). Those of a visible band must
+## be seen; those that only cast shadows must throw them into what is seen.
+static func wanted(sight: TavernPortals.Sight, box: AABB, shadow_only: bool) -> bool:
+	if sight == null or not sight.active:
+		return true
+	if shadow_only:
+		return sight.shaded_by(box.get_center(), box.size * 0.5)
+	return sight.sees_box(box)
 
 ## Trees in each band's buffers (supersets for the faded bands).
 static func band_counts(system: VegetationSystem) -> PackedInt32Array:

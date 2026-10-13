@@ -156,9 +156,26 @@ func _light_for_zone(root: Node) -> void:
 		# The setting the piece came with is the one it has in the open.
 		if not item.has_meta(&"outdoor_shadow"):
 			item.set_meta(&"outdoor_shadow", item.cast_shadow)
-		item.layers = (1 | TavernSystem.LAYER) if _lamp_zone == 1 else 1
+		set_layers(item, (1 | TavernSystem.LAYER) if _lamp_zone == 1 else 1)
 		item.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if _lamp_zone == 1 or near_lit_lamp \
 			else item.get_meta(&"outdoor_shadow")
+
+## Puts a piece on other render layers. Godot 4.7.2 keeps a piece paired with
+## the lights in whose reach it stands while its layers change (Forward+), yet
+## counts a pair only where the light's cull mask meets the layers. A piece
+## that takes the tavern's layer under a lamp is therefore missing from the
+## engine's count of the lights that give it a soft shadow, and the engine
+## prints "geom->softshadow_count==0 - BUG!" when it leaves the lamp or is
+## hidden. So the server holds the piece hidden over the change: hidden it has
+## no pairs, and shown again it is paired by its new layers. The engine's
+## master does the same on its own (53ec17a1d).
+static func set_layers(item: GeometryInstance3D, layers: int) -> void:
+	if item.layers == layers:
+		return
+	var instance := item.get_instance()
+	RenderingServer.instance_set_visible(instance, false)
+	item.layers = layers
+	RenderingServer.instance_set_visible(instance, item.is_visible_in_tree())
 
 func play(clip: String, loop := true) -> void:
 	if animation == null: return

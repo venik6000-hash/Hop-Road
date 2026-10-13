@@ -49,12 +49,9 @@ static func apply(viewport: Viewport, sky: SkySystem, tier: String) -> void:
 	RenderingServer.directional_shadow_atlas_set_size(preset.shadow_size, true)
 	if sky != null:
 		for light: DirectionalLight3D in [sky.sun, sky.moon]:
-			light.directional_shadow_max_distance = preset.shadow_distance
 			light.directional_shadow_blend_splits = preset.shadow_blend
-		# Past the shadow map the trees' shadow is the canopy field's
-		# (src/vegetation/shaders/canopy.gdshaderinc).
-		RenderingServer.global_shader_parameter_set("sun_shadow_reach",
-			Vector2(sky.sun.directional_shadow_fade_start, 1.0) * preset.shadow_distance)
+		# The tier's reach outdoors; an eye in the tavern's rooms takes less.
+		TavernPortals.set_shadow_reach(sky, preset.shadow_distance)
 		sky.sky_material.set_shader_parameter("march_steps", preset.cloud_steps)
 	print("RENDER_QUALITY tier=%s scale=%.3f internal=%s window=%s mode=%d" % [valid(tier), scale,
 		Vector2i(Vector2(viewport.size) * scale), viewport.size, viewport.scaling_3d_mode])

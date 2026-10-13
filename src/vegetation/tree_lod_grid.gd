@@ -9,6 +9,11 @@ extends RefCounted
 ## camera and every shadow cascade cull what they do not see. A cell that lies
 ## wholly inside a band is copied in one piece; only cells that straddle a
 ## band edge are tested tree by tree. Bands are half-open, [near, far).
+##
+## For an eye in the tavern's rooms select() takes what that eye sees of the
+## outdoors (TavernPortals.Sight) and leaves out, cell by cell, the trees no
+## opening shows; of the bands that only cast shadows, the trees whose
+## shadow reaches nothing seen.
 
 const CELL := 16.0
 const TILE := 64.0
@@ -16,6 +21,8 @@ const STRIDE := 16
 ## Tallest tree and widest crown (m), for the draw bounds of a buffer.
 const MAX_HEIGHT := 34.0
 const MAX_CROWN := 10.0
+## How far the wind may carry a crown past where it stands, m.
+const SWAY := 1.5
 
 var origin := Vector2.ZERO
 var size := Vector2i.ZERO
@@ -28,6 +35,13 @@ var offsets := PackedInt32Array()
 ## Lowest and highest tree base in each cell.
 var cell_low := PackedFloat32Array()
 var cell_high := PackedFloat32Array()
+## Per cell, once measure() has run: how far the widest crown reaches past
+## its trunk (m) and the height of the tallest tree's top.
+var cell_reach := PackedFloat32Array()
+var cell_top := PackedFloat32Array()
+## The last select(): cells of the visible bands left out as unseen and
+## asked about, the same of the shadow bands.
+var unseen := Vector4i.ZERO
 
 ## Buckets the trees of `trees` whose flags have TreeSet.DETAIL.
 func _init(trees: TreeSet, species_count: int) -> void:
@@ -92,6 +106,24 @@ static func instance_row(trees: TreeSet, i: int) -> PackedFloat32Array:
 func tree_count() -> int:
 	return xs.size()
 
+## Takes the sizes of the trees from `frames` (per species: the width and the
+## height of its picture at scale 1, m), so that cell_box() is the bounds of
+## what stands in a cell and not of the largest tree there could be.
+func measure(frames: PackedVector4Array) -> void:
+	var cells := size.x * size.y
+	cell_reach.resize(cells)
+	cell_top.resize(cells)
+	for cell in cells:
+		var reach := 0.0
+		var top := -INF
+		for slot in range(offsets[cell * kinds], offsets[(cell + 1) * kinds]):
+			var k := slot * STRIDE
+			var frame := frames[int(rows[k + 13])]
+			reach = maxf(reach, frame.x * 0.5 * rows[k + 5] * rows[k + 14])
+			top = maxf(top, rows[k + 7] + frame.y * rows[k + 5])
+		cell_reach[cell] = reach + SWAY
+		cell_top[cell] = top + SWAY
+
 ## The trees whose crowns may reach over `rect` (x, z): x, z, the crown's
 ## radius (m) and how deep its shade is (0..1) of each, one after another.
 ## `crowns` holds, per species, the radius at scale 1 and the shade.
@@ -124,7 +156,10 @@ static func window_origin(eye: Vector2, reach: float) -> Vector2i:
 ## Clears and refills `buffers` and `boxes` (bands.size() * kinds * window^2
 ## entries, window = window_tiles(largest band end)) with the trees whose
 ## horizontal distance from `eye` lies within bands[band] = [near, far).
-func select(eye: Vector2, bands: PackedVector2Array, buffers: Array[PackedFloat32Array], boxes: Array[AABB]) -> void:
+## With a `sight` (see above) `shadow_bands` tells, band by band, which only
+## cast shadows.
+func select(eye: Vector2, bands: PackedVector2Array, buffers: Array[PackedFloat32Array], boxes: Array[AABB],
+		sight: TavernPortals.Sight = null, shadow_bands := PackedByteArray()) -> void:
 	var low := PackedFloat32Array()
 	var high := PackedFloat32Array()
 	low.resize(buffers.size() * 3)
@@ -138,8 +173,11 @@ func select(eye: Vector2, bands: PackedVector2Array, buffers: Array[PackedFloat3
 		reach = maxf(reach, band.y)
 	var window := window_tiles(reach)
 	var corner := window_origin(eye, reach)
+	unseen = Vector4i.ZERO
+	if sight != null and not sight.active:
+		sight = null
 	if not xs.is_empty():
-		_collect(eye, bands, reach, window, corner, buffers, low, high)
+		_collect(eye, bands, reach, window, corner, buffers, low, high, sight, shadow_bands)
 	for slot in boxes.size():
 		var k := slot * 3
 		if low[k] == INF:
@@ -149,8 +187,18 @@ func select(eye: Vector2, bands: PackedVector2Array, buffers: Array[PackedFloat3
 		var end := Vector3(high[k] + MAX_CROWN, high[k + 1] + MAX_HEIGHT, high[k + 2] + MAX_CROWN)
 		boxes[slot] = AABB(start, end - start)
 
+## The bounds of what stands in a cell whose corner of least x and z is
+## (x, z): its middle and half its size, crowns and tallest tree taken in.
+func cell_box(cell: int, x: float, z: float) -> Array[Vector3]:
+	var foot := cell_low[cell] - 1.0
+	var top := cell_high[cell] + MAX_HEIGHT if cell_top.is_empty() else cell_top[cell]
+	var reach := MAX_CROWN if cell_reach.is_empty() else cell_reach[cell]
+	return [Vector3(x + CELL * 0.5, (foot + top) * 0.5, z + CELL * 0.5),
+		Vector3(CELL * 0.5 + reach, (top - foot) * 0.5, CELL * 0.5 + reach)]
+
 func _collect(eye: Vector2, bands: PackedVector2Array, reach: float, window: int, corner: Vector2i,
-		buffers: Array[PackedFloat32Array], low: PackedFloat32Array, high: PackedFloat32Array) -> void:
+		buffers: Array[PackedFloat32Array], low: PackedFloat32Array, high: PackedFloat32Array,
+		sight: TavernPortals.Sight, shadow_bands: PackedByteArray) -> void:
 	var ix0 := clampi(floori((eye.x - reach - origin.x) / CELL), 0, size.x - 1)
 	var ix1 := clampi(floori((eye.x + reach - origin.x) / CELL), 0, size.x - 1)
 	var iz0 := clampi(floori((eye.y - reach - origin.y) / CELL), 0, size.y - 1)
@@ -174,10 +222,29 @@ func _collect(eye: Vector2, bands: PackedVector2Array, reach: float, window: int
 			var near := sqrt(dx_near * dx_near + dz_near * dz_near)
 			var far := sqrt(dx_far * dx_far + dz_far * dz_far)
 			var tile := tz * window + floori((x0 + 0.5 * CELL) / TILE) - corner.x
+			# For an eye indoors, asked once a cell: 0 not yet, 1 yes, 2 no.
+			var seen := 0
+			var casts := 0
+			var box: Array[Vector3] = []
 			for band_index in bands.size():
 				var band := bands[band_index]
 				if far < band.x or near >= band.y:
 					continue
+				if sight != null:
+					if box.is_empty():
+						box = cell_box(cell, x0, z0)
+					if shadow_bands[band_index] == 1:
+						if casts == 0:
+							casts = 1 if sight.shaded_by(box[0], box[1]) else 2
+						unseen += Vector4i(0, 0, casts - 1, 1)
+						if casts == 2:
+							continue
+					else:
+						if seen == 0:
+							seen = 1 if sight.sees(box[0], box[1]) else 2
+						unseen += Vector4i(seen - 1, 1, 0, 0)
+						if seen == 2:
+							continue
 				var whole := near >= band.x and far < band.y
 				var lo2 := band.x * band.x
 				var hi2 := band.y * band.y

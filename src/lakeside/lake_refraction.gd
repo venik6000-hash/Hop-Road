@@ -4,12 +4,22 @@ extends Node
 ## Layer 19 is private to the capture camera; shared materials clip at the water.
 const LAYER := 1 << 18
 const GUARD := 1.25
+## For an eye in the tavern's rooms (TavernPortals): the lake is looked for
+## in squares down to this side (m), this far over and under its level (m),
+## where the ground lies no higher over the level than SHORE (m).
+const WATER_SQUARE := 32.0
+const WATER_SWELL := 2.0
+const SHORE := 1.5
 var water: WaterSystem
 var viewport: SubViewport
 var camera: Camera3D
 var capture := RefractionCapture.new()
 var enabled := true
 var _bound := false
+## The TavernPortals.revision the lake was last looked for by, and whether
+## an opening of the tavern showed it.
+var _portal_revision := -1
+var _water_seen := true
 
 func _ready() -> void:
 	viewport = SubViewport.new()
@@ -76,8 +86,9 @@ func _process(_delta: float) -> void:
 	# sibling, so it runs first) has already chosen this frame's surface
 	# patches; with none selected no water pixel is drawn and the pass can rest.
 	# Until the capture is warm the pass runs as before, so the first water
-	# frame always finds a texture of this frame.
-	var render := active and (water.selected_nodes > 0 or not warm)
+	# frame always finds a texture of this frame. Nor is any drawn for an eye
+	# in the tavern's rooms that no opening shows the lake.
+	var render := active and ((water.selected_nodes > 0 and _through_portals()) or not warm)
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS if render else SubViewport.UPDATE_DISABLED
 	water.material.set_shader_parameter("refraction_ready", active and warm)
 	if not active: return
@@ -96,3 +107,19 @@ func _process(_delta: float) -> void:
 	camera.keep_aspect = main.keep_aspect
 	camera.fov = rad_to_deg(2.0 * atan(tan(deg_to_rad(main.fov)*0.5)*GUARD))
 	camera.near = main.near
+
+## Whether the lake can be seen at all: always from outdoors, and from the
+## tavern's rooms when an opening shows a square of the ground that has water.
+func _through_portals() -> bool:
+	var portals := TavernPortals.current
+	if portals == null or not portals.sight.active:
+		return true
+	if portals.revision != _portal_revision:
+		_portal_revision = portals.revision
+		var terrain := water.terrain
+		var level := water.water_level
+		_water_seen = portals.sight.sees_ground(terrain.far_origin, WaterSystem.LOD0_SIZE * pow(2.0, WaterSystem.LEVELS - 1),
+			level - WATER_SWELL, level + WATER_SWELL, WATER_SQUARE,
+			func(x: float, z: float, size: float) -> bool: return terrain.height_bounds(x, z, size).x < level + SHORE)
+		portals.counts[&"lake capture"] = Vector2i(int(not _water_seen), 1)
+	return _water_seen

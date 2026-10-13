@@ -19,6 +19,10 @@ extends Node3D
 ##
 ## Grass around the camera is a GrassField child, kept off the same building
 ## footprints as the trees.
+##
+## For an eye in the tavern's rooms the trees no opening shows are left out
+## of the buffers, cell by cell (TavernPortals; TreeLodGrid.select), and the
+## buffers are filled again whenever what that eye sees has changed.
 
 const TreeMaterials = preload("res://src/vegetation/tree_materials.gd")
 const TreeLodSlots = preload("res://src/vegetation/tree_lod_slots.gd")
@@ -106,12 +110,15 @@ var _frame_materials: Array[ShaderMaterial] = []
 var _sent_eye := Vector3.ZERO
 var _sent_wind := Vector4.ZERO
 var _sent := false
+## The TavernPortals.revision the buffers were last filled by.
+var _portal_revision := 0
 
 func _ready() -> void:
 	var start := Time.get_ticks_usec()
 	_load_placement()
 	TreeMaterials.make(self)
 	grid = TreeLodGrid.new(trees, SPECIES.size())
+	grid.measure(impostor_frames)
 	TreeLodSlots.make_bands(self)
 	TreeImpostors.make(self)
 	TreeColliders.make(self)
@@ -164,8 +171,11 @@ func _process(_delta: float) -> void:
 		_sent_wind = wind
 	grass.follow(eye, wind)
 	var flat := Vector2(eye.x, eye.z)
-	if flat.distance_to(_last_eye) >= REFILL_STEP:
-		TreeLodSlots.refill(self, flat)
+	var portals := TavernPortals.current
+	var revision := portals.revision if portals != null else 0
+	if flat.distance_to(_last_eye) >= REFILL_STEP or revision != _portal_revision:
+		_portal_revision = revision
+		TreeLodSlots.refill(self, flat, portals.sight if portals != null and portals.sight.active else null)
 
 ## Trees in each band's buffers (supersets for the faded bands).
 func band_counts() -> PackedInt32Array:

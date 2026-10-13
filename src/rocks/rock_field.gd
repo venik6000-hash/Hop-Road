@@ -414,6 +414,13 @@ func _build_multimeshes() -> void:
 		var group: Dictionary = _groups[key]
 		var info: Dictionary = _shapes[group.shape]
 		var multimesh := MeshUtil.custom_multimesh(info.mesh, group.transforms, group.customs)
+		# The tile's bounds, named: what hides the unseen (TavernPortals) asks
+		# for them without the renderer.
+		var shape_box: AABB = (info.mesh as Mesh).get_aabb()
+		var box: AABB = (group.transforms[0] as Transform3D) * shape_box
+		for xform: Transform3D in group.transforms:
+			box = box.merge(xform * shape_box)
+		multimesh.custom_aabb = box
 		var item := MultiMeshInstance3D.new()
 		item.name = "Rocks_" + key.replace("/", "_")
 		item.multimesh = multimesh

@@ -16,6 +16,19 @@ uniform sampler2D albedo_map : source_color, filter_linear_mipmap_anisotropic, r
 uniform sampler2D normal_map : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
 // R ambient occlusion, G roughness, B metalness (Poly Haven "arm").
 uniform sampler2D orm_map : hint_default_white, filter_linear_mipmap_anisotropic, repeat_enable;
+// A fine normal map (generated: tools/pipeline/tavern/detail_textures.py) laid
+// over the scan's, for the grain the scan smooths away up close: wood's pores,
+// stone's pits, cloth's weave. `detail_scale` is its repeats per metre of UV,
+// `detail_strength` how much it tilts the surface (0: none, and no read at all,
+// the default); it is full inside `DETAIL_NEAR` metres of the eye and gone by
+// `DETAIL_FAR`, where it would only shimmer.
+uniform sampler2D detail_map : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform float detail_scale = 2.5;
+uniform float detail_strength = 0.0;
+// 1 where the scan's grain runs along u: the detail is laid a quarter turn round.
+uniform float detail_turn = 0.0;
+const float DETAIL_NEAR = 2.5;
+const float DETAIL_FAR = 7.0;
 uniform vec3 tint = vec3(1.0);
 uniform float desaturate = 0.0;
 uniform float albedo_gain = 1.0;
@@ -74,6 +87,12 @@ vec3 grade(vec3 c, vec4 g) {
 
 void fragment() {
 	vec2 uv = UV / uv_scale;
+	// The detail's coordinates and their slopes are taken here, where every
+	// pixel passes; its read below sits in a branch and takes them as given.
+	vec2 detail_uv = (detail_turn > 0.5 ? UV.yx : UV) * detail_scale;
+	vec2 detail_dx = dFdx(detail_uv);
+	vec2 detail_dy = dFdy(detail_uv);
+	float detail_fade = detail_strength * (1.0 - smoothstep(DETAIL_NEAR, DETAIL_FAR, length(VERTEX)));
 	vec3 base = texture(albedo_map, uv).rgb;
 	float luma = dot(base, vec3(0.2126, 0.7152, 0.0722));
 	base = mix(base, vec3(luma), desaturate) * tint * albedo_gain * piece.rgb * color_range;
@@ -199,7 +218,19 @@ void fragment() {
 	SPECULAR = 0.4 * wet_specular(max(rained, flooded), reflect(normalize(world_pos - CAMERA_POSITION_WORLD), n).y);
 	AO = orm.r;
 	AO_LIGHT_AFFECT = 0.25;
-	NORMAL_MAP = texture(normal_map, uv).rgb;
+	vec3 scan = texture(normal_map, uv).rgb;
+	if (detail_fade > 0.0) {
+		// Whiteout blend of the two tangent-space normals (z rebuilt from x and y
+		// as the engine does, the maps may hold no blue). The depth below scales
+		// the sum, so the detail is divided by it to keep its own strength.
+		vec2 tilt = textureGrad(detail_map, detail_uv, detail_dx, detail_dy).xy * 2.0 - 1.0;
+		tilt = (detail_turn > 0.5 ? tilt.yx : tilt) * (detail_fade / clamp(normal_strength, 0.3, 2.0));
+		vec2 under = scan.xy * 2.0 - 1.0;
+		vec3 blended = normalize(vec3(under + tilt, sqrt(max(1.0 - dot(under, under), 0.0))
+				* sqrt(max(1.0 - dot(tilt, tilt), 0.0))));
+		scan = vec3(blended.xy * 0.5 + 0.5, blended.z);
+	}
+	NORMAL_MAP = scan;
 	NORMAL_MAP_DEPTH = normal_strength * (1.0 - flooded);
 }
 

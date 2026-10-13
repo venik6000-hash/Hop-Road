@@ -20,7 +20,7 @@ const CanopyField = preload("res://src/vegetation/canopy_field.gd")
 ## Gain over the authored exposure, by where the eye is.
 const NIGHT_OUTDOORS := 2.6
 const ROOM_BY_DAY := 1.5
-const ROOM_BY_NIGHT := 1.9
+const ROOM_BY_NIGHT := 1.6
 ## Under a storm's cloud by day, outdoors.
 const STORM_OUTDOORS := 1.3
 ## Under the closed crowns of a wood by day.
@@ -41,6 +41,9 @@ const FOLLOW := 0.45
 ## Stops the gain may stand under and over the gain of the place for what the
 ## eye sees there.
 const SEEN_STOPS := Vector2(-0.5, 1.6)
+## In a room by night the gain stands no further over the room's than this:
+## candles and a hearth light their own corners and leave the rest dark.
+const ROOM_NIGHT_OVER := 0.4
 ## Seconds for 63 % of the way: into the light, into the dark.
 const CLOSE_SECONDS := 0.9
 const OPEN_SECONDS := 3.0
@@ -101,8 +104,9 @@ func _process(delta: float) -> void:
 	var eye := camera.global_position
 	var dark := darkness(sky.sun_direction.y)
 	seen = meter.stops() if meter != null else NAN
-	var wanted := seen_gain(target_gain(indoors(eye, rooms), dark, weather.gloom() if weather != null else 0.0,
-		under_crowns(eye)), seen)
+	var inside := indoors(eye, rooms)
+	var wanted := seen_gain(target_gain(inside, dark, weather.gloom() if weather != null else 0.0,
+		under_crowns(eye)), seen, lerpf(SEEN_STOPS.y, ROOM_NIGHT_OVER, inside * dark))
 	if _eye == Vector3.INF or eye.distance_to(_eye) > CUT_DISTANCE:
 		_settling = SETTLE_SECONDS
 	_eye = eye
@@ -114,7 +118,7 @@ func _process(delta: float) -> void:
 	var exposure := base_exposure * gain
 	if not is_equal_approx(environment.tonemap_exposure, exposure):
 		environment.tonemap_exposure = exposure
-	var look := colour(gain, dark, 1.0 - sky.sun_share)
+	var look := colour(gain, dark, 1.0 - sky.sun_share, inside)
 	if not is_equal_approx(environment.adjustment_saturation, base_saturation * look.x):
 		environment.adjustment_saturation = base_saturation * look.x
 	if not is_equal_approx(environment.adjustment_contrast, base_contrast * look.y):
@@ -158,18 +162,19 @@ static func target_gain(inside: float, dark: float, gloom := 0.0, wood := 0.0) -
 ## The gain for a place whose own gain is `place` when the picture meters
 ## `stops` (LightMeter.stops; NAN: not metered): the eye makes up a share of
 ## what the picture lacks of the authored day's light, within a reach of the
-## place's gain.
-static func seen_gain(place: float, stops: float) -> float:
+## place's gain: `over` stops above it at the most.
+static func seen_gain(place: float, stops: float, over := SEEN_STOPS.y) -> float:
 	if is_nan(stops):
 		return place
 	var of_place := log(place) / log(2.0)
-	return pow(2.0, clampf((KEY_STOPS - stops) * FOLLOW, of_place + SEEN_STOPS.x, of_place + SEEN_STOPS.y))
+	return pow(2.0, clampf((KEY_STOPS - stops) * FOLLOW, of_place + SEEN_STOPS.x, of_place + over))
 
 ## What the eye keeps of the colour (x) and of the contrast (y) at `gain`,
 ## with `dark` 0 by day .. 1 at night and `closed` 0 under an open sky .. 1
-## under a closed one.
-static func colour(gain: float, dark: float, closed: float) -> Vector2:
-	var dim := dark * smoothstep(NIGHT_COLOUR_STOPS.x, NIGHT_COLOUR_STOPS.y, log(maxf(gain, 0.01)) / log(2.0))
+## under a closed one. By the fires of a room (`inside` 1) the eye loses none
+## of the colour to the dark.
+static func colour(gain: float, dark: float, closed: float, inside := 0.0) -> Vector2:
+	var dim := dark * (1.0 - inside) * smoothstep(NIGHT_COLOUR_STOPS.x, NIGHT_COLOUR_STOPS.y, log(maxf(gain, 0.01)) / log(2.0))
 	return Vector2(lerpf(1.0, NIGHT_COLOUR, dim) * lerpf(1.0, CLOSED_SKY_COLOUR, closed), lerpf(1.0, CLOSED_SKY_CONTRAST, closed))
 
 ## One step of `delta` seconds from `current` toward `wanted`, in stops.

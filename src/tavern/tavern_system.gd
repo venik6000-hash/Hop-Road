@@ -17,7 +17,12 @@ extends Node3D
 ## tavern_flame.gdshader for the fires. Everything the tavern draws is on LAYER, the only layer its
 ## interior lights reach, so no light inside shines through a wall onto the
 ## ground outside. Reflection probes over the rooms hold their ambient light
-## to the dim warm light of a room instead of the open sky's.
+## to the dim warm light of a room instead of the open sky's. The day comes
+## into the ground floor through its openings (TavernDaylight), and through
+## the openings of every floor the rooms see the outdoors (TavernPortals).
+## The shadows right under small things, which the lamps' shadow maps leave
+## out, are a pass on the picture (TavernContactShadows) for the level's
+## compositor.
 
 ##
 ## The doorway: the porch ends above the vestibule's flags, and the stones
@@ -71,6 +76,16 @@ const BUILDING_BOUNDS := TAVERN_LIGHTS.BUILDING_BOUNDS
 
 var map: Node3D
 var sky_system: SkySystem
+## For the daylight in the rooms: the ridges that take the sun (may be null).
+var terrain: TerrainSystem
+## The daylight of the rooms, once a table has named its openings.
+var daylight: TavernDaylight
+## The contact shadows of the rooms' lamps, for the compositor of whoever
+## shows the rooms.
+var contact_shadows := TavernContactShadows.new()
+## What the rooms see of the outdoors, once a table has named the shell's
+## openings.
+var portals: TavernPortals
 var mesh_count := 0
 var replaced := 0
 var bodies := 0
@@ -80,6 +95,9 @@ var seats: Array[Dictionary] = []
 var _materials := {}
 var _flames: Array[Dictionary] = []   # {light, energy, seed, speed, amount, origin, sway}
 var _lanterns: Array[Dictionary] = [] # {light, energy}: lit toward dusk
+## The rooms' candle flames, in the tavern's space: x, y, z and the flame's
+## height (TavernLights.find_candles), for their halos.
+var _candles: Array[Vector4] = []
 ## What the lanterns and the lit windows are from far away, in the tavern's
 ## space: {at, color, radius, facing} (see FarLights.add_glow).
 var far_glows: Array[Dictionary] = []
@@ -119,6 +137,8 @@ func _ready() -> void:
 	TAVERN_THRESHOLD.build(self)
 	_wear_floors()
 	TAVERN_LIGHTS.add_hearth_fires(self)
+	TAVERN_LIGHTS.add_halos(self)
+	contact_shadows.watch(room_lamps(), room_boxes(), global_transform * BUILDING_BOUNDS)
 	_process(0.0)
 	var occlusion := preload("res://src/tavern/tavern_occlusion.gd").new()
 	occlusion.name = "InteriorOcclusion"
@@ -143,12 +163,31 @@ func _load_part(table: Dictionary) -> void:
 		for item: MeshInstance3D in scene.find_children("*", "MeshInstance3D", true, false):
 			TAVERN_DRESSING.dress(self, item, "interior" in path)
 		TAVERN_DRESSING.remove_replaced_fire(scene)
+		if "interior" in path:
+			TAVERN_LIGHTS.find_candles(self, scene)
 		_batch(scene, "interior" in path)
 	var lights: Array = table.get("lights", [])
 	for config: Dictionary in lights:
 		TAVERN_LIGHTS.add_light(self, config)
 	for config: Dictionary in table.get("probes", []):
 		TAVERN_LIGHTS.add_probe(self, config)
+	var windows: Array = table.get("windows", [])
+	if not windows.is_empty():
+		if daylight == null:
+			daylight = TavernDaylight.new()
+			daylight.name = "Daylight"
+			daylight.tavern = self
+			daylight.terrain = terrain
+			add_child(daylight)
+		daylight.add(windows)
+	var openings: Array = table.get("portals", [])
+	if not openings.is_empty():
+		if portals == null:
+			portals = TavernPortals.new()
+			portals.name = "Portals"
+			portals.tavern = self
+			add_child(portals)
+		portals.add(openings, table.get("portal_floors", []))
 	# Once the rooms have lights of their own, the level's two stand-in
 	# lanterns (manifest lights hung in the hall) go.
 	if lights.any(func(config: Dictionary) -> bool: return config.get("layer", "interior") == "interior"):
@@ -181,6 +220,9 @@ func _process(_delta: float) -> void:
 				(lantern.light as Light3D).visible = dark > 0.01
 	_update_room_lighting()
 	_update_sun_casters()
+	var camera := get_viewport().get_camera_3d()
+	if camera != null:
+		contact_shadows.prepare(camera.global_position)
 
 ## The rooms' pieces are in the sun's shadow map only for an eye that can see
 ## what they shade (see ROOM_SUN_LAYER).
@@ -229,7 +271,7 @@ func _update_room_lighting() -> void:
 	var sun_height := SkySystem.solar_direction(hour, sky_system.latitude_deg, sky_system.day_of_year).y
 	var daylight := smoothstep(-0.08, 0.3, sun_height)
 	for probe: ReflectionProbe in _room_probes:
-		probe.ambient_color_energy = lerpf(0.65, 1.6, daylight)
+		probe.ambient_color_energy = lerpf(0.45, 1.6, daylight)
 		# Requeue one capture when the sun changes, rather than keeping daytime
 		# reflections at night or rendering eight cubemaps every frame.
 		probe.update_mode = ReflectionProbe.UPDATE_ONCE
@@ -260,6 +302,14 @@ func shadowed_lanterns() -> Array[Light3D]:
 	for lantern: Dictionary in _lanterns:
 		if (lantern.light as Light3D).shadow_enabled:
 			lamps.append(lantern.light)
+	return lamps
+
+## The lamps that light the rooms and nothing outdoors.
+func room_lamps() -> Array[Light3D]:
+	var lamps: Array[Light3D] = []
+	for lamp: Light3D in find_children("*", "Light3D", true, false):
+		if lamp.light_cull_mask == LAYER:
+			lamps.append(lamp)
 	return lamps
 
 ## The rooms as boxes in world space (the reach of their reflection probes).
