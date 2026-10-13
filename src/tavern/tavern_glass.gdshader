@@ -9,6 +9,10 @@ uniform vec3 glass_tint : source_color = vec3(0.86, 0.92, 0.88);
 uniform float clarity = 0.1;
 uniform float roughness_value = 0.04;
 uniform float wave = 0.05;
+// Leaded lights: UV counts quarries of `pane` metres, and each is set a
+// little out of true, by `quarry_tilt`, so no two catch the light alike.
+uniform float quarry_tilt = 0.0;
+uniform float pane = 1.0;
 
 varying vec3 world_pos;
 
@@ -22,11 +26,17 @@ float ripple(vec2 p) {
 
 void fragment() {
 	// Each pane its own waves: the pane's position seeds them.
-	vec2 p = UV * 9.0 + world_pos.xz * 0.37;
+	vec2 p = UV * pane * 9.0 + world_pos.xz * 0.37;
 	float e = 0.02;
 	vec2 slope = vec2(ripple(p + vec2(e, 0.0)) - ripple(p - vec2(e, 0.0)),
 		ripple(p + vec2(0.0, e)) - ripple(p - vec2(0.0, e))) / (2.0 * e);
-	NORMAL = normalize(NORMAL + (TANGENT * slope.x + BINORMAL * slope.y) * wave);
+	vec2 lean = slope * wave;
+	if (quarry_tilt > 0.0) {
+		vec2 quarry = floor(UV);
+		lean += (fract(sin(vec2(dot(quarry, vec2(127.1, 311.7)), dot(quarry, vec2(269.5, 183.3)))) * 43758.5453) - 0.5)
+			* quarry_tilt;
+	}
+	NORMAL = normalize(NORMAL + TANGENT * lean.x + BINORMAL * lean.y);
 	float facing = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 	float fresnel = pow(1.0 - facing, 5.0);
 	float dust = smoothstep(0.35, 0.9, sin(world_pos.x * 7.3 + world_pos.y * 5.1) * sin(world_pos.z * 6.7 - world_pos.y * 3.9));

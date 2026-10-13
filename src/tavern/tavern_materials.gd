@@ -52,6 +52,8 @@ static func build(table: Dictionary, ground_level: float, materials: Dictionary)
 			material.set_shader_parameter("clarity", spec.get("alpha", 0.1))
 			material.set_shader_parameter("roughness_value", spec.get("roughness", 0.04))
 			material.set_shader_parameter("wave", spec.get("wave", 0.05))
+			material.set_shader_parameter("quarry_tilt", spec.get("quarry", 0.0))
+			material.set_shader_parameter("pane", spec.get("pane", 1.0))
 			materials[name] = material
 			continue
 		material.shader = SURFACE
@@ -73,3 +75,42 @@ static func build(table: Dictionary, ground_level: float, materials: Dictionary)
 		material.set_shader_parameter("cloud_weather", weather)
 		material.set_shader_parameter("moss_albedo", moss)
 		materials[name] = material
+
+## How the rooms have aged (the table's `indoor`: the floors' heights with the
+## ridge's, and per material what tavern_surface.gdshader's indoor uniforms
+## take). The fires that smoke are the table's lights of a fire's colour;
+## `place` carries the table's coordinates into the world's.
+static func age_indoors(table: Dictionary, materials: Dictionary, place: Transform3D) -> void:
+	var indoor: Dictionary = table.get("indoor", {})
+	if indoor.is_empty():
+		return
+	var heights: Array = indoor.get("storeys", [])
+	var storeys := Vector4(-1000.0, 2000.0, 3000.0, 4000.0)
+	for index: int in mini(heights.size(), 4):
+		storeys[index] = float(heights[index]) + place.origin.y
+	var smoking: Array[Dictionary] = []
+	for config: Dictionary in table.get("lights", []):
+		var colour: Array = config.color
+		if float(colour[1]) < 0.55:
+			smoking.append(config)
+	smoking.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a.energy) > float(b.energy))
+	var fires := PackedVector4Array()
+	for index: int in 4:
+		if index < smoking.size():
+			var p: Array = smoking[index].position
+			var at: Vector3 = place * Vector3(p[0], p[1], p[2])
+			fires.append(Vector4(at.x, at.y, at.z, clampf(float(smoking[index].energy) / 4.0, 0.2, 1.0)))
+		else:
+			fires.append(Vector4(0.0, -10000.0, 0.0, 0.0))
+	var specs: Dictionary = indoor.get("materials", {})
+	for name: String in specs:
+		var material: ShaderMaterial = materials.get(name)
+		if material == null or material.shader != SURFACE:
+			continue
+		var spec: Dictionary = specs[name]
+		var tint: Array = spec.get("indoor_tint", [1.0, 1.0, 1.0])
+		material.set_shader_parameter("indoor_tint", Vector3(tint[0], tint[1], tint[2]))
+		for key: String in ["soot", "indoor_grime", "wear", "handled", "crevice"]:
+			material.set_shader_parameter(key, spec.get(key, 0.0))
+		material.set_shader_parameter("storeys", storeys)
+		material.set_shader_parameter("fires", fires)

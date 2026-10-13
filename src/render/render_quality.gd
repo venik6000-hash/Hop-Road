@@ -1,10 +1,10 @@
 extends RefCounted
 ## Render budgets (GameSettings.render_quality), applied while the game runs.
 ##
-## "maximum" is the picture as it was authored: every pixel of the window
-## shaded, resolved by TAA. The lighter tiers shade a fixed number of pixels,
-## whatever the window measures, and let MetalFX rebuild the window's
-## resolution from them over the frames. That upscaler resolves the same
+## "maximum" is the picture as it was authored, 1280 x 720 shaded pixels
+## resolved by TAA, in a window of that size or smaller. Every tier shades a
+## fixed number of pixels, whatever the window measures, and lets MetalFX
+## rebuild a larger window's resolution from them over the frames. That upscaler resolves the same
 ## per-frame jitter TAA does (cloud march, foliage alpha, the trees' LOD
 ## dither), so nothing that relies on it changes. The tiers also shorten the
 ## work whose cost does not fall with the pixel count: the sun's shadow range,
@@ -12,7 +12,7 @@ extends RefCounted
 
 const TIERS := ["performance", "balanced", "maximum"]
 const DEFAULT := "balanced"
-## pixels: 3D pixels shaded per frame (0: all of the window's).
+## pixels: 3D pixels shaded per frame.
 ## shadow_distance: reach of the sun's shadow cascades, m.
 ## shadow_size: the sun's shadow atlas, px.
 ## cloud_steps: samples of the cloud march along a view ray.
@@ -21,7 +21,7 @@ const PRESETS := {
 		"shadow_distance": 90.0, "shadow_size": 2048, "shadow_blend": false, "cloud_steps": 36},
 	"balanced": {"pixels": 450000, "ssao": RenderingServer.ENV_SSAO_QUALITY_LOW,
 		"shadow_distance": 120.0, "shadow_size": 4096, "shadow_blend": true, "cloud_steps": 48},
-	"maximum": {"pixels": 0, "ssao": RenderingServer.ENV_SSAO_QUALITY_MEDIUM,
+	"maximum": {"pixels": 921600, "ssao": RenderingServer.ENV_SSAO_QUALITY_MEDIUM,
 		"shadow_distance": 160.0, "shadow_size": 4096, "shadow_blend": true, "cloud_steps": 64},
 }
 ## The upscaler's input must stay inside its range after the sizes are
@@ -65,7 +65,7 @@ static func apply_resolution(viewport: Viewport, tier: String) -> float:
 	var budget: int = PRESETS[valid(tier)].pixels
 	var size := Vector2(viewport.size)
 	var scale := 1.0
-	if budget > 0 and size.x * size.y > budget:
+	if size.x * size.y > budget:
 		scale = sqrt(budget / (size.x * size.y))
 	viewport.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
 	var limits := _temporal_upscale_range()

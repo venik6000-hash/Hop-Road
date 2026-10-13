@@ -33,6 +33,7 @@ const TAVERN_LIGHTS = preload("res://src/tavern/tavern_lights.gd")
 const TAVERN_COLLISION = preload("res://src/tavern/tavern_collision.gd")
 const TAVERN_DRESSING = preload("res://src/tavern/tavern_dressing.gd")
 const TAVERN_THRESHOLD = preload("res://src/tavern/tavern_threshold.gd")
+const TAVERN_WEAR = preload("res://src/tavern/tavern_wear.gd")
 const SURFACE := TAVERN_MATERIALS.SURFACE
 const GLASS := TAVERN_MATERIALS.GLASS
 const FLAME := TAVERN_MATERIALS.FLAME
@@ -99,6 +100,9 @@ var _last_dark := -1.0
 var _rooms_cast := -1
 var _body: StaticBody3D
 var _has_interior := false
+## The boards the ground floor is walked on, once a table has told how the
+## rooms have aged (its `indoor`); NAN until then.
+var _walked_floor := NAN
 var _shape_cache := {}
 
 func _ready() -> void:
@@ -113,6 +117,7 @@ func _ready() -> void:
 			_load_part(JSON.parse_string(FileAccess.get_file_as_string(path)))
 			parts += 1
 	TAVERN_THRESHOLD.build(self)
+	_wear_floors()
 	TAVERN_LIGHTS.add_hearth_fires(self)
 	_process(0.0)
 	var occlusion := preload("res://src/tavern/tavern_occlusion.gd").new()
@@ -126,6 +131,9 @@ func _load_part(table: Dictionary) -> void:
 	for seat: Dictionary in table.get("seats", []):
 		seats.append(seat)
 	TAVERN_MATERIALS.build(table, GROUND, _materials)
+	TAVERN_MATERIALS.age_indoors(table, _materials, global_transform)
+	if table.has("indoor"):
+		_walked_floor = float((table.indoor as Dictionary).get("walked", GROUND))
 	TAVERN_COLLISION.replace_old(self, table.get("replaces", []), table.get("drop_colliders", []),
 		table.get("moved_colliders", []))
 	for path: String in table.get("scenes", []):
@@ -225,6 +233,26 @@ func _update_room_lighting() -> void:
 		# Requeue one capture when the sun changes, rather than keeping daytime
 		# reflections at night or rendering eight cubemaps every frame.
 		probe.update_mode = ReflectionProbe.UPDATE_ONCE
+
+## Hands the worn floors their map of where the ground floor is walked
+## (tavern_wear.gd), once every part's colliders, doors and seats are in.
+func _wear_floors() -> void:
+	if is_nan(_walked_floor):
+		return
+	var at_doors := PackedVector3Array()
+	for door: TavernDoor in doors:
+		at_doors.append(door.global_position)
+	var at_seats := PackedVector3Array()
+	for seat: Dictionary in seats:
+		var p: Array = seat.position
+		at_seats.append(global_transform * Vector3(p[0], p[1], p[2]))
+	var map: Dictionary = TAVERN_WEAR.build(_body, global_transform * BUILDING_BOUNDS,
+		_walked_floor + global_position.y, at_doors, at_seats)
+	for material: ShaderMaterial in _materials.values():
+		var worn: Variant = material.get_shader_parameter("wear")
+		if material.shader == SURFACE and worn != null and float(worn) > 0.0:
+			material.set_shader_parameter("floor_wear", map.texture)
+			material.set_shader_parameter("floor_wear_rect", map.rect)
 
 ## The lanterns outdoors that cast shadows.
 func shadowed_lanterns() -> Array[Light3D]:
