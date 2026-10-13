@@ -3,11 +3,14 @@ extends RefCounted
 ## entry, found by the name the glTF surfaces carry. tavern_surface.gdshader
 ## for the building, tavern_glass.gdshader for the windows,
 ## tavern_foliage.gdshader for the ivy and the flowers, tavern_flame.gdshader
-## for the fires.
+## for the fires, tavern_cloth.gdshader for what is woven, tavern_fur.gdshader
+## for the hides.
 const SURFACE := preload("res://src/tavern/tavern_surface.gdshader")
 const GLASS := preload("res://src/tavern/tavern_glass.gdshader")
 const FLAME := preload("res://src/tavern/tavern_flame.gdshader")
 const FOLIAGE := preload("res://src/tavern/tavern_foliage.gdshader")
+const CLOTH := preload("res://src/tavern/tavern_cloth.gdshader")
+const FUR := preload("res://src/tavern/tavern_fur.gdshader")
 ## The fine normal maps of a table entry's `detail` (tools/pipeline/tavern/detail_textures.py).
 const DETAIL_MAPS := {
 	"wood": "res://assets/generated/tavern/detail_wood_normal.png",
@@ -56,6 +59,44 @@ static func build(table: Dictionary, ground_level: float, materials: Dictionary)
 			material.set_shader_parameter("cloud_weather", weather)
 			materials[name] = material
 			continue
+		if spec.get("shader", "surface") == "fur":
+			material.shader = FUR
+			for key: String in ["albedo", "normal", "mask"]:
+				material.set_shader_parameter(key + "_map", load(spec[key]))
+			var tip: Array = spec.get("tip", [0.8, 0.7, 0.55])
+			material.set_shader_parameter("tint", Vector3(tint[0], tint[1], tint[2]))
+			material.set_shader_parameter("tip_color", Vector3(tip[0], tip[1], tip[2]))
+			material.set_shader_parameter("roughness_value", spec.get("roughness", 0.8))
+			for key: String in ["albedo_gain", "normal_strength", "tip_inside", "tip_edge", "fur_length", "fur_lean",
+					"fur_droop", "strand_cell", "tuft_cell", "tuft_pull", "root_shade"]:
+				if spec.has(key):
+					material.set_shader_parameter(key, spec[key])
+			material.set_shader_parameter("cloud_weather", weather)
+			materials[name] = material
+			continue
+		if spec.get("shader", "surface") == "cloth":
+			material.shader = CLOTH
+			for key: String in ["albedo", "normal", "orm", "emblem"]:
+				if spec.has(key):
+					material.set_shader_parameter(key + "_map", load(spec[key]))
+			material.set_shader_parameter("tint", Vector3(tint[0], tint[1], tint[2]))
+			material.set_shader_parameter("roughness_scale", spec.get("roughness", 1.0))
+			material.set_shader_parameter("color_range", range_)
+			for key: String in ["desaturate", "albedo_gain", "uv_scale", "normal_strength", "cloth_wrap", "cloth_through",
+					"cloth_sheen", "stain", "threads", "stripe_width"]:
+				if spec.has(key):
+					material.set_shader_parameter(key, spec[key])
+			for key: String in ["stripe_a", "stripe_b", "stripe_c", "emblem_color"]:
+				if spec.has(key):
+					var c: Array = spec[key]
+					material.set_shader_parameter(key, Color(c[0], c[1], c[2]))
+			if spec.has("emblem_size"):
+				var size: Array = spec.emblem_size
+				material.set_shader_parameter("emblem_size", Vector2(size[0], size[1]))
+			_lay_detail(material, name, spec)
+			material.set_shader_parameter("cloud_weather", weather)
+			materials[name] = material
+			continue
 		if spec.get("shader", "surface") == "glass":
 			material.shader = GLASS
 			material.set_shader_parameter("glass_tint", Color(tint[0], tint[1], tint[2]))
@@ -80,20 +121,26 @@ static func build(table: Dictionary, ground_level: float, materials: Dictionary)
 		material.set_shader_parameter("grime", spec.get("grime", 0.0))
 		material.set_shader_parameter("moss", spec.get("moss", 0.0))
 		material.set_shader_parameter("lichen", spec.get("lichen", 0.0))
-		var detail: String = spec.get("detail", "")
-		if detail_enabled and not detail.is_empty():
-			if DETAIL_MAPS.has(detail):
-				material.set_shader_parameter("detail_map", load(DETAIL_MAPS[detail]))
-				material.set_shader_parameter("detail_scale", spec.get("detail_scale", DETAIL_SCALE))
-				material.set_shader_parameter("detail_strength", spec.get("detail_strength", 1.0))
-				material.set_shader_parameter("detail_turn", spec.get("detail_turn", 0.0))
-			else:
-				push_warning("tavern material %s: no detail map called %s" % [name, detail])
+		_lay_detail(material, name, spec)
+		if spec.has("detail_turn"):
+			material.set_shader_parameter("detail_turn", spec.detail_turn)
 		material.set_shader_parameter("color_range", range_)
 		material.set_shader_parameter("ground_level", ground_level)
 		material.set_shader_parameter("cloud_weather", weather)
 		material.set_shader_parameter("moss_albedo", moss)
 		materials[name] = material
+
+## The fine normal map a table entry asks for (`detail`), with its scale and strength.
+static func _lay_detail(material: ShaderMaterial, name: String, spec: Dictionary) -> void:
+	var detail: String = spec.get("detail", "")
+	if not detail_enabled or detail.is_empty():
+		return
+	if not DETAIL_MAPS.has(detail):
+		push_warning("tavern material %s: no detail map called %s" % [name, detail])
+		return
+	material.set_shader_parameter("detail_map", load(DETAIL_MAPS[detail]))
+	material.set_shader_parameter("detail_scale", spec.get("detail_scale", DETAIL_SCALE))
+	material.set_shader_parameter("detail_strength", spec.get("detail_strength", 1.0))
 
 ## How the rooms have aged (the table's `indoor`: the floors' heights with the
 ## ridge's, and per material what tavern_surface.gdshader's indoor uniforms

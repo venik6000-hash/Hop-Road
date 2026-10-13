@@ -328,7 +328,7 @@ func populate_life(population: NpcPopulation) -> void:
 			break
 	if template != null:
 		for i in 2:
-			var actor := population.spawn(["monk", "civilian_1"][i], "wander",
+			var actor := population.spawn(["monk", "bartender"][i], "wander",
 				["Путник", "Дровосек"][i], template.route[7 + i * 3])
 			actor.route.assign(template.route)
 			actor._wait = 3.3 + i * 2.0

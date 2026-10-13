@@ -43,6 +43,7 @@ const SURFACE := TAVERN_MATERIALS.SURFACE
 const GLASS := TAVERN_MATERIALS.GLASS
 const FLAME := TAVERN_MATERIALS.FLAME
 const FOLIAGE := TAVERN_MATERIALS.FOLIAGE
+const FUR := TAVERN_MATERIALS.FUR
 const LAYER := 512
 ## The still pieces, which alone go into the shadow maps of the tavern's lamps.
 ## A lamp keeps its shadow map while nothing in it moves, and draws all six

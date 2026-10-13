@@ -6,7 +6,7 @@ var bartender: VillageNPC
 var people := PeopleBook.load_folder()
 
 func _ready() -> void:
-	bartender = settle("borr", "civilian_1", "bartender", Vector3(11.6, 6.95, -12.43), PI)
+	bartender = settle("borr", "innkeeper", "bartender", Vector3(11.6, 6.95, -12.43), PI)
 	# The cook and his brother wear the monk's model here: the licence of
 	# theirs does not let its files be shared.
 	settle("tomas", "monk", "chop", Vector3(21.15, 6.66, -4.78))
@@ -70,7 +70,7 @@ func _ready() -> void:
 	# The innkeeper's double and the cook's are their brothers; both join the
 	# village foot traffic.
 	for i in range(2):
-		var villager := settle(["kul", "ivar"][i], ["civilian_1", "monk"][i], "wander", road[6 + i * 3])
+		var villager := settle(["kul", "ivar"][i], ["innkeeper", "monk"][i], "wander", road[6 + i * 3])
 		if villager != null: villager.route.assign(road)
 	_place_walkers.call_deferred()
 

@@ -12,12 +12,26 @@ const LIP := 0.06
 ## Seconds one who walks about their work stands on once a story they tell no
 ## longer holds them (stop_to_talk).
 const TALK_HOLD := 1.5
+## Seconds the one who keeps the hall wipes the bar when her round brings her
+## to it: one pass of the recorded wiping.
+const WIPE_SECONDS := 8.5
 ## The ground speed, m/s, the "walk" clip is drawn for: measured from the
 ## planted foot, 1.0 to 1.5 over the four models.
 const WALK_STRIDE := 1.1
 ## The clip is played no faster than this many times its own pace: the feet
 ## of one who hurries more than that slide.
 const WALK_HASTE := 2.0
+## Recorded clips are named by their library (NpcMotion.LIBRARY).
+const MOTION := "motion/"
+## What the hand holds, by occupation: the clips in which it is in the hand.
+## In the others it lies where UTENSIL_REST puts it.
+const HELD := {"chop": ["chop", "chop_quick", "slice"], "stir": ["stir"], "maid": ["wipe"]}
+## Where the tool lies when the hand is busy with something else, from the
+## villager's place of work: the knife on the board, the spoon in the pot.
+const UTENSIL_REST := {
+	"chop": Transform3D(Basis(Vector3.UP, 1.1), Vector3(0.21, 0.997, -0.4)),
+	"stir": Transform3D(Basis(Vector3(0.7412, 0.0, -0.6713), 0.28), Vector3(0.08, 0.98, -0.42)),
+}
 var model_path := ""
 var job := "wander"
 var title := "Житель"
@@ -65,6 +79,18 @@ var near_lit_lamp := false:
 			_light_for_zone(self)
 var _lamp_zone_clock := 0.0
 var _pace := BodyPace.new()
+## The clip the body plays now, by its plain name: "chop", "idle_look", "walk".
+var activity := ""
+## The gait this villager walks by when their speed allows (NpcMotion.gait).
+var gait_own := ""
+## The model has recorded motion (NpcMotion), and what the body does with it.
+var _recorded := false
+var _acting: NpcActing
+var _gaze: NpcGaze
+## Seconds since the villager came to be; the acting keeps its time by it.
+var _age := 0.0
+## Seconds for which the villager is still telling someone a story.
+var _telling := 0.0
 var _ground_ray: PhysicsRayQueryParameters3D
 
 
@@ -90,9 +116,25 @@ func _ready() -> void:
 		break
 	for node: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
 		node.visibility_range_end = 65.0
+	if animation == null and skeleton != null:
+		# A model that carries no clips of its own plays the recorded ones.
+		animation = AnimationPlayer.new()
+		animation.name = "AnimationPlayer"
+		model.add_child(animation)
 	if skeleton != null:
 		_left_hand = skeleton.find_bone("Hand_L")
 		_right_hand = skeleton.find_bone("Hand_R")
+	_recorded = animation != null and NpcMotion.attach(model_path, animation, skeleton)
+	if _recorded:
+		_acting = NpcActing.new(name)
+		if NpcMotion.WOMEN.has(NpcMotion.model_name(model_path)):
+			gait_own = NpcMotion.WOMANS_GAIT
+		var library := animation.get_animation_library(NpcMotion.LIBRARY)
+		for clip in library.get_animation_list():
+			_acting.lengths[String(clip)] = library.get_animation(clip).length
+		_gaze = NpcGaze.new()
+		_gaze.actor = self
+		skeleton.add_child(_gaze)
 	_setup_props()
 	# What the actor is handed later (a mug, a meal) follows the same rule.
 	child_entered_tree.connect(_light_for_zone)
@@ -177,16 +219,43 @@ static func set_layers(item: GeometryInstance3D, layers: int) -> void:
 	item.layers = layers
 	RenderingServer.instance_set_visible(instance, item.is_visible_in_tree())
 
+## Plays a clip, or what the occupation of that name has the body do now
+## (NpcActing.SETS). A recorded clip is taken before the model's own.
 func play(clip: String, loop := true) -> void:
 	if animation == null: return
-	if not animation.has_animation(clip): clip = "idle"
+	if _telling > 0.0 and clip in ["idle", "bar"]:
+		clip = "talk"
+	if _acting != null and _acting.knows(clip):
+		clip = _acting.choose(clip, _age)
+		loop = _acting.repeats
+	else:
+		clip = NpcActing.FALLBACK.get(clip, clip)
+	var named := ""
+	var blend := 0.18
+	# The recorded clip, the model's own, or standing still in either.
+	for known: String in [MOTION + clip, clip, MOTION + "idle", "idle"]:
+		if animation.has_animation(known):
+			named = known
+			break
+	if named == "":
+		return
+	if named.begins_with(MOTION):
+		blend = NpcMotion.BLEND
+	clip = named.trim_prefix(MOTION)
+	activity = clip
 	animation.speed_scale = 1.0
-	if animation.current_animation == clip and animation.is_playing(): return
-	animation.get_animation(clip).loop_mode = Animation.LOOP_LINEAR if loop else Animation.LOOP_NONE
-	animation.play(clip, 0.18)
+	if animation.current_animation == named and animation.is_playing(): return
+	animation.get_animation(named).loop_mode = Animation.LOOP_LINEAR if loop else Animation.LOOP_NONE
+	animation.play(named, blend)
 
-## Walks at `speed`, m/s: the "walk" clip, played as fast as the feet need.
+## Walks at `speed`, m/s: the gait drawn nearest that pace, played as fast as
+## the feet need.
 func stride(speed: float) -> void:
+	var gait := NpcMotion.gait(model_path, speed, gait_own) if _recorded else {}
+	if not gait.is_empty():
+		play(str(gait.clip))
+		animation.speed_scale = float(gait.scale)
+		return
 	play("walk" if animation != null and animation.has_animation("walk") else "source_walk")
 	if animation != null:
 		animation.speed_scale = clampf(speed / WALK_STRIDE, 1.0, WALK_HASTE)
@@ -196,6 +265,8 @@ func _physics_process(delta: float) -> void:
 	if delta == 0.0:
 		return
 	_clock += delta
+	_age += delta
+	_telling = maxf(0.0, _telling - delta)
 	_lamp_zone_clock -= delta
 	if _lamp_zone_clock <= 0.0:
 		_lamp_zone_clock = LAMP_ZONE_SECONDS
@@ -274,7 +345,7 @@ func _walk_route(delta: float) -> void:
 	offset.y = 0.0
 	if offset.length() < (0.12 if _hall_navigation != null else 0.22) and (_hall_navigation == null or _hall_path.size() == 1):
 		_cleaning = job == "maid" and _point == 0
-		_wait = 4.0 if _cleaning else 1.2 + float(_point % 3) * 0.8
+		_wait = WIPE_SECONDS if _cleaning else 1.2 + float(_point % 3) * 0.8
 		_next_point()
 		play("idle")
 		return
@@ -294,7 +365,10 @@ func _walk_route(delta: float) -> void:
 	var speed := SPEED if _hall_navigation == null else minf(SPEED, offset.length() / maxf(delta, 0.001))
 	velocity.x = direction.x * speed
 	velocity.z = direction.z * speed
-	play("source_walk" if animation.has_animation("source_walk") else "walk")
+	if _recorded:
+		stride(speed)
+	else:
+		play("source_walk" if animation.has_animation("source_walk") else "walk")
 
 func _route_obstructed(direction: Vector3, distance: float) -> bool:
 	var space := get_world_3d().direct_space_state
@@ -317,9 +391,9 @@ func _next_point() -> void:
 func _update_bar(delta: float) -> void:
 	match state:
 		"working":
-			play("wipe")
+			play("bar")
 		"pouring":
-			play("pour", false)
+			play("pour", not _recorded)
 			_beer = minf(1.0, _beer + delta / 3.2)
 			if _beer >= 1.0:
 				state = "serving"
@@ -335,7 +409,9 @@ func _update_bar(delta: float) -> void:
 			play("idle")
 
 func _process(_delta: float) -> void:
-	if utensil != null and utensil.visible:
+	if utensil != null and HELD.has(job) and _recorded:
+		_hold_utensil()
+	elif utensil != null and utensil.visible:
 		utensil.global_transform = Transform3D(global_basis, hand_position(_right_hand))
 		if job == "bartender":
 			utensil.rotate_object_local(Vector3.FORWARD, -0.85)
@@ -343,7 +419,9 @@ func _process(_delta: float) -> void:
 		if state == "ready":
 			mug.global_transform = Transform3D(global_basis, global_position + global_basis * Vector3(0.1, 1.09, -0.79))
 		else:
-			mug.global_transform = Transform3D(global_basis, hand_position(_left_hand) + Vector3.UP * 0.02)
+			# The recorded serving sets the mug down with the right hand, free of the jug by then.
+			var hand := _right_hand if state == "serving" and _recorded else _left_hand
+			mug.global_transform = Transform3D(global_basis, hand_position(hand) + Vector3.UP * 0.02)
 		var liquid := mug.get_node("Beer") as MeshInstance3D
 		liquid.position.y = 0.018 + 0.115 * _beer
 	if stream != null and stream.visible:
@@ -353,6 +431,20 @@ func _process(_delta: float) -> void:
 		stream.global_position = (top + bottom) * 0.5
 		stream.global_basis = Basis(Quaternion(Vector3.UP, direction.normalized()))
 		stream.scale = Vector3(1, direction.length() / 0.15, 1)
+
+## The tool of the trade is in the hand while the body works with it; else it
+## lies by the work, or is put away where the work has no place for it.
+func _hold_utensil() -> void:
+	var held: Array = HELD[job]
+	if held.has(activity):
+		utensil.visible = true
+		utensil.global_transform = Transform3D(global_basis, hand_position(_right_hand))
+	elif UTENSIL_REST.has(job) and at_work():
+		var rest: Transform3D = UTENSIL_REST[job]
+		utensil.visible = true
+		utensil.global_transform = Transform3D(Basis(Vector3.UP, work_yaw), work_point) * rest
+	else:
+		utensil.visible = false
 
 func hand_position(index: int) -> Vector3:
 	if skeleton == null or index < 0: return global_position + Vector3.UP
@@ -388,6 +480,7 @@ func interact(player: Player) -> bool:
 ## they stand where they are and turn to them, and walk on `hold` seconds
 ## after the last call. Those who keep to one place do not turn from it.
 func stop_to_talk(listener: Vector3, delta: float, hold := TALK_HOLD) -> void:
+	_telling = maxf(_telling, hold)
 	if job != "maid" or not at_work() or seated:
 		return
 	_wait = maxf(_wait, hold)
