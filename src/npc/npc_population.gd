@@ -53,7 +53,7 @@ func _ready() -> void:
 	puff.material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	steam.mesh = puff
 	steam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	var maid := settle("lina", "bartender", "maid", Vector3(13.9, 6.95, -10.65))
+	var maid := settle("lina", "maid", "maid", Vector3(13.9, 6.95, -10.65))
 	if maid != null:
 		maid.route.assign([Vector3(13.9,6.95,-10.65), Vector3(13.9,6.95,-7.5), Vector3(11,6.95,-7.5), Vector3(11,6.95,-3.0)])
 	# The tested village road; no diagonal shortcuts through houses. Beside

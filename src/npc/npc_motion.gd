@@ -16,7 +16,7 @@ const GAITS: Array[String] = ["walk_slow", "walk", "walk_brisk"]
 const GAIT_SLOWEST := 0.7
 const GAIT_FASTEST := 1.9
 ## The models that are women: they walk by the gait recorded from a woman.
-const WOMEN: Array[String] = ["bartender"]
+const WOMEN: Array[String] = ["bartender", "maid"]
 const WOMANS_GAIT := "walk_woman"
 
 ## Model name -> AnimationLibrary, null for a model without recorded motion.

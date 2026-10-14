@@ -43,6 +43,10 @@ static func build(table: Dictionary, ground_level: float, materials: Dictionary)
 			material.set_shader_parameter("energy", spec.get("energy", 4.0))
 			material.set_shader_parameter("wildness", spec.get("wildness", 0.2))
 			material.set_shader_parameter("dusk_only", 1.0 if spec.get("dusk_only", false) else 0.0)
+			if spec.has("core"):
+				var core: Array = spec.core
+				var hot := Color(core[0], core[1], core[2]).srgb_to_linear()
+				material.set_shader_parameter("core_color", Vector3(hot.r, hot.g, hot.b))
 			materials[name] = material
 			continue
 		if spec.get("shader", "surface") == "foliage":

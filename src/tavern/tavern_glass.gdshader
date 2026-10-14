@@ -40,8 +40,10 @@ void fragment() {
 	float facing = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 	float fresnel = pow(1.0 - facing, 5.0);
 	float dust = smoothstep(0.35, 0.9, sin(world_pos.x * 7.3 + world_pos.y * 5.1) * sin(world_pos.z * 6.7 - world_pos.y * 3.9));
-	ALBEDO = glass_tint * 0.25;
 	ALPHA = clamp(clarity + dust * 0.04 + fresnel * 0.6, 0.0, 0.92);
+	// Premultiplied: the pane's own lit colour weighs as much as it covers, or the
+	// sun lights the whole sheet into a milky veil over the dark room behind it.
+	ALBEDO = glass_tint * 0.25 * ALPHA;
 	ROUGHNESS = roughness_value + dust * 0.1;
 	METALLIC = 0.0;
 	SPECULAR = 0.5;

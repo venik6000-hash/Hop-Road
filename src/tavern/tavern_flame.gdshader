@@ -8,6 +8,8 @@ global uniform vec3 sun_direction;
 
 uniform vec3 flame_color : source_color = vec3(1.0, 0.62, 0.25);
 uniform float energy = 4.0;
+// The hotter colour low in the flame's middle (linear).
+uniform vec3 core_color = vec3(1.0, 0.92, 0.75);
 // 0 for a steady candle, toward 1 for a roaring hearth fire.
 uniform float wildness = 0.2;
 // 1: lit from dusk to dawn only, as TavernSystem lights the lanterns outdoors.
@@ -49,6 +51,6 @@ void fragment() {
 	float tear = mix(1.0, smoothstep(0.25, 0.75, noise(vec2(uv.x * 6.0, y * 4.0 - t * 2.3))), wildness * y);
 	float flicker = 0.85 + 0.15 * sin(t * 9.0) * sin(t * 5.3 + 1.0);
 	// Hotter, whiter core low in the flame.
-	vec3 core = mix(flame_color, vec3(1.0, 0.92, 0.75), smoothstep(0.6, 0.0, abs(x) + y * 0.7));
+	vec3 core = mix(flame_color, core_color, smoothstep(0.6, 0.0, abs(x) + y * 0.7));
 	ALBEDO = core * body * tear * flicker * energy * lit;
 }

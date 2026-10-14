@@ -24,6 +24,12 @@ func configure(item: MeshInstance3D, extras: Dictionary) -> void:
 	leaf_shape.shape = item.mesh.create_convex_shape(true, true)
 	leaf_shape.transform = item.transform
 	add_child(leaf_shape)
+	# A leaf the table hangs open (tav_open, e.g. the kitchen's yard door)
+	# starts standing open, before the first frame is drawn.
+	if int(extras.get("tav_open", 0)) != 0:
+		opened = true
+		target_angle = open_angle
+		rotation.y = open_angle
 	add_to_group(&"tavern_door")
 
 func center() -> Vector3:
