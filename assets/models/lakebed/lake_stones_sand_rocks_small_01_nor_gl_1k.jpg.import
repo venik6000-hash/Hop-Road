@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bn7xs36oo36ui"
-path="res://.godot/imported/lake_stones_sand_rocks_small_01_nor_gl_1k.jpg-55ec1163d9a4323fe0349c6cf724cb37.ctex"
+path.s3tc="res://.godot/imported/lake_stones_sand_rocks_small_01_nor_gl_1k.jpg-55ec1163d9a4323fe0349c6cf724cb37.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "71403ef7066c7e3ab59e0f9caa4c33d4"
@@ -14,17 +15,17 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/lakebed/lake_stones_sand_rocks_small_01_nor_gl_1k.jpg"
-dest_files=["res://.godot/imported/lake_stones_sand_rocks_small_01_nor_gl_1k.jpg-55ec1163d9a4323fe0349c6cf724cb37.ctex"]
+dest_files=["res://.godot/imported/lake_stones_sand_rocks_small_01_nor_gl_1k.jpg-55ec1163d9a4323fe0349c6cf724cb37.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=1
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1

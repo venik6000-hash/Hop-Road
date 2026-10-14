@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://csmr7rxlklfs0"
-path="res://.godot/imported/bark_debris_bark_debris_01_arm_1k.jpg-142e8bf9d7b07883addf3bb565c0746f.ctex"
+path.bptc="res://.godot/imported/bark_debris_bark_debris_01_arm_1k.jpg-142e8bf9d7b07883addf3bb565c0746f.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "0644ff76b2e19c38ab19a687e911ff12"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/lakebed/bark_debris_bark_debris_01_arm_1k.jpg"
-dest_files=["res://.godot/imported/bark_debris_bark_debris_01_arm_1k.jpg-142e8bf9d7b07883addf3bb565c0746f.ctex"]
+dest_files=["res://.godot/imported/bark_debris_bark_debris_01_arm_1k.jpg-142e8bf9d7b07883addf3bb565c0746f.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

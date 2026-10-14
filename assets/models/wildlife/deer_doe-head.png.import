@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://carew5mocfhom"
-path="res://.godot/imported/deer_doe-head.png-990f50b0900a8275d812af3dd7085a80.ctex"
+path.bptc="res://.godot/imported/deer_doe-head.png-990f50b0900a8275d812af3dd7085a80.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "a86c1932f023ada81f18f31be05408e5"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/wildlife/deer_doe-head.png"
-dest_files=["res://.godot/imported/deer_doe-head.png-990f50b0900a8275d812af3dd7085a80.ctex"]
+dest_files=["res://.godot/imported/deer_doe-head.png-990f50b0900a8275d812af3dd7085a80.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

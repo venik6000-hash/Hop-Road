@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://3naj2qt034ij"
-path="res://.godot/imported/bartender_head-skin.png-9cea20c4e37862f26d8219e901dcb0b4.ctex"
+path.bptc="res://.godot/imported/bartender_head-skin.png-9cea20c4e37862f26d8219e901dcb0b4.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "e8ed3a8b6cfd2c179e94d48d0fcfe0b2"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/npc/bartender_head-skin.png"
-dest_files=["res://.godot/imported/bartender_head-skin.png-9cea20c4e37862f26d8219e901dcb0b4.ctex"]
+dest_files=["res://.godot/imported/bartender_head-skin.png-9cea20c4e37862f26d8219e901dcb0b4.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

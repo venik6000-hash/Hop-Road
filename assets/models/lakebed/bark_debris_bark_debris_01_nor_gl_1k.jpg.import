@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dws8qukqafqel"
-path="res://.godot/imported/bark_debris_bark_debris_01_nor_gl_1k.jpg-cb924ac6c414093e8c7e44b07b996481.ctex"
+path.s3tc="res://.godot/imported/bark_debris_bark_debris_01_nor_gl_1k.jpg-cb924ac6c414093e8c7e44b07b996481.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "108958738ebefa4c5094660fa361bc32"
@@ -14,17 +15,17 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/lakebed/bark_debris_bark_debris_01_nor_gl_1k.jpg"
-dest_files=["res://.godot/imported/bark_debris_bark_debris_01_nor_gl_1k.jpg-cb924ac6c414093e8c7e44b07b996481.ctex"]
+dest_files=["res://.godot/imported/bark_debris_bark_debris_01_nor_gl_1k.jpg-cb924ac6c414093e8c7e44b07b996481.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=1
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1

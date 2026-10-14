@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dwtbwom0i047k"
-path="res://.godot/imported/sunken_trunk_b_dead_tree_trunk_02_diff_1k.jpg-5c60075dede5274af3e17de3356f7e0d.ctex"
+path.bptc="res://.godot/imported/sunken_trunk_b_dead_tree_trunk_02_diff_1k.jpg-5c60075dede5274af3e17de3356f7e0d.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "583ca31da489f6a55ff0607dcf74eb94"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/lakebed/sunken_trunk_b_dead_tree_trunk_02_diff_1k.jpg"
-dest_files=["res://.godot/imported/sunken_trunk_b_dead_tree_trunk_02_diff_1k.jpg-5c60075dede5274af3e17de3356f7e0d.ctex"]
+dest_files=["res://.godot/imported/sunken_trunk_b_dead_tree_trunk_02_diff_1k.jpg-5c60075dede5274af3e17de3356f7e0d.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

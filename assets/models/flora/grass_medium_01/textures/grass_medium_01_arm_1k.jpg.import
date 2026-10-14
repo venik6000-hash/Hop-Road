@@ -3,20 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bg35hiskhh8rm"
-path="res://.godot/imported/grass_medium_01_arm_1k.jpg-598dd4753a0f4a31aff7fc1a1de1b49d.ctex"
+path.bptc="res://.godot/imported/grass_medium_01_arm_1k.jpg-598dd4753a0f4a31aff7fc1a1de1b49d.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/flora/grass_medium_01/textures/grass_medium_01_arm_1k.jpg"
-dest_files=["res://.godot/imported/grass_medium_01_arm_1k.jpg-598dd4753a0f4a31aff7fc1a1de1b49d.ctex"]
+dest_files=["res://.godot/imported/grass_medium_01_arm_1k.jpg-598dd4753a0f4a31aff7fc1a1de1b49d.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

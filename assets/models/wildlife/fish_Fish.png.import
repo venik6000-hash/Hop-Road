@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://8q0cgyldbauq"
-path="res://.godot/imported/fish_Fish.png-9b3e86778f874cefbf963030974855bd.ctex"
+path.bptc="res://.godot/imported/fish_Fish.png-9b3e86778f874cefbf963030974855bd.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "7e7fe6688bc1d28b0f7a6e9bf5f77624"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/wildlife/fish_Fish.png"
-dest_files=["res://.godot/imported/fish_Fish.png-9b3e86778f874cefbf963030974855bd.ctex"]
+dest_files=["res://.godot/imported/fish_Fish.png-9b3e86778f874cefbf963030974855bd.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

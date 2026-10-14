@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dg32ewtfn4u85"
-path="res://.godot/imported/driftwood_single_root_diff_1k.jpg-cc2bac878e9daaa5c463932294fbe49f.ctex"
+path.bptc="res://.godot/imported/driftwood_single_root_diff_1k.jpg-cc2bac878e9daaa5c463932294fbe49f.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "b19da1a377ab9eda6454e9472a944562"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/lakebed/driftwood_single_root_diff_1k.jpg"
-dest_files=["res://.godot/imported/driftwood_single_root_diff_1k.jpg-cc2bac878e9daaa5c463932294fbe49f.ctex"]
+dest_files=["res://.godot/imported/driftwood_single_root_diff_1k.jpg-cc2bac878e9daaa5c463932294fbe49f.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

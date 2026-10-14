@@ -161,7 +161,10 @@
         145,
         146,
         147,
-        148
+        148,
+        149,
+        150,
+        151
       ]
     }
   ],
@@ -835,10 +838,64 @@
     },
     {
       "extras": {
+        "tav_collide": "none",
+        "tav_shadow": 0,
+        "tav_reach": 28,
+        "tav_cuckoo": "bird",
+        "tav_out": [
+          0,
+          1,
+          0
+        ]
+      },
+      "mesh": 11,
+      "name": "cuckoo_bird.001",
+      "translation": [
+        13.500560760498047,
+        9.05848217010498,
+        -0.43373560905456543
+      ]
+    },
+    {
+      "extras": {
+        "tav_collide": "none",
+        "tav_shadow": 1,
+        "tav_reach": 40
+      },
+      "mesh": 12,
+      "name": "cuckoo_case.001",
+      "translation": [
+        13.5,
+        8.619999885559082,
+        -0.4067436158657074
+      ]
+    },
+    {
+      "extras": {
+        "tav_collide": "none",
+        "tav_shadow": 0,
+        "tav_reach": 28,
+        "tav_cuckoo": "door",
+        "tav_hinge": [
+          13.477187156677246,
+          0.4473290741443634,
+          8.619999885559082
+        ]
+      },
+      "mesh": 13,
+      "name": "cuckoo_door.001",
+      "translation": [
+        13.4915189743042,
+        9.055885314941406,
+        -0.4452831745147705
+      ]
+    },
+    {
+      "extras": {
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 11,
+      "mesh": 14,
       "name": "dining_table.001",
       "rotation": [
         0,
@@ -863,7 +920,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 12,
+      "mesh": 15,
       "name": "fancy_picture_frame_01.001",
       "rotation": [
         0,
@@ -883,7 +940,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 13,
+      "mesh": 16,
       "name": "food_apple_01.001",
       "rotation": [
         0,
@@ -908,7 +965,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 13,
+      "mesh": 16,
       "name": "food_apple_01.002",
       "rotation": [
         0,
@@ -933,7 +990,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 13,
+      "mesh": 16,
       "name": "food_apple_01.003",
       "rotation": [
         0,
@@ -958,7 +1015,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 13,
+      "mesh": 16,
       "name": "food_apple_01.004",
       "rotation": [
         0,
@@ -983,7 +1040,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 13,
+      "mesh": 16,
       "name": "food_apple_01.005",
       "rotation": [
         0,
@@ -1008,7 +1065,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 13,
+      "mesh": 16,
       "name": "food_apple_01.006",
       "rotation": [
         0,
@@ -1033,7 +1090,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 13,
+      "mesh": 16,
       "name": "food_apple_01.007",
       "rotation": [
         0,
@@ -1058,7 +1115,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 13,
+      "mesh": 16,
       "name": "food_apple_01.008",
       "rotation": [
         0,
@@ -1082,27 +1139,8 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 14,
+      "mesh": 17,
       "name": "gallinera_chair.001",
-      "rotation": [
-        0,
-        -0.9969539046287537,
-        0,
-        0.07799322158098221
-      ],
-      "translation": [
-        13.208377838134766,
-        6.929999828338623,
-        -3.268230438232422
-      ]
-    },
-    {
-      "extras": {
-        "tav_collide": "box",
-        "tav_shadow": 1
-      },
-      "mesh": 14,
-      "name": "gallinera_chair.002",
       "rotation": [
         0,
         -0.7756458520889282,
@@ -1120,8 +1158,8 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 14,
-      "name": "gallinera_chair.003",
+      "mesh": 17,
+      "name": "gallinera_chair.002",
       "rotation": [
         0,
         0.03990437090396881,
@@ -1139,8 +1177,8 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 14,
-      "name": "gallinera_chair.004",
+      "mesh": 17,
+      "name": "gallinera_chair.003",
       "rotation": [
         0,
         0.0985376164317131,
@@ -1158,8 +1196,8 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 14,
-      "name": "gallinera_chair.005",
+      "mesh": 17,
+      "name": "gallinera_chair.004",
       "rotation": [
         0,
         -0.6710053086280823,
@@ -1177,7 +1215,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 15,
+      "mesh": 18,
       "name": "gallinera_table.001",
       "rotation": [
         0,
@@ -1196,7 +1234,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 15,
+      "mesh": 18,
       "name": "gallinera_table.002",
       "rotation": [
         0,
@@ -1216,7 +1254,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 16,
+      "mesh": 19,
       "name": "goblet_a.001",
       "rotation": [
         0,
@@ -1241,7 +1279,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 16,
+      "mesh": 19,
       "name": "goblet_a.002",
       "rotation": [
         0,
@@ -1266,7 +1304,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 16,
+      "mesh": 19,
       "name": "goblet_a.003",
       "rotation": [
         0,
@@ -1291,7 +1329,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 17,
+      "mesh": 20,
       "name": "goblet_b.001",
       "rotation": [
         0,
@@ -1316,7 +1354,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 17,
+      "mesh": 20,
       "name": "goblet_b.002",
       "rotation": [
         0,
@@ -1341,7 +1379,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 17,
+      "mesh": 20,
       "name": "goblet_b.003",
       "rotation": [
         0,
@@ -1365,7 +1403,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 18,
+      "mesh": 21,
       "name": "GothicBed_01.001",
       "rotation": [
         0,
@@ -1384,7 +1422,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 18,
+      "mesh": 21,
       "name": "GothicBed_01.002",
       "rotation": [
         0,
@@ -1403,7 +1441,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 19,
+      "mesh": 22,
       "name": "GothicCabinet_01.001",
       "rotation": [
         0,
@@ -1423,7 +1461,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 20,
+      "mesh": 23,
       "name": "jug_01.001",
       "rotation": [
         0,
@@ -1448,7 +1486,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 21,
+      "mesh": 24,
       "name": "kite_shield.001",
       "rotation": [
         0,
@@ -1473,7 +1511,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 22,
+      "mesh": 25,
       "name": "Lantern_01.001",
       "rotation": [
         0,
@@ -1493,7 +1531,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 23,
+      "mesh": 26,
       "name": "metal_jug.001",
       "rotation": [
         0,
@@ -1518,7 +1556,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 24,
+      "mesh": 27,
       "name": "ornate_war_hammer.001",
       "rotation": [
         0.3233872056007385,
@@ -1538,7 +1576,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 25,
+      "mesh": 28,
       "name": "pear.001",
       "rotation": [
         0,
@@ -1558,7 +1596,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 25,
+      "mesh": 28,
       "name": "pear.002",
       "rotation": [
         0,
@@ -1578,7 +1616,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 25,
+      "mesh": 28,
       "name": "pear.003",
       "rotation": [
         0,
@@ -1598,7 +1636,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 25,
+      "mesh": 28,
       "name": "pear.004",
       "rotation": [
         0,
@@ -1618,7 +1656,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 25,
+      "mesh": 28,
       "name": "pear.005",
       "rotation": [
         0,
@@ -1638,7 +1676,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 25,
+      "mesh": 28,
       "name": "pear.006",
       "rotation": [
         0,
@@ -1658,7 +1696,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 25,
+      "mesh": 28,
       "name": "pear.007",
       "rotation": [
         0,
@@ -1678,7 +1716,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 25,
+      "mesh": 28,
       "name": "pear.008",
       "rotation": [
         0,
@@ -1694,21 +1732,40 @@
     },
     {
       "extras": {
+        "tav_collide": "box",
+        "tav_shadow": 1
+      },
+      "mesh": 29,
+      "name": "plaid_chair.001",
+      "rotation": [
+        0,
+        -0.9969539046287537,
+        0,
+        0.07799322158098221
+      ],
+      "translation": [
+        13.208377838134766,
+        6.929999828338623,
+        -3.268230438232422
+      ]
+    },
+    {
+      "extras": {
         "tav_collide": "none",
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 26,
+      "mesh": 30,
       "name": "ram_skull.001",
       "rotation": [
-        0,
-        -0.7071068286895752,
-        0,
-        0.7071067094802856
+        -0.13794966042041779,
+        -0.6935199499130249,
+        -0.13794967532157898,
+        0.6935198903083801
       ],
       "translation": [
-        4.653594970703125,
-        9.433130264282227,
+        4.526731967926025,
+        9.329630851745605,
         -4.900000095367432
       ]
     },
@@ -1718,22 +1775,22 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 26,
+      "mesh": 30,
       "name": "ram_skull.002",
       "rotation": [
-        0,
-        0.7071066498756409,
-        0,
-        0.70710688829422
+        -0.13794967532157898,
+        0.6935198307037354,
+        0.13794966042041779,
+        0.6935200095176697
       ],
       "scale": [
-        0.9199999570846558,
         0.9200000166893005,
+        0.9199999570846558,
         0.9199999570846558
       ],
       "translation": [
-        17.371492385864258,
-        9.480481147766113,
+        17.48980712890625,
+        9.635261535644531,
         -12.380000114440918
       ]
     },
@@ -1742,7 +1799,7 @@
         "tav_collide": "none",
         "tav_shadow": 1
       },
-      "mesh": 27,
+      "mesh": 31,
       "name": "reserve_cask.001",
       "scale": [
         0.7861655950546265,
@@ -1760,7 +1817,7 @@
         "tav_collide": "none",
         "tav_shadow": 1
       },
-      "mesh": 27,
+      "mesh": 31,
       "name": "reserve_cask.002",
       "scale": [
         0.7861655950546265,
@@ -1778,7 +1835,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 28,
+      "mesh": 32,
       "name": "Rockingchair_01.001",
       "rotation": [
         0,
@@ -1797,7 +1854,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 29,
+      "mesh": 33,
       "name": "spinning_wheel_01.001",
       "rotation": [
         0,
@@ -1816,7 +1873,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 30,
+      "mesh": 34,
       "name": "standing_chalkboard_01.001",
       "rotation": [
         0,
@@ -1835,7 +1892,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 31,
+      "mesh": 35,
       "name": "treasure_chest.001",
       "scale": [
         0.8999999761581421,
@@ -1853,7 +1910,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 31,
+      "mesh": 35,
       "name": "treasure_chest.002",
       "rotation": [
         0,
@@ -1872,7 +1929,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 31,
+      "mesh": 35,
       "name": "treasure_chest.003",
       "rotation": [
         0,
@@ -1896,7 +1953,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 31,
+      "mesh": 35,
       "name": "treasure_chest.004",
       "rotation": [
         0,
@@ -1921,7 +1978,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 32,
+      "mesh": 36,
       "name": "wicker_basket_01.001",
       "rotation": [
         0,
@@ -1946,7 +2003,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 32,
+      "mesh": 36,
       "name": "wicker_basket_01.002",
       "rotation": [
         0,
@@ -1971,7 +2028,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 32,
+      "mesh": 36,
       "name": "wicker_basket_01.003",
       "rotation": [
         0,
@@ -1991,7 +2048,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 32,
+      "mesh": 36,
       "name": "wicker_basket_01.004",
       "rotation": [
         0,
@@ -2011,7 +2068,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 32,
+      "mesh": 36,
       "name": "wicker_basket_01.005",
       "rotation": [
         0,
@@ -2036,7 +2093,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 32,
+      "mesh": 36,
       "name": "wicker_basket_01.006",
       "rotation": [
         0,
@@ -2061,7 +2118,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 33,
+      "mesh": 37,
       "name": "wicker_basket_02.001",
       "rotation": [
         0,
@@ -2081,7 +2138,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 34,
+      "mesh": 38,
       "name": "wooden_axe.001",
       "rotation": [
         0.8517311811447144,
@@ -2100,7 +2157,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 35,
+      "mesh": 39,
       "name": "wooden_bookshelf_worn.001",
       "rotation": [
         0,
@@ -2125,7 +2182,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 36,
+      "mesh": 40,
       "name": "wooden_bowl_01.001",
       "rotation": [
         0,
@@ -2145,7 +2202,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 36,
+      "mesh": 40,
       "name": "wooden_bowl_01.002",
       "rotation": [
         0,
@@ -2165,7 +2222,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 37,
+      "mesh": 41,
       "name": "wooden_bowl_02.001",
       "rotation": [
         0,
@@ -2190,7 +2247,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 37,
+      "mesh": 41,
       "name": "wooden_bowl_02.002",
       "rotation": [
         0,
@@ -2210,7 +2267,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 37,
+      "mesh": 41,
       "name": "wooden_bowl_02.003",
       "rotation": [
         0,
@@ -2230,7 +2287,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 37,
+      "mesh": 41,
       "name": "wooden_bowl_02.004",
       "rotation": [
         0,
@@ -2250,7 +2307,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 37,
+      "mesh": 41,
       "name": "wooden_bowl_02.005",
       "rotation": [
         0,
@@ -2270,7 +2327,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 37,
+      "mesh": 41,
       "name": "wooden_bowl_02.006",
       "rotation": [
         0,
@@ -2290,7 +2347,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 37,
+      "mesh": 41,
       "name": "wooden_bowl_02.007",
       "rotation": [
         0,
@@ -2310,7 +2367,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 37,
+      "mesh": 41,
       "name": "wooden_bowl_02.008",
       "rotation": [
         0,
@@ -2330,7 +2387,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 37,
+      "mesh": 41,
       "name": "wooden_bowl_02.009",
       "rotation": [
         0,
@@ -2355,7 +2412,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 38,
+      "mesh": 42,
       "name": "wooden_broom.001",
       "rotation": [
         -0.07762499898672104,
@@ -2375,7 +2432,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 38,
+      "mesh": 42,
       "name": "wooden_broom.002",
       "rotation": [
         0,
@@ -2395,7 +2452,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 39,
+      "mesh": 43,
       "name": "wooden_bucket_01.001",
       "rotation": [
         0,
@@ -2420,7 +2477,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 39,
+      "mesh": 43,
       "name": "wooden_bucket_01.002",
       "rotation": [
         0,
@@ -2439,7 +2496,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 39,
+      "mesh": 43,
       "name": "wooden_bucket_01.003",
       "rotation": [
         0,
@@ -2459,7 +2516,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 39,
+      "mesh": 43,
       "name": "wooden_bucket_01.004",
       "rotation": [
         0,
@@ -2479,7 +2536,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 39,
+      "mesh": 43,
       "name": "wooden_bucket_01.005",
       "rotation": [
         0,
@@ -2499,7 +2556,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 39,
+      "mesh": 43,
       "name": "wooden_bucket_01.006",
       "rotation": [
         0,
@@ -2518,7 +2575,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 40,
+      "mesh": 44,
       "name": "wooden_bucket_02.001",
       "rotation": [
         0,
@@ -2538,7 +2595,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 40,
+      "mesh": 44,
       "name": "wooden_bucket_02.002",
       "rotation": [
         0,
@@ -2558,7 +2615,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 40,
+      "mesh": 44,
       "name": "wooden_bucket_02.003",
       "rotation": [
         0,
@@ -2577,7 +2634,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 41,
+      "mesh": 45,
       "name": "wooden_crate_01.001",
       "rotation": [
         0,
@@ -2596,7 +2653,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 41,
+      "mesh": 45,
       "name": "wooden_crate_01.002",
       "rotation": [
         0,
@@ -2615,7 +2672,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 41,
+      "mesh": 45,
       "name": "wooden_crate_01.003",
       "rotation": [
         0,
@@ -2634,7 +2691,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 41,
+      "mesh": 45,
       "name": "wooden_crate_01.004",
       "rotation": [
         0,
@@ -2653,7 +2710,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 42,
+      "mesh": 46,
       "name": "wooden_crate_02.001",
       "rotation": [
         0,
@@ -2672,7 +2729,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 42,
+      "mesh": 46,
       "name": "wooden_crate_02.002",
       "translation": [
         15.199999809265137,
@@ -2685,7 +2742,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 42,
+      "mesh": 46,
       "name": "wooden_crate_02.003",
       "rotation": [
         0,
@@ -2705,7 +2762,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 43,
+      "mesh": 47,
       "name": "wooden_cutting_board.001",
       "rotation": [
         0,
@@ -2724,7 +2781,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 44,
+      "mesh": 48,
       "name": "wooden_display_shelves_01.001",
       "rotation": [
         0,
@@ -2748,7 +2805,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 45,
+      "mesh": 49,
       "name": "wooden_ladder.001",
       "rotation": [
         0,
@@ -2768,7 +2825,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 46,
+      "mesh": 50,
       "name": "wooden_lantern_01.001",
       "rotation": [
         0,
@@ -2793,7 +2850,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 46,
+      "mesh": 50,
       "name": "wooden_lantern_01.002",
       "rotation": [
         0,
@@ -2813,7 +2870,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 46,
+      "mesh": 50,
       "name": "wooden_lantern_01.003",
       "rotation": [
         0,
@@ -2838,7 +2895,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 46,
+      "mesh": 50,
       "name": "wooden_lantern_01.004",
       "rotation": [
         0,
@@ -2863,7 +2920,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 46,
+      "mesh": 50,
       "name": "wooden_lantern_01.005",
       "rotation": [
         0,
@@ -2888,7 +2945,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 47,
+      "mesh": 51,
       "name": "wooden_spoon.001",
       "rotation": [
         0,
@@ -2913,7 +2970,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 47,
+      "mesh": 51,
       "name": "wooden_spoon.002",
       "rotation": [
         0,
@@ -2932,7 +2989,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 48,
+      "mesh": 52,
       "name": "wooden_stool_01.001",
       "rotation": [
         0,
@@ -2951,7 +3008,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 48,
+      "mesh": 52,
       "name": "wooden_stool_01.002",
       "rotation": [
         0,
@@ -2970,7 +3027,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 48,
+      "mesh": 52,
       "name": "wooden_stool_01.003",
       "rotation": [
         0,
@@ -2989,7 +3046,7 @@
         "tav_collide": "box",
         "tav_shadow": 1
       },
-      "mesh": 48,
+      "mesh": 52,
       "name": "wooden_stool_01.004",
       "rotation": [
         0,
@@ -3009,7 +3066,7 @@
         "tav_shadow": 1,
         "tav_reach": 40
       },
-      "mesh": 49,
+      "mesh": 53,
       "name": "wooden_stool_02.001",
       "rotation": [
         0,
@@ -3029,7 +3086,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 50,
+      "mesh": 54,
       "name": "yellow_onion.001",
       "rotation": [
         0,
@@ -3049,7 +3106,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 50,
+      "mesh": 54,
       "name": "yellow_onion.002",
       "rotation": [
         0,
@@ -3069,7 +3126,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 50,
+      "mesh": 54,
       "name": "yellow_onion.003",
       "rotation": [
         0,
@@ -3089,7 +3146,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 50,
+      "mesh": 54,
       "name": "yellow_onion.004",
       "rotation": [
         0,
@@ -3109,7 +3166,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 50,
+      "mesh": 54,
       "name": "yellow_onion.005",
       "rotation": [
         0,
@@ -3129,7 +3186,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 50,
+      "mesh": 54,
       "name": "yellow_onion.006",
       "rotation": [
         0,
@@ -3149,7 +3206,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 50,
+      "mesh": 54,
       "name": "yellow_onion.007",
       "rotation": [
         0,
@@ -3169,7 +3226,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 50,
+      "mesh": 54,
       "name": "yellow_onion.008",
       "rotation": [
         0,
@@ -3189,7 +3246,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 50,
+      "mesh": 54,
       "name": "yellow_onion.009",
       "rotation": [
         0,
@@ -3209,7 +3266,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 50,
+      "mesh": 54,
       "name": "yellow_onion.010",
       "rotation": [
         0,
@@ -3229,7 +3286,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 50,
+      "mesh": 54,
       "name": "yellow_onion.011",
       "rotation": [
         0,
@@ -3249,7 +3306,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 50,
+      "mesh": 54,
       "name": "yellow_onion.012",
       "rotation": [
         0,
@@ -3269,7 +3326,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 50,
+      "mesh": 54,
       "name": "yellow_onion.013",
       "rotation": [
         0,
@@ -3289,7 +3346,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 50,
+      "mesh": 54,
       "name": "yellow_onion.014",
       "rotation": [
         0,
@@ -3309,7 +3366,7 @@
         "tav_shadow": 0,
         "tav_reach": 28
       },
-      "mesh": 50,
+      "mesh": 54,
       "name": "yellow_onion.015",
       "rotation": [
         0,
@@ -3487,7 +3544,16 @@
     },
     {
       "doubleSided": true,
-      "name": "dining_table",
+      "extensions": {
+        "KHR_materials_specular": {
+          "specularColorFactor": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      "name": "cuckoo_clock.001",
       "normalTexture": {
         "index": 30
       },
@@ -3495,7 +3561,6 @@
         "baseColorTexture": {
           "index": 31
         },
-        "metallicFactor": 0,
         "metallicRoughnessTexture": {
           "index": 32
         }
@@ -3503,7 +3568,7 @@
     },
     {
       "doubleSided": true,
-      "name": "fancy_picture_frame_01",
+      "name": "dining_table",
       "normalTexture": {
         "index": 33
       },
@@ -3519,7 +3584,7 @@
     },
     {
       "doubleSided": true,
-      "name": "fancy_picture_frame_01_canvas",
+      "name": "fancy_picture_frame_01",
       "normalTexture": {
         "index": 36
       },
@@ -3535,7 +3600,7 @@
     },
     {
       "doubleSided": true,
-      "name": "food_apple_01",
+      "name": "fancy_picture_frame_01_canvas",
       "normalTexture": {
         "index": 39
       },
@@ -3551,7 +3616,7 @@
     },
     {
       "doubleSided": true,
-      "name": "gallinera_chair",
+      "name": "food_apple_01",
       "normalTexture": {
         "index": 42
       },
@@ -3567,7 +3632,7 @@
     },
     {
       "doubleSided": true,
-      "name": "gallinera_table",
+      "name": "gallinera_chair",
       "normalTexture": {
         "index": 45
       },
@@ -3583,7 +3648,7 @@
     },
     {
       "doubleSided": true,
-      "name": "brass_goblets_01",
+      "name": "gallinera_table",
       "normalTexture": {
         "index": 48
       },
@@ -3591,6 +3656,7 @@
         "baseColorTexture": {
           "index": 49
         },
+        "metallicFactor": 0,
         "metallicRoughnessTexture": {
           "index": 50
         }
@@ -3598,7 +3664,7 @@
     },
     {
       "doubleSided": true,
-      "name": "brass_goblets_02",
+      "name": "brass_goblets_01",
       "normalTexture": {
         "index": 51
       },
@@ -3613,7 +3679,7 @@
     },
     {
       "doubleSided": true,
-      "name": "GothicBed_01",
+      "name": "brass_goblets_02",
       "normalTexture": {
         "index": 54
       },
@@ -3628,7 +3694,7 @@
     },
     {
       "doubleSided": true,
-      "name": "GothicCabinet_01",
+      "name": "GothicBed_01",
       "normalTexture": {
         "index": 57
       },
@@ -3643,7 +3709,7 @@
     },
     {
       "doubleSided": true,
-      "name": "jug_01",
+      "name": "GothicCabinet_01",
       "normalTexture": {
         "index": 60
       },
@@ -3658,7 +3724,7 @@
     },
     {
       "doubleSided": true,
-      "name": "kite_shield_body",
+      "name": "jug_01",
       "normalTexture": {
         "index": 63
       },
@@ -3673,7 +3739,7 @@
     },
     {
       "doubleSided": true,
-      "name": "kite_shield_clamps_and_trim",
+      "name": "kite_shield_body",
       "normalTexture": {
         "index": 66
       },
@@ -3688,12 +3754,7 @@
     },
     {
       "doubleSided": true,
-      "extensions": {
-        "KHR_materials_transmission": {
-          "transmissionFactor": 1
-        }
-      },
-      "name": "Lantern_01_brass",
+      "name": "kite_shield_clamps_and_trim",
       "normalTexture": {
         "index": 69
       },
@@ -3707,9 +3768,13 @@
       }
     },
     {
-      "alphaMode": "BLEND",
       "doubleSided": true,
-      "name": "Lantern_01_glass",
+      "extensions": {
+        "KHR_materials_transmission": {
+          "transmissionFactor": 1
+        }
+      },
+      "name": "Lantern_01_brass",
       "normalTexture": {
         "index": 72
       },
@@ -3723,8 +3788,9 @@
       }
     },
     {
+      "alphaMode": "BLEND",
       "doubleSided": true,
-      "name": "metal_jug",
+      "name": "Lantern_01_glass",
       "normalTexture": {
         "index": 75
       },
@@ -3732,7 +3798,6 @@
         "baseColorTexture": {
           "index": 76
         },
-        "metallicFactor": 0,
         "metallicRoughnessTexture": {
           "index": 77
         }
@@ -3740,7 +3805,7 @@
     },
     {
       "doubleSided": true,
-      "name": "ornate_war_hammer",
+      "name": "metal_jug",
       "normalTexture": {
         "index": 78
       },
@@ -3748,6 +3813,7 @@
         "baseColorTexture": {
           "index": 79
         },
+        "metallicFactor": 0,
         "metallicRoughnessTexture": {
           "index": 80
         }
@@ -3755,7 +3821,7 @@
     },
     {
       "doubleSided": true,
-      "name": "food_pears_asian_01",
+      "name": "ornate_war_hammer",
       "normalTexture": {
         "index": 81
       },
@@ -3763,7 +3829,6 @@
         "baseColorTexture": {
           "index": 82
         },
-        "metallicFactor": 0,
         "metallicRoughnessTexture": {
           "index": 83
         }
@@ -3771,7 +3836,7 @@
     },
     {
       "doubleSided": true,
-      "name": "ram_skull",
+      "name": "food_pears_asian_01",
       "normalTexture": {
         "index": 84
       },
@@ -3779,6 +3844,7 @@
         "baseColorTexture": {
           "index": 85
         },
+        "metallicFactor": 0,
         "metallicRoughnessTexture": {
           "index": 86
         }
@@ -3786,7 +3852,16 @@
     },
     {
       "doubleSided": true,
-      "name": "wooden_barrels_01_barrel01",
+      "extensions": {
+        "KHR_materials_specular": {
+          "specularColorFactor": [
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      "name": "plaid_chair.001",
       "normalTexture": {
         "index": 87
       },
@@ -3801,7 +3876,7 @@
     },
     {
       "doubleSided": true,
-      "name": "Rockingchair_01",
+      "name": "ram_skull",
       "normalTexture": {
         "index": 90
       },
@@ -3816,7 +3891,7 @@
     },
     {
       "doubleSided": true,
-      "name": "spinning_wheel_01",
+      "name": "wooden_barrels_01_barrel01",
       "normalTexture": {
         "index": 93
       },
@@ -3831,7 +3906,7 @@
     },
     {
       "doubleSided": true,
-      "name": "standing_chalkboard_01_frame",
+      "name": "Rockingchair_01",
       "normalTexture": {
         "index": 96
       },
@@ -3846,7 +3921,7 @@
     },
     {
       "doubleSided": true,
-      "name": "standing_chalkboard_01_board",
+      "name": "spinning_wheel_01",
       "normalTexture": {
         "index": 99
       },
@@ -3861,7 +3936,7 @@
     },
     {
       "doubleSided": true,
-      "name": "treasure_chest",
+      "name": "standing_chalkboard_01_frame",
       "normalTexture": {
         "index": 102
       },
@@ -3876,7 +3951,7 @@
     },
     {
       "doubleSided": true,
-      "name": "wicker_basket_01",
+      "name": "standing_chalkboard_01_board",
       "normalTexture": {
         "index": 105
       },
@@ -3891,7 +3966,7 @@
     },
     {
       "doubleSided": true,
-      "name": "wicker_basket_02",
+      "name": "treasure_chest",
       "normalTexture": {
         "index": 108
       },
@@ -3899,7 +3974,6 @@
         "baseColorTexture": {
           "index": 109
         },
-        "metallicFactor": 0,
         "metallicRoughnessTexture": {
           "index": 110
         }
@@ -3907,7 +3981,7 @@
     },
     {
       "doubleSided": true,
-      "name": "wooden_axe",
+      "name": "wicker_basket_01",
       "normalTexture": {
         "index": 111
       },
@@ -3922,7 +3996,7 @@
     },
     {
       "doubleSided": true,
-      "name": "wooden_bookshelf_worn",
+      "name": "wicker_basket_02",
       "normalTexture": {
         "index": 114
       },
@@ -3930,6 +4004,7 @@
         "baseColorTexture": {
           "index": 115
         },
+        "metallicFactor": 0,
         "metallicRoughnessTexture": {
           "index": 116
         }
@@ -3937,7 +4012,7 @@
     },
     {
       "doubleSided": true,
-      "name": "wooden_bowl_01",
+      "name": "wooden_axe",
       "normalTexture": {
         "index": 117
       },
@@ -3945,7 +4020,6 @@
         "baseColorTexture": {
           "index": 118
         },
-        "metallicFactor": 0,
         "metallicRoughnessTexture": {
           "index": 119
         }
@@ -3953,7 +4027,7 @@
     },
     {
       "doubleSided": true,
-      "name": "wooden_bowl_02",
+      "name": "wooden_bookshelf_worn",
       "normalTexture": {
         "index": 120
       },
@@ -3961,9 +4035,40 @@
         "baseColorTexture": {
           "index": 121
         },
-        "metallicFactor": 0,
         "metallicRoughnessTexture": {
           "index": 122
+        }
+      }
+    },
+    {
+      "doubleSided": true,
+      "name": "wooden_bowl_01",
+      "normalTexture": {
+        "index": 123
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 124
+        },
+        "metallicFactor": 0,
+        "metallicRoughnessTexture": {
+          "index": 125
+        }
+      }
+    },
+    {
+      "doubleSided": true,
+      "name": "wooden_bowl_02",
+      "normalTexture": {
+        "index": 126
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 127
+        },
+        "metallicFactor": 0,
+        "metallicRoughnessTexture": {
+          "index": 128
         }
       }
     },
@@ -3976,14 +4081,14 @@
       },
       "name": "wooden_broom",
       "normalTexture": {
-        "index": 123
+        "index": 129
       },
       "pbrMetallicRoughness": {
         "baseColorTexture": {
-          "index": 124
+          "index": 130
         },
         "metallicRoughnessTexture": {
-          "index": 125
+          "index": 131
         }
       }
     },
@@ -3993,7 +4098,7 @@
       "name": "wooden_broom_bristles",
       "pbrMetallicRoughness": {
         "baseColorTexture": {
-          "index": 126
+          "index": 132
         },
         "metallicFactor": 0,
         "roughnessFactor": 0.5
@@ -4002,36 +4107,6 @@
     {
       "doubleSided": true,
       "name": "wooden_bucket_01",
-      "normalTexture": {
-        "index": 127
-      },
-      "pbrMetallicRoughness": {
-        "baseColorTexture": {
-          "index": 128
-        },
-        "metallicRoughnessTexture": {
-          "index": 129
-        }
-      }
-    },
-    {
-      "doubleSided": true,
-      "name": "wooden_bucket_02",
-      "normalTexture": {
-        "index": 130
-      },
-      "pbrMetallicRoughness": {
-        "baseColorTexture": {
-          "index": 131
-        },
-        "metallicRoughnessTexture": {
-          "index": 132
-        }
-      }
-    },
-    {
-      "doubleSided": true,
-      "name": "wooden_crate_01",
       "normalTexture": {
         "index": 133
       },
@@ -4046,7 +4121,7 @@
     },
     {
       "doubleSided": true,
-      "name": "wooden_crate_02",
+      "name": "wooden_bucket_02",
       "normalTexture": {
         "index": 136
       },
@@ -4061,7 +4136,7 @@
     },
     {
       "doubleSided": true,
-      "name": "wooden_cutting_board",
+      "name": "wooden_crate_01",
       "normalTexture": {
         "index": 139
       },
@@ -4069,7 +4144,6 @@
         "baseColorTexture": {
           "index": 140
         },
-        "metallicFactor": 0,
         "metallicRoughnessTexture": {
           "index": 141
         }
@@ -4077,7 +4151,7 @@
     },
     {
       "doubleSided": true,
-      "name": "wooden_display_shelves_01.001",
+      "name": "wooden_crate_02",
       "normalTexture": {
         "index": 142
       },
@@ -4092,7 +4166,7 @@
     },
     {
       "doubleSided": true,
-      "name": "wooden_ladder",
+      "name": "wooden_cutting_board",
       "normalTexture": {
         "index": 145
       },
@@ -4100,6 +4174,7 @@
         "baseColorTexture": {
           "index": 146
         },
+        "metallicFactor": 0,
         "metallicRoughnessTexture": {
           "index": 147
         }
@@ -4107,7 +4182,7 @@
     },
     {
       "doubleSided": true,
-      "name": "wooden_lantern_01",
+      "name": "wooden_display_shelves_01.001",
       "normalTexture": {
         "index": 148
       },
@@ -4121,9 +4196,8 @@
       }
     },
     {
-      "alphaMode": "BLEND",
       "doubleSided": true,
-      "name": "wooden_lantern_01_glass",
+      "name": "wooden_ladder",
       "normalTexture": {
         "index": 151
       },
@@ -4138,7 +4212,7 @@
     },
     {
       "doubleSided": true,
-      "name": "wooden_spoon",
+      "name": "wooden_lantern_01",
       "normalTexture": {
         "index": 154
       },
@@ -4146,15 +4220,15 @@
         "baseColorTexture": {
           "index": 155
         },
-        "metallicFactor": 0,
         "metallicRoughnessTexture": {
           "index": 156
         }
       }
     },
     {
+      "alphaMode": "BLEND",
       "doubleSided": true,
-      "name": "wooden_stool_01",
+      "name": "wooden_lantern_01_glass",
       "normalTexture": {
         "index": 157
       },
@@ -4162,7 +4236,6 @@
         "baseColorTexture": {
           "index": 158
         },
-        "metallicFactor": 0,
         "metallicRoughnessTexture": {
           "index": 159
         }
@@ -4170,7 +4243,7 @@
     },
     {
       "doubleSided": true,
-      "name": "wooden_stool_02",
+      "name": "wooden_spoon",
       "normalTexture": {
         "index": 160
       },
@@ -4186,7 +4259,7 @@
     },
     {
       "doubleSided": true,
-      "name": "yellow_onion",
+      "name": "wooden_stool_01",
       "normalTexture": {
         "index": 163
       },
@@ -4197,6 +4270,38 @@
         "metallicFactor": 0,
         "metallicRoughnessTexture": {
           "index": 165
+        }
+      }
+    },
+    {
+      "doubleSided": true,
+      "name": "wooden_stool_02",
+      "normalTexture": {
+        "index": 166
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 167
+        },
+        "metallicFactor": 0,
+        "metallicRoughnessTexture": {
+          "index": 168
+        }
+      }
+    },
+    {
+      "doubleSided": true,
+      "name": "yellow_onion",
+      "normalTexture": {
+        "index": 169
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 170
+        },
+        "metallicFactor": 0,
+        "metallicRoughnessTexture": {
+          "index": 171
         }
       }
     }
@@ -4357,7 +4462,7 @@
       ]
     },
     {
-      "name": "dining_table",
+      "name": "cuckoo_bird",
       "primitives": [
         {
           "attributes": {
@@ -4371,7 +4476,7 @@
       ]
     },
     {
-      "name": "fancy_picture_frame_01",
+      "name": "cuckoo_case",
       "primitives": [
         {
           "attributes": {
@@ -4380,21 +4485,12 @@
             "TEXCOORD_0": 66
           },
           "indices": 67,
-          "material": 11
-        },
-        {
-          "attributes": {
-            "POSITION": 4,
-            "NORMAL": 5,
-            "TEXCOORD_0": 6
-          },
-          "indices": 7,
-          "material": 12
+          "material": 10
         }
       ]
     },
     {
-      "name": "food_apple_01",
+      "name": "cuckoo_door",
       "primitives": [
         {
           "attributes": {
@@ -4403,12 +4499,12 @@
             "TEXCOORD_0": 70
           },
           "indices": 71,
-          "material": 13
+          "material": 10
         }
       ]
     },
     {
-      "name": "gallinera_chair",
+      "name": "dining_table",
       "primitives": [
         {
           "attributes": {
@@ -4417,12 +4513,12 @@
             "TEXCOORD_0": 74
           },
           "indices": 75,
-          "material": 14
+          "material": 11
         }
       ]
     },
     {
-      "name": "gallinera_table",
+      "name": "fancy_picture_frame_01",
       "primitives": [
         {
           "attributes": {
@@ -4431,12 +4527,21 @@
             "TEXCOORD_0": 78
           },
           "indices": 79,
-          "material": 15
+          "material": 12
+        },
+        {
+          "attributes": {
+            "POSITION": 4,
+            "NORMAL": 5,
+            "TEXCOORD_0": 6
+          },
+          "indices": 7,
+          "material": 13
         }
       ]
     },
     {
-      "name": "goblet_a",
+      "name": "food_apple_01",
       "primitives": [
         {
           "attributes": {
@@ -4445,12 +4550,12 @@
             "TEXCOORD_0": 82
           },
           "indices": 83,
-          "material": 16
+          "material": 14
         }
       ]
     },
     {
-      "name": "goblet_b",
+      "name": "gallinera_chair",
       "primitives": [
         {
           "attributes": {
@@ -4459,12 +4564,12 @@
             "TEXCOORD_0": 86
           },
           "indices": 87,
-          "material": 17
+          "material": 15
         }
       ]
     },
     {
-      "name": "GothicBed_01",
+      "name": "gallinera_table",
       "primitives": [
         {
           "attributes": {
@@ -4473,12 +4578,12 @@
             "TEXCOORD_0": 90
           },
           "indices": 91,
-          "material": 18
+          "material": 16
         }
       ]
     },
     {
-      "name": "GothicCabinet_01",
+      "name": "goblet_a",
       "primitives": [
         {
           "attributes": {
@@ -4487,12 +4592,12 @@
             "TEXCOORD_0": 94
           },
           "indices": 95,
-          "material": 19
+          "material": 17
         }
       ]
     },
     {
-      "name": "jug_01",
+      "name": "goblet_b",
       "primitives": [
         {
           "attributes": {
@@ -4501,12 +4606,12 @@
             "TEXCOORD_0": 98
           },
           "indices": 99,
-          "material": 20
+          "material": 18
         }
       ]
     },
     {
-      "name": "kite_shield",
+      "name": "GothicBed_01",
       "primitives": [
         {
           "attributes": {
@@ -4515,8 +4620,13 @@
             "TEXCOORD_0": 102
           },
           "indices": 103,
-          "material": 21
-        },
+          "material": 19
+        }
+      ]
+    },
+    {
+      "name": "GothicCabinet_01",
+      "primitives": [
         {
           "attributes": {
             "POSITION": 104,
@@ -4524,12 +4634,12 @@
             "TEXCOORD_0": 106
           },
           "indices": 107,
-          "material": 22
+          "material": 20
         }
       ]
     },
     {
-      "name": "Lantern_01",
+      "name": "jug_01",
       "primitives": [
         {
           "attributes": {
@@ -4538,8 +4648,13 @@
             "TEXCOORD_0": 110
           },
           "indices": 111,
-          "material": 23
-        },
+          "material": 21
+        }
+      ]
+    },
+    {
+      "name": "kite_shield",
+      "primitives": [
         {
           "attributes": {
             "POSITION": 112,
@@ -4547,13 +4662,8 @@
             "TEXCOORD_0": 114
           },
           "indices": 115,
-          "material": 24
-        }
-      ]
-    },
-    {
-      "name": "metal_jug",
-      "primitives": [
+          "material": 22
+        },
         {
           "attributes": {
             "POSITION": 116,
@@ -4561,12 +4671,12 @@
             "TEXCOORD_0": 118
           },
           "indices": 119,
-          "material": 25
+          "material": 23
         }
       ]
     },
     {
-      "name": "ornate_war_hammer",
+      "name": "Lantern_01",
       "primitives": [
         {
           "attributes": {
@@ -4575,13 +4685,8 @@
             "TEXCOORD_0": 122
           },
           "indices": 123,
-          "material": 26
-        }
-      ]
-    },
-    {
-      "name": "pear",
-      "primitives": [
+          "material": 24
+        },
         {
           "attributes": {
             "POSITION": 124,
@@ -4589,12 +4694,12 @@
             "TEXCOORD_0": 126
           },
           "indices": 127,
-          "material": 27
+          "material": 25
         }
       ]
     },
     {
-      "name": "ram_skull",
+      "name": "metal_jug",
       "primitives": [
         {
           "attributes": {
@@ -4603,12 +4708,12 @@
             "TEXCOORD_0": 130
           },
           "indices": 131,
-          "material": 28
+          "material": 26
         }
       ]
     },
     {
-      "name": "reserve_cask",
+      "name": "ornate_war_hammer",
       "primitives": [
         {
           "attributes": {
@@ -4617,12 +4722,12 @@
             "TEXCOORD_0": 134
           },
           "indices": 135,
-          "material": 29
+          "material": 27
         }
       ]
     },
     {
-      "name": "Rockingchair_01",
+      "name": "pear",
       "primitives": [
         {
           "attributes": {
@@ -4631,12 +4736,12 @@
             "TEXCOORD_0": 138
           },
           "indices": 139,
-          "material": 30
+          "material": 28
         }
       ]
     },
     {
-      "name": "spinning_wheel_01",
+      "name": "plaid_chair",
       "primitives": [
         {
           "attributes": {
@@ -4645,12 +4750,12 @@
             "TEXCOORD_0": 142
           },
           "indices": 143,
-          "material": 31
+          "material": 29
         }
       ]
     },
     {
-      "name": "standing_chalkboard_01",
+      "name": "ram_skull",
       "primitives": [
         {
           "attributes": {
@@ -4659,21 +4764,12 @@
             "TEXCOORD_0": 146
           },
           "indices": 147,
-          "material": 32
-        },
-        {
-          "attributes": {
-            "POSITION": 8,
-            "NORMAL": 9,
-            "TEXCOORD_0": 10
-          },
-          "indices": 11,
-          "material": 33
+          "material": 30
         }
       ]
     },
     {
-      "name": "treasure_chest",
+      "name": "reserve_cask",
       "primitives": [
         {
           "attributes": {
@@ -4682,12 +4778,12 @@
             "TEXCOORD_0": 150
           },
           "indices": 151,
-          "material": 34
+          "material": 31
         }
       ]
     },
     {
-      "name": "wicker_basket_01",
+      "name": "Rockingchair_01",
       "primitives": [
         {
           "attributes": {
@@ -4696,12 +4792,12 @@
             "TEXCOORD_0": 154
           },
           "indices": 155,
-          "material": 35
+          "material": 32
         }
       ]
     },
     {
-      "name": "wicker_basket_02",
+      "name": "spinning_wheel_01",
       "primitives": [
         {
           "attributes": {
@@ -4710,12 +4806,12 @@
             "TEXCOORD_0": 158
           },
           "indices": 159,
-          "material": 36
+          "material": 33
         }
       ]
     },
     {
-      "name": "wooden_axe",
+      "name": "standing_chalkboard_01",
       "primitives": [
         {
           "attributes": {
@@ -4724,12 +4820,21 @@
             "TEXCOORD_0": 162
           },
           "indices": 163,
-          "material": 37
+          "material": 34
+        },
+        {
+          "attributes": {
+            "POSITION": 8,
+            "NORMAL": 9,
+            "TEXCOORD_0": 10
+          },
+          "indices": 11,
+          "material": 35
         }
       ]
     },
     {
-      "name": "wooden_bookshelf_worn",
+      "name": "treasure_chest",
       "primitives": [
         {
           "attributes": {
@@ -4738,12 +4843,12 @@
             "TEXCOORD_0": 166
           },
           "indices": 167,
-          "material": 38
+          "material": 36
         }
       ]
     },
     {
-      "name": "wooden_bowl_01",
+      "name": "wicker_basket_01",
       "primitives": [
         {
           "attributes": {
@@ -4752,12 +4857,12 @@
             "TEXCOORD_0": 170
           },
           "indices": 171,
-          "material": 39
+          "material": 37
         }
       ]
     },
     {
-      "name": "wooden_bowl_02",
+      "name": "wicker_basket_02",
       "primitives": [
         {
           "attributes": {
@@ -4766,12 +4871,12 @@
             "TEXCOORD_0": 174
           },
           "indices": 175,
-          "material": 40
+          "material": 38
         }
       ]
     },
     {
-      "name": "wooden_broom",
+      "name": "wooden_axe",
       "primitives": [
         {
           "attributes": {
@@ -4780,21 +4885,12 @@
             "TEXCOORD_0": 178
           },
           "indices": 179,
-          "material": 41
-        },
-        {
-          "attributes": {
-            "POSITION": 12,
-            "NORMAL": 13,
-            "TEXCOORD_0": 14
-          },
-          "indices": 15,
-          "material": 42
+          "material": 39
         }
       ]
     },
     {
-      "name": "wooden_bucket_01",
+      "name": "wooden_bookshelf_worn",
       "primitives": [
         {
           "attributes": {
@@ -4803,12 +4899,12 @@
             "TEXCOORD_0": 182
           },
           "indices": 183,
-          "material": 43
+          "material": 40
         }
       ]
     },
     {
-      "name": "wooden_bucket_02",
+      "name": "wooden_bowl_01",
       "primitives": [
         {
           "attributes": {
@@ -4817,12 +4913,12 @@
             "TEXCOORD_0": 186
           },
           "indices": 187,
-          "material": 44
+          "material": 41
         }
       ]
     },
     {
-      "name": "wooden_crate_01",
+      "name": "wooden_bowl_02",
       "primitives": [
         {
           "attributes": {
@@ -4831,12 +4927,12 @@
             "TEXCOORD_0": 190
           },
           "indices": 191,
-          "material": 45
+          "material": 42
         }
       ]
     },
     {
-      "name": "wooden_crate_02",
+      "name": "wooden_broom",
       "primitives": [
         {
           "attributes": {
@@ -4845,12 +4941,21 @@
             "TEXCOORD_0": 194
           },
           "indices": 195,
-          "material": 46
+          "material": 43
+        },
+        {
+          "attributes": {
+            "POSITION": 12,
+            "NORMAL": 13,
+            "TEXCOORD_0": 14
+          },
+          "indices": 15,
+          "material": 44
         }
       ]
     },
     {
-      "name": "wooden_cutting_board",
+      "name": "wooden_bucket_01",
       "primitives": [
         {
           "attributes": {
@@ -4859,12 +4964,12 @@
             "TEXCOORD_0": 198
           },
           "indices": 199,
-          "material": 47
+          "material": 45
         }
       ]
     },
     {
-      "name": "wooden_display_shelves_01.001",
+      "name": "wooden_bucket_02",
       "primitives": [
         {
           "attributes": {
@@ -4873,12 +4978,12 @@
             "TEXCOORD_0": 202
           },
           "indices": 203,
-          "material": 48
+          "material": 46
         }
       ]
     },
     {
-      "name": "wooden_ladder",
+      "name": "wooden_crate_01",
       "primitives": [
         {
           "attributes": {
@@ -4887,12 +4992,12 @@
             "TEXCOORD_0": 206
           },
           "indices": 207,
-          "material": 49
+          "material": 47
         }
       ]
     },
     {
-      "name": "wooden_lantern_01",
+      "name": "wooden_crate_02",
       "primitives": [
         {
           "attributes": {
@@ -4901,21 +5006,12 @@
             "TEXCOORD_0": 210
           },
           "indices": 211,
-          "material": 50
-        },
-        {
-          "attributes": {
-            "POSITION": 16,
-            "NORMAL": 17,
-            "TEXCOORD_0": 18
-          },
-          "indices": 19,
-          "material": 51
+          "material": 48
         }
       ]
     },
     {
-      "name": "wooden_spoon",
+      "name": "wooden_cutting_board",
       "primitives": [
         {
           "attributes": {
@@ -4924,12 +5020,12 @@
             "TEXCOORD_0": 214
           },
           "indices": 215,
-          "material": 52
+          "material": 49
         }
       ]
     },
     {
-      "name": "wooden_stool_01",
+      "name": "wooden_display_shelves_01.001",
       "primitives": [
         {
           "attributes": {
@@ -4938,12 +5034,12 @@
             "TEXCOORD_0": 218
           },
           "indices": 219,
-          "material": 53
+          "material": 50
         }
       ]
     },
     {
-      "name": "wooden_stool_02",
+      "name": "wooden_ladder",
       "primitives": [
         {
           "attributes": {
@@ -4952,12 +5048,12 @@
             "TEXCOORD_0": 222
           },
           "indices": 223,
-          "material": 54
+          "material": 51
         }
       ]
     },
     {
-      "name": "yellow_onion",
+      "name": "wooden_lantern_01",
       "primitives": [
         {
           "attributes": {
@@ -4966,7 +5062,72 @@
             "TEXCOORD_0": 226
           },
           "indices": 227,
+          "material": 52
+        },
+        {
+          "attributes": {
+            "POSITION": 16,
+            "NORMAL": 17,
+            "TEXCOORD_0": 18
+          },
+          "indices": 19,
+          "material": 53
+        }
+      ]
+    },
+    {
+      "name": "wooden_spoon",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 228,
+            "NORMAL": 229,
+            "TEXCOORD_0": 230
+          },
+          "indices": 231,
+          "material": 54
+        }
+      ]
+    },
+    {
+      "name": "wooden_stool_01",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 232,
+            "NORMAL": 233,
+            "TEXCOORD_0": 234
+          },
+          "indices": 235,
           "material": 55
+        }
+      ]
+    },
+    {
+      "name": "wooden_stool_02",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 236,
+            "NORMAL": 237,
+            "TEXCOORD_0": 238
+          },
+          "indices": 239,
+          "material": 56
+        }
+      ]
+    },
+    {
+      "name": "yellow_onion",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 240,
+            "NORMAL": 241,
+            "TEXCOORD_0": 242
+          },
+          "indices": 243,
+          "material": 57
         }
       ]
     }
@@ -5262,15 +5423,7 @@
     },
     {
       "sampler": 0,
-      "source": 69
-    },
-    {
-      "sampler": 0,
       "source": 72
-    },
-    {
-      "sampler": 0,
-      "source": 71
     },
     {
       "sampler": 0,
@@ -5282,7 +5435,15 @@
     },
     {
       "sampler": 0,
+      "source": 72
+    },
+    {
+      "sampler": 0,
       "source": 75
+    },
+    {
+      "sampler": 0,
+      "source": 74
     },
     {
       "sampler": 0,
@@ -5635,6 +5796,30 @@
     {
       "sampler": 0,
       "source": 163
+    },
+    {
+      "sampler": 0,
+      "source": 164
+    },
+    {
+      "sampler": 0,
+      "source": 165
+    },
+    {
+      "sampler": 0,
+      "source": 166
+    },
+    {
+      "sampler": 0,
+      "source": 167
+    },
+    {
+      "sampler": 0,
+      "source": 168
+    },
+    {
+      "sampler": 0,
+      "source": 169
     }
   ],
   "images": [
@@ -5787,6 +5972,21 @@
       "mimeType": "image/jpeg",
       "name": "CheeseBox_01_arm_1k_256",
       "uri": "../tavern_interior_textures/CheeseBox_01_arm_1k_256.jpg"
+    },
+    {
+      "mimeType": "image/jpeg",
+      "name": "cuckoo_clock_nor_gl_1024",
+      "uri": "../tavern_interior_textures/cuckoo_clock_nor_gl_1024.jpg"
+    },
+    {
+      "mimeType": "image/jpeg",
+      "name": "cuckoo_clock_diff_1024",
+      "uri": "../tavern_interior_textures/cuckoo_clock_diff_1024.jpg"
+    },
+    {
+      "mimeType": "image/jpeg",
+      "name": "cuckoo_clock_mr_1024",
+      "uri": "../tavern_interior_textures/cuckoo_clock_mr_1024.jpg"
     },
     {
       "mimeType": "image/jpeg",
@@ -6047,6 +6247,21 @@
       "mimeType": "image/jpeg",
       "name": "food_pears_asian_01_arm_1k_256",
       "uri": "../tavern_interior_textures/food_pears_asian_01_arm_1k_256.jpg"
+    },
+    {
+      "mimeType": "image/jpeg",
+      "name": "plaid_chair_nor_gl_1024",
+      "uri": "../tavern_interior_textures/plaid_chair_nor_gl_1024.jpg"
+    },
+    {
+      "mimeType": "image/jpeg",
+      "name": "plaid_chair_diff_1024",
+      "uri": "../tavern_interior_textures/plaid_chair_diff_1024.jpg"
+    },
+    {
+      "mimeType": "image/jpeg",
+      "name": "plaid_chair_mr_1024",
+      "uri": "../tavern_interior_textures/plaid_chair_mr_1024.jpg"
     },
     {
       "mimeType": "image/jpeg",
@@ -6973,6 +7188,108 @@
     {
       "bufferView": 60,
       "componentType": 5126,
+      "count": 265,
+      "type": "VEC3",
+      "min": [
+        -0.01317607518285513,
+        0,
+        -0.011203227564692497
+      ],
+      "max": [
+        0.01317607518285513,
+        0.0368313193321228,
+        0.011203227564692497
+      ]
+    },
+    {
+      "bufferView": 61,
+      "componentType": 5126,
+      "count": 265,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 62,
+      "componentType": 5126,
+      "count": 265,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 63,
+      "componentType": 5123,
+      "count": 747,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 64,
+      "componentType": 5126,
+      "count": 15733,
+      "type": "VEC3",
+      "min": [
+        -0.19937384128570557,
+        0,
+        -0.0967436134815216
+      ],
+      "max": [
+        0.19937384128570557,
+        0.6349678039550781,
+        0.0967436134815216
+      ]
+    },
+    {
+      "bufferView": 65,
+      "componentType": 5126,
+      "count": 15733,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 66,
+      "componentType": 5126,
+      "count": 15733,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 67,
+      "componentType": 5123,
+      "count": 37005,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 68,
+      "componentType": 5126,
+      "count": 90,
+      "type": "VEC3",
+      "min": [
+        -0.0286214929074049,
+        0,
+        -0.006927404552698135
+      ],
+      "max": [
+        0.0286214929074049,
+        0.05367836356163025,
+        0.00692740548402071
+      ]
+    },
+    {
+      "bufferView": 69,
+      "componentType": 5126,
+      "count": 90,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 70,
+      "componentType": 5126,
+      "count": 90,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 71,
+      "componentType": 5123,
+      "count": 243,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 72,
+      "componentType": 5126,
       "count": 590,
       "type": "VEC3",
       "min": [
@@ -6987,25 +7304,25 @@
       ]
     },
     {
-      "bufferView": 61,
+      "bufferView": 73,
       "componentType": 5126,
       "count": 590,
       "type": "VEC3"
     },
     {
-      "bufferView": 62,
+      "bufferView": 74,
       "componentType": 5126,
       "count": 590,
       "type": "VEC2"
     },
     {
-      "bufferView": 63,
+      "bufferView": 75,
       "componentType": 5123,
       "count": 2220,
       "type": "SCALAR"
     },
     {
-      "bufferView": 64,
+      "bufferView": 76,
       "componentType": 5126,
       "count": 282,
       "type": "VEC3",
@@ -7021,25 +7338,25 @@
       ]
     },
     {
-      "bufferView": 65,
+      "bufferView": 77,
       "componentType": 5126,
       "count": 282,
       "type": "VEC3"
     },
     {
-      "bufferView": 66,
+      "bufferView": 78,
       "componentType": 5126,
       "count": 282,
       "type": "VEC2"
     },
     {
-      "bufferView": 67,
+      "bufferView": 79,
       "componentType": 5123,
       "count": 1122,
       "type": "SCALAR"
     },
     {
-      "bufferView": 68,
+      "bufferView": 80,
       "componentType": 5126,
       "count": 478,
       "type": "VEC3",
@@ -7055,25 +7372,25 @@
       ]
     },
     {
-      "bufferView": 69,
+      "bufferView": 81,
       "componentType": 5126,
       "count": 478,
       "type": "VEC3"
     },
     {
-      "bufferView": 70,
+      "bufferView": 82,
       "componentType": 5126,
       "count": 478,
       "type": "VEC2"
     },
     {
-      "bufferView": 71,
+      "bufferView": 83,
       "componentType": 5123,
       "count": 1458,
       "type": "SCALAR"
     },
     {
-      "bufferView": 72,
+      "bufferView": 84,
       "componentType": 5126,
       "count": 4451,
       "type": "VEC3",
@@ -7089,25 +7406,25 @@
       ]
     },
     {
-      "bufferView": 73,
+      "bufferView": 85,
       "componentType": 5126,
       "count": 4451,
       "type": "VEC3"
     },
     {
-      "bufferView": 74,
+      "bufferView": 86,
       "componentType": 5126,
       "count": 4451,
       "type": "VEC2"
     },
     {
-      "bufferView": 75,
+      "bufferView": 87,
       "componentType": 5123,
       "count": 10218,
       "type": "SCALAR"
     },
     {
-      "bufferView": 76,
+      "bufferView": 88,
       "componentType": 5126,
       "count": 3058,
       "type": "VEC3",
@@ -7123,25 +7440,25 @@
       ]
     },
     {
-      "bufferView": 77,
+      "bufferView": 89,
       "componentType": 5126,
       "count": 3058,
       "type": "VEC3"
     },
     {
-      "bufferView": 78,
+      "bufferView": 90,
       "componentType": 5126,
       "count": 3058,
       "type": "VEC2"
     },
     {
-      "bufferView": 79,
+      "bufferView": 91,
       "componentType": 5123,
       "count": 6948,
       "type": "SCALAR"
     },
     {
-      "bufferView": 80,
+      "bufferView": 92,
       "componentType": 5126,
       "count": 634,
       "type": "VEC3",
@@ -7157,25 +7474,25 @@
       ]
     },
     {
-      "bufferView": 81,
+      "bufferView": 93,
       "componentType": 5126,
       "count": 634,
       "type": "VEC3"
     },
     {
-      "bufferView": 82,
+      "bufferView": 94,
       "componentType": 5126,
       "count": 634,
       "type": "VEC2"
     },
     {
-      "bufferView": 83,
+      "bufferView": 95,
       "componentType": 5123,
       "count": 2013,
       "type": "SCALAR"
     },
     {
-      "bufferView": 84,
+      "bufferView": 96,
       "componentType": 5126,
       "count": 867,
       "type": "VEC3",
@@ -7191,25 +7508,25 @@
       ]
     },
     {
-      "bufferView": 85,
+      "bufferView": 97,
       "componentType": 5126,
       "count": 867,
       "type": "VEC3"
     },
     {
-      "bufferView": 86,
+      "bufferView": 98,
       "componentType": 5126,
       "count": 867,
       "type": "VEC2"
     },
     {
-      "bufferView": 87,
+      "bufferView": 99,
       "componentType": 5123,
       "count": 2190,
       "type": "SCALAR"
     },
     {
-      "bufferView": 88,
+      "bufferView": 100,
       "componentType": 5126,
       "count": 10143,
       "type": "VEC3",
@@ -7225,25 +7542,25 @@
       ]
     },
     {
-      "bufferView": 89,
+      "bufferView": 101,
       "componentType": 5126,
       "count": 10143,
       "type": "VEC3"
     },
     {
-      "bufferView": 90,
+      "bufferView": 102,
       "componentType": 5126,
       "count": 10143,
       "type": "VEC2"
     },
     {
-      "bufferView": 91,
+      "bufferView": 103,
       "componentType": 5123,
       "count": 28443,
       "type": "SCALAR"
     },
     {
-      "bufferView": 92,
+      "bufferView": 104,
       "componentType": 5126,
       "count": 7762,
       "type": "VEC3",
@@ -7259,25 +7576,25 @@
       ]
     },
     {
-      "bufferView": 93,
+      "bufferView": 105,
       "componentType": 5126,
       "count": 7762,
       "type": "VEC3"
     },
     {
-      "bufferView": 94,
+      "bufferView": 106,
       "componentType": 5126,
       "count": 7762,
       "type": "VEC2"
     },
     {
-      "bufferView": 95,
+      "bufferView": 107,
       "componentType": 5123,
       "count": 18534,
       "type": "SCALAR"
     },
     {
-      "bufferView": 96,
+      "bufferView": 108,
       "componentType": 5126,
       "count": 809,
       "type": "VEC3",
@@ -7293,25 +7610,25 @@
       ]
     },
     {
-      "bufferView": 97,
+      "bufferView": 109,
       "componentType": 5126,
       "count": 809,
       "type": "VEC3"
     },
     {
-      "bufferView": 98,
+      "bufferView": 110,
       "componentType": 5126,
       "count": 809,
       "type": "VEC2"
     },
     {
-      "bufferView": 99,
+      "bufferView": 111,
       "componentType": 5123,
       "count": 3459,
       "type": "SCALAR"
     },
     {
-      "bufferView": 100,
+      "bufferView": 112,
       "componentType": 5126,
       "count": 852,
       "type": "VEC3",
@@ -7327,25 +7644,25 @@
       ]
     },
     {
-      "bufferView": 101,
+      "bufferView": 113,
       "componentType": 5126,
       "count": 852,
       "type": "VEC3"
     },
     {
-      "bufferView": 102,
+      "bufferView": 114,
       "componentType": 5126,
       "count": 852,
       "type": "VEC2"
     },
     {
-      "bufferView": 103,
+      "bufferView": 115,
       "componentType": 5123,
       "count": 2574,
       "type": "SCALAR"
     },
     {
-      "bufferView": 104,
+      "bufferView": 116,
       "componentType": 5126,
       "count": 1854,
       "type": "VEC3",
@@ -7361,25 +7678,25 @@
       ]
     },
     {
-      "bufferView": 105,
+      "bufferView": 117,
       "componentType": 5126,
       "count": 1854,
       "type": "VEC3"
     },
     {
-      "bufferView": 106,
+      "bufferView": 118,
       "componentType": 5126,
       "count": 1854,
       "type": "VEC2"
     },
     {
-      "bufferView": 107,
+      "bufferView": 119,
       "componentType": 5123,
       "count": 4842,
       "type": "SCALAR"
     },
     {
-      "bufferView": 108,
+      "bufferView": 120,
       "componentType": 5126,
       "count": 2910,
       "type": "VEC3",
@@ -7395,25 +7712,25 @@
       ]
     },
     {
-      "bufferView": 109,
+      "bufferView": 121,
       "componentType": 5126,
       "count": 2910,
       "type": "VEC3"
     },
     {
-      "bufferView": 110,
+      "bufferView": 122,
       "componentType": 5126,
       "count": 2910,
       "type": "VEC2"
     },
     {
-      "bufferView": 111,
+      "bufferView": 123,
       "componentType": 5123,
       "count": 7767,
       "type": "SCALAR"
     },
     {
-      "bufferView": 112,
+      "bufferView": 124,
       "componentType": 5126,
       "count": 173,
       "type": "VEC3",
@@ -7429,25 +7746,25 @@
       ]
     },
     {
-      "bufferView": 113,
+      "bufferView": 125,
       "componentType": 5126,
       "count": 173,
       "type": "VEC3"
     },
     {
-      "bufferView": 114,
+      "bufferView": 126,
       "componentType": 5126,
       "count": 173,
       "type": "VEC2"
     },
     {
-      "bufferView": 115,
+      "bufferView": 127,
       "componentType": 5123,
       "count": 597,
       "type": "SCALAR"
     },
     {
-      "bufferView": 116,
+      "bufferView": 128,
       "componentType": 5126,
       "count": 935,
       "type": "VEC3",
@@ -7463,25 +7780,25 @@
       ]
     },
     {
-      "bufferView": 117,
+      "bufferView": 129,
       "componentType": 5126,
       "count": 935,
       "type": "VEC3"
     },
     {
-      "bufferView": 118,
+      "bufferView": 130,
       "componentType": 5126,
       "count": 935,
       "type": "VEC2"
     },
     {
-      "bufferView": 119,
+      "bufferView": 131,
       "componentType": 5123,
       "count": 3621,
       "type": "SCALAR"
     },
     {
-      "bufferView": 120,
+      "bufferView": 132,
       "componentType": 5126,
       "count": 1377,
       "type": "VEC3",
@@ -7497,25 +7814,25 @@
       ]
     },
     {
-      "bufferView": 121,
+      "bufferView": 133,
       "componentType": 5126,
       "count": 1377,
       "type": "VEC3"
     },
     {
-      "bufferView": 122,
+      "bufferView": 134,
       "componentType": 5126,
       "count": 1377,
       "type": "VEC2"
     },
     {
-      "bufferView": 123,
+      "bufferView": 135,
       "componentType": 5123,
       "count": 3732,
       "type": "SCALAR"
     },
     {
-      "bufferView": 124,
+      "bufferView": 136,
       "componentType": 5126,
       "count": 220,
       "type": "VEC3",
@@ -7531,27 +7848,61 @@
       ]
     },
     {
-      "bufferView": 125,
+      "bufferView": 137,
       "componentType": 5126,
       "count": 220,
       "type": "VEC3"
     },
     {
-      "bufferView": 126,
+      "bufferView": 138,
       "componentType": 5126,
       "count": 220,
       "type": "VEC2"
     },
     {
-      "bufferView": 127,
+      "bufferView": 139,
       "componentType": 5123,
       "count": 759,
       "type": "SCALAR"
     },
     {
-      "bufferView": 128,
+      "bufferView": 140,
       "componentType": 5126,
-      "count": 11860,
+      "count": 19032,
+      "type": "VEC3",
+      "min": [
+        -0.2996653914451599,
+        0,
+        -0.27594998478889465
+      ],
+      "max": [
+        0.2996653914451599,
+        0.9279475808143616,
+        0.27594998478889465
+      ]
+    },
+    {
+      "bufferView": 141,
+      "componentType": 5126,
+      "count": 19032,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 142,
+      "componentType": 5126,
+      "count": 19032,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 143,
+      "componentType": 5123,
+      "count": 47838,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 144,
+      "componentType": 5126,
+      "count": 12070,
       "type": "VEC3",
       "min": [
         -0.5649561285972595,
@@ -7565,25 +7916,25 @@
       ]
     },
     {
-      "bufferView": 129,
+      "bufferView": 145,
       "componentType": 5126,
-      "count": 11860,
+      "count": 12070,
       "type": "VEC3"
     },
     {
-      "bufferView": 130,
+      "bufferView": 146,
       "componentType": 5126,
-      "count": 11860,
+      "count": 12070,
       "type": "VEC2"
     },
     {
-      "bufferView": 131,
+      "bufferView": 147,
       "componentType": 5123,
-      "count": 32691,
+      "count": 33903,
       "type": "SCALAR"
     },
     {
-      "bufferView": 132,
+      "bufferView": 148,
       "componentType": 5126,
       "count": 6622,
       "type": "VEC3",
@@ -7599,25 +7950,25 @@
       ]
     },
     {
-      "bufferView": 133,
+      "bufferView": 149,
       "componentType": 5126,
       "count": 6622,
       "type": "VEC3"
     },
     {
-      "bufferView": 134,
+      "bufferView": 150,
       "componentType": 5126,
       "count": 6622,
       "type": "VEC2"
     },
     {
-      "bufferView": 135,
+      "bufferView": 151,
       "componentType": 5123,
       "count": 16314,
       "type": "SCALAR"
     },
     {
-      "bufferView": 136,
+      "bufferView": 152,
       "componentType": 5126,
       "count": 5673,
       "type": "VEC3",
@@ -7633,25 +7984,25 @@
       ]
     },
     {
-      "bufferView": 137,
+      "bufferView": 153,
       "componentType": 5126,
       "count": 5673,
       "type": "VEC3"
     },
     {
-      "bufferView": 138,
+      "bufferView": 154,
       "componentType": 5126,
       "count": 5673,
       "type": "VEC2"
     },
     {
-      "bufferView": 139,
+      "bufferView": 155,
       "componentType": 5123,
       "count": 14049,
       "type": "SCALAR"
     },
     {
-      "bufferView": 140,
+      "bufferView": 156,
       "componentType": 5126,
       "count": 9281,
       "type": "VEC3",
@@ -7667,25 +8018,25 @@
       ]
     },
     {
-      "bufferView": 141,
+      "bufferView": 157,
       "componentType": 5126,
       "count": 9281,
       "type": "VEC3"
     },
     {
-      "bufferView": 142,
+      "bufferView": 158,
       "componentType": 5126,
       "count": 9281,
       "type": "VEC2"
     },
     {
-      "bufferView": 143,
+      "bufferView": 159,
       "componentType": 5123,
       "count": 24099,
       "type": "SCALAR"
     },
     {
-      "bufferView": 144,
+      "bufferView": 160,
       "componentType": 5126,
       "count": 2068,
       "type": "VEC3",
@@ -7701,25 +8052,25 @@
       ]
     },
     {
-      "bufferView": 145,
+      "bufferView": 161,
       "componentType": 5126,
       "count": 2068,
       "type": "VEC3"
     },
     {
-      "bufferView": 146,
+      "bufferView": 162,
       "componentType": 5126,
       "count": 2068,
       "type": "VEC2"
     },
     {
-      "bufferView": 147,
+      "bufferView": 163,
       "componentType": 5123,
       "count": 3864,
       "type": "SCALAR"
     },
     {
-      "bufferView": 148,
+      "bufferView": 164,
       "componentType": 5126,
       "count": 6839,
       "type": "VEC3",
@@ -7735,25 +8086,25 @@
       ]
     },
     {
-      "bufferView": 149,
+      "bufferView": 165,
       "componentType": 5126,
       "count": 6839,
       "type": "VEC3"
     },
     {
-      "bufferView": 150,
+      "bufferView": 166,
       "componentType": 5126,
       "count": 6839,
       "type": "VEC2"
     },
     {
-      "bufferView": 151,
+      "bufferView": 167,
       "componentType": 5123,
       "count": 18033,
       "type": "SCALAR"
     },
     {
-      "bufferView": 152,
+      "bufferView": 168,
       "componentType": 5126,
       "count": 3281,
       "type": "VEC3",
@@ -7769,25 +8120,25 @@
       ]
     },
     {
-      "bufferView": 153,
+      "bufferView": 169,
       "componentType": 5126,
       "count": 3281,
       "type": "VEC3"
     },
     {
-      "bufferView": 154,
+      "bufferView": 170,
       "componentType": 5126,
       "count": 3281,
       "type": "VEC2"
     },
     {
-      "bufferView": 155,
+      "bufferView": 171,
       "componentType": 5123,
       "count": 7215,
       "type": "SCALAR"
     },
     {
-      "bufferView": 156,
+      "bufferView": 172,
       "componentType": 5126,
       "count": 861,
       "type": "VEC3",
@@ -7803,25 +8154,25 @@
       ]
     },
     {
-      "bufferView": 157,
+      "bufferView": 173,
       "componentType": 5126,
       "count": 861,
       "type": "VEC3"
     },
     {
-      "bufferView": 158,
+      "bufferView": 174,
       "componentType": 5126,
       "count": 861,
       "type": "VEC2"
     },
     {
-      "bufferView": 159,
+      "bufferView": 175,
       "componentType": 5123,
       "count": 2682,
       "type": "SCALAR"
     },
     {
-      "bufferView": 160,
+      "bufferView": 176,
       "componentType": 5126,
       "count": 801,
       "type": "VEC3",
@@ -7837,25 +8188,25 @@
       ]
     },
     {
-      "bufferView": 161,
+      "bufferView": 177,
       "componentType": 5126,
       "count": 801,
       "type": "VEC3"
     },
     {
-      "bufferView": 162,
+      "bufferView": 178,
       "componentType": 5126,
       "count": 801,
       "type": "VEC2"
     },
     {
-      "bufferView": 163,
+      "bufferView": 179,
       "componentType": 5123,
       "count": 2406,
       "type": "SCALAR"
     },
     {
-      "bufferView": 164,
+      "bufferView": 180,
       "componentType": 5126,
       "count": 2104,
       "type": "VEC3",
@@ -7871,25 +8222,25 @@
       ]
     },
     {
-      "bufferView": 165,
+      "bufferView": 181,
       "componentType": 5126,
       "count": 2104,
       "type": "VEC3"
     },
     {
-      "bufferView": 166,
+      "bufferView": 182,
       "componentType": 5126,
       "count": 2104,
       "type": "VEC2"
     },
     {
-      "bufferView": 167,
+      "bufferView": 183,
       "componentType": 5123,
       "count": 6060,
       "type": "SCALAR"
     },
     {
-      "bufferView": 168,
+      "bufferView": 184,
       "componentType": 5126,
       "count": 610,
       "type": "VEC3",
@@ -7905,25 +8256,25 @@
       ]
     },
     {
-      "bufferView": 169,
+      "bufferView": 185,
       "componentType": 5126,
       "count": 610,
       "type": "VEC3"
     },
     {
-      "bufferView": 170,
+      "bufferView": 186,
       "componentType": 5126,
       "count": 610,
       "type": "VEC2"
     },
     {
-      "bufferView": 171,
+      "bufferView": 187,
       "componentType": 5123,
       "count": 2223,
       "type": "SCALAR"
     },
     {
-      "bufferView": 172,
+      "bufferView": 188,
       "componentType": 5126,
       "count": 667,
       "type": "VEC3",
@@ -7939,25 +8290,25 @@
       ]
     },
     {
-      "bufferView": 173,
+      "bufferView": 189,
       "componentType": 5126,
       "count": 667,
       "type": "VEC3"
     },
     {
-      "bufferView": 174,
+      "bufferView": 190,
       "componentType": 5126,
       "count": 667,
       "type": "VEC2"
     },
     {
-      "bufferView": 175,
+      "bufferView": 191,
       "componentType": 5123,
       "count": 2238,
       "type": "SCALAR"
     },
     {
-      "bufferView": 176,
+      "bufferView": 192,
       "componentType": 5126,
       "count": 1521,
       "type": "VEC3",
@@ -7973,25 +8324,25 @@
       ]
     },
     {
-      "bufferView": 177,
+      "bufferView": 193,
       "componentType": 5126,
       "count": 1521,
       "type": "VEC3"
     },
     {
-      "bufferView": 178,
+      "bufferView": 194,
       "componentType": 5126,
       "count": 1521,
       "type": "VEC2"
     },
     {
-      "bufferView": 179,
+      "bufferView": 195,
       "componentType": 5123,
       "count": 3510,
       "type": "SCALAR"
     },
     {
-      "bufferView": 180,
+      "bufferView": 196,
       "componentType": 5126,
       "count": 1969,
       "type": "VEC3",
@@ -8007,25 +8358,25 @@
       ]
     },
     {
-      "bufferView": 181,
+      "bufferView": 197,
       "componentType": 5126,
       "count": 1969,
       "type": "VEC3"
     },
     {
-      "bufferView": 182,
+      "bufferView": 198,
       "componentType": 5126,
       "count": 1969,
       "type": "VEC2"
     },
     {
-      "bufferView": 183,
+      "bufferView": 199,
       "componentType": 5123,
       "count": 5232,
       "type": "SCALAR"
     },
     {
-      "bufferView": 184,
+      "bufferView": 200,
       "componentType": 5126,
       "count": 2776,
       "type": "VEC3",
@@ -8041,25 +8392,25 @@
       ]
     },
     {
-      "bufferView": 185,
+      "bufferView": 201,
       "componentType": 5126,
       "count": 2776,
       "type": "VEC3"
     },
     {
-      "bufferView": 186,
+      "bufferView": 202,
       "componentType": 5126,
       "count": 2776,
       "type": "VEC2"
     },
     {
-      "bufferView": 187,
+      "bufferView": 203,
       "componentType": 5123,
       "count": 7164,
       "type": "SCALAR"
     },
     {
-      "bufferView": 188,
+      "bufferView": 204,
       "componentType": 5126,
       "count": 2086,
       "type": "VEC3",
@@ -8075,25 +8426,25 @@
       ]
     },
     {
-      "bufferView": 189,
+      "bufferView": 205,
       "componentType": 5126,
       "count": 2086,
       "type": "VEC3"
     },
     {
-      "bufferView": 190,
+      "bufferView": 206,
       "componentType": 5126,
       "count": 2086,
       "type": "VEC2"
     },
     {
-      "bufferView": 191,
+      "bufferView": 207,
       "componentType": 5123,
       "count": 6054,
       "type": "SCALAR"
     },
     {
-      "bufferView": 192,
+      "bufferView": 208,
       "componentType": 5126,
       "count": 1676,
       "type": "VEC3",
@@ -8109,25 +8460,25 @@
       ]
     },
     {
-      "bufferView": 193,
+      "bufferView": 209,
       "componentType": 5126,
       "count": 1676,
       "type": "VEC3"
     },
     {
-      "bufferView": 194,
+      "bufferView": 210,
       "componentType": 5126,
       "count": 1676,
       "type": "VEC2"
     },
     {
-      "bufferView": 195,
+      "bufferView": 211,
       "componentType": 5123,
       "count": 4755,
       "type": "SCALAR"
     },
     {
-      "bufferView": 196,
+      "bufferView": 212,
       "componentType": 5126,
       "count": 701,
       "type": "VEC3",
@@ -8143,25 +8494,25 @@
       ]
     },
     {
-      "bufferView": 197,
+      "bufferView": 213,
       "componentType": 5126,
       "count": 701,
       "type": "VEC3"
     },
     {
-      "bufferView": 198,
+      "bufferView": 214,
       "componentType": 5126,
       "count": 701,
       "type": "VEC2"
     },
     {
-      "bufferView": 199,
+      "bufferView": 215,
       "componentType": 5123,
       "count": 2112,
       "type": "SCALAR"
     },
     {
-      "bufferView": 200,
+      "bufferView": 216,
       "componentType": 5126,
       "count": 1837,
       "type": "VEC3",
@@ -8177,25 +8528,25 @@
       ]
     },
     {
-      "bufferView": 201,
+      "bufferView": 217,
       "componentType": 5126,
       "count": 1837,
       "type": "VEC3"
     },
     {
-      "bufferView": 202,
+      "bufferView": 218,
       "componentType": 5126,
       "count": 1837,
       "type": "VEC2"
     },
     {
-      "bufferView": 203,
+      "bufferView": 219,
       "componentType": 5123,
       "count": 4056,
       "type": "SCALAR"
     },
     {
-      "bufferView": 204,
+      "bufferView": 220,
       "componentType": 5126,
       "count": 4363,
       "type": "VEC3",
@@ -8211,25 +8562,25 @@
       ]
     },
     {
-      "bufferView": 205,
+      "bufferView": 221,
       "componentType": 5126,
       "count": 4363,
       "type": "VEC3"
     },
     {
-      "bufferView": 206,
+      "bufferView": 222,
       "componentType": 5126,
       "count": 4363,
       "type": "VEC2"
     },
     {
-      "bufferView": 207,
+      "bufferView": 223,
       "componentType": 5123,
       "count": 8796,
       "type": "SCALAR"
     },
     {
-      "bufferView": 208,
+      "bufferView": 224,
       "componentType": 5126,
       "count": 3241,
       "type": "VEC3",
@@ -8245,25 +8596,25 @@
       ]
     },
     {
-      "bufferView": 209,
+      "bufferView": 225,
       "componentType": 5126,
       "count": 3241,
       "type": "VEC3"
     },
     {
-      "bufferView": 210,
+      "bufferView": 226,
       "componentType": 5126,
       "count": 3241,
       "type": "VEC2"
     },
     {
-      "bufferView": 211,
+      "bufferView": 227,
       "componentType": 5123,
       "count": 8016,
       "type": "SCALAR"
     },
     {
-      "bufferView": 212,
+      "bufferView": 228,
       "componentType": 5126,
       "count": 278,
       "type": "VEC3",
@@ -8279,25 +8630,25 @@
       ]
     },
     {
-      "bufferView": 213,
+      "bufferView": 229,
       "componentType": 5126,
       "count": 278,
       "type": "VEC3"
     },
     {
-      "bufferView": 214,
+      "bufferView": 230,
       "componentType": 5126,
       "count": 278,
       "type": "VEC2"
     },
     {
-      "bufferView": 215,
+      "bufferView": 231,
       "componentType": 5123,
       "count": 819,
       "type": "SCALAR"
     },
     {
-      "bufferView": 216,
+      "bufferView": 232,
       "componentType": 5126,
       "count": 2246,
       "type": "VEC3",
@@ -8313,25 +8664,25 @@
       ]
     },
     {
-      "bufferView": 217,
+      "bufferView": 233,
       "componentType": 5126,
       "count": 2246,
       "type": "VEC3"
     },
     {
-      "bufferView": 218,
+      "bufferView": 234,
       "componentType": 5126,
       "count": 2246,
       "type": "VEC2"
     },
     {
-      "bufferView": 219,
+      "bufferView": 235,
       "componentType": 5123,
       "count": 6969,
       "type": "SCALAR"
     },
     {
-      "bufferView": 220,
+      "bufferView": 236,
       "componentType": 5126,
       "count": 1235,
       "type": "VEC3",
@@ -8347,25 +8698,25 @@
       ]
     },
     {
-      "bufferView": 221,
+      "bufferView": 237,
       "componentType": 5126,
       "count": 1235,
       "type": "VEC3"
     },
     {
-      "bufferView": 222,
+      "bufferView": 238,
       "componentType": 5126,
       "count": 1235,
       "type": "VEC2"
     },
     {
-      "bufferView": 223,
+      "bufferView": 239,
       "componentType": 5123,
       "count": 4008,
       "type": "SCALAR"
     },
     {
-      "bufferView": 224,
+      "bufferView": 240,
       "componentType": 5126,
       "count": 419,
       "type": "VEC3",
@@ -8381,19 +8732,19 @@
       ]
     },
     {
-      "bufferView": 225,
+      "bufferView": 241,
       "componentType": 5126,
       "count": 419,
       "type": "VEC3"
     },
     {
-      "bufferView": 226,
+      "bufferView": 242,
       "componentType": 5126,
       "count": 419,
       "type": "VEC2"
     },
     {
-      "bufferView": 227,
+      "bufferView": 243,
       "componentType": 5123,
       "count": 1161,
       "type": "SCALAR"
@@ -8762,1010 +9113,1106 @@
     },
     {
       "buffer": 0,
-      "byteLength": 7080,
+      "byteLength": 3180,
       "target": 34962,
       "byteOffset": 1010412
     },
     {
       "buffer": 0,
+      "byteLength": 3180,
+      "target": 34962,
+      "byteOffset": 1013592
+    },
+    {
+      "buffer": 0,
+      "byteLength": 2120,
+      "target": 34962,
+      "byteOffset": 1016772
+    },
+    {
+      "buffer": 0,
+      "byteLength": 1494,
+      "byteOffset": 1018892,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 188796,
+      "target": 34962,
+      "byteOffset": 1020388
+    },
+    {
+      "buffer": 0,
+      "byteLength": 188796,
+      "target": 34962,
+      "byteOffset": 1209184
+    },
+    {
+      "buffer": 0,
+      "byteLength": 125864,
+      "target": 34962,
+      "byteOffset": 1397980
+    },
+    {
+      "buffer": 0,
+      "byteLength": 74010,
+      "byteOffset": 1523844,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 1080,
+      "target": 34962,
+      "byteOffset": 1597856
+    },
+    {
+      "buffer": 0,
+      "byteLength": 1080,
+      "target": 34962,
+      "byteOffset": 1598936
+    },
+    {
+      "buffer": 0,
+      "byteLength": 720,
+      "target": 34962,
+      "byteOffset": 1600016
+    },
+    {
+      "buffer": 0,
+      "byteLength": 486,
+      "byteOffset": 1600736,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
       "byteLength": 7080,
       "target": 34962,
-      "byteOffset": 1017492
+      "byteOffset": 1601224
+    },
+    {
+      "buffer": 0,
+      "byteLength": 7080,
+      "target": 34962,
+      "byteOffset": 1608304
     },
     {
       "buffer": 0,
       "byteLength": 4720,
       "target": 34962,
-      "byteOffset": 1024572
+      "byteOffset": 1615384
     },
     {
       "buffer": 0,
       "byteLength": 4440,
-      "byteOffset": 1029292,
+      "byteOffset": 1620104,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 3384,
       "target": 34962,
-      "byteOffset": 1033732
+      "byteOffset": 1624544
     },
     {
       "buffer": 0,
       "byteLength": 3384,
       "target": 34962,
-      "byteOffset": 1037116
+      "byteOffset": 1627928
     },
     {
       "buffer": 0,
       "byteLength": 2256,
       "target": 34962,
-      "byteOffset": 1040500
+      "byteOffset": 1631312
     },
     {
       "buffer": 0,
       "byteLength": 2244,
-      "byteOffset": 1042756,
+      "byteOffset": 1633568,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 5736,
       "target": 34962,
-      "byteOffset": 1045000
+      "byteOffset": 1635812
     },
     {
       "buffer": 0,
       "byteLength": 5736,
       "target": 34962,
-      "byteOffset": 1050736
+      "byteOffset": 1641548
     },
     {
       "buffer": 0,
       "byteLength": 3824,
       "target": 34962,
-      "byteOffset": 1056472
+      "byteOffset": 1647284
     },
     {
       "buffer": 0,
       "byteLength": 2916,
-      "byteOffset": 1060296,
+      "byteOffset": 1651108,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 53412,
       "target": 34962,
-      "byteOffset": 1063212
+      "byteOffset": 1654024
     },
     {
       "buffer": 0,
       "byteLength": 53412,
       "target": 34962,
-      "byteOffset": 1116624
+      "byteOffset": 1707436
     },
     {
       "buffer": 0,
       "byteLength": 35608,
       "target": 34962,
-      "byteOffset": 1170036
+      "byteOffset": 1760848
     },
     {
       "buffer": 0,
       "byteLength": 20436,
-      "byteOffset": 1205644,
+      "byteOffset": 1796456,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 36696,
       "target": 34962,
-      "byteOffset": 1226080
+      "byteOffset": 1816892
     },
     {
       "buffer": 0,
       "byteLength": 36696,
       "target": 34962,
-      "byteOffset": 1262776
+      "byteOffset": 1853588
     },
     {
       "buffer": 0,
       "byteLength": 24464,
       "target": 34962,
-      "byteOffset": 1299472
+      "byteOffset": 1890284
     },
     {
       "buffer": 0,
       "byteLength": 13896,
-      "byteOffset": 1323936,
+      "byteOffset": 1914748,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 7608,
       "target": 34962,
-      "byteOffset": 1337832
+      "byteOffset": 1928644
     },
     {
       "buffer": 0,
       "byteLength": 7608,
       "target": 34962,
-      "byteOffset": 1345440
+      "byteOffset": 1936252
     },
     {
       "buffer": 0,
       "byteLength": 5072,
       "target": 34962,
-      "byteOffset": 1353048
+      "byteOffset": 1943860
     },
     {
       "buffer": 0,
       "byteLength": 4026,
-      "byteOffset": 1358120,
+      "byteOffset": 1948932,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 10404,
       "target": 34962,
-      "byteOffset": 1362148
+      "byteOffset": 1952960
     },
     {
       "buffer": 0,
       "byteLength": 10404,
       "target": 34962,
-      "byteOffset": 1372552
+      "byteOffset": 1963364
     },
     {
       "buffer": 0,
       "byteLength": 6936,
       "target": 34962,
-      "byteOffset": 1382956
+      "byteOffset": 1973768
     },
     {
       "buffer": 0,
       "byteLength": 4380,
-      "byteOffset": 1389892,
+      "byteOffset": 1980704,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 121716,
       "target": 34962,
-      "byteOffset": 1394272
+      "byteOffset": 1985084
     },
     {
       "buffer": 0,
       "byteLength": 121716,
       "target": 34962,
-      "byteOffset": 1515988
+      "byteOffset": 2106800
     },
     {
       "buffer": 0,
       "byteLength": 81144,
       "target": 34962,
-      "byteOffset": 1637704
+      "byteOffset": 2228516
     },
     {
       "buffer": 0,
       "byteLength": 56886,
-      "byteOffset": 1718848,
+      "byteOffset": 2309660,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 93144,
       "target": 34962,
-      "byteOffset": 1775736
+      "byteOffset": 2366548
     },
     {
       "buffer": 0,
       "byteLength": 93144,
       "target": 34962,
-      "byteOffset": 1868880
+      "byteOffset": 2459692
     },
     {
       "buffer": 0,
       "byteLength": 62096,
       "target": 34962,
-      "byteOffset": 1962024
+      "byteOffset": 2552836
     },
     {
       "buffer": 0,
       "byteLength": 37068,
-      "byteOffset": 2024120,
+      "byteOffset": 2614932,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 9708,
       "target": 34962,
-      "byteOffset": 2061188
+      "byteOffset": 2652000
     },
     {
       "buffer": 0,
       "byteLength": 9708,
       "target": 34962,
-      "byteOffset": 2070896
+      "byteOffset": 2661708
     },
     {
       "buffer": 0,
       "byteLength": 6472,
       "target": 34962,
-      "byteOffset": 2080604
+      "byteOffset": 2671416
     },
     {
       "buffer": 0,
       "byteLength": 6918,
-      "byteOffset": 2087076,
+      "byteOffset": 2677888,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 10224,
       "target": 34962,
-      "byteOffset": 2093996
+      "byteOffset": 2684808
     },
     {
       "buffer": 0,
       "byteLength": 10224,
       "target": 34962,
-      "byteOffset": 2104220
+      "byteOffset": 2695032
     },
     {
       "buffer": 0,
       "byteLength": 6816,
       "target": 34962,
-      "byteOffset": 2114444
+      "byteOffset": 2705256
     },
     {
       "buffer": 0,
       "byteLength": 5148,
-      "byteOffset": 2121260,
+      "byteOffset": 2712072,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 22248,
       "target": 34962,
-      "byteOffset": 2126408
+      "byteOffset": 2717220
     },
     {
       "buffer": 0,
       "byteLength": 22248,
       "target": 34962,
-      "byteOffset": 2148656
+      "byteOffset": 2739468
     },
     {
       "buffer": 0,
       "byteLength": 14832,
       "target": 34962,
-      "byteOffset": 2170904
+      "byteOffset": 2761716
     },
     {
       "buffer": 0,
       "byteLength": 9684,
-      "byteOffset": 2185736,
+      "byteOffset": 2776548,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 34920,
       "target": 34962,
-      "byteOffset": 2195420
+      "byteOffset": 2786232
     },
     {
       "buffer": 0,
       "byteLength": 34920,
       "target": 34962,
-      "byteOffset": 2230340
+      "byteOffset": 2821152
     },
     {
       "buffer": 0,
       "byteLength": 23280,
       "target": 34962,
-      "byteOffset": 2265260
+      "byteOffset": 2856072
     },
     {
       "buffer": 0,
       "byteLength": 15534,
-      "byteOffset": 2288540,
+      "byteOffset": 2879352,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 2076,
       "target": 34962,
-      "byteOffset": 2304076
+      "byteOffset": 2894888
     },
     {
       "buffer": 0,
       "byteLength": 2076,
       "target": 34962,
-      "byteOffset": 2306152
+      "byteOffset": 2896964
     },
     {
       "buffer": 0,
       "byteLength": 1384,
       "target": 34962,
-      "byteOffset": 2308228
+      "byteOffset": 2899040
     },
     {
       "buffer": 0,
       "byteLength": 1194,
-      "byteOffset": 2309612,
+      "byteOffset": 2900424,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 11220,
       "target": 34962,
-      "byteOffset": 2310808
+      "byteOffset": 2901620
     },
     {
       "buffer": 0,
       "byteLength": 11220,
       "target": 34962,
-      "byteOffset": 2322028
+      "byteOffset": 2912840
     },
     {
       "buffer": 0,
       "byteLength": 7480,
       "target": 34962,
-      "byteOffset": 2333248
+      "byteOffset": 2924060
     },
     {
       "buffer": 0,
       "byteLength": 7242,
-      "byteOffset": 2340728,
+      "byteOffset": 2931540,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 16524,
       "target": 34962,
-      "byteOffset": 2347972
+      "byteOffset": 2938784
     },
     {
       "buffer": 0,
       "byteLength": 16524,
       "target": 34962,
-      "byteOffset": 2364496
+      "byteOffset": 2955308
     },
     {
       "buffer": 0,
       "byteLength": 11016,
       "target": 34962,
-      "byteOffset": 2381020
+      "byteOffset": 2971832
     },
     {
       "buffer": 0,
       "byteLength": 7464,
-      "byteOffset": 2392036,
+      "byteOffset": 2982848,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 2640,
       "target": 34962,
-      "byteOffset": 2399500
+      "byteOffset": 2990312
     },
     {
       "buffer": 0,
       "byteLength": 2640,
       "target": 34962,
-      "byteOffset": 2402140
+      "byteOffset": 2992952
     },
     {
       "buffer": 0,
       "byteLength": 1760,
       "target": 34962,
-      "byteOffset": 2404780
+      "byteOffset": 2995592
     },
     {
       "buffer": 0,
       "byteLength": 1518,
-      "byteOffset": 2406540,
+      "byteOffset": 2997352,
       "target": 34963
     },
     {
       "buffer": 0,
-      "byteLength": 142320,
+      "byteLength": 228384,
       "target": 34962,
-      "byteOffset": 2408060
+      "byteOffset": 2998872
     },
     {
       "buffer": 0,
-      "byteLength": 142320,
+      "byteLength": 228384,
       "target": 34962,
-      "byteOffset": 2550380
+      "byteOffset": 3227256
     },
     {
       "buffer": 0,
-      "byteLength": 94880,
+      "byteLength": 152256,
       "target": 34962,
-      "byteOffset": 2692700
+      "byteOffset": 3455640
     },
     {
       "buffer": 0,
-      "byteLength": 65382,
-      "byteOffset": 2787580,
+      "byteLength": 95676,
+      "byteOffset": 3607896,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 144840,
+      "target": 34962,
+      "byteOffset": 3703572
+    },
+    {
+      "buffer": 0,
+      "byteLength": 144840,
+      "target": 34962,
+      "byteOffset": 3848412
+    },
+    {
+      "buffer": 0,
+      "byteLength": 96560,
+      "target": 34962,
+      "byteOffset": 3993252
+    },
+    {
+      "buffer": 0,
+      "byteLength": 67806,
+      "byteOffset": 4089812,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 79464,
       "target": 34962,
-      "byteOffset": 2852964
+      "byteOffset": 4157620
     },
     {
       "buffer": 0,
       "byteLength": 79464,
       "target": 34962,
-      "byteOffset": 2932428
+      "byteOffset": 4237084
     },
     {
       "buffer": 0,
       "byteLength": 52976,
       "target": 34962,
-      "byteOffset": 3011892
+      "byteOffset": 4316548
     },
     {
       "buffer": 0,
       "byteLength": 32628,
-      "byteOffset": 3064868,
+      "byteOffset": 4369524,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 68076,
       "target": 34962,
-      "byteOffset": 3097496
+      "byteOffset": 4402152
     },
     {
       "buffer": 0,
       "byteLength": 68076,
       "target": 34962,
-      "byteOffset": 3165572
+      "byteOffset": 4470228
     },
     {
       "buffer": 0,
       "byteLength": 45384,
       "target": 34962,
-      "byteOffset": 3233648
+      "byteOffset": 4538304
     },
     {
       "buffer": 0,
       "byteLength": 28098,
-      "byteOffset": 3279032,
+      "byteOffset": 4583688,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 111372,
       "target": 34962,
-      "byteOffset": 3307132
+      "byteOffset": 4611788
     },
     {
       "buffer": 0,
       "byteLength": 111372,
       "target": 34962,
-      "byteOffset": 3418504
+      "byteOffset": 4723160
     },
     {
       "buffer": 0,
       "byteLength": 74248,
       "target": 34962,
-      "byteOffset": 3529876
+      "byteOffset": 4834532
     },
     {
       "buffer": 0,
       "byteLength": 48198,
-      "byteOffset": 3604124,
+      "byteOffset": 4908780,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 24816,
       "target": 34962,
-      "byteOffset": 3652324
+      "byteOffset": 4956980
     },
     {
       "buffer": 0,
       "byteLength": 24816,
       "target": 34962,
-      "byteOffset": 3677140
+      "byteOffset": 4981796
     },
     {
       "buffer": 0,
       "byteLength": 16544,
       "target": 34962,
-      "byteOffset": 3701956
+      "byteOffset": 5006612
     },
     {
       "buffer": 0,
       "byteLength": 7728,
-      "byteOffset": 3718500,
+      "byteOffset": 5023156,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 82068,
       "target": 34962,
-      "byteOffset": 3726228
+      "byteOffset": 5030884
     },
     {
       "buffer": 0,
       "byteLength": 82068,
       "target": 34962,
-      "byteOffset": 3808296
+      "byteOffset": 5112952
     },
     {
       "buffer": 0,
       "byteLength": 54712,
       "target": 34962,
-      "byteOffset": 3890364
+      "byteOffset": 5195020
     },
     {
       "buffer": 0,
       "byteLength": 36066,
-      "byteOffset": 3945076,
+      "byteOffset": 5249732,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 39372,
       "target": 34962,
-      "byteOffset": 3981144
+      "byteOffset": 5285800
     },
     {
       "buffer": 0,
       "byteLength": 39372,
       "target": 34962,
-      "byteOffset": 4020516
+      "byteOffset": 5325172
     },
     {
       "buffer": 0,
       "byteLength": 26248,
       "target": 34962,
-      "byteOffset": 4059888
+      "byteOffset": 5364544
     },
     {
       "buffer": 0,
       "byteLength": 14430,
-      "byteOffset": 4086136,
+      "byteOffset": 5390792,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 10332,
       "target": 34962,
-      "byteOffset": 4100568
+      "byteOffset": 5405224
     },
     {
       "buffer": 0,
       "byteLength": 10332,
       "target": 34962,
-      "byteOffset": 4110900
+      "byteOffset": 5415556
     },
     {
       "buffer": 0,
       "byteLength": 6888,
       "target": 34962,
-      "byteOffset": 4121232
+      "byteOffset": 5425888
     },
     {
       "buffer": 0,
       "byteLength": 5364,
-      "byteOffset": 4128120,
+      "byteOffset": 5432776,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 9612,
       "target": 34962,
-      "byteOffset": 4133484
+      "byteOffset": 5438140
     },
     {
       "buffer": 0,
       "byteLength": 9612,
       "target": 34962,
-      "byteOffset": 4143096
+      "byteOffset": 5447752
     },
     {
       "buffer": 0,
       "byteLength": 6408,
       "target": 34962,
-      "byteOffset": 4152708
+      "byteOffset": 5457364
     },
     {
       "buffer": 0,
       "byteLength": 4812,
-      "byteOffset": 4159116,
+      "byteOffset": 5463772,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 25248,
       "target": 34962,
-      "byteOffset": 4163928
+      "byteOffset": 5468584
     },
     {
       "buffer": 0,
       "byteLength": 25248,
       "target": 34962,
-      "byteOffset": 4189176
+      "byteOffset": 5493832
     },
     {
       "buffer": 0,
       "byteLength": 16832,
       "target": 34962,
-      "byteOffset": 4214424
+      "byteOffset": 5519080
     },
     {
       "buffer": 0,
       "byteLength": 12120,
-      "byteOffset": 4231256,
+      "byteOffset": 5535912,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 7320,
       "target": 34962,
-      "byteOffset": 4243376
+      "byteOffset": 5548032
     },
     {
       "buffer": 0,
       "byteLength": 7320,
       "target": 34962,
-      "byteOffset": 4250696
+      "byteOffset": 5555352
     },
     {
       "buffer": 0,
       "byteLength": 4880,
       "target": 34962,
-      "byteOffset": 4258016
+      "byteOffset": 5562672
     },
     {
       "buffer": 0,
       "byteLength": 4446,
-      "byteOffset": 4262896,
+      "byteOffset": 5567552,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 8004,
       "target": 34962,
-      "byteOffset": 4267344
+      "byteOffset": 5572000
     },
     {
       "buffer": 0,
       "byteLength": 8004,
       "target": 34962,
-      "byteOffset": 4275348
+      "byteOffset": 5580004
     },
     {
       "buffer": 0,
       "byteLength": 5336,
       "target": 34962,
-      "byteOffset": 4283352
+      "byteOffset": 5588008
     },
     {
       "buffer": 0,
       "byteLength": 4476,
-      "byteOffset": 4288688,
+      "byteOffset": 5593344,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 18252,
       "target": 34962,
-      "byteOffset": 4293164
+      "byteOffset": 5597820
     },
     {
       "buffer": 0,
       "byteLength": 18252,
       "target": 34962,
-      "byteOffset": 4311416
+      "byteOffset": 5616072
     },
     {
       "buffer": 0,
       "byteLength": 12168,
       "target": 34962,
-      "byteOffset": 4329668
+      "byteOffset": 5634324
     },
     {
       "buffer": 0,
       "byteLength": 7020,
-      "byteOffset": 4341836,
+      "byteOffset": 5646492,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 23628,
       "target": 34962,
-      "byteOffset": 4348856
+      "byteOffset": 5653512
     },
     {
       "buffer": 0,
       "byteLength": 23628,
       "target": 34962,
-      "byteOffset": 4372484
+      "byteOffset": 5677140
     },
     {
       "buffer": 0,
       "byteLength": 15752,
       "target": 34962,
-      "byteOffset": 4396112
+      "byteOffset": 5700768
     },
     {
       "buffer": 0,
       "byteLength": 10464,
-      "byteOffset": 4411864,
+      "byteOffset": 5716520,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 33312,
       "target": 34962,
-      "byteOffset": 4422328
+      "byteOffset": 5726984
     },
     {
       "buffer": 0,
       "byteLength": 33312,
       "target": 34962,
-      "byteOffset": 4455640
+      "byteOffset": 5760296
     },
     {
       "buffer": 0,
       "byteLength": 22208,
       "target": 34962,
-      "byteOffset": 4488952
+      "byteOffset": 5793608
     },
     {
       "buffer": 0,
       "byteLength": 14328,
-      "byteOffset": 4511160,
+      "byteOffset": 5815816,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 25032,
       "target": 34962,
-      "byteOffset": 4525488
+      "byteOffset": 5830144
     },
     {
       "buffer": 0,
       "byteLength": 25032,
       "target": 34962,
-      "byteOffset": 4550520
+      "byteOffset": 5855176
     },
     {
       "buffer": 0,
       "byteLength": 16688,
       "target": 34962,
-      "byteOffset": 4575552
+      "byteOffset": 5880208
     },
     {
       "buffer": 0,
       "byteLength": 12108,
-      "byteOffset": 4592240,
+      "byteOffset": 5896896,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 20112,
       "target": 34962,
-      "byteOffset": 4604348
+      "byteOffset": 5909004
     },
     {
       "buffer": 0,
       "byteLength": 20112,
       "target": 34962,
-      "byteOffset": 4624460
+      "byteOffset": 5929116
     },
     {
       "buffer": 0,
       "byteLength": 13408,
       "target": 34962,
-      "byteOffset": 4644572
+      "byteOffset": 5949228
     },
     {
       "buffer": 0,
       "byteLength": 9510,
-      "byteOffset": 4657980,
+      "byteOffset": 5962636,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 8412,
       "target": 34962,
-      "byteOffset": 4667492
+      "byteOffset": 5972148
     },
     {
       "buffer": 0,
       "byteLength": 8412,
       "target": 34962,
-      "byteOffset": 4675904
+      "byteOffset": 5980560
     },
     {
       "buffer": 0,
       "byteLength": 5608,
       "target": 34962,
-      "byteOffset": 4684316
+      "byteOffset": 5988972
     },
     {
       "buffer": 0,
       "byteLength": 4224,
-      "byteOffset": 4689924,
+      "byteOffset": 5994580,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 22044,
       "target": 34962,
-      "byteOffset": 4694148
+      "byteOffset": 5998804
     },
     {
       "buffer": 0,
       "byteLength": 22044,
       "target": 34962,
-      "byteOffset": 4716192
+      "byteOffset": 6020848
     },
     {
       "buffer": 0,
       "byteLength": 14696,
       "target": 34962,
-      "byteOffset": 4738236
+      "byteOffset": 6042892
     },
     {
       "buffer": 0,
       "byteLength": 8112,
-      "byteOffset": 4752932,
+      "byteOffset": 6057588,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 52356,
       "target": 34962,
-      "byteOffset": 4761044
+      "byteOffset": 6065700
     },
     {
       "buffer": 0,
       "byteLength": 52356,
       "target": 34962,
-      "byteOffset": 4813400
+      "byteOffset": 6118056
     },
     {
       "buffer": 0,
       "byteLength": 34904,
       "target": 34962,
-      "byteOffset": 4865756
+      "byteOffset": 6170412
     },
     {
       "buffer": 0,
       "byteLength": 17592,
-      "byteOffset": 4900660,
+      "byteOffset": 6205316,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 38892,
       "target": 34962,
-      "byteOffset": 4918252
+      "byteOffset": 6222908
     },
     {
       "buffer": 0,
       "byteLength": 38892,
       "target": 34962,
-      "byteOffset": 4957144
+      "byteOffset": 6261800
     },
     {
       "buffer": 0,
       "byteLength": 25928,
       "target": 34962,
-      "byteOffset": 4996036
+      "byteOffset": 6300692
     },
     {
       "buffer": 0,
       "byteLength": 16032,
-      "byteOffset": 5021964,
+      "byteOffset": 6326620,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 3336,
       "target": 34962,
-      "byteOffset": 5037996
+      "byteOffset": 6342652
     },
     {
       "buffer": 0,
       "byteLength": 3336,
       "target": 34962,
-      "byteOffset": 5041332
+      "byteOffset": 6345988
     },
     {
       "buffer": 0,
       "byteLength": 2224,
       "target": 34962,
-      "byteOffset": 5044668
+      "byteOffset": 6349324
     },
     {
       "buffer": 0,
       "byteLength": 1638,
-      "byteOffset": 5046892,
+      "byteOffset": 6351548,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 26952,
       "target": 34962,
-      "byteOffset": 5048532
+      "byteOffset": 6353188
     },
     {
       "buffer": 0,
       "byteLength": 26952,
       "target": 34962,
-      "byteOffset": 5075484
+      "byteOffset": 6380140
     },
     {
       "buffer": 0,
       "byteLength": 17968,
       "target": 34962,
-      "byteOffset": 5102436
+      "byteOffset": 6407092
     },
     {
       "buffer": 0,
       "byteLength": 13938,
-      "byteOffset": 5120404,
+      "byteOffset": 6425060,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 14820,
       "target": 34962,
-      "byteOffset": 5134344
+      "byteOffset": 6439000
     },
     {
       "buffer": 0,
       "byteLength": 14820,
       "target": 34962,
-      "byteOffset": 5149164
+      "byteOffset": 6453820
     },
     {
       "buffer": 0,
       "byteLength": 9880,
       "target": 34962,
-      "byteOffset": 5163984
+      "byteOffset": 6468640
     },
     {
       "buffer": 0,
       "byteLength": 8016,
-      "byteOffset": 5173864,
+      "byteOffset": 6478520,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 5028,
       "target": 34962,
-      "byteOffset": 5181880
+      "byteOffset": 6486536
     },
     {
       "buffer": 0,
       "byteLength": 5028,
       "target": 34962,
-      "byteOffset": 5186908
+      "byteOffset": 6491564
     },
     {
       "buffer": 0,
       "byteLength": 3352,
       "target": 34962,
-      "byteOffset": 5191936
+      "byteOffset": 6496592
     },
     {
       "buffer": 0,
       "byteLength": 2322,
-      "byteOffset": 5195288,
+      "byteOffset": 6499944,
       "target": 34963
     }
   ],
@@ -9777,7 +10224,7 @@
   ],
   "buffers": [
     {
-      "byteLength": 5197612,
+      "byteLength": 6502268,
       "uri": "tavern_interior_props.bin"
     }
   ]

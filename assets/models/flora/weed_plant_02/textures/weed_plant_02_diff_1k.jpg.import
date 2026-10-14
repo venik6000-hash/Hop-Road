@@ -3,20 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bdp2cj85ued6u"
-path="res://.godot/imported/weed_plant_02_diff_1k.jpg-51b08f564a21f04836e502f93dbe8de4.ctex"
+path.bptc="res://.godot/imported/weed_plant_02_diff_1k.jpg-51b08f564a21f04836e502f93dbe8de4.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/flora/weed_plant_02/textures/weed_plant_02_diff_1k.jpg"
-dest_files=["res://.godot/imported/weed_plant_02_diff_1k.jpg-51b08f564a21f04836e502f93dbe8de4.ctex"]
+dest_files=["res://.godot/imported/weed_plant_02_diff_1k.jpg-51b08f564a21f04836e502f93dbe8de4.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

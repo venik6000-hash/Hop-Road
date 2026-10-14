@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://qjs5txn7dvoi"
-path="res://.godot/imported/monk_hair-skin.png-5ad4cc68883f42adb8210cb646535417.ctex"
+path.bptc="res://.godot/imported/monk_hair-skin.png-5ad4cc68883f42adb8210cb646535417.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "86764b797c6d6268d62ffa6eea154945"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/npc/monk_hair-skin.png"
-dest_files=["res://.godot/imported/monk_hair-skin.png-5ad4cc68883f42adb8210cb646535417.ctex"]
+dest_files=["res://.godot/imported/monk_hair-skin.png-5ad4cc68883f42adb8210cb646535417.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

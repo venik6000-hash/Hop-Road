@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://gyqnlcyxdft8"
-path="res://.godot/imported/lake_stones_sand_rocks_small_01_arm_1k.jpg-e1c24ae819e9dabd6e6cda0f81157409.ctex"
+path.bptc="res://.godot/imported/lake_stones_sand_rocks_small_01_arm_1k.jpg-e1c24ae819e9dabd6e6cda0f81157409.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "2eaa70e7cd303d00908788e30d1584fb"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/lakebed/lake_stones_sand_rocks_small_01_arm_1k.jpg"
-dest_files=["res://.godot/imported/lake_stones_sand_rocks_small_01_arm_1k.jpg-e1c24ae819e9dabd6e6cda0f81157409.ctex"]
+dest_files=["res://.godot/imported/lake_stones_sand_rocks_small_01_arm_1k.jpg-e1c24ae819e9dabd6e6cda0f81157409.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

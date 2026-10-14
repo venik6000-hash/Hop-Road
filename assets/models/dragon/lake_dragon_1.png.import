@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bgmvqc1xk7ghe"
-path="res://.godot/imported/lake_dragon_1.png-21032aca18b3a7f5dd4412cb6af1e8bd.ctex"
+path.bptc="res://.godot/imported/lake_dragon_1.png-21032aca18b3a7f5dd4412cb6af1e8bd.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "22a61e292faf700b905254a75383a6f8"
@@ -14,12 +15,12 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/dragon/lake_dragon_1.png"
-dest_files=["res://.godot/imported/lake_dragon_1.png-21032aca18b3a7f5dd4412cb6af1e8bd.ctex"]
+dest_files=["res://.godot/imported/lake_dragon_1.png-21032aca18b3a7f5dd4412cb6af1e8bd.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

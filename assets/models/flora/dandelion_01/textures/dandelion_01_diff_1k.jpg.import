@@ -3,20 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dkp8h0ws16rle"
-path="res://.godot/imported/dandelion_01_diff_1k.jpg-c804e67d30e1ca9f17a30fdd0e2ac52e.ctex"
+path.bptc="res://.godot/imported/dandelion_01_diff_1k.jpg-c804e67d30e1ca9f17a30fdd0e2ac52e.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/flora/dandelion_01/textures/dandelion_01_diff_1k.jpg"
-dest_files=["res://.godot/imported/dandelion_01_diff_1k.jpg-c804e67d30e1ca9f17a30fdd0e2ac52e.ctex"]
+dest_files=["res://.godot/imported/dandelion_01_diff_1k.jpg-c804e67d30e1ca9f17a30fdd0e2ac52e.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
