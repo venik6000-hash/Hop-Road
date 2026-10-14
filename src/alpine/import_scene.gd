@@ -2,7 +2,6 @@
 extends EditorScenePostImport
 ## Derived Godot resources. Reimporting the GLB rebuilds materials and bodies.
 const SURFACE = preload("res://src/alpine/surface.gdshader")
-const WATER = preload("res://src/alpine/water.gdshader")
 var materials: Dictionary = {}
 var root_scene: Node3D
 var mesh_count := 0
@@ -23,10 +22,6 @@ func _post_import(scene: Node) -> Object:
 func make_material(label: String, settings: Dictionary) -> ShaderMaterial:
 	var mat := ShaderMaterial.new()
 	mat.resource_name = label
-	if label.ends_with("Alpine lake") or label.ends_with("Water white"):
-		mat.shader = WATER
-		mat.set_shader_parameter("waterfall", label.ends_with("Water white"))
-		return mat
 	mat.shader = SURFACE
 	var values: Array = settings.color
 	var color := Color(values[0], values[1], values[2], values[3]).linear_to_srgb()

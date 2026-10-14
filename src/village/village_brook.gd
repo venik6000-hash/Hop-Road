@@ -8,8 +8,7 @@ extends Node3D
 ## It is the lake's water (WaterfallSystem's stream shader on the lake's
 ## optics) on a ribbon that follows a channel cut into the terrain: carve()
 ## shapes the heightfield before the terrain is drawn or made solid, paint()
-## lays the pebble bed and the wet margin into the terrain masks, stones()
-## gives RockField the boulders of the steps, banks and spring.
+## lays the pebble bed and the wet margin into the terrain masks.
 ##
 ## The street's rill is drawn here too: a spring below the brewery's lane,
 ## water two hands wide past the well, along the upper lane and the cross
@@ -41,11 +40,6 @@ const LEAST_FALL := 0.022
 const FAN := 7.0
 ## The ribbon reaches this far into its banks.
 const INTO_BANK := 0.45
-## The footbridge: no boulders on its abutments.
-const BRIDGE := Rect2(-29.0, -32.2, 11.0, 4.4)
-
-## The beach trail fords the brook where it crosses this z.
-const FORD_Z := 9.5
 ## The street's rill downstream, as POINTS: terrain_village.py's RILL, with the
 ## half width of its water. A cell of the heightfield is half a metre: no
 ## narrower water has a bed everywhere along it.
@@ -307,61 +301,3 @@ static func paint(terrain: TerrainSystem) -> void:
 
 static func _image(terrain: TerrainSystem, parameter: String) -> Image:
 	return ImageUtil.rgba8(terrain.material.get_shader_parameter(parameter))
-
-## Boulders for RockField ([AABB, place]): the outcrop the spring comes out
-## of, the stones each step falls over, those along the banks and in the bed.
-static func stones() -> Array:
-	var list := []
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 7041
-	var spring: Vector3 = rows[0].at
-	var far: Vector3 = rows[4].at
-	var ahead: Vector3 = (far - spring).normalized()
-	var side := Vector3(ahead.z, 0.0, -ahead.x)
-	# A horseshoe of large mossy boulders behind and beside the spring.
-	for k in 7:
-		var angle := lerpf(-1.9, 1.9, k / 6.0)
-		var at: Vector3 = spring - ahead * cos(angle) * rng.randf_range(1.5, 2.4) + side * sin(angle) * rng.randf_range(1.6, 2.6)
-		_stone(list, at, rng.randf_range(1.7, 3.1), rng.randf_range(0.75, 1.1))
-	_stone(list, spring - ahead * 0.9 + Vector3.UP * 0.4, 2.3, 0.9)
-	for k in 9:
-		var at: Vector3 = spring + ahead * rng.randf_range(-3.5, 3.0) + side * rng.randf_range(1.0, 4.5) * (1.0 if k % 2 == 0 else -1.0)
-		_stone(list, at, rng.randf_range(0.5, 1.3), 0.7)
-	var ford := 0
-	for index in rows.size():
-		if absf(rows[index].at.z - FORD_Z) < absf(rows[ford].at.z - FORD_Z):
-			ford = index
-	for index in range(3, rows.size() - 5):
-		var row: Dictionary = rows[index]
-		var at: Vector3 = row.at
-		var next: Vector3 = rows[index + 1].at
-		ahead = Vector3(next.x - at.x, 0.0, next.z - at.z).normalized()
-		side = Vector3(ahead.z, 0.0, -ahead.x)
-		var half: float = row.half
-		if row.step and not rows[index - 1].step:
-			# The lip of a step: stones the water breaks between.
-			for hand: float in [-1.0, 1.0]:
-				_stone(list, at + side * hand * (half + rng.randf_range(0.0, 0.5)), rng.randf_range(0.7, 1.3), 0.75)
-				_stone(list, at + side * hand * half * rng.randf_range(0.35, 0.8) + ahead * rng.randf_range(-0.3, 0.3),
-					rng.randf_range(0.4, 0.7), 0.8)
-			if rng.randf() < 0.6:
-				_stone(list, at + side * rng.randf_range(-0.25, 0.25) * half, rng.randf_range(0.35, 0.6), 0.8)
-		for hand: float in [-1.0, 1.0]:
-			if rng.randf() < 0.3:
-				_stone(list, at + side * hand * (half + rng.randf_range(0.0, 1.3)), rng.randf_range(0.25, 0.8), 0.7)
-			if rng.randf() < 0.035:
-				_stone(list, at + side * hand * (half + rng.randf_range(1.4, 3.2)), rng.randf_range(1.2, 2.3), 0.8)
-		if index == ford:
-			# Stepping stones where the beach trail crosses.
-			for k in 4:
-				_stone(list, at + side * lerpf(-1.0, 1.0, k / 3.0) * half + ahead * rng.randf_range(-0.15, 0.15)
-					+ Vector3.DOWN * 0.2, 0.85, 0.6)
-		if rng.randf() < 0.22:
-			_stone(list, at + side * rng.randf_range(-0.9, 0.9) * half, rng.randf_range(0.18, 0.36), 0.6)
-	return list
-
-static func _stone(list: Array, at: Vector3, width: float, squat: float) -> void:
-	if BRIDGE.has_point(Vector2(at.x, at.z)) and width > 0.4:
-		return
-	var size := Vector3(width, width * squat, width)
-	list.append([AABB(at - size * 0.5 + Vector3.UP * size.y * 0.5, size), "brook"])

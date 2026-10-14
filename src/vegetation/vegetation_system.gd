@@ -67,6 +67,12 @@ var exclude: Array[RID] = []
 
 var trees: TreeSet
 var obstacles: ObstacleMap
+## The key of the placement (VegetationCache.prepare), where it came from
+## ("stored" or "placed") and what the terrain scan and the key took (ms).
+var placement_key := ""
+var placement_source := ""
+var scan_msec := 0.0
+var digest_msec := 0.0
 var grid: TreeLodGrid
 var grass: GrassField
 ## Per look group (TreePlacer.SPECIES_GROUP).
@@ -124,25 +130,35 @@ func _ready() -> void:
 	TreeColliders.make(self)
 	_make_grass()
 	load_seconds = (Time.get_ticks_usec() - start) / 1e6
-	print("VEGETATION trees=%d detail=%d chunks=%d load=%.2fs" % [trees.size(), grid.tree_count(),
-		_impostor_chunks.size(), load_seconds])
+	print("VEGETATION trees=%d detail=%d chunks=%d load=%.2fs placement=%s scan=%.0fms digest=%.0fms key=%s" % [trees.size(),
+		grid.tree_count(), _impostor_chunks.size(), load_seconds, placement_source, scan_msec, digest_msec,
+		placement_key.left(12)])
 
 func _exit_tree() -> void:
 	TreeColliders.free_all(self)
 
+## The terrain and the obstacle grid are built every time: their digest is the
+## key of the placement (VegetationCache), which is read from the baked file or
+## the runtime cache when one carries it, and placed only when none does.
 func _load_placement() -> void:
-	var cache := VegetationCache.read()
-	if cache == null:
+	var prepared := VegetationCache.prepare(terrain, map, exclude)
+	placement_key = prepared.key
+	scan_msec = prepared.scan_msec
+	digest_msec = prepared.digest_msec
+	var cache := VegetationCache.stored(prepared.key)
+	if cache != null:
+		placement_source = "stored"
+	else:
 		print("VEGETATION placing trees (cached for later runs)...")
-		var skip := exclude.duplicate()
-		for body: StaticBody3D in terrain.find_children("*", "StaticBody3D", true, false):
-			skip.append(body.get_rid())
-		cache = VegetationCache.compute(terrain, map, skip)
-		var error := cache.write()
-		if error != OK:
-			push_warning("Vegetation placement not cached: %s" % error_string(error))
+		prepared.place()
+		cache = prepared
+		placement_source = "placed"
+		if not prepared.key.is_empty():
+			var error := cache.write()
+			if error != OK:
+				push_warning("Vegetation placement not cached: %s" % error_string(error))
 	trees = cache.trees
-	obstacles = cache.obstacles
+	obstacles = prepared.obstacles
 
 ## Applies [wrap, transmission, tint, ambient] per group to the mesh foliage
 ## and the impostors alike, so both LOD families light the same.

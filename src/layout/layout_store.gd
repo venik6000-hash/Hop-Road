@@ -4,17 +4,13 @@ extends RefCounted
 ##
 ## Houses and cottages live in village_plan.json and the yard props in the
 ## village pack's layout.json, as before. The scanned stones and the forest's
-## wood were placed by seeded rules; tools/pipeline/layout/bake_layout.gd
-## wrote them out once, and the game now reads the lists instead.
+## wood are lists too (rocks.json, forest_wood.json), written by the layout scene.
 const PLAN := "res://assets/generated/layout/village_plan.json"
 const PROPS := "res://assets/models/village_pack/layout.json"
 const ROCKS := "res://assets/generated/layout/rocks.json"
 const FOREST_WOOD := "res://assets/generated/layout/forest_wood.json"
 ## Pieces of the Blender map the loaded level still shows, for the layout scene.
 const MAP_CONTEXT := "res://assets/generated/layout/map_context.json"
-
-## Set by the bake to place the stones and the wood by their rules again.
-static var derive := false
 
 static func read(path: String) -> Variant:
 	if not FileAccess.file_exists(path):
@@ -33,10 +29,8 @@ static func rows_text(rows: Array) -> String:
 		lines.append(JSON.stringify(row, "", false))
 	return "[\n" + ",\n".join(lines) + "\n]\n"
 
-## The baked list at `path`, or nothing while the bake places by rule.
+## The list at `path`, or nothing if the file is missing.
 static func placed(path: String) -> Array:
-	if derive:
-		return []
 	var data: Variant = read(path)
 	return data if data is Array else []
 

@@ -2,16 +2,36 @@ extends RefCounted
 ## Exact trimesh faces, baked offline and shared by repeated instances.
 const ROOT := "res://assets/generated/village_pack/collisions/"
 const SOURCE := "res://assets/models/village_pack/"
-const VERSION := 1
+const VERSION := 2
+## The import settings that can change a collision mesh: the scale, the script
+## that post-processes the scene and the per-node settings. The rest of a
+## .import file (LODs, shadows, lightmaps, compression, the importer's own
+## version and the paths of its output) leaves the faces as they were.
+const IMPORT_KEYS := ["_subresources", "import_script/path", "nodes/apply_root_scale", "nodes/root_scale"]
 var _assets := {}
 
+## "major.minor" of the engine: a patch release keeps the key.
+static func engine_series() -> String:
+	var version := Engine.get_version_info()
+	return "%d.%d" % [version.major, version.minor]
+
+## Digest of the IMPORT_KEYS of a .import file; empty if it cannot be read.
+static func import_fingerprint(path: String) -> String:
+	var settings := ConfigFile.new()
+	if settings.load(path) != OK:
+		return ""
+	var lines := PackedStringArray()
+	for setting: String in IMPORT_KEYS:
+		lines.append(setting + "=" + JSON.stringify(settings.get_value("params", setting, null), "", true, true))
+	return "\n".join(lines).sha256_text()
+
+## What the baked faces of `asset` follow: its model's bytes and the import
+## settings that can change a mesh (IMPORT_KEYS), not the
+## importer's other settings or the patch version of the engine.
 static func source_key(asset: String) -> String:
 	var path := SOURCE + asset + ".glb"
-	var settings := ConfigFile.new()
-	settings.load(path + ".import")
-	var importer: String = settings.get_value("params", "import_script/path", "")
-	var importer_hash := "" if importer.is_empty() else FileAccess.get_sha256(importer)
-	return (str(VERSION) + ":" + Engine.get_version_info().string + ":" + FileAccess.get_sha256(path) + ":" + FileAccess.get_sha256(path + ".import") + ":" + importer + ":" + importer_hash).sha256_text()
+	return ":".join(PackedStringArray([str(VERSION), engine_series(), FileAccess.get_sha256(path),
+		import_fingerprint(path + ".import")])).sha256_text()
 
 func shape(asset: String, mesh_path: String, mesh: Mesh) -> Shape3D:
 	if not _assets.has(asset):

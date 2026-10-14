@@ -172,14 +172,6 @@ static func landing_of(fall: Dictionary) -> Vector3:
 	var at := lip + Vector3(sin(heading), 0.0, cos(heading)) * speed * t
 	return Vector3(at.x, floor_y, at.z)
 
-## Circles (x, z, radius) that boulders must keep out of: under the falls.
-static func keep_clear() -> Array[Vector3]:
-	var zones: Array[Vector3] = []
-	for fall: Dictionary in WaterfallSystem.falls():
-		var landing := WaterfallSystem.landing_of(fall)
-		zones.append(Vector3(landing.x, landing.z, fall.width + fall.spread))
-	return zones
-
 ## Front sheet and a narrower one 0.4 m behind it, from `approach` seconds
 ## before the lip (still sliding over it) to 0.8 m under the floor. The one
 ## behind comes first: the sheets are blended in the order they are drawn.

@@ -19,6 +19,14 @@ const BOAT_SHIFT := Vector3(-1.5, 0.0, 2.8)
 const PILE_FOOT := 0.0
 const PILE_DEEPER := 1.0
 
+## The x of the village's main road at `y` (m south of the tavern's yard, that
+## is -z): the line the Blender road was drawn on, with the shoulder it keeps
+## for the tavern's approach. tools/pipeline/buildings/ground.py has the same
+## line in Python.
+static func road_x(y: float) -> float:
+	return -3.5 + 3.5 * sin((y + 11.0) * 0.079) - 0.09 * maxf(0.0, y) + 0.63 * maxf(0.0, -y - 3.0) \
+		- minf(10.0, maxf(0.0, (y - 20.0) * 0.5))
+
 static func plan() -> Dictionary:
 	return JSON.parse_string(FileAccess.get_file_as_string(PLAN))
 
@@ -80,9 +88,7 @@ static func ground_height(x: float, z: float, original: float, cottages: Diction
 		var edge := maxf(absf(local.x) - 3.9, absf(local.z - 0.5) - 4.7)
 		var weight := 1.0 - smoothstep(0.0, 1.5, edge)
 		# Preserve the already laid main road and the tavern approach.
-		var y := -z
-		var road_x := -3.5 + 3.5 * sin((y + 11.0) * 0.079) - 0.09 * maxf(0.0, y) - minf(10.0, maxf(0.0, (y - 20.0) * 0.5))
-		weight *= smoothstep(2.8, 3.8, absf(x - road_x))
+		weight *= smoothstep(2.8, 3.8, absf(x - road_x(-z)))
 		height = lerpf(height, float(spec.position[1]) - 0.025, weight)
 	return height
 
@@ -177,35 +183,6 @@ static func settle_bridge(map: Node3D, terrain: TerrainSystem) -> void:
 		var holder := CollisionShape3D.new()
 		holder.shape = shape
 		body.add_child(holder)
-
-static func rock_pose(pose: Transform3D, radius: float, terrain: TerrainSystem, paths: Array) -> Transform3D:
-	# Keep every scanned stone, moving obstructions onto the lane shoulders.
-	if pose.origin.z + radius > -18.0 or pose.origin.z < -87.0 or pose.origin.x < -33.0 or pose.origin.x > 28.0:
-		return pose
-	var original := Vector2(pose.origin.x, pose.origin.z)
-	var point := original
-	var clearance := radius + 1.05
-	for attempt in 12:
-		var moved := false
-		for path: Dictionary in paths:
-			for i in range(path.points.size() - 1):
-				var a := Vector2(path.points[i][0], path.points[i][1])
-				var b := Vector2(path.points[i + 1][0], path.points[i + 1][1])
-				var near := Geometry2D.get_closest_point_to_segment(point, a, b)
-				var offset := point - near
-				if offset.length() >= clearance:
-					continue
-				if offset.length_squared() < 0.0001:
-					offset = (b - a).orthogonal()
-				point = near + offset.normalized() * clearance
-				point.y = minf(point.y, -18.0 - radius)
-				moved = true
-		if not moved: break
-	if point != original:
-		pose.origin.y += terrain.height_at(point.x, point.y) - terrain.height_at(original.x, original.y)
-		pose.origin.x = point.x
-		pose.origin.z = point.y
-	return pose
 
 ## Trodden earth around each house: the grass thins toward the walls.
 static func paint_aprons(map: Node3D, terrain: TerrainSystem) -> void:

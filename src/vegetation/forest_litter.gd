@@ -112,14 +112,6 @@ func _process(_delta: float) -> void:
 		var key: Vector2i = _wanted.pop_front()
 		_tiles[key] = _lay_tile(key)
 
-## Pieces lying in the tiles round the eye now.
-func piece_count() -> int:
-	var count := 0
-	for items: Array in _tiles.values():
-		for item: MultiMeshInstance3D in items:
-			count += item.multimesh.instance_count
-	return count
-
 ## The meshes of each Kind, dressed, in the order of their names.
 static func shapes() -> Array[Array]:
 	var worn: Array[ShaderMaterial] = []

@@ -144,13 +144,6 @@ func seabed_at(x: float, z: float) -> float:
 		_floor_cache[cell] = bed if not is_nan(bed) else habitat.terrain.height_at(cell.x, cell.y)
 	return maxf(_floor_cache[cell], habitat.terrain.height_at(x, z))
 
-# Kept for tools/probes/bed_probe.gd.
-func _slope(point: Vector3) -> float:
-	return Ground.slope(self, point)
-
-func _reed_shore(point: Vector3) -> bool:
-	return Plants.reed_shore(self, point)
-
 ## The box an eye over the lake may see `piece` in (seen_box()).
 func seen_bounds(piece: GeometryInstance3D) -> AABB:
 	return seen_box(piece.global_transform * piece.get_aabb(), habitat.terrain.water_level)

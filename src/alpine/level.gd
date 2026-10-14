@@ -425,11 +425,6 @@ func setup_rocks() -> void:
 	rocks.name = "Rocks"
 	rocks.terrain = terrain
 	rocks.map = $Map
-	rocks.keep_clear = WaterfallSystem.keep_clear()
-	var clear_paths: Array = VILLAGE_LAYOUT.plan().paths
-	clear_paths.append({"points": VILLAGE_LAYOUT.plan().main_road})
-	rocks.placement = VILLAGE_LAYOUT.rock_pose.bind(terrain, clear_paths)
-	rocks.extra_stones = VillageBrook.stones()
 	add_child(rocks)
 
 ## The falls below the plateau with their spray, mist and the lake's foam.

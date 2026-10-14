@@ -1,16 +1,24 @@
 class_name NpcPopulation
 extends Node3D
+const VILLAGE_LAYOUT = preload("res://src/village/village_layout.gd")
+## Where the staff stand at work.
+const WORK := {
+	"borr": Vector3(11.6, 6.95, -12.43),
+	"tomas": Vector3(21.15, 6.66, -4.78),
+	"marta": Vector3(23.7, 6.66, -8.61),
+	"lina": Vector3(13.9, 6.95, -10.65),
+}
 var actors: Array[VillageNPC] = []
 var bartender: VillageNPC
 ## The villagers' sheets and what has grown between them and the player.
 var people := PeopleBook.load_folder()
 
 func _ready() -> void:
-	bartender = settle("borr", "innkeeper", "bartender", Vector3(11.6, 6.95, -12.43), PI)
+	bartender = settle("borr", "innkeeper", "bartender", WORK.borr, PI)
 	# The cook and his brother wear the monk's model here: the licence of
 	# theirs does not let its files be shared.
-	settle("tomas", "monk", "chop", Vector3(21.15, 6.66, -4.78))
-	settle("marta", "bartender", "stir", Vector3(23.7, 6.66, -8.61))
+	settle("tomas", "monk", "chop", WORK.tomas)
+	settle("marta", "bartender", "stir", WORK.marta)
 	var cutting := Node3D.new()
 	cutting.name = "FoodPreparation"
 	add_child(cutting)
@@ -53,16 +61,16 @@ func _ready() -> void:
 	puff.material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	steam.mesh = puff
 	steam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	var maid := settle("lina", "maid", "maid", Vector3(13.9, 6.95, -10.65))
+	var maid := settle("lina", "maid", "maid", WORK.lina)
 	if maid != null:
-		maid.route.assign([Vector3(13.9,6.95,-10.65), Vector3(13.9,6.95,-7.5), Vector3(11,6.95,-7.5), Vector3(11,6.95,-3.0)])
+		maid.route.assign([WORK.lina, Vector3(13.9,6.95,-7.5), Vector3(11,6.95,-7.5), Vector3(11,6.95,-3.0)])
 	# The tested village road; no diagonal shortcuts through houses. Beside
 	# the tavern's yard its retaining wall takes the lane's east side, and
 	# the road keeps a metre further west.
 	var road: Array[Vector3] = []
 	for source_y in range(-12, 45, 4):
 		var y := float(source_y)
-		var x := -3.5 + 3.5 * sin((y + 11.0) * 0.079) - 0.09 * maxf(0.0, y) + 0.63 * maxf(0.0, -y - 3.0) - minf(10.0, maxf(0.0, (y - 20.0) * 0.5))
+		var x := VILLAGE_LAYOUT.road_x(y)
 		x -= smoothstep(-12.0, -8.0, y) * (1.0 - smoothstep(0.0, 4.0, y))
 		road.append(Vector3(x, 15, -y))
 	var monk := settle("savva", "monk", "wander", road[3])

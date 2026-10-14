@@ -4,13 +4,9 @@ extends Node3D
 ## of tools/pipeline/rocks/rock_textures.py) in place of the Blender scene's
 ## blockout stones, and the scanned faces of the waterfall cliff.
 ##
-## The blockout batches are split back into their stones (pieces of the batch
-## mesh that share no vertex position); each stone becomes a scan of about
-## its footprint, turned at random and set into the generated terrain. Where
-## the terrain now lies deeper in the lake than the Blender ground did, a
-## shore stone grows down to the bed so that it still breaks the surface. By
-## the water the stones are bare scans; in the meadows and at the brook most
-## are mossy ones.
+## The stones come from the list the layout scene writes (rocks.json); the
+## Blender map's blockout stones are only removed. A scan stands where the
+## list says, turned and scaled as the list says.
 ##
 ## Drawing: a MultiMesh per shape and 64 m tile, so Godot's automatic mesh LOD
 ## is chosen per tile; INSTANCE_CUSTOM = (array layer, moss, tone seed, 0).
@@ -28,6 +24,9 @@ const DATA := "res://assets/generated/rocks/"
 ## The ground behind the cliff's faces (tools/pipeline/rocks/cliff_seat.py).
 const SEAT := DATA + "cliff_seat.json"
 const TILE := 64.0
+## Scans without moss; the lake bed sorts its drowned boulders by it.
+const BARE_SCANS := ["boulder_01", "namaqualand_boulder_02", "namaqualand_boulder_03", "rock_07", "rock_09",
+	"stone_01"]
 ## Array layers in tools/pipeline/rocks/rock_textures.py order, and their
 ## grades: rgb tint carrying the exposure gain, and saturation. The scanned
 ## granites become the valley's grey limestone; the mossy sets keep their green.
@@ -41,23 +40,9 @@ const BOULDER_GRADES := [
 const CLIFF_SCANS := ["coastal_cliff_02", "rock_face_01", "rock_face_02"]
 const CLIFF_GRADES := [Vector4(2.05, 2.05, 2.15, 0.55), Vector4(1.23, 1.23, 1.29, 0.45),
 	Vector4(1.12, 1.12, 1.18, 0.45)]
-## Relative odds of the bare scans (the mossy sets share the rest equally).
-const BARE_ODDS := {"boulder_01": 3.0, "namaqualand_boulder_02": 2.0, "namaqualand_boulder_03": 3.0,
-	"rock_07": 2.0, "rock_09": 1.0, "stone_01": 1.0}
-## Blender batches of blockout stones (alpine_label) and where they lie.
-const SOURCES := {
-	"Cliff talus and shoreline boulders": "shore",
-	"Island rocky foundation": "shore",
-	"Meadow granite and mossy stones": "meadow",
-	"Village brook rock banks": "brook",
-}
-## Chance of a mossy scan, and the moss laid on a bare one, per place.
-const MOSSY_ODDS := {"shore": 0.12, "meadow": 0.7, "brook": 0.55}
-const MOSS := {"shore": 0.3, "meadow": 0.85, "brook": 0.7}
-## The bathing water off the village beach (where the beach zone of
-## tools/pipeline/terrain/terrain.py is whole, x and z): its shore stones lie
-## on the bed instead of standing up through the swim as pillars.
-const BATHING := Rect2(-110.0, -45.0, 75.0, 63.0)
+## Blender batches of blockout stones (alpine_label) that the scans replace.
+const REPLACED_BATCHES := ["Cliff talus and shoreline boulders", "Island rocky foundation",
+	"Meadow granite and mossy stones", "Village brook rock banks"]
 ## Faces of the waterfall cliff: scan, base point (centre of the footprint at
 ## the lowest point), yaw in degrees, scale. The upper step of the terrain
 ## drops from the 30 m plateau to the 17 m shelf along z = -149, the lower one
@@ -93,17 +78,7 @@ const CLIFF_FACES := [
 
 var terrain: TerrainSystem
 var map: Node3D
-## Circles (x, z, radius) left free of stones: where the waterfalls land.
-var keep_clear: Array[Vector3] = []
-## Optional rigid placement adjustment before the same visual/collider are installed.
-var placement: Callable
-## More stones than the Blender map has: [AABB, place] each (VillageBrook).
-var extra_stones: Array = []
 var stone_count := 0
-## Every stone as it stands: {shape, xform, moss, tone}. The layout bake
-## writes them to LayoutStore.ROCKS; once that file is there, the stones come
-## from it and the Blender batches only say what to remove.
-var stones: Array[Dictionary] = []
 
 var _shapes: Array[Dictionary] = []   # {name, mesh, size, layer, cliff, bare, hull, coarse}
 var _by_name := {}
@@ -120,22 +95,12 @@ func _ready() -> void:
 	_body.name = "Solid"
 	add_child(_body)
 	var removed := 0
-	var placed := LayoutStore.placed(LayoutStore.ROCKS)
 	for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
 		var label := RockField.label_of(item)
-		if SOURCES.has(label):
-			if placed.is_empty():
-				for box in RockField.stones_of(item):
-					_add_stone(box, SOURCES[label])
+		if REPLACED_BATCHES.has(label) or label == "Jointed waterfall cliff geology":
 			_remove(item)
 			removed += 1
-		elif label == "Jointed waterfall cliff geology":
-			_remove(item)
-			removed += 1
-	if placed.is_empty():
-		for stone: Array in extra_stones:
-			_add_stone(stone[0], stone[1])
-	for entry: Dictionary in placed:
+	for entry: Dictionary in LayoutStore.placed(LayoutStore.ROCKS):
 		if _by_name.has(entry.shape):
 			_place_stone(_by_name[entry.shape], LayoutStore.unpack(entry.xform), entry.moss, entry.tone)
 	for face: Dictionary in CLIFF_FACES:
@@ -226,8 +191,8 @@ func _load_shapes() -> void:
 		var cliff := CLIFF_SCANS.has(scan)
 		var info := {
 			"name": shape_name, "mesh": item.mesh, "size": item.mesh.get_aabb().size, "cliff": cliff,
+			"bare": BARE_SCANS.has(scan),
 			"layer": CLIFF_SCANS.find(scan) if cliff else BOULDER_SCANS.find(scan),
-			"bare": BARE_ODDS.has(scan), "odds": BARE_ODDS.get(scan, 1.0),
 		}
 		if not cliff:
 			var hull := item.mesh.create_convex_shape(true, true) as ConvexPolygonShape3D
@@ -268,61 +233,6 @@ func _material(shader: Shader, prefix: String, grades: Array, weather: Texture2D
 
 # --- stones ----------------------------------------------------------------------
 
-func _pick(rng: RandomNumberGenerator, bare: bool) -> int:
-	var total := 0.0
-	for info: Dictionary in _shapes:
-		if not info.cliff and info.bare == bare:
-			total += info.odds
-	var roll := rng.randf() * total
-	for i in _shapes.size():
-		var info: Dictionary = _shapes[i]
-		if info.cliff or info.bare != bare:
-			continue
-		roll -= info.odds
-		if roll <= 0.0:
-			return i
-	return 0
-
-func _add_stone(box: AABB, place: String) -> void:
-	var center := box.get_center()
-	for zone in keep_clear:
-		if Vector2(center.x - zone.x, center.z - zone.y).length() < zone.z:
-			return
-	var rng := RandomNumberGenerator.new()
-	rng.seed = hash(Vector2i(roundi(center.x * 100.0), roundi(center.z * 100.0)))
-	var water := terrain.water_level
-	var mossy: bool = rng.randf() < MOSSY_ODDS[place] and box.position.y > water + 0.6
-	var index := _pick(rng, not mossy)
-	var info: Dictionary = _shapes[index]
-	var size: Vector3 = info.size
-	# The footprint of the blockout stone, and about its height.
-	var s := sqrt(maxf(box.size.x * box.size.z, 0.01) / (size.x * size.z)) * rng.randf_range(0.9, 1.12)
-	var sy := clampf(box.size.y / size.y, s * 0.7, s * 1.4)
-	var ground := _ground_under(center, box.size * 0.45)
-	var base := ground - 0.12 * size.y * sy
-	# A stone that broke the surface keeps doing so where the bed now lies
-	# deeper, if it can grow that far. One that would still end under water
-	# (the old shoreline now lies metres deep) or stands in the bathing water
-	# stays its size on the bed: a stretched pillar would be all it became.
-	var top_wanted := minf(box.end.y, water + 0.35)
-	if box.end.y > water + 0.1 and base + size.y * sy < top_wanted and not BATHING.has_point(Vector2(center.x, center.z)):
-		var needed := (top_wanted - base) / size.y
-		var grown_s := clampf(needed / 1.5, s, s * 2.0)
-		var grown_sy := minf(needed, grown_s * 1.5)
-		if ground + 0.88 * size.y * grown_sy > water - 0.3:
-			s = grown_s
-			sy = grown_sy
-			base = ground - 0.12 * size.y * sy
-	var lean := rng.randf() * TAU
-	var tilt_axis := Vector3(cos(lean), 0.0, sin(lean))
-	var tilt := deg_to_rad(rng.randf_range(0.0, 4.0 if mossy else 10.0))
-	var basis := Basis(Vector3.UP, rng.randf() * TAU) * Basis(tilt_axis, tilt) * Basis.from_scale(Vector3(s, sy, s))
-	var xform := Transform3D(basis, Vector3(center.x, base, center.z))
-	if placement.is_valid():
-		xform = placement.call(xform, maxf(size.x, size.z) * s * 0.5)
-	var moss: float = 0.25 if mossy else MOSS[place]
-	_place_stone(index, xform, moss, rng.randf())
-
 ## The boulders' material, for stones drawn elsewhere (ForestLitter). An
 ## instance tells it the layer of its scan (its place in BOULDER_SCANS), how
 ## bare of moss it is and its tone, as _place_stone() does.
@@ -335,16 +245,7 @@ func _place_stone(index: int, xform: Transform3D, moss: float, tone: float) -> v
 	var size: Vector3 = info.size
 	_instance(index, xform, Color(info.layer, moss, tone, 0.0), maxf(size.x, size.z) * xform.basis.x.length())
 	MeshUtil.add_hull(_body, xform, info.hull)
-	stones.append({"shape": info.name, "xform": xform, "moss": moss, "tone": tone})
 	stone_count += 1
-
-## Lowest terrain under an ellipse of half-extents `reach` (x, z) around `at`.
-func _ground_under(at: Vector3, reach: Vector3) -> float:
-	var low := terrain.height_at(at.x, at.z)
-	for k in 8:
-		var a := k * TAU / 8.0
-		low = minf(low, terrain.height_at(at.x + cos(a) * reach.x, at.z + sin(a) * reach.z))
-	return low
 
 func _add_cliff_face(face: Dictionary) -> void:
 	var index: int = _by_name[face.scan]

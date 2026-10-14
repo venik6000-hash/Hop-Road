@@ -29,10 +29,6 @@ var props: Array[Node3D] = []
 var animals: Array[Node3D] = []
 var forest_instances := 0
 var forest_ready := false
-## The forest's stumps, logs, roots and branches as they lie: {asset, xform}.
-## The layout bake writes them to LayoutStore.FOREST_WOOD; once that file is
-## there, the wood comes from it and the scatter lays only the plants.
-var forest_wood: Array[Dictionary] = []
 var _scenes := {}
 var _collision_cache := CollisionCache.new()
 static var _prefetched_scenes: Dictionary[String, PackedScene] = {}
@@ -184,7 +180,6 @@ func _scatter_forest() -> void:
 	rng.seed = 3102026
 	# Trail shoulders east/south of the village, away from the lake and yards.
 	var habitats := [Vector2(38, 20), Vector2(55, -35), Vector2(32, -78), Vector2(-35, 35), Vector2(10, 52)]
-	var placed := LayoutStore.placed(LayoutStore.FOREST_WOOD)
 	for zone in habitats:
 		for index in 85:
 			var point: Vector2 = zone + Vector2.from_angle(rng.randf_range(0, TAU)) * sqrt(rng.randf()) * 19.0
@@ -199,22 +194,19 @@ func _scatter_forest() -> void:
 			var hit := get_world_3d().direct_space_state.intersect_ray(ray)
 			if hit.is_empty() or not String(hit.collider.name).begins_with("TerrainBody"):
 				continue
+			if index % 13 == 0:
+				# This slot held a piece of wood, now in the list. It still draws
+				# its three numbers so that the plants lie where they always lay.
+				for _draw in 3:
+					rng.randf()
+				continue
 			var asset: String = ["fern", "clover", "bracken"][index % 3]
 			var size := rng.randf_range(0.55, 1.05)
-			if index % 13 == 0:
-				asset = ["stump", "roots", "branch", "log"][(index / 13) % 4]
-				size = rng.randf_range(1.1, 2.5)
 			var pose := Transform3D(Basis(Vector3.UP, rng.randf_range(0, TAU)).scaled(Vector3.ONE * size), Vector3(point.x, y - 0.045, point.y))
-			if asset in FOREST_WOOD:
-				if not placed.is_empty():
-					continue
-				forest_wood.append({"asset": asset, "xform": pose})
 			_batch(asset, pose)
-	for entry: Dictionary in placed:
+	for entry: Dictionary in LayoutStore.placed(LayoutStore.FOREST_WOOD):
 		if entry.asset in FOREST_WOOD:
-			var pose := LayoutStore.unpack(entry.xform)
-			forest_wood.append({"asset": entry.asset, "xform": pose})
-			_batch(entry.asset, pose)
+			_batch(entry.asset, LayoutStore.unpack(entry.xform))
 	for batch: Dictionary in _forest_batches.values():
 		var mm := MultiMesh.new()
 		mm.transform_format = MultiMesh.TRANSFORM_3D

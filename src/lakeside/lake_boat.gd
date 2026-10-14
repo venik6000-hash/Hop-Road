@@ -42,10 +42,6 @@ func build_hull() -> void:
 		mesh.visibility_range_end_margin = 20
 		mesh.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 
-## Terrain deformation callers invalidate after changing height samples in place.
-func invalidate_navigation() -> void:
-	_navigation_key.clear()
-
 func can_navigate(at: Vector3) -> bool:
 	# Buoyancy changes y each tick, but navigation depends only on x/z and yaw.
 	var key: Array = [Vector2(at.x, at.z), rotation.y, water.water_level, terrain,

@@ -153,9 +153,8 @@ func _ready() -> void:
 	_mat_mesh = GrassClump.mat_mesh()
 	for mesh: ArrayMesh in _meshes + _flower_meshes + [_mat_mesh]:
 		mesh.surface_set_material(0, material)
-	# Made here and not by VegetationSystem, which holds the same trees: that
-	# script is an input of the baked placement (VegetationCache.INPUTS), and
-	# the field is no part of where a tree stands.
+	# Made here and not by VegetationSystem, which holds the same trees: the
+	# field is no part of where a tree stands.
 	if woods != null:
 		canopy = canopy_of(woods, crowns)
 		canopy.publish()

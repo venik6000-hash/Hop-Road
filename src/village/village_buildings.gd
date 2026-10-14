@@ -1,7 +1,7 @@
 extends RefCounted
 ## The village's buildings that tools/pipeline/buildings/kit.py makes: their
 ## tables, and the ground under them. A table (assets/models/<name>/<name>.json)
-## stands its building by `origin` and `yaw`; docs/village-buildings/README.md
+## stands its building by `origin` and `yaw`; docs/VILLAGE.md
 ## tells what else it holds.
 
 const TABLES: Array[String] = [

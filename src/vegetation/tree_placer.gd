@@ -46,7 +46,8 @@ const PINE_C := 8
 const GROUP_CONIFER := 0
 const GROUP_BROADLEAF := 1
 const GROUP_PINE := 2
-const SPECIES_GROUP := [0, 0, 0, 0, 1, 1, 2, 2, 2]
+const SPECIES_GROUP := [GROUP_CONIFER, GROUP_CONIFER, GROUP_CONIFER, GROUP_CONIFER,
+	GROUP_BROADLEAF, GROUP_BROADLEAF, GROUP_PINE, GROUP_PINE, GROUP_PINE]
 ## Model height (m) at scale 1, from assets/models/source/vegetation/trees_summary.json.
 const SPECIES_HEIGHT := [24.5, 17.5, 20.0, 4.5, 17.3, 14.1, 20.3, 14.8, 17.5]
 ## Trunk-to-trunk distance (m) kept free around a tree of scale 1.

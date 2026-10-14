@@ -92,11 +92,6 @@ func make_texture() -> ImageTexture:
 	var image := Image.create_from_data(size.x, size.y, false, Image.FORMAT_L8, cover)
 	return ImageTexture.create_from_image(image)
 
-## Texture placement for shaders: the outer corner of the first cell (x, z)
-## and the extent of the grid (m), so uv = (xz - rect.xy) / rect.zw.
-func shader_rect() -> Vector4:
-	return Vector4(origin.x - cell * 0.5, origin.y - cell * 0.5, size.x * cell, size.y * cell)
-
 func store(file: FileAccess) -> void:
 	file.store_float(origin.x)
 	file.store_float(origin.y)
