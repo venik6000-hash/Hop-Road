@@ -361,6 +361,7 @@ func setup_tavern() -> void:
 	eye_adaptation.sky = sky_system
 	eye_adaptation.weather = weather
 	eye_adaptation.rooms = tavern.room_boxes()
+	eye_adaptation.tavern = tavern
 	add_child(eye_adaptation)
 
 ## The lanterns' far glows, and the watch that keeps what lives out of their
@@ -498,6 +499,9 @@ func setup_lens() -> void:
 	lightning.environment = $WorldEnvironment.environment
 	lightning.rooms = rooms
 	add_child(lightning)
+	for building: VillageBuilding in buildings:
+		if building.optic != null:
+			building.optic.rooms = rooms
 	weather_sound = WeatherSound.new()
 	weather_sound.name = "WeatherSound"
 	weather_sound.weather = weather

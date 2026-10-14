@@ -42,6 +42,9 @@ uniform float fur_wrap = 0.45;
 // How many shells the hide is drawn in (TavernDressing sets it).
 uniform float shells = 20.0;
 uniform float tip_sheen = 0.5;
+// How many strands (strand_cell) a pixel spans where the hair begins to close into a mat, and where it has.
+uniform float mat_from = 0.5;
+uniform float mat_to = 1.4;
 
 varying vec3 root;
 varying float shell;
@@ -100,11 +103,19 @@ void fragment() {
 		float cut = fore * fore / ((wide + 0.6 * step_cells) * (wide + 0.6 * step_cells)) + dot(aside, aside) / (wide * wide);
 		float near = step(cut, 1.0) * step(along, 1.0);
 		// Strands finer than a pixel would only sparkle: far off, the lower
-		// shells close into a mat and the upper ones are left out.
-		float coarse = smoothstep(0.7, 1.8, sqrt(length(dFdx(at)) * length(dFdy(at))) / strand_cell);
+		// shells close into a mat and the upper ones are left out. The cells
+		// are a lattice, and one a pixel wide beats against the pixels in dots.
+		float cells = sqrt(length(dFdx(at)) * length(dFdy(at))) / strand_cell;
+		float coarse = smoothstep(mat_from, mat_to, cells);
 		if (mix(near, step(shell, 0.55), coarse) < 0.5) {
 			discard;
 		}
+		// What is left must not speckle either: by the middle of that range
+		// each strand's length and tone give way to the mean of the strands
+		// (0.63 of the hair's length, a tone of 0.5).
+		float even = smoothstep(mat_from, 0.5 * (mat_from + mat_to), cells);
+		own = mix(own, vec3(0.5), even);
+		along = mix(along, shell / 0.63, even);
 	}
 	float up = clamp(along, 0.0, 1.0);
 	tips = shell;

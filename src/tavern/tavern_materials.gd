@@ -83,10 +83,10 @@ static func build(table: Dictionary, ground_level: float, materials: Dictionary)
 			material.set_shader_parameter("roughness_scale", spec.get("roughness", 1.0))
 			material.set_shader_parameter("color_range", range_)
 			for key: String in ["desaturate", "albedo_gain", "uv_scale", "normal_strength", "cloth_wrap", "cloth_through",
-					"cloth_sheen", "stain", "threads", "stripe_width"]:
+					"cloth_sheen", "stain", "threads"]:
 				if spec.has(key):
 					material.set_shader_parameter(key, spec[key])
-			for key: String in ["stripe_a", "stripe_b", "stripe_c", "emblem_color"]:
+			for key: String in ["emblem_color"]:
 				if spec.has(key):
 					var c: Array = spec[key]
 					material.set_shader_parameter(key, Color(c[0], c[1], c[2]))

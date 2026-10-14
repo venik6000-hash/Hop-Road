@@ -62,6 +62,12 @@ const MOON_AIR := 12.0
 const MOON_PATCH := 4.0
 const MOON_BACK := 7.0
 const MOON_REACH := 16.0
+## A spot lamp's bias is a depth in its map, not metres: 0.01 of it is 4 mm
+## 1 m from the lamp and 0.4 m at 10 m (it grows with the square of the
+## distance; the near plane is 0.025 m). The moon's lamp is 7 m and more from
+## what it lights and its map is fine, so 0.02 left no shadow to a stool in
+## the patch (0.8 m at 10 m); 0.005 is three steps of the map's 16 bits there.
+const MOON_SHADOW_BIAS := 0.005
 ## The moonlit sky in an opening of SKY_AREA under a full moon.
 const SKY_MOONLIT := 0.12
 const SKY_NIGHT := Color(0.5, 0.66, 1.0)
@@ -156,7 +162,7 @@ func _moon_lamp(title: String) -> SpotLight3D:
 	lamp.spot_attenuation = 0.0
 	lamp.spot_angle_attenuation = 0.05
 	lamp.shadow_enabled = true
-	lamp.shadow_bias = 0.02
+	lamp.shadow_bias = MOON_SHADOW_BIAS
 	lamp.shadow_normal_bias = 0.2
 	lamp.light_specular = 0.5
 	lamp.light_cull_mask = TavernSystem.LAYER

@@ -36,6 +36,8 @@ static func dress(tavern: TavernSystem, item: MeshInstance3D, room := false) -> 
 		door.configure(item, extras)
 		tavern.doors.append(door)
 		return
+	if extras.has("tav_cuckoo"):
+		tavern.cuckoo.add(str(extras.tav_cuckoo), item, extras)
 	match str(extras.get("tav_collide", "none")):
 		"mesh":
 			TAVERN_COLLISION.add_shape(tavern, item, TAVERN_COLLISION.cached_shape(tavern, item.mesh, "mesh"))

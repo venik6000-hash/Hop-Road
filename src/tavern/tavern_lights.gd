@@ -6,6 +6,11 @@ extends RefCounted
 ## above the ceiling, including the recessed mortar between the stones.
 const PROBE_PADDING := 0.45
 const PROBE_BLEND := 0.1
+## The hall's back door hangs in the middle of its 0.62 m wall, its leaf's face
+## to the room 0.4 m behind the room's air: the box must reach one blend past
+## that face (the hall's air ends at y 13.69, the face at 14.09) or the leaf
+## takes the sky's ambient, and no further than the wall's outer face (14.31).
+const HALL_BACK_PADDING := 0.52
 const BUILDING_BOUNDS := AABB(Vector3(3.6, 6.6, -14.4), Vector3(23.8, 14.2, 14.8))
 const HALO := preload("res://src/tavern/tavern_halo.gdshader")
 ## The rooms' candle flames carry this material; a flame taller than
@@ -19,6 +24,17 @@ const HALO_RADIUS := Vector2(0.14, 0.3)
 const ONE_FLAME := Vector2(0.035, 0.12)
 ## Halos are not drawn from further than this, m.
 const HALO_REACH := 40.0
+## An omni lamp's shadow bias is metres along the ray: 3 mm a metre of its
+## range (the map's texels widen with the distance), within these limits. Its
+## normal bias turns the lookup away from a surface by up to 10/512 of the
+## value in radians (a texel is 0.004-0.008), the more the surface leans from
+## the lamp, which holds a floor lit at a grazing angle clear of its own map
+## without the depth bias that eats the shadows of small things on a table. A
+## lamp with an area (light_size) hangs low over such a floor.
+const BIAS_PER_RANGE := 0.003
+const BIAS_LIMITS := Vector2(0.008, 0.02)
+const NORMAL_BIAS := 0.6
+const NORMAL_BIAS_AREA := 0.8
 
 static func add_light(tavern: TavernSystem, config: Dictionary) -> void:
 	var light: Light3D
@@ -49,8 +65,12 @@ static func add_light(tavern: TavernSystem, config: Dictionary) -> void:
 	# Keep costly area-shadow filtering for the authored large sources.
 	# Candles and small lanterns use the shadow atlas's regular PCF filter.
 	light.light_size = config.get("size", 0.05) if config.shadow else 0.0
-	light.shadow_bias = 0.02
-	light.shadow_normal_bias = 0.2
+	if light is OmniLight3D:
+		light.shadow_bias = omni_shadow_bias(float(config.range))
+		light.shadow_normal_bias = NORMAL_BIAS_AREA if light.light_size > 0.0 else NORMAL_BIAS
+	else:
+		light.shadow_bias = 0.02
+		light.shadow_normal_bias = 0.2
 	tavern.add_child(light)
 	if config.type == "spot":
 		var d: Array = config.direction
@@ -85,17 +105,27 @@ static func add_light(tavern: TavernSystem, config: Dictionary) -> void:
 			"seed": float(hash(config.name) % 1000) * 0.37, "speed": config.get("speed", 1.0),
 			"origin": light.position, "sway": config.get("sway", 0.0)})
 
-static func add_probe(tavern: TavernSystem, config: Dictionary) -> void:
-	var probe := ReflectionProbe.new()
-	probe.name = config.name
-	var p: Array = config.position
+## The shadow bias of an omni lamp of `reach` metres.
+static func omni_shadow_bias(reach: float) -> float:
+	return clampf(BIAS_PER_RANGE * reach, BIAS_LIMITS.x, BIAS_LIMITS.y)
+
+## The size of the box of the probe in `config`, from the room it lies over.
+static func probe_size(config: Dictionary) -> Vector3:
 	var e: Array = config.extents
-	probe.position = Vector3(p[0], p[1], p[2])
 	var padding := Vector3.ONE * PROBE_PADDING
 	# The boards closing the roof eaves sit beyond the room's wall faces.
 	if config.get("room", "") in ["attic", "kitchen"]:
 		padding.x = 0.65
-	probe.size = (Vector3(e[0], e[1], e[2]) + padding) * 2.0
+	if config.get("room", "") == "hall":
+		padding.z = HALL_BACK_PADDING
+	return (Vector3(e[0], e[1], e[2]) + padding) * 2.0
+
+static func add_probe(tavern: TavernSystem, config: Dictionary) -> void:
+	var probe := ReflectionProbe.new()
+	probe.name = config.name
+	var p: Array = config.position
+	probe.position = Vector3(p[0], p[1], p[2])
+	probe.size = probe_size(config)
 	probe.interior = true
 	probe.box_projection = true
 	probe.enable_shadows = true

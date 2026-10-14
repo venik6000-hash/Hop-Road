@@ -19,8 +19,16 @@ const SHAFT_LENGTH := 120.0
 ## A lens: its radius, and how far from the pivot its face goes round, m.
 const LENS := 0.32
 const LENS_REACH := 0.5
+## Metres outside a room's box over which the beams' light comes back to an
+## eye that leaves the room: less than a wall is thick.
+const THRESHOLD := 0.4
 
 var sky_system: SkySystem
+## The rooms of the village, as boxes in world space. A beam casts no shadow
+## and the walls of a house are lit by it on both their faces, the one to
+## the room with the one to the weather: for an eye in a room the beams light
+## nothing, and are only seen in the air beyond the windows.
+var rooms: Array[AABB] = []
 ## Seconds a turn takes.
 var period := 12.0
 
@@ -29,6 +37,7 @@ var _beams: Array[SpotLight3D] = []
 ## The shafts and the flashes: drawn from dusk only.
 var _seen: Array[MeshInstance3D] = []
 var _last_dark := -1.0
+var _last_light := -1.0
 
 ## `optic` is the table's section; the node stands in the building's frame.
 func configure(optic: Dictionary) -> void:
@@ -69,8 +78,9 @@ func _add_beam(beam: Dictionary) -> void:
 	light.spot_attenuation = BEAM_FALLOFF
 	light.spot_angle_attenuation = 1.0
 	light.position = Vector3(0.0, 0.0, -LENS_REACH)
-	# The walls of the houses and the land, not the rooms behind the walls
-	# (see TavernSystem's layers): the beam casts no shadow.
+	# The walls of the houses and the land, not what stands in the rooms
+	# behind the walls (see TavernSystem's layers): the beam casts no shadow.
+	# The walls' own faces to the rooms are on the walls' layers: see `rooms`.
 	light.light_cull_mask = 0xFFFFF & ~(TavernSystem.LAYER | TavernSystem.SHADOW_LAYER | TavernSystem.ROOM_SUN_LAYER)
 	holder.add_child(light)
 	_beams.append(light)
@@ -121,11 +131,31 @@ func _process(delta: float) -> void:
 		return
 	# Lit toward dusk, as the lanterns are.
 	var dark := 1.0 - smoothstep(-0.02, 0.18, sky_system.sun_direction.y)
-	if dark == _last_dark:
+	var camera := get_viewport().get_camera_3d()
+	shine(dark, light_for(camera.global_position) if camera != null else 1.0)
+
+## How much of their light the beams throw for an eye at `eye`: none in a
+## room, all of it outdoors, and between the two over THRESHOLD in a doorway.
+func light_for(eye: Vector3) -> float:
+	# Metres the eye is inside the room it is deepest in (EyeAdaptation.indoors()).
+	var deepest := -INF
+	for box: AABB in rooms:
+		var low := eye - box.position
+		var high := box.end - eye
+		deepest = maxf(deepest, minf(minf(low.x, high.x), minf(minf(low.y, high.y), minf(low.z, high.z))))
+	return 1.0 - smoothstep(-THRESHOLD, 0.0, deepest)
+
+## Lights the beams as dark as the evening is (0..1): the shafts and the
+## flashes are drawn for every eye, the light on what the beams fall on is
+## `light` of its strength (light_for()).
+func shine(dark: float, light: float) -> void:
+	light *= dark
+	if dark == _last_dark and light == _last_light:
 		return
 	_last_dark = dark
-	for light: SpotLight3D in _beams:
-		light.light_energy = BEAM_ENERGY * dark
-		light.visible = dark > 0.01
+	_last_light = light
+	for beam: SpotLight3D in _beams:
+		beam.light_energy = BEAM_ENERGY * light
+		beam.visible = light > 0.01
 	for item: MeshInstance3D in _seen:
 		item.visible = dark > 0.01

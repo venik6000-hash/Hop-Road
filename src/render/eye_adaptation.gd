@@ -11,6 +11,12 @@ extends Node
 ## There it loses colour as well, and a closed sky's flat light takes a little
 ## of the colour and of the contrast by day.
 ##
+## The haze of the valley's air (the environment's height fog) is laid over
+## everything below its top by as much whatever the distance, so in a room it
+## is a pale blue veil over every dark corner: it goes as the eye comes in.
+## The rooms' reflection probes keep the air they were captured in, so it is
+## also gone until they have captured their rooms the first time.
+##
 ## The exposure is written to the environment's tonemap exposure, which the
 ## mug's own viewport copies every frame, so the hand and the world stay
 ## exposed alike.
@@ -41,8 +47,10 @@ const FOLLOW := 0.45
 ## Stops the gain may stand under and over the gain of the place for what the
 ## eye sees there.
 const SEEN_STOPS := Vector2(-0.5, 1.6)
-## In a room by night the gain stands no further over the room's than this:
-## candles and a hearth light their own corners and leave the rest dark.
+## In a room the gain stands no further over the room's than this, by day and
+## by night: windows, candles and a hearth light their own corners and leave
+## the rest dark, and a look into a dark corner does not turn it into a lit one.
+const ROOM_DAY_OVER := 0.8
 const ROOM_NIGHT_OVER := 0.4
 ## Seconds for 63 % of the way: into the light, into the dark.
 const CLOSE_SECONDS := 0.9
@@ -73,12 +81,15 @@ var rooms: Array[AABB] = []
 ## either: the eye is then never in a wood).
 var canopy: CanopyField
 var terrain: TerrainSystem
+## The tavern, if the level has one: its rooms' probes are captured in clear air.
+var tavern: TavernSystem
 ## What meters the picture (none: the eye goes by the place alone).
 var meter: LightMeter
 ## The authored exposure the gains multiply, and the authored colour.
 var base_exposure := 1.0
 var base_saturation := 1.0
 var base_contrast := 1.0
+var base_haze := 0.0
 var gain := 1.0
 ## The light of the picture as last metered (NAN: not metered).
 var seen := NAN
@@ -91,6 +102,7 @@ func _ready() -> void:
 		base_exposure = environment.tonemap_exposure
 		base_saturation = environment.adjustment_saturation
 		base_contrast = environment.adjustment_contrast
+		base_haze = environment.fog_height_density
 
 ## The eye has been where it is for a while: the next frames take the gain of
 ## the place and the view at once (a probe that sets a view calls this).
@@ -106,7 +118,7 @@ func _process(delta: float) -> void:
 	seen = meter.stops() if meter != null else NAN
 	var inside := indoors(eye, rooms)
 	var wanted := seen_gain(target_gain(inside, dark, weather.gloom() if weather != null else 0.0,
-		under_crowns(eye)), seen, lerpf(SEEN_STOPS.y, ROOM_NIGHT_OVER, inside * dark))
+		under_crowns(eye)), seen, lerpf(SEEN_STOPS.y, lerpf(ROOM_DAY_OVER, ROOM_NIGHT_OVER, dark), inside))
 	if _eye == Vector3.INF or eye.distance_to(_eye) > CUT_DISTANCE:
 		_settling = SETTLE_SECONDS
 	_eye = eye
@@ -118,6 +130,9 @@ func _process(delta: float) -> void:
 	var exposure := base_exposure * gain
 	if not is_equal_approx(environment.tonemap_exposure, exposure):
 		environment.tonemap_exposure = exposure
+	var air := haze(base_haze, inside if tavern == null or tavern.probes_captured() else 1.0)
+	if not is_equal_approx(environment.fog_height_density, air):
+		environment.fog_height_density = air
 	var look := colour(gain, dark, 1.0 - sky.sun_share, inside)
 	if not is_equal_approx(environment.adjustment_saturation, base_saturation * look.x):
 		environment.adjustment_saturation = base_saturation * look.x
@@ -176,6 +191,11 @@ static func seen_gain(place: float, stops: float, over := SEEN_STOPS.y) -> float
 static func colour(gain: float, dark: float, closed: float, inside := 0.0) -> Vector2:
 	var dim := dark * (1.0 - inside) * smoothstep(NIGHT_COLOUR_STOPS.x, NIGHT_COLOUR_STOPS.y, log(maxf(gain, 0.01)) / log(2.0))
 	return Vector2(lerpf(1.0, NIGHT_COLOUR, dim) * lerpf(1.0, CLOSED_SKY_COLOUR, closed), lerpf(1.0, CLOSED_SKY_CONTRAST, closed))
+
+## The valley's haze of density `authored` as the eye sees it `inside` (0
+## outdoors .. 1 in a room): none between a room's walls.
+static func haze(authored: float, inside: float) -> float:
+	return authored * (1.0 - inside)
 
 ## One step of `delta` seconds from `current` toward `wanted`, in stops.
 static func adapt(current: float, wanted: float, delta: float) -> float:

@@ -95,6 +95,8 @@ var mesh_count := 0
 var replaced := 0
 var bodies := 0
 var doors: Array[TavernDoor] = []
+## The hall's cuckoo clock, which calls the game's hours.
+var cuckoo := TavernCuckoo.new()
 ## The rooms' lamps that burn day and night (TavernLights.add_light): the
 ## floors between hide them from an eye on another storey (TavernPortals).
 var steady_lamps: Array[Light3D] = []
@@ -122,6 +124,8 @@ var _flame_origins := PackedVector3Array()
 var room_shadow_bounds: Array[AABB] = []
 var _room_probes: Array[ReflectionProbe] = []
 var _last_probe_hour := -1000.0
+var _last_ambient_hour := -1000.0
+var _probes_captured := false
 ## The probes were told to capture and may not be done before the frame
 ## counted here is drawn (see await_probes()).
 var _probes_awaited := false
@@ -140,6 +144,9 @@ func _ready() -> void:
 	_body = StaticBody3D.new()
 	_body.name = "Solid"
 	add_child(_body)
+	cuckoo.name = "Cuckoo"
+	cuckoo.tavern = self
+	add_child(cuckoo)
 	_has_interior = FileAccess.file_exists(PARTS[1])
 	var parts := 0
 	for path: String in PARTS:
@@ -236,6 +243,7 @@ func _process(_delta: float) -> void:
 	_update_room_lighting()
 	if _probes_awaited and Engine.get_frames_drawn() > _probes_done_at:
 		_probes_awaited = false
+		_probes_captured = true
 		for probe: ReflectionProbe in _room_probes:
 			RenderingServer.instance_set_ignore_culling(probe.get_instance(), false)
 	_update_sun_casters()
@@ -284,17 +292,29 @@ func _update_room_lighting() -> void:
 	if sky_system == null:
 		return
 	var hour := sky_system.time_of_day
+	if absf(hour - _last_ambient_hour) >= 0.5:
+		_last_ambient_hour = hour
+		var sun_height := SkySystem.solar_direction(hour, sky_system.latitude_deg, sky_system.day_of_year).y
+		var daylight := smoothstep(-0.08, 0.3, sun_height)
+		for probe: ReflectionProbe in _room_probes:
+			probe.ambient_color_energy = lerpf(0.45, 1.6, daylight)
 	if absf(hour - _last_probe_hour) < 0.5:
 		return
+	# A capture keeps the air it was made in, and for an eye outdoors the
+	# valley's haze lies over the rooms as well (EyeAdaptation.haze): the first
+	# capture has clear air, the later ones wait for an eye in a room.
+	if _probes_captured and not _eye_in_a_room():
+		return
 	_last_probe_hour = hour
-	var sun_height := SkySystem.solar_direction(hour, sky_system.latitude_deg, sky_system.day_of_year).y
-	var daylight := smoothstep(-0.08, 0.3, sun_height)
+	# Requeue one capture when the sun changes, rather than keeping daytime
+	# reflections at night or rendering eight cubemaps every frame.
 	for probe: ReflectionProbe in _room_probes:
-		probe.ambient_color_energy = lerpf(0.45, 1.6, daylight)
-		# Requeue one capture when the sun changes, rather than keeping daytime
-		# reflections at night or rendering eight cubemaps every frame.
 		probe.update_mode = ReflectionProbe.UPDATE_ONCE
 	await_probes()
+
+func _eye_in_a_room() -> bool:
+	var camera := get_viewport().get_camera_3d()
+	return camera != null and EyeAdaptation.indoors(camera.global_position, room_boxes()) > 0.999
 
 ## The probes are to capture their rooms. The engine captures a probe only
 ## once a camera's culling has let it through, so until all have had their
@@ -308,6 +328,10 @@ func await_probes() -> void:
 
 func probes_awaited() -> bool:
 	return _probes_awaited
+
+## The rooms' probes have captured their rooms at least once.
+func probes_captured() -> bool:
+	return _probes_captured
 
 ## Hands the worn floors their map of where the ground floor is walked
 ## (tavern_wear.gd), once every part's colliders, doors and seats are in.
