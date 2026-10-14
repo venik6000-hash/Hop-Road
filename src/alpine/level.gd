@@ -18,11 +18,8 @@ const CHIMNEY_SMOKE = preload("res://src/alpine/chimney_smoke.gd")
 const LEVEL_CONTROLS = preload("res://src/alpine/level_controls.gd")
 const RenderQuality = preload("res://src/render/render_quality.gd")
 const STILL_SURFACE = preload("res://src/alpine/surface_still.gdshader")
+const LEVEL_POST = preload("res://src/alpine/level_post.gd")
 const SPAWN := Vector3(0, 12, 15)
-## Height above the lake level that no wave crest reaches: five times the
-## storm preset's significant height at the largest local wave scale. An eye
-## above it lets the lens pass skip its water block.
-const LENS_CREST_BOUND := 30.0
 const VIEW_DISTANCE := 24000.0
 ## The middle of the built-up land (tavern, village, island), x and z:
 ## what RainShelter maps for the rain to fall on.
@@ -32,7 +29,7 @@ var overview_active := false
 var spawn_position := SPAWN
 var sky_system: SkySystem
 var weather: WeatherSystem
-var fog: AtmosphereFog
+var post: LEVEL_POST
 var lightning: LightningFx
 var weather_sound: WeatherSound
 var rain_fall: RainFall
@@ -51,8 +48,6 @@ var npc_population: NpcPopulation
 var camping: CampSystem
 var wildlife: WildlifeSystem
 var waterfall: WaterfallSystem
-var lens: LensPost
-var refraction: RefractionPost
 var eye_adaptation: EyeAdaptation
 var far_lights: FarLights
 var lamp_guard: LampShadowGuard
@@ -64,17 +59,7 @@ var brook: VillageBrook
 var flora: VillageFlora
 var lake_refraction: LakeRefraction
 var status: Label
-# Inputs of the last lens and wind updates in _process.
-var _lens_water_valid := false
-var _lens_level := 0.0
-var _lens_tiles := Vector4.ZERO
-var _lens_weights := Vector4.ZERO
-var _lens_eye_x := 0.0
-var _lens_eye_z := 0.0
-var _lens_sun_valid := false
-var _lens_sun_direction := Vector3.ZERO
-var _lens_sun_radiance := Vector3.ZERO
-var _lens_viewer_radius := 0.0
+# Inputs of the last wind update in _process.
 var _wind_heading_deg := NAN
 var _wind_speed := NAN
 var _wind_sent := Vector4.ZERO
@@ -134,7 +119,7 @@ func _ready() -> void:
 	add_child(flora)
 	if staged_loading:
 		await _loading_step("Готовим жителей и озеро…")
-	setup_lens()
+	setup_post()
 	setup_smoke()
 	setup_interface()
 	npc_population = NpcPopulation.new()
@@ -467,26 +452,12 @@ func setup_vegetation() -> void:
 	litter.rocks = rocks
 	add_child(litter)
 
-## The contact shadows of the tavern's lamps on the opaque picture; then,
-## after the transparent things, the hot air and the rain's rings, the
-## weather's fog, the underwater view, waterline and vignette, as compositor
-## passes for every camera; and what a storm adds to the land.
-func setup_lens() -> void:
-	fog = AtmosphereFog.new()
-	fog.sky = sky_system
-	fog.terrain = terrain
-	fog.sun_shadow = sun_shadow
-	fog.canopy = vegetation.grass.canopy
-	fog.weather_map = load("res://assets/generated/sky/cloud_weather.png")
-	var rooms := tavern.room_boxes()
-	for index in rooms.size():
-		fog.building = rooms[index] if index == 0 else fog.building.merge(rooms[index])
-	# From here on every room of the village: the tavern's and the buildings'.
-	rooms = eye_adaptation.rooms
-	fog.rooms = rooms
-	weather.fog = fog
+## The compositor passes (level_post.gd), and what a storm adds to the land.
+func setup_post() -> void:
+	post = LEVEL_POST.new(self)
 	eye_adaptation.canopy = vegetation.grass.canopy
 	eye_adaptation.terrain = terrain
+	var rooms := eye_adaptation.rooms
 	lightning = LightningFx.new()
 	lightning.name = "Lightning"
 	lightning.weather = weather
@@ -504,62 +475,18 @@ func setup_lens() -> void:
 	add_child(weather_sound)
 	rain_fall = RainFall.new()
 	rain_fall.weather = weather
-	rain_fall.building = fog.building
+	rain_fall.building = post.fog.building
 	rain_fall.water_level = terrain.water_level
 	add_child(rain_fall)
-	lens = LensPost.new()
-	lens.skyview = sky_system.atmosphere.skyview_lut
-	lens.transmittance = sky_system.atmosphere.transmittance_lut
-	lens.displacement = water.ocean.displacement_texture
-	# First what bends the picture itself (hot air, the rain's rings on the
-	# lake), then the fog that lies before it all, then the lens.
-	refraction = RefractionPost.new()
-	# The eye meters the picture as the air leaves it, before the lens darkens
-	# its corners.
-	eye_adaptation.meter = LightMeter.new()
-	var compositor := Compositor.new()
-	compositor.compositor_effects = [tavern.contact_shadows, refraction, fog, eye_adaptation.meter, lens]
-	$WorldEnvironment.compositor = compositor
 
 func _process(delta: float) -> void:
-	var eye := get_viewport().get_camera_3d().global_position
+	post.update(delta, get_viewport().get_camera_3d().global_position, get_tree())
+	rain_fall.wind = post.fog.wind
 	var ocean := water.ocean
-	var wind_heading := deg_to_rad(ocean.wind_direction_deg)
-	fog.wind = Vector2(cos(wind_heading), sin(wind_heading)) * ocean.wind_speed
-	rain_fall.wind = fog.wind
-	fog.wave_height = ocean.significant_height()
-	fog.prepare(delta, eye, get_tree().get_nodes_in_group(AtmosphereFog.LAMP_GROUP) if fog.active() else [])
-	var falling := RainFall.amount(weather.state.rain, weather.state.storm)
-	# The lake lies within the rings' view where the ground dips under its level.
-	var lake_near := falling > 0.0 and terrain.height_range(Rect2(eye.x - RefractionPost.RING_VIEW, eye.z - RefractionPost.RING_VIEW,
-		RefractionPost.RING_VIEW * 2.0, RefractionPost.RING_VIEW * 2.0)).x < water.water_level
-	refraction.prepare(delta, eye, get_tree().get_nodes_in_group(RefractionPost.HEAT_GROUP), falling, water.water_level, lake_near,
-		fog.wave_height)
-	# The lens and the trees only take new values when an input changed:
-	# the same inputs give the same packed parameters and the same wind.
-	# wave_scale_at() depends on the eye's x/z, the lake level and fixed fields.
-	# (NaN never compares equal, so it always takes the update path.)
-	if not _lens_water_valid or water.water_level != _lens_level or ocean.tiles != _lens_tiles \
-			or ocean.cascade_weights != _lens_weights or eye.x != _lens_eye_x or eye.z != _lens_eye_z:
-		_lens_water_valid = true
-		_lens_level = water.water_level
-		_lens_tiles = ocean.tiles
-		_lens_weights = ocean.cascade_weights
-		_lens_eye_x = eye.x
-		_lens_eye_z = eye.z
-		lens.set_water(water.water_level, ocean.tiles, ocean.cascade_weights * water.wave_scale_at(eye.x, eye.z),
-			WaterSystem.ABSORPTION + WaterSystem.SCATTERING, WaterSystem.SCATTERING, LENS_CREST_BOUND)
-	var sun_radiance := Vector3.ONE * sky_system.sun_energy * PI
-	var viewer_radius := sky_system.atmosphere.viewer_radius_km()
-	if not _lens_sun_valid or sky_system.sun_direction != _lens_sun_direction \
-			or sun_radiance != _lens_sun_radiance or viewer_radius != _lens_viewer_radius:
-		_lens_sun_valid = true
-		_lens_sun_direction = sky_system.sun_direction
-		_lens_sun_radiance = sun_radiance
-		_lens_viewer_radius = viewer_radius
-		lens.set_sun(sky_system.sun_direction, sun_radiance, viewer_radius)
 	# Trees bend in the wind that raises the waves (F1-F4): pressure grows
-	# with the square of the speed, so a storm bends them hard.
+	# with the square of the speed, so a storm bends them hard. They only take
+	# a new wind when an input changed (NaN never compares equal, so the first
+	# frame always does).
 	if ocean.wind_direction_deg != _wind_heading_deg or ocean.wind_speed != _wind_speed \
 			or vegetation.wind != _wind_sent:
 		_wind_heading_deg = ocean.wind_direction_deg

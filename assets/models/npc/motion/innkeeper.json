@@ -1,18 +1,18 @@
 {
  "chop": {
   "left_hand": [
-   0.07,
+   0.069,
    -0.31,
    1.06
   ],
-  "left_hand_reach": 0.072,
+  "left_hand_reach": 0.073,
   "length": 2.667,
   "right_hand": [
    -0.09,
    -0.29,
    1.08
   ],
-  "right_hand_reach": 0.12
+  "right_hand_reach": 0.118
  },
  "chop_quick": {
   "left_hand": [
@@ -20,14 +20,14 @@
    -0.31,
    1.06
   ],
-  "left_hand_reach": 0.042,
+  "left_hand_reach": 0.041,
   "length": 2.467,
   "right_hand": [
    -0.09,
    -0.29,
    1.08
   ],
-  "right_hand_reach": 0.091
+  "right_hand_reach": 0.089
  },
  "drink": {
   "length": 5.2
@@ -47,15 +47,15 @@
  "knead": {
   "left_hand": [
    0.099,
-   -0.279,
-   1.059
+   -0.278,
+   1.06
   ],
-  "left_hand_reach": 0.214,
+  "left_hand_reach": 0.215,
   "length": 8.9,
   "right_hand": [
    -0.1,
    -0.28,
-   1.059
+   1.06
   ],
   "right_hand_reach": 0.203
  },
@@ -68,14 +68,14 @@
    -0.36,
    1.13
   ],
-  "left_hand_reach": 0.021,
+  "left_hand_reach": 0.02,
   "length": 2.3,
   "right_hand": [
    -0.14,
    -0.33,
    1.31
   ],
-  "right_hand_reach": 0.042
+  "right_hand_reach": 0.041
  },
  "serve": {
   "length": 1.7
@@ -85,33 +85,33 @@
  },
  "slice": {
   "left_hand": [
-   0.07,
+   0.071,
    -0.31,
    1.06
   ],
-  "left_hand_reach": 0.105,
+  "left_hand_reach": 0.101,
   "length": 8.833,
   "right_hand": [
    -0.09,
    -0.29,
    1.08
   ],
-  "right_hand_reach": 0.127
+  "right_hand_reach": 0.128
  },
  "stir": {
   "left_hand": [
-   0.329,
+   0.444,
    0.104,
-   0.678
+   0.705
   ],
-  "left_hand_reach": 0.037,
+  "left_hand_reach": 0.04,
   "length": 2.3,
   "right_hand": [
    -0.02,
    -0.42,
    1.07
   ],
-  "right_hand_reach": 0.062
+  "right_hand_reach": 0.064
  },
  "stretch": {
   "length": 2.533
@@ -123,20 +123,20 @@
   "length": 6.933
  },
  "walk": {
-  "length": 2.267,
-  "speed": 0.715
+  "length": 2.6,
+  "speed": 0.781
  },
  "walk_brisk": {
-  "length": 2.6,
-  "speed": 0.948
+  "length": 2.0,
+  "speed": 1.026
  },
  "walk_slow": {
   "length": 3.4,
-  "speed": 0.5
+  "speed": 0.572
  },
  "walk_woman": {
-  "length": 2.4,
-  "speed": 0.816
+  "length": 2.1,
+  "speed": 0.928
  },
  "wipe": {
   "left_hand": [
@@ -149,7 +149,7 @@
   "right_hand": [
    -0.12,
    -0.33,
-   1.139
+   1.14
   ],
   "right_hand_reach": 0.203
  },
