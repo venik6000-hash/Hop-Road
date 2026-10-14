@@ -957,6 +957,64 @@
    "speed": 1.0,
    "sway": 0.0,
    "type": "spot"
+  },
+  {
+   "angle": 70.0,
+   "color": [
+    1.0,
+    0.47999998927116394,
+    0.18000000715255737
+   ],
+   "direction": [
+    0.0,
+    -0.4472,
+    0.8944
+   ],
+   "energy": 2.5,
+   "flicker": 0.22,
+   "layer": "exterior",
+   "name": "Annex oven fire",
+   "night": 0.0,
+   "position": [
+    22.2,
+    7.62,
+    0.4871
+   ],
+   "range": 4.0,
+   "shadow": false,
+   "size": 0.0,
+   "speed": 1.3,
+   "sway": 0.0,
+   "type": "spot"
+  },
+  {
+   "angle": 27.5,
+   "color": [
+    1.0,
+    0.6000000238418579,
+    0.30000001192092896
+   ],
+   "direction": [
+    0.4577,
+    -0.6991,
+    -0.5493
+   ],
+   "energy": 3.0,
+   "flicker": 0.08,
+   "layer": "exterior",
+   "name": "Annex still glow",
+   "night": 0.0,
+   "position": [
+    20.5,
+    8.1,
+    -1.32
+   ],
+   "range": 2.6,
+   "shadow": false,
+   "size": 0.0,
+   "speed": 1.3,
+   "sway": 0.0,
+   "type": "spot"
   }
  ],
  "materials": {
@@ -997,6 +1055,68 @@
    ],
    "uv_scale": 0.15
   },
+  "tav_clay": {
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "desaturate": 0.6,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 0.7,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "normal_strength": 0.6,
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.78,
+    0.47,
+    0.32
+   ],
+   "uv_scale": 0.4
+  },
+  "tav_cobble": {
+   "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
+   "albedo_gain": 1.12,
+   "desaturate": 0.7,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 1.0,
+   "grime": 0.2,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg",
+   "normal_strength": 1.2,
+   "orm": "res://assets/generated/tavern/worn_rock_natural_01_arm_2k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.86,
+    0.86,
+    0.86
+   ],
+   "uv_scale": 1.6
+  },
+  "tav_ember": {
+   "color": [
+    1.0,
+    0.32,
+    0.08
+   ],
+   "emission": 5.0,
+   "emission_color": [
+    1.0,
+    0.35,
+    0.1
+   ],
+   "energy": 2.6,
+   "shader": "flame",
+   "tint": [
+    1.0,
+    0.35,
+    0.1
+   ],
+   "wildness": 0.05
+  },
   "tav_foam": {
    "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
    "albedo_gain": 1.7,
@@ -1017,22 +1137,22 @@
   },
   "tav_gilt": {
    "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
-   "albedo_gain": 2.2,
-   "desaturate": 1.0,
+   "albedo_gain": 3.0,
+   "desaturate": 0.95,
    "grime": 0.0,
-   "metallic": 0.85,
+   "metallic": 0.1,
    "moss": 0.0,
    "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
-   "normal_strength": 0.25,
+   "normal_strength": 0.5,
    "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
-   "roughness": 0.5,
+   "roughness": 0.55,
    "shader": "surface",
    "tint": [
-    1.0,
-    0.74,
-    0.34
+    0.9,
+    0.7,
+    0.36
    ],
-   "uv_scale": 0.5
+   "uv_scale": 0.3
   },
   "tav_glass": {
    "alpha": 0.1,
@@ -1135,6 +1255,45 @@
    "transmission": 0.45,
    "wrap": 0.3
   },
+  "tav_leather": {
+   "albedo": "res://assets/generated/tavern/brown_leather_diff_1k.jpg",
+   "desaturate": 0.2,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/brown_leather_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/brown_leather_arm_1k.jpg",
+   "roughness": 0.8,
+   "shader": "surface",
+   "tint": [
+    0.9,
+    0.8,
+    0.7
+   ],
+   "uv_scale": 0.4
+  },
+  "tav_linen": {
+   "albedo": "res://assets/generated/tavern/rough_linen_diff_1k.jpg",
+   "cloth_sheen": 0.25,
+   "cloth_through": 0.22,
+   "cloth_wrap": 0.35,
+   "desaturate": 0.5,
+   "detail": "cloth",
+   "detail_scale": 10.4,
+   "detail_strength": 0.8,
+   "normal": "res://assets/generated/tavern/rough_linen_nor_gl_1k.jpg",
+   "normal_strength": 0.8,
+   "orm": "res://assets/generated/tavern/rough_linen_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "cloth",
+   "stain": 0.5,
+   "threads": 900.0,
+   "tint": [
+    0.82,
+    0.78,
+    0.7
+   ],
+   "uv_scale": 0.35
+  },
   "tav_log_bark": {
    "albedo": "res://assets/generated/tavern/bark_brown_02_diff_1k.jpg",
    "desaturate": 0.3,
@@ -1231,6 +1390,102 @@
    ],
    "uv_scale": 1.2
   },
+  "tav_onion": {
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "albedo_gain": 1.1,
+   "desaturate": 0.8,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "normal_strength": 0.3,
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "roughness": 0.5,
+   "shader": "surface",
+   "tint": [
+    0.86,
+    0.6,
+    0.3
+   ],
+   "uv_scale": 0.12
+  },
+  "tav_oven_flame": {
+   "color": [
+    0.96,
+    0.51,
+    0.18
+   ],
+   "core": [
+    1.0,
+    0.8,
+    0.43
+   ],
+   "emission": 3.0,
+   "emission_color": [
+    0.96,
+    0.51,
+    0.18
+   ],
+   "energy": 1.5,
+   "shader": "flame",
+   "tint": [
+    0.96,
+    0.51,
+    0.18
+   ],
+   "wildness": 0.5
+  },
+  "tav_oven_flame_tip": {
+   "color": [
+    0.84,
+    0.29,
+    0.1
+   ],
+   "core": [
+    0.96,
+    0.51,
+    0.18
+   ],
+   "emission": 2.4,
+   "emission_color": [
+    0.84,
+    0.29,
+    0.1
+   ],
+   "energy": 1.2,
+   "shader": "flame",
+   "tint": [
+    0.84,
+    0.29,
+    0.1
+   ],
+   "wildness": 0.7
+  },
+  "tav_oven_glow": {
+   "color": [
+    0.78,
+    0.27,
+    0.1
+   ],
+   "core": [
+    0.85,
+    0.36,
+    0.13
+   ],
+   "emission": 2.6,
+   "emission_color": [
+    0.78,
+    0.27,
+    0.1
+   ],
+   "energy": 1.3,
+   "shader": "flame",
+   "tint": [
+    0.78,
+    0.27,
+    0.1
+   ],
+   "wildness": 0.05
+  },
   "tav_paint": {
    "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
    "albedo_gain": 3.0,
@@ -1270,6 +1525,45 @@
     0.87
    ],
    "uv_scale": 2.4
+  },
+  "tav_rope": {
+   "albedo": "res://assets/generated/tavern/hessian_230_diff_1k.jpg",
+   "desaturate": 0.5,
+   "detail": "cloth",
+   "detail_scale": 10.4,
+   "detail_strength": 0.5,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/hessian_230_nor_gl_1k.jpg",
+   "normal_strength": 1.4,
+   "orm": "res://assets/generated/tavern/hessian_230_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.7,
+    0.58,
+    0.42
+   ],
+   "uv_scale": 0.08
+  },
+  "tav_sack": {
+   "albedo": "res://assets/generated/tavern/hessian_230_diff_1k.jpg",
+   "desaturate": 0.3,
+   "detail": "cloth",
+   "detail_scale": 10.4,
+   "detail_strength": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/hessian_230_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/hessian_230_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.86,
+    0.76,
+    0.6
+   ],
+   "uv_scale": 0.3
   },
   "tav_slate": {
    "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
@@ -1349,6 +1643,25 @@
    ],
    "uv_scale": 0.3
   },
+  "tav_still_copper": {
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "albedo_gain": 2.1,
+   "desaturate": 0.95,
+   "grime": 0.0,
+   "metallic": 0.55,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "normal_strength": 0.25,
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "roughness": 0.35,
+   "shader": "surface",
+   "tint": [
+    0.95,
+    0.52,
+    0.32
+   ],
+   "uv_scale": 0.35
+  },
   "tav_stone": {
    "albedo": "res://assets/generated/tavern/worn_rock_natural_01_diff_2k.jpg",
    "albedo_gain": 1.12,
@@ -1369,6 +1682,53 @@
     0.86
    ],
    "uv_scale": 1.6
+  },
+  "tav_straw": {
+   "albedo": "res://assets/generated/tavern/hessian_230_diff_1k.jpg",
+   "desaturate": 0.4,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/hessian_230_nor_gl_1k.jpg",
+   "normal_strength": 1.2,
+   "orm": "res://assets/generated/tavern/hessian_230_arm_1k.jpg",
+   "roughness": 1.0,
+   "shader": "surface",
+   "tint": [
+    0.95,
+    0.8,
+    0.5
+   ],
+   "uv_scale": 0.12
+  },
+  "tav_veg": {
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "desaturate": 0.8,
+   "grime": 0.0,
+   "moss": 0.0,
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "normal_strength": 0.4,
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "roughness": 0.6,
+   "shader": "surface",
+   "tint": [
+    0.5,
+    0.62,
+    0.3
+   ],
+   "uv_scale": 0.15
+  },
+  "tav_yard_notes": {
+   "albedo": "res://assets/generated/tavern/yard_props_atlas.png",
+   "grime": 0.0,
+   "moss": 0.0,
+   "roughness": 0.9,
+   "shader": "surface",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "uv_scale": 1.0
   },
   "tav_zinc": {
    "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
@@ -1404,6 +1764,70 @@
     8.4,
     0.25,
     0.2
+   ],
+   "of": "Oak barrels crates firewood and fences"
+  },
+  {
+   "box": [
+    4.45,
+    6.5,
+    0.85,
+    5.55,
+    7.9,
+    1.98
+   ],
+   "by": [
+    -0.7,
+    0.0,
+    -0.46
+   ],
+   "of": "Oak barrels crates firewood and fences"
+  },
+  {
+   "box": [
+    18.4,
+    6.5,
+    0.7,
+    19.4,
+    7.75,
+    1.72
+   ],
+   "by": [
+    0.305,
+    0.0,
+    -1.515
+   ],
+   "of": "Oak barrels crates firewood and fences"
+  },
+  {
+   "box": [
+    25.4,
+    6.5,
+    1.5,
+    26.6,
+    7.95,
+    2.72
+   ],
+   "by": [
+    0.745,
+    0.0,
+    -0.515
+   ],
+   "of": "Oak barrels crates firewood and fences"
+  },
+  {
+   "box": [
+    23.35,
+    6.5,
+    0.85,
+    24.65,
+    8.1,
+    2.18
+   ],
+   "by": [
+    0.0,
+    -20.0,
+    0.0
    ],
    "of": "Oak barrels crates firewood and fences"
   }

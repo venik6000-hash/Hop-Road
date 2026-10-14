@@ -9,7 +9,7 @@
 		"res://assets/generated/layout/rocks.json": "2651b2016780d64f1d612d736401d0fde94c66f831dc2a453eb6876db1911d8e",
 		"res://assets/generated/layout/village_plan.json": "144d5593d71d836806be184fb27965427d091dd6d9299e6cafa0acb623dff3b8",
 		"res://assets/generated/layout/village_trees.json": "76b7accba5a9d6175fe908f3113a7aa82e01506c0c5de33ba22440d0d98e4a97",
-		"res://assets/generated/layout/worn_ground.json": "0b90962f49395bf6fcaaf6c3e3894723434013e5c2413531e75307a645d538b7",
+		"res://assets/generated/layout/worn_ground.json": "2024c0b296239cdc94aff701e5e50cc1e90c18721da8726db32ce317237ca979",
 		"res://assets/generated/rocks/cliff_seat.json": "1b92f6142cc9478b01a14b759da780958c2c8a512b9515a01aa7e815e397e580",
 		"res://assets/generated/terrain/far_height.bin": "3cdb284c2514498f486dbb4cc5f849e77400be36bf0ac9ba12d407d65e4a87bc",
 		"res://assets/generated/terrain/far_masks.png": "8c7140a4af7230bd4f5e48c5a34d81383c72c91dbe5b8ff6609399061c8ccada",
@@ -73,7 +73,7 @@
 		"res://assets/models/smithy/smithy.json": "9395be74bd155b4d21f497cb87e99b8f0703e877e510edc20238431d4eb66e25",
 		"res://assets/models/smithy/smithy_interior.glb": "0d18412191e8d660a76e9f3d95df248e29c164bc13e6a0f80bc7383c77c1d50e",
 		"res://assets/models/smithy/smithy_interior.glb.import": "835ffc89d20626bf082438449f3295c5c14078c03eb4a82e1040d7f81fb21d57",
-		"res://assets/models/tavern/tavern.json": "36352f555788cd6009fd80e11122ac0efee2c75c05c97eec8f5de4707473d508",
+		"res://assets/models/tavern/tavern.json": "a3a4287c6f23d0703cd00fac6735279a9c982aa30f951af41a76e45a592c2e6d",
 		"res://assets/models/tavern/tavern_interior.json": "0bfb01be68a531fd13ff31ed00c5e4c6613fbee5bb9b65f3584b08e5c7e0b9cd",
 		"res://assets/models/village_pack/barrel.glb": "3d06a4fcf4403f59d3ef7a7c56a01302b7db0e5df04be484b89903d87fbaa943",
 		"res://assets/models/village_pack/barrel.glb.import": "f9bf185629de4182987a936fbb1f40b3759afe927e0cd2db84a9676c21360125",
@@ -155,7 +155,7 @@
 		"res://src/water/waterfall_system.gd": "5b16f0749f1bb8b0701dbc25598756c7a7e2a8efd936ee3e8782e84118ddea0c",
 		"res://tools/pipeline/village_pack/deduplicate_textures.gd": "64860740e78d94da7f500c4eac345dbb0e34a3ca4afe3c18534b08bca1cd47d3"
 	},
-	"key": "a7a9912e1e53f9aa7b750973fdcd6ebf5bc839118aab45bc88d9675a01eadb74",
-	"placement_sha256": "b0bb5e82da1c72e005e4ba967a32102657626a4d51c85a0729818b4dfd3e5665",
+	"key": "86879f192bde7ee3f3ebca6062beab8133e456e5e94b639dd1f009038bc9a184",
+	"placement_sha256": "99d1c47902982aa2f92bc60992437892ab9d1cd6cc263d349c77be92522e3ef3",
 	"tree_placer_version": 2
 }

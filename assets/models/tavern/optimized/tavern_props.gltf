@@ -31,7 +31,14 @@
         20,
         21,
         22,
-        23
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30
       ]
     }
   ],
@@ -106,9 +113,9 @@
         1.3527568578720093
       ],
       "translation": [
-        26.011978149414062,
+        26.75697898864746,
         6.599074363708496,
-        2.1215288639068604
+        1.606528878211975
       ]
     },
     {
@@ -131,9 +138,9 @@
         1.2852528095245361
       ],
       "translation": [
-        5.007063388824463,
+        4.307063579559326,
         6.599120616912842,
-        1.4157062768936157
+        0.9557062387466431
       ]
     },
     {
@@ -156,34 +163,9 @@
         1.102044701576233
       ],
       "translation": [
-        18.88723373413086,
+        19.19223403930664,
         6.599246025085449,
-        1.2144545316696167
-      ]
-    },
-    {
-      "extras": {
-        "tav_collide": "none",
-        "tav_shadow": 1,
-        "tav_reach": 90
-      },
-      "mesh": 0,
-      "name": "wine_barrel_01.006",
-      "rotation": [
-        0,
-        -0.5912877917289734,
-        0,
-        0.8064606189727783
-      ],
-      "scale": [
-        1.539414405822754,
-        1.5394145250320435,
-        1.539414405822754
-      ],
-      "translation": [
-        24.010372161865234,
-        6.598946571350098,
-        1.5117267370224
+        -0.3005455732345581
       ]
     },
     {
@@ -256,9 +238,9 @@
         1.3527568578720093
       ],
       "translation": [
-        26.011978149414062,
+        26.75697898864746,
         6.599074363708496,
-        2.1215288639068604
+        1.606528878211975
       ]
     },
     {
@@ -281,9 +263,9 @@
         1.2852528095245361
       ],
       "translation": [
-        5.007063388824463,
+        4.307063579559326,
         6.599120616912842,
-        1.4157062768936157
+        0.9557062387466431
       ]
     },
     {
@@ -306,34 +288,9 @@
         1.102044701576233
       ],
       "translation": [
-        18.88723373413086,
+        19.19223403930664,
         6.599246025085449,
-        1.2144545316696167
-      ]
-    },
-    {
-      "extras": {
-        "tav_collide": "none",
-        "tav_shadow": 1,
-        "tav_reach": 90
-      },
-      "mesh": 1,
-      "name": "wine_barrel_01_base.006",
-      "rotation": [
-        0,
-        -0.5912877917289734,
-        0,
-        0.8064606189727783
-      ],
-      "scale": [
-        1.539414405822754,
-        1.5394145250320435,
-        1.539414405822754
-      ],
-      "translation": [
-        24.010372161865234,
-        6.598946571350098,
-        1.5117267370224
+        -0.3005455732345581
       ]
     },
     {
@@ -406,9 +363,9 @@
         1.3527568578720093
       ],
       "translation": [
-        26.011978149414062,
+        26.75697898864746,
         6.599074363708496,
-        2.1215288639068604
+        1.606528878211975
       ]
     },
     {
@@ -431,9 +388,9 @@
         1.2852528095245361
       ],
       "translation": [
-        5.007063388824463,
+        4.307063579559326,
         6.599120616912842,
-        1.4157062768936157
+        0.9557062387466431
       ]
     },
     {
@@ -456,34 +413,9 @@
         1.102044701576233
       ],
       "translation": [
-        18.88723373413086,
+        19.19223403930664,
         6.599246025085449,
-        1.2144545316696167
-      ]
-    },
-    {
-      "extras": {
-        "tav_collide": "none",
-        "tav_shadow": 1,
-        "tav_reach": 90
-      },
-      "mesh": 2,
-      "name": "wine_barrel_01_bung.006",
-      "rotation": [
-        0,
-        -0.5912877917289734,
-        0,
-        0.8064606189727783
-      ],
-      "scale": [
-        1.539414405822754,
-        1.5394145250320435,
-        1.539414405822754
-      ],
-      "translation": [
-        24.010372161865234,
-        6.598946571350098,
-        1.5117267370224
+        -0.3005455732345581
       ]
     },
     {
@@ -556,9 +488,9 @@
         1.3527568578720093
       ],
       "translation": [
-        26.011978149414062,
+        26.75697898864746,
         6.599074363708496,
-        2.1215288639068604
+        1.606528878211975
       ]
     },
     {
@@ -581,9 +513,9 @@
         1.2852528095245361
       ],
       "translation": [
-        5.007063388824463,
+        4.307063579559326,
         6.599120616912842,
-        1.4157062768936157
+        0.9557062387466431
       ]
     },
     {
@@ -606,9 +538,9 @@
         1.102044701576233
       ],
       "translation": [
-        18.88723373413086,
+        19.19223403930664,
         6.599246025085449,
-        1.2144545316696167
+        -0.3005455732345581
       ]
     },
     {
@@ -617,23 +549,273 @@
         "tav_shadow": 1,
         "tav_reach": 90
       },
-      "mesh": 3,
-      "name": "wine_barrel_01_Lid.006",
+      "mesh": 4,
+      "name": "Yard props cask 1",
       "rotation": [
-        0,
-        -0.5912877917289734,
-        0,
-        0.8064606189727783
+        0.04496878385543823,
+        -0.705675482749939,
+        -0.705675482749939,
+        0.04496878385543823
       ],
       "scale": [
-        1.539414405822754,
-        1.5394145250320435,
-        1.539414405822754
+        0.8999999761581421,
+        0.8999999761581421,
+        0.8999999761581421
       ],
       "translation": [
-        24.010372161865234,
-        6.598946571350098,
-        1.5117267370224
+        5.57887077331543,
+        7.091855525970459,
+        0.35036712884902954
+      ]
+    },
+    {
+      "extras": {
+        "tav_collide": "none",
+        "tav_shadow": 1,
+        "tav_reach": 90
+      },
+      "mesh": 4,
+      "name": "Yard props cask 2",
+      "rotation": [
+        0.06287091225385666,
+        0.7043062448501587,
+        0.7043061852455139,
+        0.06287091970443726
+      ],
+      "scale": [
+        0.8999999761581421,
+        0.8999999761581421,
+        0.8999999761581421
+      ],
+      "translation": [
+        6.4204630851745605,
+        7.091855525970459,
+        0.38234758377075195
+      ]
+    },
+    {
+      "extras": {
+        "tav_collide": "none",
+        "tav_shadow": 1,
+        "tav_reach": 90
+      },
+      "mesh": 4,
+      "name": "Yard props cask 3",
+      "rotation": [
+        0.043756503611803055,
+        0.7057516574859619,
+        0.7057515978813171,
+        0.043756503611803055
+      ],
+      "scale": [
+        0.8999999761581421,
+        0.8999999761581421,
+        0.8999999761581421
+      ],
+      "translation": [
+        5.956015586853027,
+        7.923855781555176,
+        0.3679314851760864
+      ]
+    },
+    {
+      "extras": {
+        "tav_collide": "none",
+        "tav_shadow": 1,
+        "tav_reach": 90
+      },
+      "mesh": 4,
+      "name": "Yard props cask 4",
+      "rotation": [
+        0.08136489242315292,
+        0.7024100422859192,
+        0.7024098634719849,
+        0.08136488497257233
+      ],
+      "scale": [
+        0.8999999761581421,
+        0.8999999761581421,
+        0.8999999761581421
+      ],
+      "translation": [
+        15.765859603881836,
+        7.091855525970459,
+        0.34866243600845337
+      ]
+    },
+    {
+      "extras": {
+        "tav_collide": "none",
+        "tav_shadow": 1,
+        "tav_reach": 90
+      },
+      "mesh": 4,
+      "name": "Yard props cask 5",
+      "rotation": [
+        0.0687723457813263,
+        0.7037544846534729,
+        0.7037545442581177,
+        0.06877235323190689
+      ],
+      "scale": [
+        0.8999999165534973,
+        0.8999999761581421,
+        0.8999999165534973
+      ],
+      "translation": [
+        16.593414306640625,
+        7.091855525970459,
+        0.3842167854309082
+      ]
+    },
+    {
+      "extras": {
+        "tav_collide": "none",
+        "tav_shadow": 1,
+        "tav_reach": 90
+      },
+      "mesh": 4,
+      "name": "Yard props cask 6",
+      "rotation": [
+        0.010439028032124043,
+        0.7070297598838806,
+        0.7070297598838806,
+        0.010439028032124043
+      ],
+      "scale": [
+        0.8999999761581421,
+        0.8999999761581421,
+        0.8999999761581421
+      ],
+      "translation": [
+        16.194168090820312,
+        7.923855781555176,
+        0.3679314851760864
+      ]
+    },
+    {
+      "extras": {
+        "tav_collide": "none",
+        "tav_shadow": 1,
+        "tav_reach": 90
+      },
+      "mesh": 4,
+      "name": "Yard props cask 7",
+      "rotation": [
+        0,
+        -0.02522689290344715,
+        0,
+        0.9996817708015442
+      ],
+      "scale": [
+        1.0903706550598145,
+        1.0903706550598145,
+        1.0903706550598145
+      ],
+      "translation": [
+        24.056114196777344,
+        6.599999904632568,
+        1.6903036832809448
+      ]
+    },
+    {
+      "extras": {
+        "tav_collide": "none",
+        "tav_shadow": 1,
+        "tav_reach": 90
+      },
+      "mesh": 4,
+      "name": "Yard props cask 8",
+      "rotation": [
+        0,
+        -0.4304077625274658,
+        0,
+        0.9026345610618591
+      ],
+      "scale": [
+        1.0903706550598145,
+        1.0903706550598145,
+        1.0903706550598145
+      ],
+      "translation": [
+        24.845325469970703,
+        6.599999904632568,
+        2.00661563873291
+      ]
+    },
+    {
+      "extras": {
+        "tav_collide": "none",
+        "tav_shadow": 1,
+        "tav_reach": 90
+      },
+      "mesh": 4,
+      "name": "Yard props cask 9",
+      "rotation": [
+        -0.1377497762441635,
+        0.6867940425872803,
+        0.6935597658157349,
+        0.16826733946800232
+      ],
+      "scale": [
+        0.9500001072883606,
+        0.949999988079071,
+        0.949999988079071
+      ],
+      "translation": [
+        24.244050979614258,
+        7.965403079986572,
+        1.2978554964065552
+      ]
+    },
+    {
+      "extras": {
+        "tav_collide": "none",
+        "tav_shadow": 1,
+        "tav_reach": 90
+      },
+      "mesh": 4,
+      "name": "Yard props cask 10",
+      "rotation": [
+        -0.09698454290628433,
+        0.6757872104644775,
+        0.7004242539405823,
+        0.20811426639556885
+      ],
+      "scale": [
+        0.949999988079071,
+        0.949999988079071,
+        0.949999988079071
+      ],
+      "translation": [
+        25.00298500061035,
+        7.965403079986572,
+        1.6579232215881348
+      ]
+    },
+    {
+      "extras": {
+        "tav_collide": "none",
+        "tav_shadow": 1,
+        "tav_reach": 90
+      },
+      "mesh": 4,
+      "name": "Yard props cask 11",
+      "rotation": [
+        -0.18643584847450256,
+        0.6969713568687439,
+        0.6820862889289856,
+        0.11929372698068619
+      ],
+      "scale": [
+        0.9499999284744263,
+        0.949999988079071,
+        0.949999988079071
+      ],
+      "translation": [
+        24.614032745361328,
+        8.531399726867676,
+        1.4789602756500244
       ]
     }
   ],
@@ -660,20 +842,6 @@
       "primitives": [
         {
           "attributes": {
-            "POSITION": 0,
-            "NORMAL": 1,
-            "TEXCOORD_0": 2
-          },
-          "indices": 3,
-          "material": 0
-        }
-      ]
-    },
-    {
-      "name": "DiameterSmall.004",
-      "primitives": [
-        {
-          "attributes": {
             "POSITION": 4,
             "NORMAL": 5,
             "TEXCOORD_0": 6
@@ -684,7 +852,7 @@
       ]
     },
     {
-      "name": "Cylinder.014",
+      "name": "DiameterSmall.004",
       "primitives": [
         {
           "attributes": {
@@ -698,7 +866,7 @@
       ]
     },
     {
-      "name": "DiameterSmall.012",
+      "name": "Cylinder.014",
       "primitives": [
         {
           "attributes": {
@@ -707,6 +875,34 @@
             "TEXCOORD_0": 14
           },
           "indices": 15,
+          "material": 0
+        }
+      ]
+    },
+    {
+      "name": "DiameterSmall.012",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 16,
+            "NORMAL": 17,
+            "TEXCOORD_0": 18
+          },
+          "indices": 19,
+          "material": 0
+        }
+      ]
+    },
+    {
+      "name": "Yard props barrel lod",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
           "material": 0
         }
       ]
@@ -747,6 +943,40 @@
     {
       "bufferView": 0,
       "componentType": 5126,
+      "count": 2761,
+      "max": [
+        0.36974331736564636,
+        0.8707131743431091,
+        0.3762533664703369
+      ],
+      "min": [
+        -0.36974334716796875,
+        0.0005471782060340047,
+        -0.3768102824687958
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 2761,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 2761,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5123,
+      "count": 6597,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 4,
+      "componentType": 5126,
       "count": 6990,
       "type": "VEC3",
       "min": [
@@ -761,25 +991,25 @@
       ]
     },
     {
-      "bufferView": 1,
+      "bufferView": 5,
       "componentType": 5126,
       "count": 6990,
       "type": "VEC3"
     },
     {
-      "bufferView": 2,
+      "bufferView": 6,
       "componentType": 5126,
       "count": 6990,
       "type": "VEC2"
     },
     {
-      "bufferView": 3,
+      "bufferView": 7,
       "componentType": 5123,
       "count": 16512,
       "type": "SCALAR"
     },
     {
-      "bufferView": 4,
+      "bufferView": 8,
       "componentType": 5126,
       "count": 239,
       "type": "VEC3",
@@ -795,25 +1025,25 @@
       ]
     },
     {
-      "bufferView": 5,
+      "bufferView": 9,
       "componentType": 5126,
       "count": 239,
       "type": "VEC3"
     },
     {
-      "bufferView": 6,
+      "bufferView": 10,
       "componentType": 5126,
       "count": 239,
       "type": "VEC2"
     },
     {
-      "bufferView": 7,
+      "bufferView": 11,
       "componentType": 5123,
       "count": 498,
       "type": "SCALAR"
     },
     {
-      "bufferView": 8,
+      "bufferView": 12,
       "componentType": 5126,
       "count": 61,
       "type": "VEC3",
@@ -829,25 +1059,25 @@
       ]
     },
     {
-      "bufferView": 9,
+      "bufferView": 13,
       "componentType": 5126,
       "count": 61,
       "type": "VEC3"
     },
     {
-      "bufferView": 10,
+      "bufferView": 14,
       "componentType": 5126,
       "count": 61,
       "type": "VEC2"
     },
     {
-      "bufferView": 11,
+      "bufferView": 15,
       "componentType": 5123,
       "count": 198,
       "type": "SCALAR"
     },
     {
-      "bufferView": 12,
+      "bufferView": 16,
       "componentType": 5126,
       "count": 281,
       "type": "VEC3",
@@ -863,19 +1093,19 @@
       ]
     },
     {
-      "bufferView": 13,
+      "bufferView": 17,
       "componentType": 5126,
       "count": 281,
       "type": "VEC3"
     },
     {
-      "bufferView": 14,
+      "bufferView": 18,
       "componentType": 5126,
       "count": 281,
       "type": "VEC2"
     },
     {
-      "bufferView": 15,
+      "bufferView": 19,
       "componentType": 5123,
       "count": 624,
       "type": "SCALAR"
@@ -884,98 +1114,122 @@
   "bufferViews": [
     {
       "buffer": 0,
-      "byteLength": 83880,
-      "target": 34962,
-      "byteOffset": 0
+      "byteLength": 33132,
+      "byteOffset": 0,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 33132,
+      "byteOffset": 33132,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 22088,
+      "byteOffset": 66264,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 13194,
+      "byteOffset": 88352,
+      "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 83880,
       "target": 34962,
-      "byteOffset": 83880
+      "byteOffset": 101548
+    },
+    {
+      "buffer": 0,
+      "byteLength": 83880,
+      "target": 34962,
+      "byteOffset": 185428
     },
     {
       "buffer": 0,
       "byteLength": 55920,
       "target": 34962,
-      "byteOffset": 167760
+      "byteOffset": 269308
     },
     {
       "buffer": 0,
       "byteLength": 33024,
-      "byteOffset": 223680,
+      "byteOffset": 325228,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 2868,
       "target": 34962,
-      "byteOffset": 256704
+      "byteOffset": 358252
     },
     {
       "buffer": 0,
       "byteLength": 2868,
       "target": 34962,
-      "byteOffset": 259572
+      "byteOffset": 361120
     },
     {
       "buffer": 0,
       "byteLength": 1912,
       "target": 34962,
-      "byteOffset": 262440
+      "byteOffset": 363988
     },
     {
       "buffer": 0,
       "byteLength": 996,
-      "byteOffset": 264352,
+      "byteOffset": 365900,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 732,
       "target": 34962,
-      "byteOffset": 265348
+      "byteOffset": 366896
     },
     {
       "buffer": 0,
       "byteLength": 732,
       "target": 34962,
-      "byteOffset": 266080
+      "byteOffset": 367628
     },
     {
       "buffer": 0,
       "byteLength": 488,
       "target": 34962,
-      "byteOffset": 266812
+      "byteOffset": 368360
     },
     {
       "buffer": 0,
       "byteLength": 396,
-      "byteOffset": 267300,
+      "byteOffset": 368848,
       "target": 34963
     },
     {
       "buffer": 0,
       "byteLength": 3372,
       "target": 34962,
-      "byteOffset": 267696
+      "byteOffset": 369244
     },
     {
       "buffer": 0,
       "byteLength": 3372,
       "target": 34962,
-      "byteOffset": 271068
+      "byteOffset": 372616
     },
     {
       "buffer": 0,
       "byteLength": 2248,
       "target": 34962,
-      "byteOffset": 274440
+      "byteOffset": 375988
     },
     {
       "buffer": 0,
       "byteLength": 1248,
-      "byteOffset": 276688,
+      "byteOffset": 378236,
       "target": 34963
     }
   ],
@@ -987,7 +1241,7 @@
   ],
   "buffers": [
     {
-      "byteLength": 277936,
+      "byteLength": 379484,
       "uri": "tavern_props.bin"
     }
   ]
