@@ -12,6 +12,120 @@
  ],
  "yaw": 0.0,
  "materials": {
+  "brew_bark": {
+   "shader": "surface",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "uv_scale": 1.0,
+   "roughness": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "albedo_gain": 1.0,
+   "albedo": "res://assets/generated/tavern/fir_tree_01_bark_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/fir_tree_01_bark_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/fir_tree_01_bark_arm_1k.jpg"
+  },
+  "brew_beech_bark": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/bark_brown_02_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/bark_brown_02_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/bark_brown_02_arm_1k.jpg",
+   "tint": [
+    0.6,
+    0.6,
+    0.58
+   ],
+   "desaturate": 0.9,
+   "uv_scale": 0.45,
+   "roughness": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "detail": "wood",
+   "detail_scale": 2.5,
+   "detail_strength": 0.6,
+   "normal_strength": 0.3
+  },
+  "brew_berry": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "desaturate": 1.0,
+   "uv_scale": 0.05,
+   "roughness": 0.85,
+   "normal_strength": 0.2,
+   "grime": 0.0,
+   "moss": 0.0,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 0.0,
+   "albedo_gain": 1.4
+  },
+  "brew_blossom": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "desaturate": 1.0,
+   "uv_scale": 0.04,
+   "roughness": 1.0,
+   "normal_strength": 0.5,
+   "grime": 0.0,
+   "moss": 0.0,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 0.2,
+   "albedo_gain": 1.3
+  },
+  "brew_cherries": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/brew_cherries_albedo.png",
+   "normal": "res://assets/generated/tavern/brew_cherries_normal.png",
+   "orm": "res://assets/generated/tavern/brew_cherries_orm.png",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "uv_scale": 0.25,
+   "roughness": 1.0,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "brew_cherry": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_plaster_03_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_plaster_03_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_plaster_03_arm_1k.jpg",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "desaturate": 1.0,
+   "uv_scale": 1.5,
+   "roughness": 0.2,
+   "normal_strength": 0.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 0.0,
+   "albedo_gain": 1.9
+  },
   "brew_grain": {
    "shader": "surface",
    "albedo": "res://assets/generated/tavern/hessian_230_diff_1k.jpg",
@@ -27,7 +141,40 @@
    "roughness": 1.0,
    "grime": 0.0,
    "moss": 0.0,
+   "detail": "cloth",
+   "detail_scale": 10.4,
+   "detail_strength": 1.0,
    "normal_strength": 1.4
+  },
+  "brew_juniper": {
+   "shader": "foliage",
+   "albedo": "res://assets/generated/tavern/brew_juniper_albedo.png",
+   "normal": "res://assets/generated/tavern/brew_juniper_normal.png",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "roughness": 0.6,
+   "normal_strength": 0.6,
+   "wrap": 0.35,
+   "transmission": 0.3,
+   "flutter": 0.0
+  },
+  "brew_linden": {
+   "shader": "foliage",
+   "albedo": "res://assets/generated/tavern/brew_linden_albedo.png",
+   "normal": "res://assets/generated/tavern/LeafSet024_2K-JPG_NormalGL.jpg",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "roughness": 0.7,
+   "normal_strength": 0.5,
+   "wrap": 0.4,
+   "transmission": 0.35,
+   "flutter": 0.0
   },
   "brew_mash": {
    "shader": "surface",
@@ -62,6 +209,9 @@
    "roughness": 1.0,
    "grime": 0.0,
    "moss": 1.0,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 0.8,
    "albedo_gain": 1.6
   },
   "brew_verdigris": {
@@ -74,12 +224,12 @@
     0.62,
     0.52
    ],
-   "desaturate": 1.0,
-   "albedo_gain": 2.2,
-   "uv_scale": 0.5,
+   "desaturate": 0.95,
+   "albedo_gain": 3.0,
+   "uv_scale": 0.3,
    "roughness": 0.75,
-   "normal_strength": 0.25,
    "metallic": 0.35,
+   "normal_strength": 0.5,
    "grime": 0.0,
    "moss": 0.0
   },
@@ -101,6 +251,22 @@
    "metallic": 0.0,
    "grime": 0.0,
    "moss": 0.0
+  },
+  "brew_wicker": {
+   "shader": "surface",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "uv_scale": 1.0,
+   "roughness": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "albedo_gain": 1.5,
+   "albedo": "res://assets/generated/tavern/wicker_basket_01_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/wicker_basket_01_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/wicker_basket_01_arm_1k.jpg"
   },
   "brew_wort": {
    "shader": "surface",
@@ -135,7 +301,10 @@
    "uv_scale": 0.45,
    "roughness": 1.0,
    "grime": 0.0,
-   "moss": 0.0
+   "moss": 0.0,
+   "detail": "wood",
+   "detail_scale": 2.5,
+   "detail_strength": 0.6
   },
   "tav_board": {
    "shader": "surface",
@@ -151,7 +320,10 @@
    "uv_scale": 1.2,
    "roughness": 1.0,
    "grime": 0.2,
-   "moss": 0.0
+   "moss": 0.0,
+   "detail": "wood",
+   "detail_scale": 2.5,
+   "detail_strength": 0.9
   },
   "tav_brass": {
    "shader": "surface",
@@ -223,7 +395,10 @@
    "roughness": 1.0,
    "normal_strength": 0.6,
    "grime": 0.0,
-   "moss": 0.0
+   "moss": 0.0,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 0.7
   },
   "tav_copper": {
    "shader": "surface",
@@ -288,20 +463,23 @@
   },
   "tav_floor": {
    "shader": "surface",
-   "albedo": "res://assets/generated/tavern/wood_table_worn_diff_1k.jpg",
-   "normal": "res://assets/generated/tavern/wood_table_worn_nor_gl_1k.jpg",
-   "orm": "res://assets/generated/tavern/wood_table_worn_arm_1k.jpg",
+   "albedo": "res://assets/generated/tavern/dark_wooden_planks_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/dark_wooden_planks_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/dark_wooden_planks_arm_2k.jpg",
    "tint": [
-    0.66,
-    0.55,
-    0.45
+    0.42,
+    0.28,
+    0.2
    ],
-   "desaturate": 0.25,
-   "uv_scale": 1.5,
-   "roughness": 0.95,
-   "normal_strength": 1.0,
+   "uv_scale": 2.0,
+   "roughness": 1.05,
+   "normal_strength": 1.3,
    "grime": 0.0,
-   "moss": 0.0
+   "moss": 0.0,
+   "detail": "wood",
+   "detail_scale": 2.5,
+   "detail_strength": 0.8,
+   "detail_turn": 1
   },
   "tav_foam": {
    "shader": "surface",
@@ -331,6 +509,23 @@
    "alpha": 0.1,
    "roughness": 0.04,
    "wave": 0.05
+  },
+  "tav_herb": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/bark_brown_02_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/bark_brown_02_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/bark_brown_02_arm_1k.jpg",
+   "tint": [
+    0.55,
+    0.6,
+    0.34
+   ],
+   "desaturate": 0.7,
+   "albedo_gain": 1.2,
+   "uv_scale": 0.1,
+   "roughness": 1.0,
+   "grime": 0.0,
+   "moss": 0.0
   },
   "tav_iron": {
    "shader": "surface",
@@ -371,6 +566,41 @@
     0.3
    ]
   },
+  "tav_lead": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rust_coarse_01_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rust_coarse_01_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rust_coarse_01_arm_1k.jpg",
+   "tint": [
+    0.62,
+    0.64,
+    0.66
+   ],
+   "desaturate": 1.0,
+   "albedo_gain": 1.0,
+   "uv_scale": 0.8,
+   "roughness": 0.75,
+   "normal_strength": 0.3,
+   "metallic": 0.25,
+   "grime": 0.0,
+   "moss": 0.0
+  },
+  "tav_leather": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/brown_leather_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/brown_leather_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/brown_leather_arm_1k.jpg",
+   "tint": [
+    0.9,
+    0.8,
+    0.7
+   ],
+   "desaturate": 0.2,
+   "uv_scale": 0.4,
+   "roughness": 0.8,
+   "grime": 0.0,
+   "moss": 0.0
+  },
   "tav_limewash": {
    "shader": "surface",
    "albedo": "res://assets/generated/tavern/white_plaster_rough_01_diff_1k.jpg",
@@ -386,7 +616,33 @@
    "roughness": 1.0,
    "normal_strength": 0.8,
    "grime": 0.0,
-   "moss": 0.0
+   "moss": 0.0,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 0.6
+  },
+  "tav_linen": {
+   "shader": "cloth",
+   "albedo": "res://assets/generated/tavern/rough_linen_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_linen_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_linen_arm_1k.jpg",
+   "tint": [
+    0.82,
+    0.78,
+    0.7
+   ],
+   "desaturate": 0.5,
+   "uv_scale": 0.35,
+   "roughness": 1.0,
+   "normal_strength": 0.8,
+   "cloth_wrap": 0.35,
+   "cloth_through": 0.22,
+   "cloth_sheen": 0.25,
+   "stain": 0.5,
+   "threads": 900.0,
+   "detail": "cloth",
+   "detail_scale": 10.4,
+   "detail_strength": 0.8
   },
   "tav_mortar": {
    "shader": "surface",
@@ -402,7 +658,10 @@
    "uv_scale": 1.2,
    "roughness": 1.0,
    "grime": 0.6,
-   "moss": 0.2
+   "moss": 0.2,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 0.9
   },
   "tav_oak": {
    "shader": "surface",
@@ -418,7 +677,10 @@
    "uv_scale": 1.4,
    "roughness": 1.0,
    "grime": 0.25,
-   "moss": 0.0
+   "moss": 0.0,
+   "detail": "wood",
+   "detail_scale": 2.5,
+   "detail_strength": 0.8
   },
   "tav_oak_end": {
    "shader": "surface",
@@ -434,7 +696,10 @@
    "uv_scale": 0.35,
    "roughness": 1.0,
    "grime": 0.2,
-   "moss": 0.0
+   "moss": 0.0,
+   "detail": "wood",
+   "detail_scale": 2.5,
+   "detail_strength": 0.5
   },
   "tav_oak_smooth": {
    "shader": "surface",
@@ -449,6 +714,48 @@
    "desaturate": 0.1,
    "uv_scale": 1.2,
    "roughness": 0.9,
+   "grime": 0.0,
+   "moss": 0.0,
+   "detail": "wood",
+   "detail_scale": 2.5,
+   "detail_strength": 0.4,
+   "detail_turn": 1
+  },
+  "tav_paint": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "desaturate": 1.0,
+   "albedo_gain": 3.0,
+   "uv_scale": 1.2,
+   "roughness": 0.9,
+   "grime": 0.2,
+   "moss": 0.0,
+   "detail": "wood",
+   "detail_scale": 2.5,
+   "detail_strength": 0.4
+  },
+  "tav_paper": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_linen_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/rough_linen_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/rough_linen_arm_1k.jpg",
+   "tint": [
+    0.93,
+    0.86,
+    0.7
+   ],
+   "desaturate": 0.9,
+   "albedo_gain": 1.15,
+   "uv_scale": 0.3,
+   "roughness": 0.95,
+   "normal_strength": 0.2,
    "grime": 0.0,
    "moss": 0.0
   },
@@ -467,7 +774,10 @@
    "roughness": 1.0,
    "normal_strength": 0.9,
    "grime": 0.0,
-   "moss": 0.0
+   "moss": 0.0,
+   "detail": "wood",
+   "detail_scale": 2.5,
+   "detail_strength": 0.9
   },
   "tav_rope": {
    "shader": "surface",
@@ -484,7 +794,10 @@
    "roughness": 1.0,
    "normal_strength": 1.4,
    "grime": 0.0,
-   "moss": 0.0
+   "moss": 0.0,
+   "detail": "cloth",
+   "detail_scale": 10.4,
+   "detail_strength": 0.5
   },
   "tav_sack": {
    "shader": "surface",
@@ -500,7 +813,10 @@
    "uv_scale": 0.3,
    "roughness": 1.0,
    "grime": 0.0,
-   "moss": 0.0
+   "moss": 0.0,
+   "detail": "cloth",
+   "detail_scale": 10.4,
+   "detail_strength": 1.0
   },
   "tav_slate": {
    "shader": "surface",
@@ -519,7 +835,10 @@
    "normal_strength": 0.8,
    "grime": 0.0,
    "moss": 0.25,
-   "lichen": 0.3
+   "lichen": 0.3,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 0.8
   },
   "tav_soil": {
    "shader": "surface",
@@ -535,7 +854,10 @@
    "uv_scale": 0.4,
    "roughness": 1.0,
    "grime": 0.0,
-   "moss": 0.0
+   "moss": 0.0,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 0.8
   },
   "tav_soot": {
    "shader": "surface",
@@ -550,6 +872,27 @@
    "desaturate": 1.0,
    "uv_scale": 0.5,
    "roughness": 1.0,
+   "grime": 0.0,
+   "moss": 0.0,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 0.6
+  },
+  "tav_stem": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/rough_wood_diff_2k.jpg",
+   "normal": "res://assets/generated/tavern/rough_wood_nor_gl_2k.jpg",
+   "orm": "res://assets/generated/tavern/rough_wood_arm_2k.jpg",
+   "tint": [
+    0.36,
+    0.5,
+    0.17
+   ],
+   "desaturate": 1.0,
+   "albedo_gain": 1.5,
+   "uv_scale": 0.3,
+   "roughness": 0.8,
+   "normal_strength": 0.2,
    "grime": 0.0,
    "moss": 0.0
   },
@@ -569,7 +912,27 @@
    "roughness": 1.0,
    "normal_strength": 1.2,
    "grime": 0.55,
-   "moss": 0.35
+   "moss": 0.35,
+   "detail": "stone",
+   "detail_scale": 2.5,
+   "detail_strength": 1.0
+  },
+  "tav_straw": {
+   "shader": "surface",
+   "albedo": "res://assets/generated/tavern/hessian_230_diff_1k.jpg",
+   "normal": "res://assets/generated/tavern/hessian_230_nor_gl_1k.jpg",
+   "orm": "res://assets/generated/tavern/hessian_230_arm_1k.jpg",
+   "tint": [
+    0.95,
+    0.8,
+    0.5
+   ],
+   "desaturate": 0.4,
+   "uv_scale": 0.12,
+   "roughness": 1.0,
+   "normal_strength": 1.2,
+   "grime": 0.0,
+   "moss": 0.0
   }
  },
  "color_range": 2.0,
@@ -669,9 +1032,9 @@
   {
    "name": "Brewing floor lantern",
    "position": [
-    -1.0,
+    -0.45,
     3.07,
-    2.2
+    2.95
    ],
    "type": "point",
    "color": [
@@ -715,7 +1078,7 @@
   {
    "name": "Cellar lantern",
    "position": [
-    -4.9,
+    -5.35,
     2.2,
     1.8
    ],
@@ -821,13 +1184,13 @@
  "stats": {
   "shell": {
    "meshes": 81,
-   "vertices": 59486,
-   "triangles": 62306
+   "vertices": 59424,
+   "triangles": 62254
   },
   "interior": {
-   "meshes": 105,
-   "vertices": 39690,
-   "triangles": 60431
+   "meshes": 289,
+   "vertices": 133404,
+   "triangles": 206257
   }
  },
  "footprint": [
@@ -901,7 +1264,21 @@
    ],
    "look": [
     -0.45,
-    0.4,
+    0.9,
+    1.78
+   ]
+  },
+  {
+   "id": "hop_back_tap",
+   "title": "Бадья под краном",
+   "stand": [
+    -1.0,
+    0.0,
+    1.25
+   ],
+   "look": [
+    -0.9244,
+    0.5176,
     1.78
    ]
   },
@@ -923,14 +1300,28 @@
    "id": "underback",
    "title": "Приёмный чан сусла",
    "stand": [
-    -1.131,
+    -1.6,
     0.0,
-    1.6805
+    1.95
    ],
    "look": [
-    -1.131,
+    -1.13,
     0.4,
-    2.5305
+    2.53
+   ]
+  },
+  {
+   "id": "wort_pump",
+   "title": "Насос для сусла",
+   "stand": [
+    -1.6,
+    0.0,
+    1.95
+   ],
+   "look": [
+    -1.07,
+    1.64,
+    2.36
    ]
   },
   {
@@ -976,17 +1367,17 @@
    ]
   },
   {
-   "id": "wort_lift",
-   "title": "Ворот с ведром",
+   "id": "windlass",
+   "title": "Ворот с бадьёй",
    "stand": [
-    -0.72,
+    -0.25,
     2.9,
-    1.0
+    1.1
    ],
    "look": [
-    -0.72,
-    3.15,
-    2.22
+    -1.05,
+    3.65,
+    1.18
    ]
   },
   {
@@ -999,7 +1390,7 @@
    ],
    "look": [
     -3.6,
-    1.2,
+    1.41,
     3.55
    ]
   },
@@ -1013,7 +1404,7 @@
    ],
    "look": [
     -3.6,
-    1.2,
+    1.41,
     0.5
    ]
   },
@@ -1049,12 +1440,12 @@
    "id": "spring",
    "title": "Ключ в погребе",
    "stand": [
-    -5.1,
+    -4.8,
     0.0,
     3.1
    ],
    "look": [
-    -5.1,
+    -4.8,
     0.5,
     4.0
    ]
@@ -1071,6 +1462,48 @@
     -5.2,
     0.8,
     -2.9
+   ]
+  },
+  {
+   "id": "keg_rack",
+   "title": "Стеллаж бочонков",
+   "stand": [
+    -5.7,
+    0.0,
+    -0.1
+   ],
+   "look": [
+    -6.65,
+    0.6,
+    -0.1
+   ]
+  },
+  {
+   "id": "yeast_shelf",
+   "title": "Полка с дрожжами",
+   "stand": [
+    -4.8,
+    0.0,
+    3.3
+   ],
+   "look": [
+    -4.8,
+    1.48,
+    4.27
+   ]
+  },
+  {
+   "id": "spout",
+   "title": "Поворотный носик",
+   "stand": [
+    -3.75,
+    0.0,
+    1.85
+   ],
+   "look": [
+    -3.3,
+    2.1,
+    1.85
    ]
   },
   {
@@ -1141,6 +1574,48 @@
     3.68,
     0.4,
     -0.06
+   ]
+  },
+  {
+   "id": "scales",
+   "title": "Весы для мешков",
+   "stand": [
+    4.55,
+    0.0,
+    -0.0
+   ],
+   "look": [
+    3.85,
+    1.75,
+    -0.55
+   ]
+  },
+  {
+   "id": "desk",
+   "title": "Конторка",
+   "stand": [
+    2.3,
+    0.0,
+    0.06
+   ],
+   "look": [
+    2.3,
+    1.15,
+    -0.59
+   ]
+  },
+  {
+   "id": "woodpile",
+   "title": "Поленница",
+   "stand": [
+    2.45,
+    0.0,
+    1.85
+   ],
+   "look": [
+    1.525,
+    0.4,
+    1.85
    ]
   },
   {
@@ -1296,6 +1771,2244 @@
    "size": [
     0.8,
     0.9
+   ]
+  }
+ ],
+ "moving": [
+  {
+   "id": "copper_hatch",
+   "title": "Люк котла",
+   "group": "copper_hatch",
+   "kind": "swing",
+   "nodes": [
+    "Copper hatch / tav_copper",
+    "Copper hatch / tav_iron"
+   ],
+   "pivot": [
+    0.15,
+    2.1004,
+    2.6229
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "travel": -1.9,
+   "grip": [
+    0.15,
+    1.9673,
+    2.3675
+   ]
+  },
+  {
+   "id": "copper_damper",
+   "title": "Заслонка котла",
+   "group": "copper_damper",
+   "kind": "swing",
+   "nodes": [
+    "Copper damper"
+   ],
+   "pivot": [
+    0.32,
+    2.97,
+    3.05
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    -0.0
+   ],
+   "travel": 1.2,
+   "grip": [
+    0.39,
+    2.93,
+    2.73
+   ]
+  },
+  {
+   "id": "copper_tap_key",
+   "title": "Кран котла",
+   "group": "copper_tap",
+   "kind": "swing",
+   "nodes": [
+    "Copper tap key"
+   ],
+   "pivot": [
+    -0.45,
+    1.24,
+    2.068
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "travel": -1.5,
+   "grip": [
+    -0.45,
+    1.304,
+    2.068
+   ]
+  },
+  {
+   "id": "hop_back_tap_key",
+   "title": "Кран хмелецедильного чана",
+   "group": "hop_back_tap",
+   "kind": "swing",
+   "nodes": [
+    "Hop back tap key"
+   ],
+   "pivot": [
+    -0.844,
+    0.58,
+    1.78
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "travel": -1.5,
+   "grip": [
+    -0.844,
+    0.628,
+    1.78
+   ]
+  },
+  {
+   "id": "mash_tap_key",
+   "title": "Кран заторного чана",
+   "group": "mash_tap",
+   "kind": "swing",
+   "nodes": [
+    "Mash tap key"
+   ],
+   "pivot": [
+    -1.2759,
+    0.67,
+    2.8181
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "travel": -1.5,
+   "grip": [
+    -1.2759,
+    0.726,
+    2.8181
+   ]
+  },
+  {
+   "id": "liquor_cock_key",
+   "title": "Кран горячей воды",
+   "group": "liquor_cock",
+   "kind": "swing",
+   "nodes": [
+    "Liquor cock key"
+   ],
+   "pivot": [
+    -1.18,
+    1.8,
+    3.235
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "travel": 1.5,
+   "grip": [
+    -1.18,
+    1.85,
+    3.235
+   ]
+  },
+  {
+   "id": "wort_pump_lever",
+   "title": "Насос для сусла",
+   "group": "wort_pump",
+   "kind": "swing",
+   "nodes": [
+    "Wort pump lever / tav_board",
+    "Wort pump lever / tav_iron"
+   ],
+   "pivot": [
+    -0.52,
+    1.66,
+    2.36
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "travel": 0.35,
+   "grip": [
+    -1.07,
+    1.63,
+    2.36
+   ]
+  },
+  {
+   "id": "liquor_pump_handle",
+   "title": "Насос ключевой воды",
+   "group": "liquor_pump",
+   "kind": "swing",
+   "nodes": [
+    "Liquor pump handle / tav_board",
+    "Liquor pump handle / tav_iron"
+   ],
+   "pivot": [
+    -2.18,
+    1.62,
+    0.95
+   ],
+   "axis": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "travel": -0.45,
+   "grip": [
+    -1.5,
+    1.6,
+    0.95
+   ]
+  },
+  {
+   "id": "liquor_pipe_cock_key",
+   "title": "Кран трубы к котлу",
+   "group": "liquor_pipe",
+   "kind": "swing",
+   "nodes": [
+    "Liquor pipe cock key"
+   ],
+   "pivot": [
+    -2.18,
+    1.6,
+    1.15
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    -0.0
+   ],
+   "travel": 1.5,
+   "grip": [
+    -2.13,
+    1.6,
+    1.15
+   ]
+  },
+  {
+   "id": "coolship_gate",
+   "title": "Затвор тарелки",
+   "group": "coolship_gate",
+   "kind": "slide",
+   "nodes": [
+    "Coolship gate"
+   ],
+   "pivot": [
+    -2.06,
+    3.462,
+    -0.0
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "travel": 0.14,
+   "grip": [
+    -2.06,
+    3.792,
+    -0.0
+   ]
+  },
+  {
+   "id": "swivel_spout",
+   "title": "Поворотный носик",
+   "group": "swivel_spout",
+   "kind": "swing",
+   "nodes": [
+    "Swivel spout / tav_copper",
+    "Swivel spout / tav_iron"
+   ],
+   "pivot": [
+    -3.3,
+    2.1,
+    1.85
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "travel": 2.7483,
+   "grip": [
+    -3.4085,
+    2.05,
+    1.3619
+   ]
+  },
+  {
+   "id": "windlass",
+   "title": "Ворот",
+   "group": "windlass",
+   "kind": "spin",
+   "nodes": [
+    "Windlass / tav_board",
+    "Windlass / tav_iron",
+    "Windlass / tav_oak",
+    "Windlass / tav_rope"
+   ],
+   "pivot": [
+    -1.05,
+    3.65,
+    1.18
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    -0.0
+   ],
+   "travel": 0.0,
+   "grip": [
+    -0.66,
+    3.33,
+    1.18
+   ]
+  },
+  {
+   "id": "fermenter_tap_1_key",
+   "title": "Кран бродильного чана",
+   "group": "fermenter_tap_1",
+   "kind": "swing",
+   "nodes": [
+    "Fermenter tap 1 key"
+   ],
+   "pivot": [
+    -3.6,
+    0.46,
+    2.881
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "travel": -1.5,
+   "grip": [
+    -3.6,
+    0.508,
+    2.881
+   ]
+  },
+  {
+   "id": "fermenter_tap_2_key",
+   "title": "Кран бродильного чана",
+   "group": "fermenter_tap_2",
+   "kind": "swing",
+   "nodes": [
+    "Fermenter tap 2 key"
+   ],
+   "pivot": [
+    -3.6,
+    0.46,
+    1.169
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "travel": -1.5,
+   "grip": [
+    -3.6,
+    0.508,
+    1.169
+   ]
+  },
+  {
+   "id": "lager_tap_1_key",
+   "title": "Кран лагерной бочки",
+   "group": "lager_tap_1",
+   "kind": "swing",
+   "nodes": [
+    "Lager tap 1 key"
+   ],
+   "pivot": [
+    -5.755,
+    0.3,
+    3.95
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "travel": -1.5,
+   "grip": [
+    -5.755,
+    0.34,
+    3.95
+   ]
+  },
+  {
+   "id": "lager_tap_2_key",
+   "title": "Кран лагерной бочки",
+   "group": "lager_tap_2",
+   "kind": "swing",
+   "nodes": [
+    "Lager tap 2 key"
+   ],
+   "pivot": [
+    -5.755,
+    0.3,
+    3.0
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "travel": -1.5,
+   "grip": [
+    -5.755,
+    0.34,
+    3.0
+   ]
+  },
+  {
+   "id": "lager_tap_3_key",
+   "title": "Кран лагерной бочки",
+   "group": "lager_tap_3",
+   "kind": "swing",
+   "nodes": [
+    "Lager tap 3 key"
+   ],
+   "pivot": [
+    -5.755,
+    0.3,
+    2.05
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "travel": -1.5,
+   "grip": [
+    -5.755,
+    0.34,
+    2.05
+   ]
+  },
+  {
+   "id": "lager_tap_4_key",
+   "title": "Кран лагерной бочки",
+   "group": "lager_tap_4",
+   "kind": "swing",
+   "nodes": [
+    "Lager tap 4 key"
+   ],
+   "pivot": [
+    -5.755,
+    0.3,
+    1.1
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "travel": -1.5,
+   "grip": [
+    -5.755,
+    0.34,
+    1.1
+   ]
+  },
+  {
+   "id": "steep_plug",
+   "title": "Пробка слива",
+   "group": "steep_drain",
+   "kind": "slide",
+   "nodes": [
+    "Steep plug"
+   ],
+   "pivot": [
+    6.6,
+    0.07,
+    2.26
+   ],
+   "axis": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "travel": 0.12,
+   "grip": [
+    6.6,
+    0.07,
+    2.38
+   ]
+  },
+  {
+   "id": "kiln_damper",
+   "title": "Заслонка сушилки",
+   "group": "kiln_damper",
+   "kind": "swing",
+   "nodes": [
+    "Kiln damper / tav_board",
+    "Kiln damper / tav_iron"
+   ],
+   "pivot": [
+    6.24,
+    2.5,
+    3.58
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    -0.0
+   ],
+   "travel": -1.1,
+   "grip": [
+    6.24,
+    2.33,
+    3.54
+   ]
+  },
+  {
+   "id": "quern_runner",
+   "title": "Жёрнов",
+   "group": "quern",
+   "kind": "spin",
+   "nodes": [
+    "Quern runner / tav_board",
+    "Quern runner / tav_stone"
+   ],
+   "pivot": [
+    6.5,
+    0.82,
+    -0.25
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "travel": 0.0,
+   "grip": [
+    6.75,
+    1.12,
+    -0.25
+   ]
+  },
+  {
+   "id": "quern_wedge",
+   "title": "Клин жёрнова",
+   "group": "quern_gap",
+   "kind": "slide",
+   "nodes": [
+    "Quern wedge"
+   ],
+   "pivot": [
+    6.03,
+    0.64,
+    -0.05
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    -0.0
+   ],
+   "travel": 0.06,
+   "grip": [
+    5.93,
+    0.64,
+    -0.05
+   ]
+  },
+  {
+   "id": "steelyard",
+   "title": "Безмен",
+   "group": "steelyard",
+   "kind": "swing",
+   "nodes": [
+    "Steelyard"
+   ],
+   "pivot": [
+    3.85,
+    1.75,
+    -0.55
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "travel": 0.18,
+   "grip": [
+    3.85,
+    1.69,
+    -0.13
+   ]
+  },
+  {
+   "id": "hop_balance_beam",
+   "title": "Малые весы",
+   "group": "balance",
+   "kind": "swing",
+   "nodes": [
+    "Hop balance beam / tav_brass",
+    "Hop balance beam / tav_rope"
+   ],
+   "pivot": [
+    2.4,
+    1.46,
+    -0.84
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "travel": 0.12,
+   "grip": [
+    2.4,
+    1.53,
+    -0.84
+   ]
+  },
+  {
+   "id": "hourglass",
+   "title": "Песочные часы",
+   "group": "hourglass",
+   "kind": "swing",
+   "nodes": [
+    "Hourglass / tav_board",
+    "Hourglass / tav_glass",
+    "Hourglass / tav_mortar"
+   ],
+   "pivot": [
+    2.06,
+    1.258,
+    -0.91
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    -0.0
+   ],
+   "travel": 3.1416,
+   "grip": [
+    2.06,
+    1.258,
+    -0.91
+   ]
+  }
+ ],
+ "utensils": [
+  {
+   "id": "dipstick",
+   "title": "Мерная палка",
+   "kind": "tool",
+   "nodes": [
+    "Dipstick"
+   ],
+   "at": [
+    -0.81,
+    0.0,
+    3.45
+   ],
+   "grip": [
+    -0.7382,
+    1.1973,
+    3.4859
+   ]
+  },
+  {
+   "id": "mash_paddle",
+   "title": "Весло",
+   "kind": "tool",
+   "nodes": [
+    "Mash paddle"
+   ],
+   "at": [
+    -1.48,
+    0.65,
+    3.47
+   ],
+   "grip": [
+    -1.1131,
+    2.0912,
+    3.0333
+   ]
+  },
+  {
+   "id": "thermometer",
+   "title": "Градусник",
+   "kind": "instrument",
+   "nodes": [
+    "Thermometer / tav_board",
+    "Thermometer / tav_brass",
+    "Thermometer / tav_glass",
+    "Thermometer / tav_paint",
+    "Thermometer / tav_rope"
+   ],
+   "at": [
+    -2.37,
+    1.6,
+    2.55
+   ],
+   "grip": [
+    -2.37,
+    1.4,
+    2.55
+   ]
+  },
+  {
+   "id": "water_bucket",
+   "title": "Ведро",
+   "kind": "vessel",
+   "nodes": [
+    "Water bucket / tav_board",
+    "Water bucket / tav_iron"
+   ],
+   "at": [
+    -1.45,
+    0.0,
+    0.9
+   ],
+   "grip": [
+    -1.45,
+    0.43,
+    0.9
+   ]
+  },
+  {
+   "id": "hoist_bucket",
+   "title": "Бадья 50 л",
+   "kind": "vessel",
+   "nodes": [
+    "Hoist bucket / tav_board",
+    "Hoist bucket / tav_iron"
+   ],
+   "at": [
+    -1.05,
+    0.0,
+    1.85
+   ],
+   "grip": [
+    -1.05,
+    0.74,
+    1.85
+   ]
+  },
+  {
+   "id": "hop_pocket_1",
+   "title": "Мешок хмеля",
+   "kind": "sack",
+   "nodes": [
+    "Hop pocket 1 / tav_rope",
+    "Hop pocket 1 / tav_sack"
+   ],
+   "at": [
+    2.55,
+    2.9,
+    -0.62
+   ],
+   "grip": [
+    2.55,
+    3.8194,
+    -0.62
+   ]
+  },
+  {
+   "id": "hop_pocket_2",
+   "title": "Мешок хмеля",
+   "kind": "sack",
+   "nodes": [
+    "Hop pocket 2 / tav_rope",
+    "Hop pocket 2 / tav_sack"
+   ],
+   "at": [
+    2.6,
+    2.9,
+    -0.14
+   ],
+   "grip": [
+    2.6,
+    3.7406,
+    -0.14
+   ]
+  },
+  {
+   "id": "hop_pocket_3",
+   "title": "Мешок хмеля",
+   "kind": "sack",
+   "nodes": [
+    "Hop pocket 3 / tav_rope",
+    "Hop pocket 3 / tav_sack"
+   ],
+   "at": [
+    2.5,
+    2.9,
+    0.34
+   ],
+   "grip": [
+    2.5,
+    3.7495,
+    0.34
+   ]
+  },
+  {
+   "id": "hop_pocket_4",
+   "title": "Мешок хмеля",
+   "kind": "sack",
+   "nodes": [
+    "Hop pocket 4 / tav_rope",
+    "Hop pocket 4 / tav_sack"
+   ],
+   "at": [
+    2.58,
+    2.9,
+    1.1
+   ],
+   "grip": [
+    2.58,
+    3.7559,
+    1.1
+   ]
+  },
+  {
+   "id": "oats_sack",
+   "title": "Мешок овса",
+   "kind": "sack",
+   "nodes": [
+    "Oats sack / tav_rope",
+    "Oats sack / tav_sack"
+   ],
+   "at": [
+    -1.75,
+    2.9,
+    -0.82
+   ],
+   "grip": [
+    -1.75,
+    3.5355,
+    -0.82
+   ]
+  },
+  {
+   "id": "dark_sack",
+   "title": "Мешок тёмного солода",
+   "kind": "sack",
+   "nodes": [
+    "Dark sack / tav_rope",
+    "Dark sack / tav_sack"
+   ],
+   "at": [
+    -1.17,
+    2.9,
+    -0.82
+   ],
+   "grip": [
+    -1.17,
+    3.5743,
+    -0.82
+   ]
+  },
+  {
+   "id": "smoked_sack",
+   "title": "Мешок дымного солода",
+   "kind": "sack",
+   "nodes": [
+    "Smoked sack / tav_rope",
+    "Smoked sack / tav_sack"
+   ],
+   "at": [
+    -0.59,
+    2.9,
+    -0.82
+   ],
+   "grip": [
+    -0.59,
+    3.5126,
+    -0.82
+   ]
+  },
+  {
+   "id": "funnel",
+   "title": "Воронка",
+   "kind": "tool",
+   "nodes": [
+    "Funnel / tav_copper",
+    "Funnel / tav_iron"
+   ],
+   "at": [
+    -4.05,
+    0.88,
+    -0.42
+   ],
+   "grip": [
+    -3.88,
+    1.15,
+    -0.42
+   ]
+  },
+  {
+   "id": "cellar_bucket",
+   "title": "Ведро",
+   "kind": "vessel",
+   "nodes": [
+    "Cellar bucket / tav_board",
+    "Cellar bucket / tav_iron"
+   ],
+   "at": [
+    -4.25,
+    0.0,
+    0.2
+   ],
+   "grip": [
+    -4.25,
+    0.43,
+    0.2
+   ]
+  },
+  {
+   "id": "cherry_basket",
+   "title": "Корзина вишни",
+   "kind": "raw",
+   "nodes": [
+    "Cherry basket / brew_cherries",
+    "Cherry basket / brew_cherry",
+    "Cherry basket / brew_wicker",
+    "Cherry basket / tav_stem"
+   ],
+   "at": [
+    -5.48,
+    0.0,
+    1.575
+   ],
+   "grip": [
+    -5.48,
+    0.3,
+    1.575
+   ]
+  },
+  {
+   "id": "keg_1",
+   "title": "Бочонок 40 л",
+   "kind": "vessel",
+   "nodes": [
+    "Keg 1 / tav_board",
+    "Keg 1 / tav_iron",
+    "Keg 1 / tav_oak_end"
+   ],
+   "at": [
+    -6.9,
+    0.262,
+    0.37
+   ],
+   "grip": [
+    -6.65,
+    0.262,
+    0.37
+   ]
+  },
+  {
+   "id": "keg_2",
+   "title": "Бочонок 40 л",
+   "kind": "vessel",
+   "nodes": [
+    "Keg 2 / tav_board",
+    "Keg 2 / tav_iron",
+    "Keg 2 / tav_oak_end"
+   ],
+   "at": [
+    -6.9,
+    0.262,
+    -0.09
+   ],
+   "grip": [
+    -6.65,
+    0.262,
+    -0.09
+   ]
+  },
+  {
+   "id": "keg_3",
+   "title": "Бочонок 40 л",
+   "kind": "vessel",
+   "nodes": [
+    "Keg 3 / tav_board",
+    "Keg 3 / tav_iron",
+    "Keg 3 / tav_oak_end"
+   ],
+   "at": [
+    -6.9,
+    0.262,
+    -0.55
+   ],
+   "grip": [
+    -6.65,
+    0.262,
+    -0.55
+   ]
+  },
+  {
+   "id": "keg_4",
+   "title": "Бочонок 40 л",
+   "kind": "vessel",
+   "nodes": [
+    "Keg 4 / tav_board",
+    "Keg 4 / tav_iron",
+    "Keg 4 / tav_oak_end"
+   ],
+   "at": [
+    -6.9,
+    0.712,
+    0.37
+   ],
+   "grip": [
+    -6.65,
+    0.712,
+    0.37
+   ]
+  },
+  {
+   "id": "keg_5",
+   "title": "Бочонок 40 л",
+   "kind": "vessel",
+   "nodes": [
+    "Keg 5 / tav_board",
+    "Keg 5 / tav_iron",
+    "Keg 5 / tav_oak_end"
+   ],
+   "at": [
+    -6.9,
+    0.712,
+    -0.09
+   ],
+   "grip": [
+    -6.65,
+    0.712,
+    -0.09
+   ]
+  },
+  {
+   "id": "keg_6",
+   "title": "Бочонок 40 л",
+   "kind": "vessel",
+   "nodes": [
+    "Keg 6 / tav_board",
+    "Keg 6 / tav_iron",
+    "Keg 6 / tav_oak_end"
+   ],
+   "at": [
+    -6.9,
+    0.712,
+    -0.55
+   ],
+   "grip": [
+    -6.65,
+    0.712,
+    -0.55
+   ]
+  },
+  {
+   "id": "mallet",
+   "title": "Киянка",
+   "kind": "tool",
+   "nodes": [
+    "Mallet"
+   ],
+   "at": [
+    -6.23,
+    0.045,
+    -0.65
+   ],
+   "grip": [
+    -6.1534,
+    0.045,
+    -0.627
+   ]
+  },
+  {
+   "id": "yeast_crock",
+   "title": "Горшок с дрожжами",
+   "kind": "vessel",
+   "nodes": [
+    "Yeast crock / tav_board",
+    "Yeast crock / tav_ceramic"
+   ],
+   "at": [
+    -5.1,
+    1.41,
+    4.27
+   ],
+   "grip": [
+    -5.1,
+    1.71,
+    4.27
+   ]
+  },
+  {
+   "id": "bung_box",
+   "title": "Ящик пробок",
+   "kind": "vessel",
+   "nodes": [
+    "Bung box / tav_board",
+    "Bung box / tav_oak_end"
+   ],
+   "at": [
+    -4.72,
+    1.41,
+    4.27
+   ],
+   "grip": [
+    -4.72,
+    1.49,
+    4.27
+   ]
+  },
+  {
+   "id": "dipper",
+   "title": "Ковш",
+   "kind": "tool",
+   "nodes": [
+    "Dipper / tav_board",
+    "Dipper / tav_copper",
+    "Dipper / tav_iron"
+   ],
+   "at": [
+    -4.25,
+    0.03,
+    0.2
+   ],
+   "grip": [
+    -4.5877,
+    0.48,
+    0.5687
+   ]
+  },
+  {
+   "id": "skimmer",
+   "title": "Шумовка",
+   "kind": "tool",
+   "nodes": [
+    "Skimmer / tav_copper",
+    "Skimmer / tav_iron"
+   ],
+   "at": [
+    -4.18,
+    1.32,
+    4.37
+   ],
+   "grip": [
+    -4.18,
+    1.22,
+    4.37
+   ]
+  },
+  {
+   "id": "malt_shovel",
+   "title": "Лопата",
+   "kind": "tool",
+   "nodes": [
+    "Malt shovel"
+   ],
+   "at": [
+    3.56,
+    0.0,
+    2.62
+   ],
+   "grip": [
+    3.4565,
+    1.1433,
+    2.6887
+   ]
+  },
+  {
+   "id": "kiln_rake",
+   "title": "Грабли",
+   "kind": "tool",
+   "nodes": [
+    "Kiln rake"
+   ],
+   "at": [
+    6.88,
+    0.0,
+    2.88
+   ],
+   "grip": [
+    7.0752,
+    1.3881,
+    2.88
+   ]
+  },
+  {
+   "id": "barley_sack_1",
+   "title": "Мешок ячменя",
+   "kind": "sack",
+   "nodes": [
+    "Barley sack 1 / tav_rope",
+    "Barley sack 1 / tav_sack"
+   ],
+   "at": [
+    3.69,
+    0.0,
+    -0.5
+   ],
+   "grip": [
+    3.69,
+    0.5692,
+    -0.5
+   ]
+  },
+  {
+   "id": "barley_sack_2",
+   "title": "Мешок ячменя",
+   "kind": "sack",
+   "nodes": [
+    "Barley sack 2 / tav_rope",
+    "Barley sack 2 / tav_sack"
+   ],
+   "at": [
+    3.71,
+    0.0,
+    -0.02
+   ],
+   "grip": [
+    3.71,
+    0.6885,
+    -0.02
+   ]
+  },
+  {
+   "id": "barley_sack_3",
+   "title": "Мешок ячменя",
+   "kind": "sack",
+   "nodes": [
+    "Barley sack 3 / tav_rope",
+    "Barley sack 3 / tav_sack"
+   ],
+   "at": [
+    3.67,
+    0.0,
+    0.44
+   ],
+   "grip": [
+    3.67,
+    0.6691,
+    0.44
+   ]
+  },
+  {
+   "id": "pale_malt_sack",
+   "title": "Мешок светлого солода",
+   "kind": "sack",
+   "nodes": [
+    "Pale malt sack / tav_rope",
+    "Pale malt sack / tav_sack"
+   ],
+   "at": [
+    5.14,
+    0.0,
+    4.1
+   ],
+   "grip": [
+    5.14,
+    0.6901,
+    4.1
+   ]
+  },
+  {
+   "id": "caramel_malt_sack",
+   "title": "Мешок карамельного солода",
+   "kind": "sack",
+   "nodes": [
+    "Caramel malt sack / tav_rope",
+    "Caramel malt sack / tav_sack"
+   ],
+   "at": [
+    5.14,
+    0.0,
+    3.58
+   ],
+   "grip": [
+    5.14,
+    0.4704,
+    3.58
+   ]
+  },
+  {
+   "id": "honey_pot",
+   "title": "Горшок мёда",
+   "kind": "raw",
+   "nodes": [
+    "Honey pot / tav_ceramic",
+    "Honey pot / tav_linen",
+    "Honey pot / tav_rope"
+   ],
+   "at": [
+    2.15,
+    0.243,
+    -0.74
+   ],
+   "grip": [
+    2.15,
+    0.443,
+    -0.74
+   ]
+  },
+  {
+   "id": "hop_basket",
+   "title": "Корзина хмеля",
+   "kind": "raw",
+   "nodes": [
+    "Hop basket / tav_herb",
+    "Hop basket / tav_straw"
+   ],
+   "at": [
+    1.58,
+    0.0,
+    -0.79
+   ],
+   "grip": [
+    1.58,
+    0.3,
+    -0.79
+   ]
+  },
+  {
+   "id": "juniper_bundle",
+   "title": "Вязанка можжевельника",
+   "kind": "raw",
+   "nodes": [
+    "Juniper bundle / brew_berry",
+    "Juniper bundle / brew_juniper",
+    "Juniper bundle / tav_rope"
+   ],
+   "at": [
+    2.77,
+    0.0,
+    -0.47
+   ],
+   "grip": [
+    2.77,
+    0.6155,
+    -0.5442
+   ]
+  },
+  {
+   "id": "linden_bunch",
+   "title": "Пучок липового цвета",
+   "kind": "raw",
+   "nodes": [
+    "Linden bunch / brew_bark",
+    "Linden bunch / brew_blossom",
+    "Linden bunch / brew_linden",
+    "Linden bunch / tav_rope",
+    "Linden bunch / tav_stem"
+   ],
+   "at": [
+    2.46,
+    0.243,
+    -0.69
+   ],
+   "grip": [
+    2.46,
+    0.313,
+    -0.69
+   ]
+  },
+  {
+   "id": "log",
+   "title": "Полено",
+   "kind": "log",
+   "nodes": [
+    "Log / tav_bark",
+    "Log / tav_paint"
+   ],
+   "at": [
+    1.35,
+    0.09,
+    2.8
+   ],
+   "grip": [
+    1.35,
+    0.09,
+    2.8
+   ]
+  },
+  {
+   "id": "beech_log",
+   "title": "Буковое полено",
+   "kind": "log",
+   "nodes": [
+    "Beech log / brew_beech_bark",
+    "Beech log / tav_paint"
+   ],
+   "at": [
+    1.35,
+    0.09,
+    0.95
+   ],
+   "grip": [
+    1.35,
+    0.09,
+    0.95
+   ]
+  }
+ ],
+ "surfaces": [
+  {
+   "id": "copper_wort",
+   "vessel": "Copper",
+   "kind": "wort",
+   "node": "Copper wort",
+   "at": [
+    0.15,
+    1.51,
+    3.05
+   ],
+   "bottom": 1.13,
+   "brim": 1.89,
+   "level": 0.5,
+   "radius": 0.74
+  },
+  {
+   "id": "hop_back_wort",
+   "vessel": "Hop back",
+   "kind": "wort",
+   "node": "Hop back wort",
+   "at": [
+    -0.45,
+    0.776,
+    1.78
+   ],
+   "bottom": 0.56,
+   "brim": 0.92,
+   "level": 0.6,
+   "radius": 0.3
+  },
+  {
+   "id": "mash_tun_mash",
+   "vessel": "Mash tun",
+   "kind": "mash",
+   "node": "Mash tun mash",
+   "at": [
+    -1.68,
+    1.3398,
+    3.62
+   ],
+   "bottom": 0.61,
+   "brim": 1.5,
+   "level": 0.82,
+   "radius": 0.58
+  },
+  {
+   "id": "underback_wort",
+   "vessel": "Underback",
+   "kind": "wort",
+   "node": "Underback wort",
+   "at": [
+    -1.13,
+    0.23,
+    2.53
+   ],
+   "bottom": 0.06,
+   "brim": 0.4,
+   "level": 0.5,
+   "radius": 0.31
+  },
+  {
+   "id": "liquor_trough_water",
+   "vessel": "Liquor trough",
+   "kind": "water",
+   "node": "Liquor trough water",
+   "at": [
+    -2.04,
+    0.45,
+    -0.1
+   ],
+   "bottom": 0.12,
+   "brim": 0.6,
+   "level": 0.687,
+   "rect": [
+    [
+     -2.25,
+     0.64
+    ],
+    [
+     -1.83,
+     -0.84
+    ]
+   ]
+  },
+  {
+   "id": "coolship_wort",
+   "vessel": "Coolship",
+   "kind": "wort",
+   "node": "Coolship wort",
+   "at": [
+    -0.95,
+    3.5532,
+    -0.0
+   ],
+   "bottom": 3.462,
+   "brim": 3.69,
+   "level": 0.4,
+   "rect": [
+    [
+     -2.15,
+     0.5
+    ],
+    [
+     0.25,
+     -0.5
+    ]
+   ]
+  },
+  {
+   "id": "fermenting_tun_1_wort",
+   "vessel": "Fermenting tun 1",
+   "kind": "wort",
+   "node": "Fermenting tun 1 wort",
+   "at": [
+    -3.6,
+    1.2468,
+    3.55
+   ],
+   "bottom": 0.42,
+   "brim": 1.48,
+   "level": 0.78,
+   "radius": 0.56
+  },
+  {
+   "id": "fermenting_tun_1_foam",
+   "vessel": "Fermenting tun 1",
+   "kind": "foam",
+   "node": "Fermenting tun 1 foam",
+   "at": [
+    -3.6,
+    1.3104,
+    3.55
+   ],
+   "bottom": 0.42,
+   "brim": 1.48,
+   "level": 0.84,
+   "radius": 0.56
+  },
+  {
+   "id": "fermenting_tun_2_wort",
+   "vessel": "Fermenting tun 2",
+   "kind": "wort",
+   "node": "Fermenting tun 2 wort",
+   "at": [
+    -3.6,
+    1.2468,
+    0.5
+   ],
+   "bottom": 0.42,
+   "brim": 1.48,
+   "level": 0.78,
+   "radius": 0.56
+  },
+  {
+   "id": "fermenting_tun_2_foam",
+   "vessel": "Fermenting tun 2",
+   "kind": "foam",
+   "node": "Fermenting tun 2 foam",
+   "at": [
+    -3.6,
+    1.3104,
+    0.5
+   ],
+   "bottom": 0.42,
+   "brim": 1.48,
+   "level": 0.84,
+   "radius": 0.56
+  },
+  {
+   "id": "spring_basin_water",
+   "vessel": "Spring basin",
+   "kind": "water",
+   "node": "Spring basin water",
+   "at": [
+    -4.8,
+    0.425,
+    4.03
+   ],
+   "bottom": 0.12,
+   "brim": 0.5,
+   "level": 0.803,
+   "rect": [
+    [
+     -5.19,
+     4.27
+    ],
+    [
+     -4.41,
+     3.79
+    ]
+   ]
+  },
+  {
+   "id": "steep_grain",
+   "vessel": "Steep",
+   "kind": "grain",
+   "node": "Steep grain",
+   "at": [
+    6.6,
+    0.496,
+    1.4
+   ],
+   "bottom": 0.12,
+   "brim": 0.62,
+   "level": 0.752,
+   "rect": [
+    [
+     6.33,
+     2.19
+    ],
+    [
+     6.87,
+     0.61
+    ]
+   ]
+  },
+  {
+   "id": "couch_malt",
+   "vessel": "Couch",
+   "kind": "grain",
+   "node": "Couch malt",
+   "at": [
+    4.2,
+    0.0,
+    3.3
+   ],
+   "heap": [
+    0.7,
+    0.14,
+    -0.9
+   ]
+  },
+  {
+   "id": "kiln_malt",
+   "vessel": "Kiln",
+   "kind": "grain",
+   "node": "Kiln malt",
+   "at": [
+    6.24,
+    1.03,
+    3.74
+   ],
+   "heap": [
+    0.62,
+    0.06,
+    -0.52
+   ]
+  }
+ ],
+ "anchors": [
+  {
+   "id": "copper_stoke",
+   "kind": "pour",
+   "at": [
+    0.15,
+    0.25,
+    2.4
+   ]
+  },
+  {
+   "id": "copper_bottom",
+   "kind": "bottom",
+   "at": [
+    0.15,
+    1.13,
+    3.05
+   ]
+  },
+  {
+   "id": "copper_brim",
+   "kind": "brim",
+   "at": [
+    0.15,
+    1.89,
+    3.05
+   ],
+   "radius": 0.74
+  },
+  {
+   "id": "copper_hatch",
+   "kind": "pour",
+   "at": [
+    0.15,
+    1.9036,
+    2.4379
+   ]
+  },
+  {
+   "id": "copper_damper_pull",
+   "kind": "grip",
+   "at": [
+    0.39,
+    2.01,
+    2.73
+   ]
+  },
+  {
+   "id": "copper_tap_nozzle",
+   "kind": "nozzle",
+   "at": [
+    -0.45,
+    1.1568,
+    1.9608
+   ],
+   "into": "hop_back_brim"
+  },
+  {
+   "id": "hop_back_bottom",
+   "kind": "bottom",
+   "at": [
+    -0.45,
+    0.56,
+    1.78
+   ]
+  },
+  {
+   "id": "hop_back_brim",
+   "kind": "brim",
+   "at": [
+    -0.45,
+    0.92,
+    1.78
+   ],
+   "radius": 0.3
+  },
+  {
+   "id": "hop_back_tap_nozzle",
+   "kind": "nozzle",
+   "at": [
+    -0.9244,
+    0.5176,
+    1.78
+   ],
+   "into": "hop_back_bucket"
+  },
+  {
+   "id": "hop_back_bucket",
+   "kind": "bucket",
+   "at": [
+    -1.05,
+    0.0,
+    1.85
+   ]
+  },
+  {
+   "id": "mash_tun_bottom",
+   "kind": "bottom",
+   "at": [
+    -1.68,
+    0.61,
+    3.62
+   ]
+  },
+  {
+   "id": "mash_tun_brim",
+   "kind": "brim",
+   "at": [
+    -1.68,
+    1.5,
+    3.62
+   ],
+   "radius": 0.58
+  },
+  {
+   "id": "mash_in",
+   "kind": "pour",
+   "at": [
+    -1.68,
+    1.5,
+    3.62
+   ]
+  },
+  {
+   "id": "mash_tap_nozzle",
+   "kind": "nozzle",
+   "at": [
+    -1.2337,
+    0.5972,
+    2.7343
+   ],
+   "into": "underback_brim"
+  },
+  {
+   "id": "underback_bottom",
+   "kind": "bottom",
+   "at": [
+    -1.13,
+    0.06,
+    2.53
+   ]
+  },
+  {
+   "id": "underback_brim",
+   "kind": "brim",
+   "at": [
+    -1.13,
+    0.4,
+    2.53
+   ],
+   "radius": 0.31
+  },
+  {
+   "id": "liquor_main_outlet",
+   "kind": "nozzle",
+   "at": [
+    -1.48,
+    1.57,
+    3.47
+   ],
+   "into": "mash_tun_brim"
+  },
+  {
+   "id": "wort_pump_suction",
+   "kind": "nozzle",
+   "at": [
+    -1.08,
+    0.1,
+    2.53
+   ],
+   "into": "underback_brim"
+  },
+  {
+   "id": "wort_pump_outlet",
+   "kind": "nozzle",
+   "at": [
+    -0.2,
+    1.94,
+    2.28
+   ],
+   "into": "copper_hatch"
+  },
+  {
+   "id": "liquor_trough_bottom",
+   "kind": "bottom",
+   "at": [
+    -2.04,
+    0.12,
+    -0.1
+   ]
+  },
+  {
+   "id": "liquor_trough_brim",
+   "kind": "brim",
+   "at": [
+    -2.04,
+    0.6,
+    -0.1
+   ],
+   "rect": [
+    [
+     -2.25,
+     0.64
+    ],
+    [
+     -1.83,
+     -0.84
+    ]
+   ]
+  },
+  {
+   "id": "liquor_spout",
+   "kind": "nozzle",
+   "at": [
+    -2.18,
+    0.86,
+    0.53
+   ],
+   "into": "liquor_trough_brim"
+  },
+  {
+   "id": "liquor_pipe_outlet",
+   "kind": "nozzle",
+   "at": [
+    0.5,
+    2.06,
+    2.26
+   ],
+   "into": "copper_hatch"
+  },
+  {
+   "id": "coolship_bottom",
+   "kind": "bottom",
+   "at": [
+    -0.95,
+    3.462,
+    -0.0
+   ]
+  },
+  {
+   "id": "coolship_brim",
+   "kind": "brim",
+   "at": [
+    -0.95,
+    3.69,
+    -0.0
+   ],
+   "rect": [
+    [
+     -2.15,
+     0.5
+    ],
+    [
+     0.25,
+     -0.5
+    ]
+   ]
+  },
+  {
+   "id": "coolship_pour",
+   "kind": "pour",
+   "at": [
+    0.0,
+    3.69,
+    -0.0
+   ]
+  },
+  {
+   "id": "coolship_outlet",
+   "kind": "nozzle",
+   "at": [
+    -2.2,
+    3.48,
+    -0.0
+   ]
+  },
+  {
+   "id": "spout_nozzle_1",
+   "kind": "nozzle",
+   "at": [
+    -3.5728,
+    1.9,
+    3.3961
+   ],
+   "turn": 2.7483,
+   "into": "fermenting_tun_1_brim"
+  },
+  {
+   "id": "spout_nozzle_2",
+   "kind": "nozzle",
+   "at": [
+    -3.6406,
+    1.9,
+    0.3174
+   ],
+   "turn": 0.0,
+   "into": "fermenting_tun_2_brim"
+  },
+  {
+   "id": "lift_floor",
+   "kind": "bucket",
+   "at": [
+    -1.05,
+    0.0,
+    1.85
+   ]
+  },
+  {
+   "id": "lift_top",
+   "kind": "bucket",
+   "at": [
+    -1.05,
+    3.05,
+    1.85
+   ]
+  },
+  {
+   "id": "lift_sheave",
+   "kind": "hook",
+   "at": [
+    -1.05,
+    4.4,
+    1.85
+   ]
+  },
+  {
+   "id": "fermenting_tun_1_bottom",
+   "kind": "bottom",
+   "at": [
+    -3.6,
+    0.42,
+    3.55
+   ]
+  },
+  {
+   "id": "fermenting_tun_1_brim",
+   "kind": "brim",
+   "at": [
+    -3.6,
+    1.48,
+    3.55
+   ],
+   "radius": 0.56
+  },
+  {
+   "id": "fermenter_tap_1_nozzle",
+   "kind": "nozzle",
+   "at": [
+    -3.6,
+    0.3976,
+    2.8006
+   ],
+   "into": "fermenter_1_bucket"
+  },
+  {
+   "id": "fermenter_1_bucket",
+   "kind": "bucket",
+   "at": [
+    -3.6,
+    0.0,
+    2.75
+   ]
+  },
+  {
+   "id": "fermenting_tun_2_bottom",
+   "kind": "bottom",
+   "at": [
+    -3.6,
+    0.42,
+    0.5
+   ]
+  },
+  {
+   "id": "fermenting_tun_2_brim",
+   "kind": "brim",
+   "at": [
+    -3.6,
+    1.48,
+    0.5
+   ],
+   "radius": 0.56
+  },
+  {
+   "id": "fermenter_tap_2_nozzle",
+   "kind": "nozzle",
+   "at": [
+    -3.6,
+    0.3976,
+    1.2494
+   ],
+   "into": "fermenter_2_bucket"
+  },
+  {
+   "id": "fermenter_2_bucket",
+   "kind": "bucket",
+   "at": [
+    -3.6,
+    0.0,
+    1.3
+   ]
+  },
+  {
+   "id": "lager_tap_1_nozzle",
+   "kind": "nozzle",
+   "at": [
+    -5.688,
+    0.248,
+    3.95
+   ]
+  },
+  {
+   "id": "lager_tap_2_nozzle",
+   "kind": "nozzle",
+   "at": [
+    -5.688,
+    0.248,
+    3.0
+   ]
+  },
+  {
+   "id": "lager_tap_3_nozzle",
+   "kind": "nozzle",
+   "at": [
+    -5.688,
+    0.248,
+    2.05
+   ]
+  },
+  {
+   "id": "lager_tap_4_nozzle",
+   "kind": "nozzle",
+   "at": [
+    -5.688,
+    0.248,
+    1.1
+   ]
+  },
+  {
+   "id": "racking_funnel",
+   "kind": "pour",
+   "at": [
+    -4.05,
+    1.15,
+    -0.42
+   ]
+  },
+  {
+   "id": "spring_basin_bottom",
+   "kind": "bottom",
+   "at": [
+    -4.8,
+    0.12,
+    4.03
+   ]
+  },
+  {
+   "id": "spring_basin_brim",
+   "kind": "brim",
+   "at": [
+    -4.8,
+    0.5,
+    4.03
+   ],
+   "rect": [
+    [
+     -5.19,
+     4.27
+    ],
+    [
+     -4.41,
+     3.79
+    ]
+   ]
+  },
+  {
+   "id": "steep_bottom",
+   "kind": "bottom",
+   "at": [
+    6.6,
+    0.12,
+    1.4
+   ]
+  },
+  {
+   "id": "steep_brim",
+   "kind": "brim",
+   "at": [
+    6.6,
+    0.62,
+    1.4
+   ],
+   "rect": [
+    [
+     6.33,
+     2.19
+    ],
+    [
+     6.87,
+     0.61
+    ]
+   ]
+  },
+  {
+   "id": "steep_drain",
+   "kind": "nozzle",
+   "at": [
+    6.6,
+    0.07,
+    2.3
+   ]
+  },
+  {
+   "id": "kiln_stoke",
+   "kind": "pour",
+   "at": [
+    6.225,
+    0.2,
+    3.3
+   ]
+  },
+  {
+   "id": "kiln_damper_pull",
+   "kind": "grip",
+   "at": [
+    6.24,
+    1.55,
+    3.22
+   ]
+  },
+  {
+   "id": "quern_eye",
+   "kind": "pour",
+   "at": [
+    6.5,
+    1.32,
+    -0.25
+   ]
+  },
+  {
+   "id": "meal_bin",
+   "kind": "brim",
+   "at": [
+    6.5,
+    0.46,
+    -0.25
+   ],
+   "radius": 0.26
+  },
+  {
+   "id": "steelyard_hook",
+   "kind": "hook",
+   "at": [
+    3.85,
+    1.5,
+    -0.66
+   ]
+  },
+  {
+   "id": "balance_pan_left",
+   "kind": "pour",
+   "at": [
+    2.225,
+    1.27,
+    -0.84
+   ]
+  },
+  {
+   "id": "balance_pan_right",
+   "kind": "pour",
+   "at": [
+    2.575,
+    1.27,
+    -0.84
+   ]
+  },
+  {
+   "id": "logs",
+   "kind": "pour",
+   "at": [
+    1.525,
+    0.6,
+    2.25
+   ]
+  },
+  {
+   "id": "beech_logs",
+   "kind": "pour",
+   "at": [
+    1.525,
+    0.6,
+    1.45
    ]
   }
  ],

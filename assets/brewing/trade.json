@@ -1,0 +1,56 @@
+{
+  "start_coins": 15,
+  "start_kegs": 2,
+  "start_wood": {"log": 40, "beech_log": 12},
+  "wares": {
+    "barley_sack": {"title": "мешок ячменя, 30 кг", "price": 6},
+    "oats_sack": {"title": "мешок овса, 25 кг", "price": 6},
+    "pale_malt_sack": {"title": "мешок светлого солода, 75 кг", "price": 24},
+    "hops": {"title": "корзина хмеля, 3 кг", "price": 12},
+    "keg": {"title": "бочонок, 40 л", "price": 8},
+    "mend_tun_2": {"title": "починка второго бродильного чана", "price": 30},
+    "mend_cask_3": {"title": "починка третьей лагерной бочки", "price": 20},
+    "mend_cask_4": {"title": "починка четвёртой лагерной бочки", "price": 20},
+    "yeast": {"title": "закваска, 1 л", "price": 3},
+    "logs": {"title": "вязанка еловых поленьев, 20 шт.", "price": 4},
+    "beech_logs": {"title": "вязанка буковых поленьев, 10 шт.", "price": 4},
+    "fine_thermometer": {"title": "точный градусник", "price": 15},
+    "full_weights": {"title": "полный набор гирь", "price": 10},
+    "honey": {"title": "горшок мёда, 8 кг", "price": 8},
+    "linden": {"title": "пучок липового цвета, 0,5 кг", "price": 3},
+    "juniper": {"title": "вязанка можжевельника, 2,5 кг", "price": 2},
+    "cherries": {"title": "корзина вишни, 25 кг", "price": 8}
+  },
+  "stalls": [
+    {"id": "mill", "title": "Лавка мельницы", "at": [-31.2, 6.6, -122.8], "face": [-30.0, -120.5],
+      "wares": ["barley_sack", "oats_sack", "pale_malt_sack"]},
+    {"id": "hop_kiln", "title": "Лавка хмелесушильни", "at": [5.6, 2.64, -81.2], "face": [3.6, -80.4],
+      "wares": ["hops"]},
+    {"id": "cooperage", "title": "Лавка бондарни", "at": [3.4, 2.57, -76.8], "face": [5.0, -76.8],
+      "wares": ["keg", "mend_tun_2", "mend_cask_3", "mend_cask_4"]},
+    {"id": "herbalist", "title": "Лавка травницы", "at": [-10.8, 2.09, -38.2], "face": [-10.0, -35.0],
+      "wares": ["yeast", "honey", "linden", "juniper"]},
+    {"id": "market", "title": "Лавка рынка", "at": [-3.6, 2.39, -38.3], "face": [-1.0, -38.3],
+      "wares": ["logs", "beech_logs", "cherries", "fine_thermometer", "full_weights"]}
+  ],
+  "order_board": {"title": "Доска заказов", "at": [-7.6, 2.12, -32.8], "face": [-7.6, -35.0]},
+  "cart": {"title": "Телега у ворот погреба", "at": [8.5, 3.8, -26.8], "face": [11.0, -26.8]},
+  "beer_prices": {
+    "table_pale": 9, "cream": 12, "caramel": 12, "smoked": 13, "juniper": 13, "linden_honey": 15, "cherry_dark": 16,
+    "nameless": 6, "spoiled": 2
+  },
+  "order_markup": 1.5,
+  "cart_share": 0.5,
+  "open_orders": 3,
+  "orders": [
+    {"id": "smithy_pale", "who": "Кузнец", "beer": "table_pale", "kegs": 1, "days": 5},
+    {"id": "quay_pale", "who": "Пристань", "beer": "table_pale", "kegs": 2, "days": 6},
+    {"id": "mill_cream", "who": "Мельница", "beer": "cream", "kegs": 1, "days": 8},
+    {"id": "lighthouse_smoked", "who": "Маяк", "beer": "smoked", "kegs": 1, "days": 9},
+    {"id": "potter_caramel", "who": "Свадьба у гончара", "beer": "caramel", "kegs": 2, "days": 10},
+    {"id": "hop_kiln_pale", "who": "Хмелесушильня", "beer": "table_pale", "kegs": 1, "days": 5},
+    {"id": "quay_juniper", "who": "Пристань", "beer": "juniper", "kegs": 1, "days": 9},
+    {"id": "herbalist_linden", "who": "Травница", "beer": "linden_honey", "kegs": 1, "days": 10},
+    {"id": "harvest_cherry", "who": "Праздник урожая", "beer": "cherry_dark", "kegs": 2, "days": 16}
+  ]
+}

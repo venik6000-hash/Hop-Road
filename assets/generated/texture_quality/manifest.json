@@ -2948,6 +2948,60 @@
 			"low": {
 				"bytes": 174776,
 				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/5ee915f0b06c3a1a9b4a07a82dea30b7.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/5ee915f0b06c3a1a9b4a07a82dea30b7.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "db4078cb793e3495c435a9822975e3dc9242e6a832ce74764ce94fe63384842a",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/generated/tavern/LeafSet024_2K-JPG_NormalGL.jpg"
+		},
+		{
+			"low": {
+				"bytes": 131096,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/5e9b6d0488ae64fea5a243cd17b50242.res",
+				"size": [
+					512,
+					384
+				]
+			},
+			"medium": {
+				"bytes": 524312,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/5e9b6d0488ae64fea5a243cd17b50242.res",
+				"size": [
+					1024,
+					768
+				]
+			},
+			"original_rgba_mip_bytes": 4194300,
+			"sha256": "e80389f1b63c2d486ff3cb1ecdecf109475cb210b387b9dc383cf7169d09e50d",
+			"size": [
+				1024,
+				768
+			],
+			"source": "res://assets/generated/tavern/banner_emblem.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
 				"path": "res://assets/generated/texture_quality/low/53bb6e9efb043f5770db5e051ae5f5f5.res",
 				"size": [
 					512,
@@ -3024,6 +3078,168 @@
 				1024
 			],
 			"source": "res://assets/generated/tavern/bark_brown_02_nor_gl_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/94a9e28e6c53a9e8591e83923b40a86f.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/94a9e28e6c53a9e8591e83923b40a86f.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "9d2da9a468f88985d8abb9346e048370bdf4ebf66b40f1c773439b93f8256a4f",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/brew_cherries_albedo.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/a86941d29f813c955c6984f9447e99d8.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/a86941d29f813c955c6984f9447e99d8.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "60754919712e9437cd6578a86d4e5b4ae631ef8e80db7dc1bcee0642665af711",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/brew_cherries_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/low/cf8fdc3110201866a212277c14e06d28.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 1398128,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/medium/cf8fdc3110201866a212277c14e06d28.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "1a60ba289ae4f4bf69db7b6adfcf0402a0a385d6c64da363633903db7371302c",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/brew_cherries_orm.png"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 19,
+				"path": "res://assets/generated/texture_quality/low/b502969fb432cfc619b07bac7ff08471.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 1398128,
+				"format": 19,
+				"path": "res://assets/generated/texture_quality/medium/b502969fb432cfc619b07bac7ff08471.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "ce7f21fc2b2450f38555d4157a6f099c89ba03b9058d89ed7817a1225a50b151",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/generated/tavern/brew_juniper_albedo.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/74958d42dc3eaec9c4b6411cf559f5db.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/74958d42dc3eaec9c4b6411cf559f5db.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "022eebbdf1f43c52677f7e6f10f6177d7ae705c00b30e9409f09e14aee1ee5ba",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/generated/tavern/brew_juniper_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 19,
+				"path": "res://assets/generated/texture_quality/low/6d6015ac7edb69dffbac86b84dc13d18.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 1398128,
+				"format": 19,
+				"path": "res://assets/generated/texture_quality/medium/6d6015ac7edb69dffbac86b84dc13d18.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "669c77bf1707af23d8e1202081c3576e7ccb50bb00ace0ce21f8c69b49269d13",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/generated/tavern/brew_linden_albedo.png"
 		},
 		{
 			"low": {
@@ -3110,6 +3326,168 @@
 			"low": {
 				"bytes": 174776,
 				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/0095b0c0b44e57d2b2ca81431b1524c2.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/0095b0c0b44e57d2b2ca81431b1524c2.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "f1ac45d462735e24fbc443d7825a5528bf7a7dafd9d42597cb40172bec339d58",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/generated/tavern/dark_wooden_planks_arm_2k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/f7fcfd7deadd4d556c2684891d9678fd.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/f7fcfd7deadd4d556c2684891d9678fd.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "527fa684c78d0a3b4fbfa87b9e2b48691215fcac8af0bf79fc6e01cefb4c4647",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/generated/tavern/dark_wooden_planks_diff_2k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/ef777752386366d57a5a351f7ed4b862.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/ef777752386366d57a5a351f7ed4b862.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 22369620,
+			"sha256": "047941a8e483d941abf6562270abd2c91d30d65e0a339fca0b1d3df125e92154",
+			"size": [
+				2048,
+				2048
+			],
+			"source": "res://assets/generated/tavern/dark_wooden_planks_nor_gl_2k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/851353258426f200e50be77e3503f46d.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/851353258426f200e50be77e3503f46d.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"original_rgba_mip_bytes": 1398100,
+			"sha256": "5b8ac7b4d494a817891851afcb091e3087f3f2a396575e12fd179f4e4421f724",
+			"size": [
+				512,
+				512
+			],
+			"source": "res://assets/generated/tavern/detail_cloth_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/4cb9d8996a3283884224fe17d980599b.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/4cb9d8996a3283884224fe17d980599b.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"original_rgba_mip_bytes": 1398100,
+			"sha256": "00f852cf492ac276ce0ec61e41a185ecba52c49ddb5032b5db35851fe4cf4983",
+			"size": [
+				512,
+				512
+			],
+			"source": "res://assets/generated/tavern/detail_stone_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/c900be8d39629d5704e84f64c4af4058.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/c900be8d39629d5704e84f64c4af4058.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"original_rgba_mip_bytes": 1398100,
+			"sha256": "5dcd0c6311ec6c306353186ecff8d8e327a25e610d8106fb7da27311b8c49ac5",
+			"size": [
+				512,
+				512
+			],
+			"source": "res://assets/generated/tavern/detail_wood_normal.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
 				"path": "res://assets/generated/texture_quality/low/8987cc671f8187bf9baa3876338bcff1.res",
 				"size": [
 					512,
@@ -3186,6 +3564,87 @@
 				1024
 			],
 			"source": "res://assets/generated/tavern/dirty_carpet_nor_gl_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/30b717059f60133729a014b6f20d392c.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/30b717059f60133729a014b6f20d392c.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "95d4e9e62cd309fbc38a175e2306379c76c062425b09c0fb72c5b7356a719123",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/fir_tree_01_bark_arm_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/e95ef988c88931bf417e260d5a60d62f.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/e95ef988c88931bf417e260d5a60d62f.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "a5d25150ba1bee10008c039f98aa3c73b4477a404d6715c511ca9b5b0f4a9077",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/fir_tree_01_bark_diff_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/20ff087284279e8b62453717e4e1546c.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/20ff087284279e8b62453717e4e1546c.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "6a570ab53ab2249ecdfa93e7d3b9a8a2cb1a8ad391400e5a64c708914779b2c3",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/fir_tree_01_bark_nor_gl_1k.jpg"
 		},
 		{
 			"low": {
@@ -3348,6 +3807,114 @@
 				1018
 			],
 			"source": "res://assets/generated/tavern/hessian_230_nor_gl_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 71144,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/8ba458061685f3d8f7562d7b40819367.res",
+				"size": [
+					512,
+					208
+				]
+			},
+			"medium": {
+				"bytes": 282024,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/8ba458061685f3d8f7562d7b40819367.res",
+				"size": [
+					1024,
+					412
+				]
+			},
+			"original_rgba_mip_bytes": 31457260,
+			"sha256": "24155819b1e896681a263930d47a07f8d44e49acf3355b04140db5b11ea48260",
+			"size": [
+				3840,
+				1536
+			],
+			"source": "res://assets/generated/tavern/paintings.png"
+		},
+		{
+			"low": {
+				"bytes": 131096,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/fd4e73e49c8406256b030191f9685635.res",
+				"size": [
+					512,
+					384
+				]
+			},
+			"medium": {
+				"bytes": 524312,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/fd4e73e49c8406256b030191f9685635.res",
+				"size": [
+					1024,
+					768
+				]
+			},
+			"original_rgba_mip_bytes": 16777212,
+			"sha256": "644f1783e60e3470f96dc1ff7ab4fcfcc571f2ba73eccba81180f84c4ca81f32",
+			"size": [
+				2048,
+				1536
+			],
+			"source": "res://assets/generated/tavern/pelt_diff.jpg"
+		},
+		{
+			"low": {
+				"bytes": 131096,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/bf2984879fa8cfd4c50f1d82763751f9.res",
+				"size": [
+					512,
+					384
+				]
+			},
+			"medium": {
+				"bytes": 524312,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/bf2984879fa8cfd4c50f1d82763751f9.res",
+				"size": [
+					1024,
+					768
+				]
+			},
+			"original_rgba_mip_bytes": 16777212,
+			"sha256": "59c4f46b1894aadef2a397b38bd5ea557f75911f7a06408c6feae0c665f5b72b",
+			"size": [
+				2048,
+				1536
+			],
+			"source": "res://assets/generated/tavern/pelt_mask.jpg"
+		},
+		{
+			"low": {
+				"bytes": 131096,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/a5865d1150dbacf20639f3a851015a9f.res",
+				"size": [
+					512,
+					384
+				]
+			},
+			"medium": {
+				"bytes": 524312,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/a5865d1150dbacf20639f3a851015a9f.res",
+				"size": [
+					1024,
+					768
+				]
+			},
+			"original_rgba_mip_bytes": 16777212,
+			"sha256": "a88c633ff21862b8660cdbe4d792964ac46259cc3d046c7034c057e5664585ef",
+			"size": [
+				2048,
+				1536
+			],
+			"source": "res://assets/generated/tavern/pelt_nor_gl.jpg"
 		},
 		{
 			"low": {
@@ -3729,6 +4296,87 @@
 		},
 		{
 			"low": {
+				"bytes": 169400,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/f7ceaf5e16834d6f17248476b4b69799.res",
+				"size": [
+					512,
+					496
+				]
+			},
+			"medium": {
+				"bytes": 675256,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/f7ceaf5e16834d6f17248476b4b69799.res",
+				"size": [
+					1024,
+					988
+				]
+			},
+			"original_rgba_mip_bytes": 5377756,
+			"sha256": "8eea2c8f1ed6c06cf2844da257e18b7637c4b7e14bcc0b3ffcbaddd4d23c7ab1",
+			"size": [
+				1024,
+				985
+			],
+			"source": "res://assets/generated/tavern/velour_velvet_arm_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 169400,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/ece0b8f673e7503fab64ccc70bae7703.res",
+				"size": [
+					512,
+					496
+				]
+			},
+			"medium": {
+				"bytes": 675256,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/ece0b8f673e7503fab64ccc70bae7703.res",
+				"size": [
+					1024,
+					988
+				]
+			},
+			"original_rgba_mip_bytes": 5377756,
+			"sha256": "e6e92d808b3456deb892ff17905f3b44717fcfbcbce9fcf03ad7abcabda799df",
+			"size": [
+				1024,
+				985
+			],
+			"source": "res://assets/generated/tavern/velour_velvet_diff_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 169400,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/aca769ede46e128c8d5d9a3183d7cf17.res",
+				"size": [
+					512,
+					496
+				]
+			},
+			"medium": {
+				"bytes": 675256,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/aca769ede46e128c8d5d9a3183d7cf17.res",
+				"size": [
+					1024,
+					988
+				]
+			},
+			"original_rgba_mip_bytes": 5377756,
+			"sha256": "046c92c48c1cb36656d394addf21dea9582f563479b73f2c0b16f356128e872b",
+			"size": [
+				1024,
+				985
+			],
+			"source": "res://assets/generated/tavern/velour_velvet_nor_gl_1k.jpg"
+		},
+		{
+			"low": {
 				"bytes": 174776,
 				"format": 17,
 				"path": "res://assets/generated/texture_quality/low/e39bf1a2a8a6d8c029790b9557d526cb.res",
@@ -3807,6 +4455,87 @@
 				1024
 			],
 			"source": "res://assets/generated/tavern/white_plaster_rough_01_nor_gl_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/5cb49288336a2c3699ef39d38596e5cb.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/5cb49288336a2c3699ef39d38596e5cb.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "5150638cbcd8f1bc07b76af3b60b31a4c5e7d38ce66ac8906b9c3192f3283b9a",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/wicker_basket_01_arm_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/c4a2de38098971d2a0e07f2610390479.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/c4a2de38098971d2a0e07f2610390479.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "15156c7855d5642f6bb594edfad5bcdcfe11f87f3e109956cb9e8fdb15fef921",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/wicker_basket_01_diff_1k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/b5fb0afa931b356bdcd720ca12899e54.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 699064,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/b5fb0afa931b356bdcd720ca12899e54.res",
+				"size": [
+					1024,
+					1024
+				]
+			},
+			"original_rgba_mip_bytes": 5592404,
+			"sha256": "d06024a37ef330d05bf128b8488f72769af05e72d266ffbc810d7f09ea2b32f9",
+			"size": [
+				1024,
+				1024
+			],
+			"source": "res://assets/generated/tavern/wicker_basket_01_nor_gl_1k.jpg"
 		},
 		{
 			"low": {
@@ -3972,6 +4701,168 @@
 		},
 		{
 			"low": {
+				"bytes": 349552,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/low/fd4f1c4a6744fc30a550d99ab213e0ed.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 349552,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/medium/fd4f1c4a6744fc30a550d99ab213e0ed.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"original_rgba_mip_bytes": 1398100,
+			"sha256": "a8c5baed6d4b77db0bbf0003107a6226f8fb9d8bb6c48a79724c86b1aba3f5a6",
+			"size": [
+				512,
+				512
+			],
+			"source": "res://assets/generated/tavern/wool_felt_arm.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/7c62e13f2fdb7d7512811444df3730d5.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/7c62e13f2fdb7d7512811444df3730d5.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"original_rgba_mip_bytes": 1398100,
+			"sha256": "aeeb0f60a7baef90b0916c15915435d45d68998baa98dee2a15297c4370b1da3",
+			"size": [
+				512,
+				512
+			],
+			"source": "res://assets/generated/tavern/wool_felt_diff.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/e991538cc812101d5564646595f197cc.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/e991538cc812101d5564646595f197cc.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"original_rgba_mip_bytes": 1398100,
+			"sha256": "0168997057dbc2ddd38b122e9cf737f342a694371a79916d7f8ba88b01bf93c4",
+			"size": [
+				512,
+				512
+			],
+			"source": "res://assets/generated/tavern/wool_felt_nor.png"
+		},
+		{
+			"low": {
+				"bytes": 349552,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/low/be57e730ec58371598fefe4f314921b1.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 349552,
+				"format": 21,
+				"path": "res://assets/generated/texture_quality/medium/be57e730ec58371598fefe4f314921b1.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"original_rgba_mip_bytes": 1398100,
+			"sha256": "8b48b59784f73776f568fc5dc6b668597b29334dea47f7916ebafaaeecf73a7c",
+			"size": [
+				512,
+				512
+			],
+			"source": "res://assets/generated/tavern/wool_tartan_arm.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/64f976dc2f903546778020bb7a3e4a8d.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/64f976dc2f903546778020bb7a3e4a8d.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"original_rgba_mip_bytes": 1398100,
+			"sha256": "f45552988effabf8ee35cf0be4191032721bbb133650697f1eb8afc2fefea85d",
+			"size": [
+				512,
+				512
+			],
+			"source": "res://assets/generated/tavern/wool_tartan_diff.png"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/c386b7e2c6d6b8cb881be6e0403ba99e.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/c386b7e2c6d6b8cb881be6e0403ba99e.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"original_rgba_mip_bytes": 1398100,
+			"sha256": "db3af2ebfcbe153f962e063a2eae462aa2f25fc0b7df6a674faf1357cacac9ae",
+			"size": [
+				512,
+				512
+			],
+			"source": "res://assets/generated/tavern/wool_tartan_nor.png"
+		},
+		{
+			"low": {
 				"bytes": 174776,
 				"format": 17,
 				"path": "res://assets/generated/texture_quality/low/d3f01b9e6fa04e3e48bc0de2337228f3.res",
@@ -4050,6 +4941,33 @@
 				2048
 			],
 			"source": "res://assets/generated/tavern/worn_rock_natural_01_nor_gl_2k.jpg"
+		},
+		{
+			"low": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/low/3cbec87d6b981ae1e1f000e809e27322.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"medium": {
+				"bytes": 174776,
+				"format": 17,
+				"path": "res://assets/generated/texture_quality/medium/3cbec87d6b981ae1e1f000e809e27322.res",
+				"size": [
+					512,
+					512
+				]
+			},
+			"original_rgba_mip_bytes": 1398100,
+			"sha256": "5ed8b7331660ac2985d6edd065bd65a08bf13fd1d794d1541c156489c89d44fd",
+			"size": [
+				512,
+				512
+			],
+			"source": "res://assets/generated/tavern/yard_props_atlas.png"
 		}
 	],
 	"tiers": {
@@ -4057,9 +4975,9 @@
 		"medium": 1024
 	},
 	"totals": {
-		"low": 28150256,
-		"medium": 112056720,
-		"original_rgba_mip_bytes": 2589027096
+		"low": 34672040,
+		"medium": 131841288,
+		"original_rgba_mip_bytes": 2912043536
 	},
 	"version": 1
 }
