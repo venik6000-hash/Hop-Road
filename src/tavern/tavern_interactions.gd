@@ -24,6 +24,8 @@ var seats: Array[Dictionary] = []
 var doors: Array[TavernDoor] = []
 ## What a hand works in the village's buildings: the bellows, the grindstone.
 var handles: Array[WorkHandle] = []
+## The brewing in the brewery: what the hand carries and works there.
+var brewing: BrewHouse
 var seated: Dictionary = {}
 var selected: Variant = null
 var climbing := false
@@ -39,6 +41,9 @@ func _ready() -> void:
 		door.player = player
 	for handle: WorkHandle in get_tree().get_nodes_in_group(WorkHandle.GROUP):
 		handles.append(handle)
+	brewing = get_tree().get_first_node_in_group(BrewHouse.GROUP) as BrewHouse
+	if brewing != null:
+		brewing.attach(self)
 	var canvas := CanvasLayer.new()
 	add_child(canvas)
 	prompt = Label.new()
@@ -76,6 +81,9 @@ func _process(_delta: float) -> void:
 		return
 	if camping != null and camping.placing:
 		prompt.text = camping.placement_text()
+		return
+	if brewing != null and brewing.busy():
+		prompt.text = brewing.busy_text()
 		return
 	if not seated.is_empty():
 		prompt.text = "E — встать   ·   Мышь — обзор"
@@ -129,11 +137,18 @@ func _process(_delta: float) -> void:
 			if bed_distance < best:
 				best = bed_distance
 				selected = "bed"
+	if brewing != null:
+		var brew := brewing.find_target(best)
+		if not brew.is_empty():
+			best = brew.distance
+			selected = brew.target
 	if camping != null:
 		var target := camping.find_target(best)
 		if not target.is_empty():
 			selected = target.target
-	if selected is VillageNPC:
+	if selected is BrewHouse.Target:
+		prompt.text = brewing.target_text(selected)
+	elif selected is VillageNPC:
 		var actor: VillageNPC = selected
 		prompt.text = actor.interaction_text() if actor.job == "bartender" and actor.at_work() else camping.interaction_text(actor)
 	elif selected is Campfire:
@@ -184,6 +199,9 @@ func _input(event: InputEvent) -> void:
 	elif camping != null and camping.placing:
 		camping.confirm_placement()
 		get_viewport().set_input_as_handled()
+	elif brewing != null and brewing.busy():
+		brewing.interact_busy()
+		get_viewport().set_input_as_handled()
 	elif not seated.is_empty():
 		stand()
 		get_viewport().set_input_as_handled()
@@ -198,6 +216,8 @@ func _input(event: InputEvent) -> void:
 			camping.interact_fire(selected)
 		elif selected is TavernDoor or selected is WorkHandle:
 			selected.interact()
+		elif selected is BrewHouse.Target:
+			brewing.interact(selected)
 		elif selected is Dictionary:
 			sit(selected)
 		elif selected is String and selected == "bed":
@@ -227,9 +247,9 @@ func sit(seat: Dictionary) -> void:
 	player.rig.apply_look(Vector2.ZERO)
 
 ## The innkeeper is out and has left a jug on the counter: the mug is filled
-## from it.
+## from it, with the beer of the keg on the counter when one stands there.
 func pour_from_jug() -> void:
-	player.viewmodel.refill()
+	player.viewmodel.refill(BrewHouse.draw_beer(get_tree()))
 	if camping != null:
 		camping.say(null, "Хозяин вышел, а кувшин оставил на стойке.")
 
@@ -310,6 +330,8 @@ func reset() -> void:
 		_climb_tween = null
 	climbing = false
 	seated = {}
+	if brewing != null and brewing.busy():
+		brewing.interact_busy()
 	restore_player()
 
 static func vector(values: Array) -> Vector3:

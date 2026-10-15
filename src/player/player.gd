@@ -22,6 +22,8 @@ const FLOOR_SNAP_LENGTH := MOTION.FLOOR_SNAP_LENGTH
 @onready var viewmodel: BeerViewmodel = get_node_or_null("BeerViewmodel")
 
 var movement_locked := false
+## The part of a free step left by what the hands carry (BrewCarry.pace).
+var pace := 1.0
 
 var _previous_velocity := Vector3.ZERO
 ## Шагал ли игрок в прошлом кадре.
@@ -85,7 +87,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		rig.apply_look(event.relative)
 	elif event.is_action_pressed("interact") or event.is_action_pressed("drink_beer"):
-		if viewmodel != null and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and not event.is_echo():
+		if viewmodel != null and viewmodel.visible and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and not event.is_echo():
 			viewmodel.drink()
 	elif event.is_action_pressed("release_mouse"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -101,7 +103,7 @@ func _physics_process(delta: float) -> void:
 	if movement_locked:
 		input = Vector2.ZERO
 	var sprint := Input.is_action_pressed("sprint") and not movement_locked
-	var speed := water_speed(RUN_SPEED if sprint else WALK_SPEED, depth, sprint)
+	var speed := water_speed((RUN_SPEED if sprint else WALK_SPEED) * pace, depth, sprint)
 	var vertical_input := 0.0 if movement_locked else Input.get_axis("swim_down", "swim_up")
 	swimming = depth > SWIM_DEPTH
 	diving = swimming and (depth > EYE_HEIGHT + 0.05 or vertical_input < 0.0)

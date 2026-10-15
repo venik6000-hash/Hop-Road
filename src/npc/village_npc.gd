@@ -470,7 +470,7 @@ func interact(player: Player) -> bool:
 		stream.visible = true
 		return true
 	if state == "ready":
-		player.viewmodel.refill()
+		player.viewmodel.refill(BrewHouse.draw_beer(get_tree()))
 		state = "working"
 		mug.visible = false
 		return true

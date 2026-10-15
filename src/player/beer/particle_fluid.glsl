@@ -13,6 +13,7 @@ layout(push_constant,std430) uniform Params {
     vec4 acceleration_dt;
     vec4 cup; // radius, rim, particle spacing, smoothing radius
     vec4 control; // count, phase, consume count, generation
+    vec4 mouth; // x: 1 while the lips are on the rim
 } u;
 // One cooperative load per workgroup replaces strided global reads in the
 // all-pairs passes. Inactive lanes still reach the barrier before returning.
@@ -158,6 +159,8 @@ void main() {
         float speed=length(v);
         if(speed>55.0) v*=55.0/speed;
         float state=p[i].position.w;
+        // Lips on the rim: beer that reaches the rim is drunk, not spilled.
+        if(state==1.0 && u.mouth.x>0.5 && xi.y>=u.cup.y-0.05) state=0.0;
         if(state==1.0 && length(xi.xz)>u.cup.x+0.08 && xi.y>=u.cup.y) state=2.0;
         if(xi.y< -2.1 || xi.y>4.5 || length(xi.xz)>3.0) state=0.0;
         p[i].velocity=vec4(v*0.999,0);

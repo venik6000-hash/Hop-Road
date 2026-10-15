@@ -50,6 +50,13 @@ uniform bool skip_cubemap_quarter_pass = false;
 // the haze) keeps the atmosphere's own.
 uniform vec3 zenith_tint = vec3(0.48, 0.6, 0.78);
 uniform float zenith_reach = 0.5;
+// The hand's own copy of this sky (viewmodel_lighting.gd) stands in for the
+// world round the hand, which the hand's viewport cannot see: below the low
+// sky lies the land, lit by the sun, as the valley's slopes and stands hide
+// the horizon. Without it the haze under the horizon lit and mirrored the
+// mug from below. The level's own sky leaves it off.
+uniform bool land_below = false;
+uniform vec3 land_radiance = vec3(0.0);
 
 float remap01(float value, float low, float high) {
 	return clamp((value - low) / max(high - low, 1e-5), 0.0, 1.0);
@@ -332,6 +339,9 @@ void sky() {
 		sky_color = sky_color * (1.0 - high.a) + high.rgb;
 		vec4 clouds = march_clouds(POSITION, dir, 14, 2, false, 0.5);
 		COLOR = sky_color * (1.0 - clouds.a) + clouds.rgb;
+		if (land_below) {
+			COLOR = mix(land_radiance, COLOR, smoothstep(-0.05, 0.2, dir.y));
+		}
 	} else {
 		vec3 sky_color = atmo_sky_radiance(dir) * mix(vec3(1.0), zenith_tint, smoothstep(0.0, zenith_reach, dir.y))
 			+ night_sky(dir);

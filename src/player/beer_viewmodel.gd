@@ -7,10 +7,23 @@ const Presentation = preload("res://src/player/beer/mug_presentation.gd")
 const Crop = preload("res://src/player/beer/viewmodel_crop.gd")
 const FILL_LEVEL := 0.86
 const SIP := 0.13
-const SIP_SECONDS := 0.85
+## The tavern's old beer, which the shader draws by default: its absorption
+## per simulation unit (beer_surface.gdshader), its scatter, its colour (EBC)
+## and its foam (BrewBatch.profile). How much a hazy beer scatters more.
+const OLD_ABSORPTION := Vector3(0.12, 0.45, 3.0)
+const OLD_SCATTER := 0.12
+const OLD_EBC := 12.0
+const OLD_FOAM := 0.65
+const HAZE_SCATTER := 0.5
+## The beer in the mug (BrewBatch.profile), {} for the tavern's old beer.
+var beer := {}
 @export var layer_index := 20
 var _fill := FILL_LEVEL
-var _sip_phase := 0.0
+## Seconds into the drink (DrinkMotion), 0 when the mug is in the hand.
+var _drink_time := 0.0
+var _drink_fill := 0.0
+var _swallowed := 0
+var _head := 0.0
 var _idle_time := 0.0
 var _offset := Vector2.ZERO
 var _offset_velocity := Vector2.ZERO
@@ -41,6 +54,7 @@ func _ready() -> void:
 	fluid = presentation.fluid
 	fluid.amount_changed.connect(_set_fill)
 	fluid.refill(_fill)
+	_show_beer()
 	_rig = get_parent().get_node_or_null("CameraRig") as CameraRig
 	visibility_changed.connect(_sync_visibility)
 	_sync_visibility()
@@ -82,7 +96,8 @@ func set_crop_enabled(value: bool) -> void:
 func _update_crop() -> void:
 	if presentation == null or _full_target.x < 2: return
 	var rect := Rect2i(Vector2i.ZERO, _full_target)
-	if crop_enabled:
+	# At the mouth the tankard fills the view: no crop while drinking.
+	if crop_enabled and _drink_time <= 0.0:
 		if _crop_meshes.is_empty():
 			for mesh in presentation.pivot.find_children("*", "MeshInstance3D", true, false):
 				_crop_meshes.append(mesh)
@@ -117,7 +132,7 @@ func fill() -> float:
 	return _fill
 
 func drinking() -> bool:
-	return _sip_phase > 0.0
+	return _drink_time > 0.0
 
 ## A user preference, independent of the temporary fishing stow (.visible).
 func set_hand_visible(value: bool) -> void:
@@ -137,7 +152,7 @@ func _sync_visibility() -> void:
 		viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS if shown else SubViewport.UPDATE_DISABLED
 	if fluid != null: fluid.set_simulation_active(shown)
 	if not shown:
-		_sip_phase = 0.0
+		_end_drink()
 		_look_velocity = Vector2.ZERO
 		_offset_velocity = Vector2.ZERO
 		_tilt_velocity = 0.0
@@ -145,26 +160,73 @@ func _sync_visibility() -> void:
 		_apply()
 
 func drink() -> bool:
-	if not hand_is_shown() or _sip_phase > 0.0 or _fill <= 0.0: return false
-	_sip_phase = 0.0001
+	if not hand_is_shown() or _drink_time > 0.0 or _fill <= 0.0: return false
+	_drink_time = 0.0001
+	_drink_fill = _fill
+	_swallowed = 0
 	sipped.emit()
+	_update_crop()
 	return true
 
-func refill() -> void:
-	_sip_phase = 0.0
+## A full mug of `poured` (BrewBatch.profile; {} for the tavern's old beer).
+func refill(poured: Dictionary = {}) -> void:
+	_end_drink()
 	_fill = FILL_LEVEL
+	beer = poured
 	if fluid != null: fluid.refill(FILL_LEVEL)
+	_show_beer()
+
+## What a beer of `profile` looks like in the mug: {absorption, scatter, head
+## (the head's height against the old beer's)}. Its colour scales the
+## absorption, its haze the scatter, its foam the head.
+static func beer_look(profile: Dictionary) -> Dictionary:
+	if profile.is_empty():
+		return {"absorption": OLD_ABSORPTION, "scatter": OLD_SCATTER, "head": 1.0}
+	var ebc := clampf(float(profile.get("color", OLD_EBC)), 2.0, 160.0)
+	var clarity := clampf(float(profile.get("clarity", 1.0)), 0.0, 1.0)
+	return {"absorption": OLD_ABSORPTION * ebc / OLD_EBC, "scatter": OLD_SCATTER + HAZE_SCATTER * (1.0 - clarity),
+		"head": clampf(float(profile.get("foam", OLD_FOAM)) / OLD_FOAM, 0.4, 1.6)}
+
+func _show_beer() -> void:
+	if fluid == null or fluid.material == null:
+		return
+	var look := beer_look(beer)
+	fluid.material.set_shader_parameter("absorption", look.absorption)
+	fluid.material.set_shader_parameter("scatter", look.scatter)
+	fluid.head_scale = look.head
+
+func _end_drink() -> void:
+	_drink_time = 0.0
+	_swallowed = 0
+	if fluid != null: fluid.mouth = false
+	_set_head(0.0)
+	# The next crop is measured afresh round the hand at rest.
+	_crop_rect = Rect2i()
+
+func _sip() -> float:
+	return minf(SIP, _drink_fill)
 
 func _process(delta: float) -> void:
 	if viewport == null or not hand_is_shown(): return
 	_idle_time += delta
-	if _sip_phase > 0.0:
-		_sip_phase += delta / SIP_SECONDS
-		if _sip_phase >= 1.0:
-			_sip_phase = 0.0
-			_fill = maxf(0.0, _fill - SIP)
-			fluid.consume(SIP)
+	if _drink_time > 0.0:
+		_drink_time += delta
+		# Each swallow takes its share of the sip; beer the tilt brings over
+		# the rim between swallows is drunk by the lips (BeerFluid.mouth).
+		while _swallowed < DrinkMotion.swallows_done(_drink_time):
+			_swallowed += 1
+			var gulp := _sip() / DrinkMotion.SWALLOWS.size()
+			# consume() reports the new level back through amount_changed.
+			if fluid != null: fluid.consume(gulp)
+			else: _fill = maxf(0.0, _fill - gulp)
+		if fluid != null: fluid.mouth = DrinkMotion.lips_on(_drink_time)
+		if _drink_time >= DrinkMotion.SECONDS: _end_drink()
 	_apply()
+
+## Head tilt of the world camera while drinking; the hand's camera stays put.
+## The fluid takes the tilt the camera really got (it stops at the pitch limit).
+func _set_head(radians: float) -> void:
+	_head = _rig.set_drink_tilt(radians) if _rig != null else radians
 
 func _physics_process(delta: float) -> void:
 	if not hand_is_shown() or delta <= 0.0: return
@@ -223,19 +285,24 @@ func update_motion(speed_ratio: float, walk_phase: float, look_delta: Vector2,
 	turn_acceleration = turn_acceleration.limit_length(45.0)
 	turn_acceleration.z += (_impact_velocity - previous_impact_velocity) / delta * 0.12
 	var body_acceleration := local_acceleration.limit_length(180.0)
-	var effective := Vector3(0, -22, 0) - body_acceleration - turn_acceleration
+	# The arm's own swing to the mouth and back, damped: a drinker lifts gently.
+	var rest := Transform3D(Basis.from_euler(presentation.base_rotation), presentation.base_position)
+	var lift := DrinkMotion.lift_acceleration(_drink_time, rest, _drink_fill, _sip()).limit_length(15.0)
+	var effective := Vector3(0, -22, 0) - body_acceleration - turn_acceleration - lift * 0.5
 	# The resting presentation angle represents our view of an upright mug.
-	# Only motion/sip rotations tilt the mug relative to physical gravity.
-	var view_basis := Basis.from_euler(presentation.base_rotation)
-	fluid.advance(delta, presentation.pivot.basis.inverse() * view_basis * effective / BeerFluid.UNIT)
+	# At the mouth the pose is literal: the view is the head, tilted back.
+	var raise := clampf(DrinkMotion.raise_weight(_drink_time), 0.0, 1.0)
+	var view_basis := Basis.from_euler(presentation.base_rotation).slerp(Basis.IDENTITY, raise)
+	var down := Basis(Vector3.RIGHT, -_head) * effective
+	fluid.advance(delta, presentation.pivot.basis.inverse() * view_basis * down / BeerFluid.UNIT)
 
 func _apply() -> void:
 	if presentation == null: return
-	var sip := ViewmodelMotion.sip_curve(_sip_phase)
-	presentation.pivot.position = presentation.base_position + Vector3(
-		_offset.x * 0.0015 - sip * 0.10,
-		-_offset.y * 0.0015 + sip * 0.09 - absf(_impact_pitch) * 0.06, sip * 0.06)
-	presentation.pivot.rotation = presentation.base_rotation + Vector3(
-		sip * 0.48 + _impact_pitch, _tilt * 0.30, _tilt - sip * 0.14)
+	var rest := Transform3D(Basis.from_euler(presentation.base_rotation + Vector3(
+		_impact_pitch, _tilt * 0.30, _tilt)), presentation.base_position + Vector3(
+		_offset.x * 0.0015, -_offset.y * 0.0015 - absf(_impact_pitch) * 0.06, 0.0))
+	presentation.pivot.transform = DrinkMotion.pose(_drink_time, rest, _drink_fill, _sip())
+	if _drink_time > 0.0:
+		_set_head(DrinkMotion.head_tilt(_drink_time, _drink_fill, _sip()))
 	_update_crop()
 

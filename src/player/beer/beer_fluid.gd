@@ -15,6 +15,11 @@ const FIELD_LOW := Vector3(-2.2, -2.0, -2.2)
 const FIELD_EXTENT := Vector3(4.4, 6.4, 4.4)
 const PARTICLE_FLOATS := 20
 const SURFACE = preload("res://src/player/beer/beer_surface.gdshader")
+## Head of foam: simulation units at a fresh pour and after settling, and the
+## seconds the settling takes.
+const HEAD_POURED := 0.22
+const HEAD_SETTLED := 0.1
+const HEAD_SETTLE_SECONDS := 150.0
 const RdUtil = preload("res://src/common/rd_util.gd")
 
 var material: ShaderMaterial
@@ -22,6 +27,11 @@ var field := Texture3DRD.new()
 var ready_gpu := false
 var fraction := 0.0
 var escaped := 0
+var head := 1.0
+## The height of the head against the tavern's old beer (BeerViewmodel.beer_look).
+var head_scale := 1.0
+## Set by the hand while the lips are on the rim: beer reaching the rim is drunk.
+var mouth := false
 var capacity := 0
 var _rd: RenderingDevice
 var _buffer: RID
@@ -110,6 +120,7 @@ func refill(level: float) -> void:
 	_consume = 0
 	_initial = seed_data(fraction)
 	_reset_pending = true
+	head = 1.0
 	_empty_confirmed = false
 	if _surface != null: _surface.visible = ready_gpu
 	amount_changed.emit(fraction)
@@ -117,6 +128,8 @@ func refill(level: float) -> void:
 func consume(level: float) -> void:
 	_consume += roundi(maxf(level, 0.0) * capacity)
 	fraction = maxf(fraction - level, 0.0)
+	# A sip brings beer to the rim and stirs the head.
+	head = maxf(head, 0.45)
 	# Invalidate an in-flight statistics response from before the sip.
 	_generation += 1
 	amount_changed.emit(fraction)
@@ -141,8 +154,10 @@ func advance(delta: float, acceleration: Vector3) -> void:
 	_force_time += duration
 	_read_timer += duration
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if not ready_gpu or not _alive or not _simulation_active or _empty_confirmed: return
+	head = maxf(head - delta / HEAD_SETTLE_SECONDS, 0.0)
+	material.set_shader_parameter("foam_head", lerpf(HEAD_SETTLED, HEAD_POURED, head) * head_scale)
 	# Several physics ticks can precede one rendered frame. Reconstruct the
 	# surface only once, and bound catch-up work to avoid a GPU feedback spiral.
 	var steps := mini(int(_accumulator / STEP), 12)
@@ -160,7 +175,7 @@ func _process(_delta: float) -> void:
 	var drink_count := _consume
 	_consume = 0
 	RenderingServer.call_on_render_thread(_dispatch.bind(steps, acceleration,
-		drink_count, _generation, reset, read_stats))
+		drink_count, _generation, reset, read_stats, 1.0 if mouth else 0.0))
 
 func _uniform(kind: int, binding: int, rid: RID) -> RDUniform:
 	return RdUtil.uniform(kind, binding, [rid])
@@ -226,9 +241,11 @@ func _publish() -> void:
 func _failed(reason: String) -> void:
 	push_error(reason)
 
-func _pass(list: int, phase: int, acceleration: Vector3, consume_count: int, generation: int) -> void:
+func _pass(list: int, phase: int, acceleration: Vector3, consume_count: int, generation: int,
+		lips: float = 0.0) -> void:
 	var data := PackedFloat32Array([acceleration.x, acceleration.y, acceleration.z, STEP,
-		RADIUS, RIM, SPACING, SMOOTHING, capacity, phase, consume_count, generation]).to_byte_array()
+		RADIUS, RIM, SPACING, SMOOTHING, capacity, phase, consume_count, generation,
+		lips, 0, 0, 0]).to_byte_array()
 	_rd.compute_list_set_push_constant(list, data, data.size())
 	_rd.compute_list_dispatch(list, ceili(capacity / 64.0), 1, 1)
 	_rd.compute_list_add_barrier(list)
@@ -237,7 +254,7 @@ func _tile_bin_bytes() -> int:
 	return (FIELD_SIZE.x / 4) * (FIELD_SIZE.y / 4) * (FIELD_SIZE.z / 4) * 16 * 4
 
 func _dispatch(steps: int, acceleration: Vector3, consume_count: int, generation: int,
-		reset: PackedByteArray, read_stats: bool) -> void:
+		reset: PackedByteArray, read_stats: bool, lips: float) -> void:
 	if _pipelines.size() != 3: return
 	if not reset.is_empty(): _rd.buffer_update(_buffer, 0, reset.size(), reset)
 	_rd.buffer_clear(_tile_bins, 0, _tile_bin_bytes())
@@ -254,7 +271,7 @@ func _dispatch(steps: int, acceleration: Vector3, consume_count: int, generation
 		_pass(list, 0 if step == 0 else 10, acceleration, 0, generation)
 		for iteration in 3:
 			for phase in [1, 2, 9 if iteration == 2 else 3]:
-				_pass(list, phase, acceleration, 0, generation)
+				_pass(list, phase, acceleration, 0, generation, lips)
 		_pass(list, 5, acceleration, 0, generation)
 	if steps > 0: _pass(list, 6, acceleration, 0, generation)
 	_pass(list, 7, acceleration, consume_count, generation)

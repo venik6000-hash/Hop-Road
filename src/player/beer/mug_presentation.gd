@@ -3,6 +3,7 @@ extends Node3D
 ## One private, lit viewmodel scene. Geometry never clips into the world walls.
 const MODEL := preload("res://assets/models/beer/iron_tankard.glb")
 const CLOTH := preload("res://src/player/beer/cloth.gdshader")
+const WET := preload("res://src/player/beer/wet_tankard.gdshader")
 const WorldLighting := preload("res://src/player/beer/viewmodel_lighting.gd")
 var pivot: Node3D
 var fluid: BeerFluid
@@ -11,6 +12,7 @@ var key: DirectionalLight3D
 var fill_light: DirectionalLight3D
 var environment: Environment
 var _world_lighting := WorldLighting.new()
+var _wet_materials: Array[ShaderMaterial] = []
 var base_position := Vector3(0.16, -0.28, -0.66)
 var base_rotation := Vector3(deg_to_rad(24), deg_to_rad(-12), deg_to_rad(-7))
 
@@ -59,6 +61,7 @@ func _ready() -> void:
 	var mug := MODEL.instantiate()
 	mug.name = "IronTankard"
 	pivot.add_child(mug)
+	_wet_tankard(mug)
 	_build_sleeve()
 	fluid = BeerFluid.new()
 	fluid.name = "Beer"
@@ -103,9 +106,29 @@ func _sleeve(label: String, start: Vector3, end: Vector3, start_radius: float,
 	node.material_override = material
 	pivot.add_child(node)
 
+## The tankard keeps its maps; the wet layer runs from the rim and dries with the head.
+func _wet_tankard(mug: Node) -> void:
+	for item: MeshInstance3D in mug.find_children("*", "MeshInstance3D", true, false):
+		for surface in item.mesh.get_surface_count():
+			var original := item.mesh.surface_get_material(surface) as StandardMaterial3D
+			if original == null: continue
+			var wet := ShaderMaterial.new()
+			wet.shader = WET
+			wet.set_shader_parameter("albedo_map", original.albedo_texture)
+			wet.set_shader_parameter("normal_map", original.normal_texture)
+			wet.set_shader_parameter("orm_map", original.metallic_texture)
+			item.set_surface_override_material(surface, wet)
+			_wet_materials.append(wet)
+
+func _process(_delta: float) -> void:
+	if fluid == null: return
+	for wet in _wet_materials:
+		wet.set_shader_parameter("wetness", fluid.head)
+
 func _build_sleeve() -> void:
 	var cloth := _material(Color("71634c"), 1.0)
-	_sleeve("LinenSleeve", Vector3(0.154, 0.15, 0.12), Vector3(0.32, -0.07, 0.48), 0.052, 0.075, cloth)
+	# Cuff and forearm line as prepare_hand.py prints them (SLEEVE).
+	_sleeve("LinenSleeve", Vector3(0.202, 0.105, 0.096), Vector3(0.418, -0.1, 0.457), 0.05, 0.075, cloth)
 
 ## Called from player physics so the world shadow rays use an unlocked space.
 func sync_world(world_camera: Camera3D, sky: SkySystem, delta: float = 0.0) -> void:

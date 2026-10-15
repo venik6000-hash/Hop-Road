@@ -12,6 +12,7 @@ extends TavernSystem
 ## over them, the smoke of its vent and its glow from afar. What the table
 ## has moving (`turning`, `moving`, `vanes`) is BuildingMachinery's, and a
 ## fire the bellows blow flares with their air; its `water` is MillWater's.
+## The brewing a table's `utensils` serve is BrewHouse's.
 
 const VILLAGE_BUILDINGS = preload("res://src/village/village_buildings.gd")
 ## The buildings in the tree: the vegetation's obstacle scan reaches as far as
@@ -39,6 +40,8 @@ var bounds := AABB()
 var falls: WaterfallSystem
 ## What moves, where the table has `turning`, `moving` or `vanes`.
 var machinery: BuildingMachinery
+## The brewing, where the table has `utensils` (the brewery).
+var brew_house: BrewHouse
 
 ## What the table's `hours` keep burning, by the name they share: {from, to
 ## (hours of the day), lit (-1 before the first look at the sky), lamps,
@@ -73,6 +76,12 @@ func _ready() -> void:
 		machinery.name = "Machinery"
 		add_child(machinery)
 		machinery.configure(table)
+	if table.has("utensils"):
+		brew_house = BrewHouse.new()
+		brew_house.name = "BrewHouse"
+		brew_house.table = table
+		brew_house.building = self
+		add_child(brew_house)
 	var scenes: Dictionary = table.scenes
 	for part: String in scenes:
 		var scene := (load(scenes[part]) as PackedScene).instantiate() as Node3D
@@ -92,6 +101,8 @@ func _ready() -> void:
 			optic.take(scene)
 		if machinery != null:
 			machinery.take(scene, room)
+		if brew_house != null:
+			brew_house.take(scene)
 		_batch(scene, room)
 	var hours: Dictionary = table.get("hours", {})
 	for kept: String in hours:
@@ -174,6 +185,15 @@ func _blow(entry: Dictionary) -> void:
 	for index: int in entry.flames:
 		if index < _flame_energies.size():
 			_flame_energies[index] = float(_flames[index].energy) * (1.0 + FLARE_LIGHT * draught)
+
+## The lamp of the table named `lamp` burns at `strength` of its light: a
+## fire stoked or let die (BrewHouse). At 0 it is out.
+func stoke(lamp: String, strength: float) -> void:
+	for index in mini(_flames.size(), _flame_energies.size()):
+		var light := _flames[index].light as Light3D
+		if str(light.name) == lamp:
+			_flame_energies[index] = float(_flames[index].energy) * strength
+			light.visible = strength > 0.01
 
 ## The wind blows along `wind_heading` (OceanFFT.wind_direction_deg, in
 ## radians): what the building has for the wind to turn comes round to it.

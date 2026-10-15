@@ -2,8 +2,9 @@ class_name ValleyLoop
 extends Node
 ## What makes the valley go by itself in the game: the clock runs, the weather
 ## changes, the days are counted, a bed in a guest room takes the night away,
-## and the day, the hour, the weather, where the player stood and what they
-## have with the villagers (PeopleBook) are kept between sessions. The world
+## and the day, the hour, the weather, where the player stood, their copper
+## coins and what they have with the villagers (PeopleBook) are kept between
+## sessions. The world
 ## loader starts it once the level stands; a level opened by a tool has none
 ## and stays at the hour it was given.
 
@@ -27,13 +28,15 @@ const HINT_FADE := 2.0
 const PLACE_REACH := 2000.0
 const PLACE_HEIGHTS := Vector2(-50.0, 300.0)
 ## The moment in a level without the loop: a fair day that stands still.
-const STILL := {"day": 1, "part": "day", "weather": "fair", "zone": ""}
+const STILL := {"day": 1, "part": "day", "weather": "fair", "zone": "", "beer": "", "beer_flaw": ""}
 
 var sky: SkySystem
 var weather: WeatherSystem
 var player: Player
 var interactions: TavernInteractions
 var camping: CampSystem
+## The brewery's day; none in a level without the brewery.
+var brewing: BrewHouse
 ## Where the valley is kept; empty keeps nothing (tools).
 var save_path := "user://valley.json"
 ## Game days since the first; a day begins at dawn (DayClock.DAY_START).
@@ -45,6 +48,9 @@ var zones: ValleyZones
 var presence: VillagerPresence
 ## The zone the player stands in ("" out in the open valley).
 var zone := ""
+## The player's copper coins when the level has no brewery to hold them
+## (BrewTrade.coins holds them where it has one); -1 for none saved yet.
+var coins := -1
 
 var _last_hour := 0.0
 var _save_in := SAVE_SECONDS
@@ -72,6 +78,7 @@ static func start(level: Node, path := "user://valley.json") -> ValleyLoop:
 
 func _ready() -> void:
 	zones = ValleyZones.load_file()
+	brewing = get_tree().get_first_node_in_group(BrewHouse.GROUP) as BrewHouse
 	_restore()
 	presence = VillagerPresence.new()
 	presence.name = "VillagerPresence"
@@ -127,9 +134,21 @@ func _on_foot() -> bool:
 		and interactions.seated.is_empty() and not interactions.climbing and not sleeping
 
 ## What a story may depend on, now: {day, part (DayClock.part), weather
-## (WeatherSystem.kind), zone}.
+## (WeatherSystem.kind), zone, beer and beer_flaw (beer_words)}.
 func moment() -> Dictionary:
-	return {"day": day, "part": DayClock.part(sky.time_of_day), "weather": weather.kind, "zone": zone}
+	var now := {"day": day, "part": DayClock.part(sky.time_of_day), "weather": weather.kind, "zone": zone}
+	var brewed: Dictionary = player.viewmodel.beer if player.viewmodel != null else {}
+	now.merge(beer_words(brewed, brewing.book if is_instance_valid(brewing) else null))
+	return now
+
+## The player's own beer in the mug as a moment has it: {beer (the recipe of
+## the book it is, BrewBook.name_beer), beer_flaw (its first flaw)}; both ""
+## for the tavern's old beer.
+static func beer_words(beer: Dictionary, book: BrewBook) -> Dictionary:
+	if beer.is_empty() or book == null:
+		return {"beer": "", "beer_flaw": ""}
+	var flaws: Array = beer.get("flaws", [])
+	return {"beer": str(book.name_beer(beer).get("id", "")), "beer_flaw": str(flaws[0]) if not flaws.is_empty() else ""}
 
 ## A night in a guest room's bed: the eyes close, and open at DayClock.WAKE_HOUR
 ## of the morning with the weather the night has left. Companions go home.
@@ -143,10 +162,13 @@ func sleep_till_morning() -> void:
 	fade.tween_property(_veil, "color:a", 1.0, CLOSE_SECONDS)
 	await fade.finished
 	var morning := night(day, sky.time_of_day)
+	var slept := DayClock.hours_until_wake(sky.time_of_day)
 	weather.skip(morning.seconds)
 	day = morning.day
 	sky.time_of_day = morning.hour
 	_last_hour = sky.time_of_day
+	if brewing != null:
+		brewing.pass_hours(slept)
 	presence.apply_now()
 	save()
 	fade = create_tween()
@@ -183,7 +205,10 @@ func save() -> void:
 	var file := FileAccess.open(save_path + ".tmp", FileAccess.WRITE)
 	if file == null:
 		return
-	file.store_string(JSON.stringify(pack(day, sky.time_of_day, weather.kind, camping.population.people.to_dict(), _place)))
+	var brewery := brewing.to_dict() if is_instance_valid(brewing) else {}
+	var purse: int = brewing.trade.coins if is_instance_valid(brewing) else coins
+	file.store_string(JSON.stringify(pack(day, sky.time_of_day, weather.kind, camping.population.people.to_dict(), _place,
+		brewery, purse)))
 	file.close()
 	DirAccess.rename_absolute(save_path + ".tmp", save_path)
 
@@ -206,13 +231,23 @@ func _restore() -> void:
 		player.rig.yaw_deg = yaw
 		player.rig.apply_look(Vector2.ZERO)
 	camping.population.people.restore(saved.people)
+	coins = saved.coins
+	if brewing != null:
+		brewing.restore(saved.brewing)
+		if coins >= 0:
+			brewing.trade.coins = coins
 	# Those who told their names go by them again.
 	camping.population.refresh_titles()
 
 ## The valley as it is written to disk; `people` is PeopleBook.to_dict(),
-## `place` where the player stood ({at: Vector3, yaw}; {} for nowhere yet).
-static func pack(of_day: int, hour: float, kind: String, people: Dictionary = {}, place: Dictionary = {}) -> Dictionary:
-	var result := {"version": SAVE_VERSION, "day": of_day, "hour": hour, "weather": kind, "people": people}
+## `place` where the player stood ({at: Vector3, yaw}; {} for nowhere yet),
+## `brewing` the brewery's day (BrewHouse.to_dict), `coins` the player's
+## copper coins (-1 for none).
+static func pack(of_day: int, hour: float, kind: String, people: Dictionary = {}, place: Dictionary = {},
+		brewing: Dictionary = {}, coins := -1) -> Dictionary:
+	var result := {"version": SAVE_VERSION, "day": of_day, "hour": hour, "weather": kind, "people": people, "brewing": brewing}
+	if coins >= 0:
+		result["coins"] = coins
 	if not place.is_empty():
 		var at: Vector3 = place.at
 		var yaw: float = place.yaw
@@ -222,19 +257,23 @@ static func pack(of_day: int, hour: float, kind: String, people: Dictionary = {}
 ## A save as read from disk, checked: {} when it is not one, else {day, hour
 ## (-1 when the save has none), weather, people (for PeopleBook.restore),
 ## player ({at: Vector3, yaw} where the player stood; {} when the save has no
-## place that can be one)}.
+## place that can be one), brewing (for BrewHouse.restore), coins (-1 when
+## the save has none)}.
 static func unpack(data: Variant) -> Dictionary:
 	if not data is Dictionary or int(_number(data.get("version"), 0.0, 0.0, 1e6)) != SAVE_VERSION:
 		return {}
 	var kind: Variant = data.get("weather")
 	var hour := _number(data.get("hour"), -1.0, 0.0, 24.0)
 	var people: Variant = data.get("people")
+	var brewing: Variant = data.get("brewing")
 	return {
 		"day": int(_number(data.get("day"), 1.0, 1.0, 1e9)),
 		"hour": fposmod(hour, 24.0) if hour >= 0.0 else -1.0,
 		"weather": kind if kind is String and WeatherSystem.KINDS.has(kind) else "fair",
 		"people": people if people is Dictionary else {},
 		"player": _stood(data.get("player")),
+		"brewing": brewing if brewing is Dictionary else {},
+		"coins": int(_number(data.get("coins"), -1.0, 0.0, 1e9)),
 	}
 
 ## The place a save holds, {} when it holds none that a player can stand at.

@@ -127,6 +127,23 @@ func work(group: String) -> void:
 	else:
 		state.strokes = STROKES
 
+## A hand holds `group` where it stands: a part that swings or slides at
+## `amount` (0..1) of its travel, a part that spins at the angle `amount`.
+func set_pose(group: String, amount: float) -> void:
+	if not _groups.has(group):
+		return
+	var state: Dictionary = _groups[group]
+	state.strokes = 0
+	state.speed = 0.0
+	if state.spins:
+		state.angle = amount
+	else:
+		state.shut = amount
+	state.moved = true
+	for part: Dictionary in _parts:
+		if part.group == group:
+			_pose(part, state)
+
 ## How hard (0..1) the pulls of `group` blow now: the bellows' air on the fire.
 func draught(group: String) -> float:
 	return float(_groups[group].draught) if _groups.has(group) else 0.0
@@ -174,18 +191,21 @@ func _process(delta: float) -> void:
 		var state: Dictionary = _groups[part.group]
 		if not state.moved:
 			continue
-		var node: Node3D = part.pivot
-		var axis: Vector3 = part.axis
-		var travel: float = part.travel
-		var shut: float = state.shut
-		match str(part.kind):
-			"spin":
-				node.basis = Basis(axis, float(state.angle))
-			"swing":
-				node.basis = Basis(axis, travel * shut)
-			"slide":
-				var origin: Vector3 = part.origin
-				node.position = origin + axis * travel * shut
+		_pose(part, state)
+
+static func _pose(part: Dictionary, state: Dictionary) -> void:
+	var node: Node3D = part.pivot
+	var axis: Vector3 = part.axis
+	var travel: float = part.travel
+	var shut: float = state.shut
+	match str(part.kind):
+		"spin":
+			node.basis = Basis(axis, float(state.angle))
+		"swing":
+			node.basis = Basis(axis, travel * shut)
+		"slide":
+			var origin: Vector3 = part.origin
+			node.position = origin + axis * travel * shut
 
 func _advance(state: Dictionary, delta: float) -> void:
 	var speed: float = state.speed

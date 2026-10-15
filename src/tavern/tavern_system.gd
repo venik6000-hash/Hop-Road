@@ -320,6 +320,10 @@ func _eye_in_a_room() -> bool:
 ## once a camera's culling has let it through, so until all have had their
 ## frames none of them is culled, and probes_awaited() tells whoever hides a
 ## lamp of the rooms to leave it burning.
+## The material of table entry `name` (TavernMaterials), null when the table has none.
+func material(name: String) -> Material:
+	return _materials.get(name) as Material
+
 func await_probes() -> void:
 	_probes_awaited = true
 	_probes_done_at = Engine.get_frames_drawn() + PROBE_FRAMES * _room_probes.size()

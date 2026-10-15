@@ -12,6 +12,8 @@ var _moon_visible := true
 var _room: ReflectionProbe
 var _room_sky: Sky
 var _room_material: ShaderMaterial
+var _land_sky: Sky
+var _land_sky_source: Sky
 var _source_world: World3D
 var _registry_tree: SceneTree
 var _ray := PhysicsRayQueryParameters3D.new()
@@ -34,7 +36,7 @@ func sync(presentation: Node3D, world_camera: Camera3D, sky: SkySystem, delta: f
 	if source != null:
 		var environment: Environment = presentation.environment
 		if not indoors:
-			_assign(environment, &"sky", source.sky)
+			_assign(environment, &"sky", _outdoor_sky(source))
 		_assign(environment, &"sky_rotation", (world_camera.global_basis.inverse() * Basis.from_euler(source.sky_rotation)).get_euler())
 		_assign(environment, &"tonemap_mode", source.tonemap_mode)
 		_assign(environment, &"tonemap_exposure", source.tonemap_exposure)
@@ -51,13 +53,11 @@ func sync(presentation: Node3D, world_camera: Camera3D, sky: SkySystem, delta: f
 		_sync_directional(presentation.fill_light, sky.moon, world_camera, _moon_visible)
 	_sync_local(presentation, world_camera)
 	if presentation.fluid != null and presentation.fluid.material != null:
-		var material: ShaderMaterial = presentation.fluid.material
-		_uniform(material, &"physical_sky", sky != null and not indoors)
-		_uniform(material, &"view_to_world", world_camera.global_basis)
-		_uniform(material, &"indoor_lighting", indoors)
-		if indoors:
-			var ambient := _room.ambient_color.srgb_to_linear() * _room.ambient_color_energy
-			_uniform(material, &"indoor_ambient", Vector3(ambient.r, ambient.g, ambient.b))
+		# A drop shows the world behind it, which the hand's viewport cannot
+		# see: the lit land outdoors, the room's light indoors.
+		var environment: Environment = presentation.environment
+		var behind := environment.ambient_light_color.srgb_to_linear() * environment.ambient_light_energy
+		_uniform(presentation.fluid.material, &"backdrop", Vector3(behind.r, behind.g, behind.b))
 
 ## One initial tree walk, then exact membership updates. Eligibility is checked
 ## when sampling so world, visibility and interior-property changes stay live.
@@ -159,6 +159,25 @@ func _sync_directional(target: DirectionalLight3D, source: DirectionalLight3D,
 	_assign(target, &"basis", viewer.global_basis.inverse() * source.global_basis)
 	_assign(target, &"light_color", source.light_color)
 	_assign(target, &"light_energy", source.light_energy if unblocked and source.is_visible_in_tree() else 0.0)
+
+## The level's sky with the land under it (sky.gdshader, land_below): with the
+## sky alone the hand took light from the haze under the horizon and mirrored
+## it, and the mug went grey and flat outdoors.
+func _outdoor_sky(source: Environment) -> Sky:
+	if source.sky == null or not source.sky.sky_material is ShaderMaterial \
+			or (source.sky.sky_material as ShaderMaterial).shader != SkySystem.SKY_SHADER:
+		return source.sky
+	if _land_sky_source != source.sky:
+		_land_sky_source = source.sky
+		_land_sky = Sky.new()
+		_land_sky.sky_material = source.sky.sky_material.duplicate()
+		_land_sky.process_mode = Sky.PROCESS_MODE_INCREMENTAL
+		_land_sky.radiance_size = Sky.RADIANCE_SIZE_64
+		_land_sky.sky_material.set_shader_parameter(&"land_below", true)
+	# The ambient colour of the level is the light the lit land sends back.
+	var land := source.ambient_light_color.srgb_to_linear() * source.ambient_light_energy
+	_uniform(_land_sky.sky_material, &"land_radiance", Vector3(land.r, land.g, land.b))
+	return _land_sky
 
 func _sync_room(environment: Environment) -> void:
 	if _room_sky == null:

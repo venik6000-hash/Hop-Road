@@ -402,6 +402,9 @@ func setup_buildings() -> void:
 		# (a boardwalk or a row of lanterns has none, and may be as long as the village).
 		if not rooms.is_empty():
 			tavern.room_shadow_bounds.append(building.bounds)
+		# The brewery's trade stands about the valley.
+		if building.brew_house != null:
+			add_child(building.brew_house.make_stalls())
 
 ## Scanned boulders and cliff faces in place of the Blender blockout stones;
 ## before the vegetation, whose obstacle scan must see their colliders.

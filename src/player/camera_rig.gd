@@ -30,6 +30,8 @@ const BOB_FREQUENCY := 8.0       ## колебаний в секунду на п
 ## Фаза, а не время: предмету нужно попадать в такт шагу, а не в секунды.
 var walk_phase := 0.0
 var last_look := Vector2.ZERO
+## Метров, на сколько опущен глаз: игрок присел у низкой работы (BrewHouse).
+var crouch := 0.0
 
 var _base_y := 0.0
 
@@ -51,10 +53,21 @@ func apply_look(mouse_delta: Vector2) -> void:
 	if body != null:
 		body.rotation.y = deg_to_rad(yaw_deg)
 
+## Запрокидывание головы при глотке, радианы вверх. Слой поверх тангажа:
+## взгляд игрока (pitch_deg) не меняется, и после глотка камера возвращается
+## сама. За предел тангажа голова не уходит. Возвращает наклон, который
+## камера получила.
+func set_drink_tilt(radians: float) -> float:
+	var applied := minf(radians, deg_to_rad(PITCH_LIMIT_DEG - pitch_deg))
+	var camera := get_node_or_null("Camera3D") as Node3D
+	if camera != null:
+		camera.rotation.x = applied
+	return applied
+
 ## speed_ratio — доля от максимальной скорости, 0.0 стоя и 1.0 на бегу.
 func apply_bob(speed_ratio: float, delta: float) -> void:
 	walk_phase += delta * BOB_FREQUENCY * clampf(speed_ratio, 0.0, 1.0)
-	position.y = _base_y + bob_offset(walk_phase, speed_ratio)
+	position.y = _base_y - crouch + bob_offset(walk_phase, speed_ratio)
 
 static func bob_offset(time: float, speed_ratio: float) -> float:
 	return sin(time) * BOB_AMPLITUDE * clampf(speed_ratio, 0.0, 1.0)

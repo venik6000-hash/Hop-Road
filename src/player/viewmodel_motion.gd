@@ -53,13 +53,3 @@ static func spring_vector(current: Vector2, velocity: Vector2, target: Vector2, 
 	var x := spring(current.x, velocity.x, target.x, delta)
 	var y := spring(current.y, velocity.y, target.y, delta)
 	return [Vector2(x[0], y[0]), Vector2(x[1], y[1])]
-
-## Глоток. Фаза идёт от нуля до единицы за одно движение: кружка поднимается
-## к лицу, наклоняется и возвращается на место.
-##
-## Кривая — половина синуса, а не пружина. Пружина нужна там, где цель
-## меняется на ходу (шаг, поворот, рывок); у глотка цель известна заранее,
-## и синус даёт ровный подъём и ровный возврат без перелёта за кромку кадра.
-static func sip_curve(phase: float) -> float:
-	return sin(clampf(phase, 0.0, 1.0) * PI)
-

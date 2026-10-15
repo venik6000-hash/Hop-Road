@@ -11,8 +11,9 @@ extends RefCounted
 ## for a fire, `idle_table` those for a table and the bar.
 ##
 ## A story is {id, title, circle, context, with, voices, hook_before, beats,
-## hook_after, echo}. `context` maps "zone", "part", "weather", "activity" and
-## "gift" to the values the story may sound at; a key left out allows any
+## hook_after, echo}. `context` maps "zone", "part", "weather", "activity",
+## "gift" and "beer" (the sort of the player's own beer, ValleyLoop.beer_words)
+## to the values the story may sound at; a key left out allows any
 ## (StoryRules). `with` is the villager a shared story is told together with,
 ## "" for a story of one; `voices` names who says each beat, and is empty
 ## when the owner says them all.

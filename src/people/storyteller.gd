@@ -11,11 +11,12 @@ extends RefCounted
 ## "stand" or "walk"), listening (the player has stopped beside the person),
 ## halt (a number that changes with every new halt)}. It may also carry
 ## company (the ids of the villagers near the teller; nobody when left out),
-## gift (Acquaintance.gift: what the player brought the person today) and
-## can_guide (the person may lead to the place they love and has not yet).
+## gift (Acquaintance.gift: what the player brought the person today),
+## can_guide (the person may lead to the place they love and has not yet),
+## beer and beer_flaw (ValleyLoop.beer_words: the player's own beer).
 ##
 ## A line is {text, kind}; the kinds are "introduce", "beat", "hook_after",
-## "hook_before", "echo", "later", "offer" and "idle". {} is silence. A beat
+## "hook_before", "echo", "later", "offer", "beer" and "idle". {} is silence. A beat
 ## also has `last`: the story ends with it. A beat of a shared story
 ## (PersonSheet) has `by`, the id of the one of the two who says it, and
 ## `with`, the id of the other teller.
@@ -254,6 +255,9 @@ func _small_talk(moment: Dictionary, asked: bool) -> Dictionary:
 					and StoryRules.matches(story.context, moment):
 				_echo_halt = moment.halt
 				return {"text": story.echo, "kind": "echo"}
+	var beer := _beer_remark(moment)
+	if not beer.is_empty():
+		return {"text": beer, "kind": "beer"}
 	var may_guide: bool = moment.get("can_guide", false)
 	if not asked and may_guide and bond.circle >= 1 and not _offered:
 		_offered = true
@@ -274,6 +278,24 @@ func _small_talk(moment: Dictionary, asked: bool) -> Dictionary:
 			_said[remark] = true
 			return {"text": remark, "kind": "idle"}
 	return {}
+
+## What the person says once an outing of the player's own beer in the mug:
+## of its first flaw ("beer_flaw_<id>"), else of its sort ("beer_<recipe>");
+## the person's own line, else the common one. "" when there is nothing to say.
+func _beer_remark(moment: Dictionary) -> String:
+	var sort := str(moment.get("beer", ""))
+	if sort.is_empty():
+		return ""
+	var flaw := str(moment.get("beer_flaw", ""))
+	var heard := "beer:%s:%s" % [sort, flaw]
+	if _said.has(heard):
+		return ""
+	var text := _line("beer_flaw_" + flaw) if not flaw.is_empty() else ""
+	if text.is_empty():
+		text = _line("beer_" + sort)
+	if not text.is_empty():
+		_said[heard] = true
+	return text
 
 ## The remarks for the moment: those for a fire, for a table and the bar, or
 ## a stranger's; the person's own, else the common ones. One without remarks
