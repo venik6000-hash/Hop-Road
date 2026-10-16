@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="RegionDef" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/world/region_def.gd" id="1_region"]
+[ext_resource type="Script" path="res://src/world/region_spawn.gd" id="2_spawn"]
+[ext_resource type="PackedScene" uid="uid://dd8gtgjb2show" path="res://assets/models/alpine/alpine_map.glb" id="3_map"]
+
+[sub_resource type="Resource" id="Resource_tavern"]
+script = ExtResource("2_spawn")
+id = &"tavern"
+position = Vector3(0, 12, 15)
+yaw_deg = -30.0
+pitch_deg = 10.0
+
+[resource]
+script = ExtResource("1_region")
+id = &"valley"
+title = "Долина таверны"
+bounds = Rect2(-9000, -9700, 16376, 16376)
+terrain_dir = "res://assets/generated/terrain"
+settled_heights = "res://assets/generated/terrain/settled_height.bin"
+settled_masks = "res://assets/generated/terrain/settled_masks.bin"
+settled_ground = "res://assets/generated/terrain/settled_ground.json"
+zones = "res://assets/loop/zones.json"
+spawns = Array[ExtResource("2_spawn")]([SubResource("Resource_tavern")])
+map = ExtResource("3_map")
+map_manifest = "res://assets/models/alpine/manifest.json"
+map_context = "res://assets/generated/layout/map_context.json"
+village_plan = "res://assets/generated/layout/village_plan.json"
+props = "res://assets/models/village_pack/layout.json"
+rocks = "res://assets/generated/layout/rocks.json"
+forest_wood = "res://assets/generated/layout/forest_wood.json"
+tavern = PackedStringArray("res://assets/models/tavern/tavern.json", "res://assets/models/tavern/tavern_interior.json")
+cottages = "res://assets/regions/valley/cottages.json"
+buildings = PackedStringArray("res://assets/models/brewery/brewery.json", "res://assets/models/lighthouse/lighthouse.json", "res://assets/models/smithy/smithy.json", "res://assets/models/mill/mill.json", "res://assets/models/lamplighter/lamplighter.json", "res://assets/models/hop_kiln/hop_kiln.json", "res://assets/models/marsh_walk/marsh_walk.json", "res://assets/models/wash_stage/wash_stage.json", "res://assets/models/quay/quay.json", "res://assets/models/road_lanterns/road_lanterns.json", "res://assets/models/cooperage/cooperage.json", "res://assets/models/hop_garden/hop_garden.json")
+worn_ground = "res://assets/generated/layout/worn_ground.json"
+cliff = "res://assets/generated/rocks/cliff_seat.json"
+woodland = "res://assets/models/alpine/woodland.json"
+village_trees = "res://assets/generated/layout/village_trees.json"
+placement = "res://assets/generated/vegetation/placement.bin"
+placement_manifest = "res://assets/generated/vegetation/placement-manifest.json"

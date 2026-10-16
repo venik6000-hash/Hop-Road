@@ -3,7 +3,7 @@
   "left_hand": [
    0.07,
    -0.31,
-   1.06
+   1.061
   ],
   "left_hand_reach": 0.06,
   "length": 2.667,
@@ -20,7 +20,7 @@
    -0.31,
    1.06
   ],
-  "left_hand_reach": 0.027,
+  "left_hand_reach": 0.028,
   "length": 2.467,
   "right_hand": [
    -0.09,
@@ -46,11 +46,11 @@
  },
  "knead": {
   "left_hand": [
-   0.1,
-   -0.279,
+   0.099,
+   -0.281,
    1.06
   ],
-  "left_hand_reach": 0.133,
+  "left_hand_reach": 0.132,
   "length": 8.9,
   "right_hand": [
    -0.1,
@@ -64,18 +64,18 @@
  },
  "pour": {
   "left_hand": [
-   0.121,
-   -0.313,
-   1.135
+   0.119,
+   -0.319,
+   1.134
   ],
   "left_hand_reach": 0.017,
   "length": 2.3,
   "right_hand": [
-   -0.14,
-   -0.33,
-   1.31
+   -0.141,
+   -0.332,
+   1.316
   ],
-  "right_hand_reach": 0.033
+  "right_hand_reach": 0.034
  },
  "serve": {
   "length": 1.7
@@ -85,11 +85,11 @@
  },
  "slice": {
   "left_hand": [
-   0.074,
-   -0.304,
-   1.064
+   0.071,
+   -0.307,
+   1.062
   ],
-  "left_hand_reach": 0.079,
+  "left_hand_reach": 0.08,
   "length": 8.833,
   "right_hand": [
    -0.09,
@@ -102,14 +102,14 @@
   "left_hand": [
    0.319,
    0.054,
-   0.836
+   0.824
   ],
   "left_hand_reach": 0.026,
   "length": 2.3,
   "right_hand": [
-   -0.022,
-   -0.416,
-   1.072
+   -0.021,
+   -0.42,
+   1.071
   ],
   "right_hand_reach": 0.052
  },
@@ -124,31 +124,31 @@
  },
  "walk": {
   "length": 2.6,
-  "speed": 0.81
+  "speed": 0.769
  },
  "walk_brisk": {
   "length": 2.0,
-  "speed": 1.019
+  "speed": 0.998
  },
  "walk_slow": {
   "length": 3.4,
-  "speed": 0.556
+  "speed": 0.54
  },
  "walk_woman": {
   "length": 2.1,
-  "speed": 0.9
+  "speed": 0.864
  },
  "wipe": {
   "left_hand": [
    0.2,
-   -0.3,
-   1.13
+   -0.302,
+   1.131
   ],
-  "left_hand_reach": 0.062,
+  "left_hand_reach": 0.061,
   "length": 8.9,
   "right_hand": [
    -0.12,
-   -0.33,
+   -0.331,
    1.14
   ],
   "right_hand_reach": 0.119

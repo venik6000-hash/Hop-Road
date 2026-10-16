@@ -2,7 +2,7 @@
 
 The models (`brewery.glb`, `brewery_interior.glb`) are original work, modelled in Blender by `tools/pipeline/brewery/build.py` (utensils in `utensils.py`, on `craft.py`). Source: `assets/models/source/brewery/brewery.blend`.
 
-The game's `brew_hands.glb` (the brewer's arms) is left out of this public copy: its hands come from a Sketchfab model whose licence forbids sharing the file. Here the arms are not drawn (`src/brewing/brew_arms.gd`).
+The game's `brew_hands.glb` (the brewer's arms) and its scanned hand are left out of this public copy. Here the arms are not drawn (`src/brewing/brew_arms.gd`).
 
 The GLBs hold no images. Their surfaces name entries of the tavern's material table (`brewery.json`, key `materials`). Those entries use these scans, all CC0:
 

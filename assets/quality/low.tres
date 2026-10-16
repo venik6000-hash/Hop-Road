@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="QualityProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/render/quality_profile.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+id = &"low"
+title = "Низкое — меньше пикселей, короче тени, сжатые текстуры до 512 px"
+pixels = 300000
+ssao = 0
+cloud_steps = 36
+shadow_distance = 90.0
+shadow_size = 2048
+shadow_blend = false
+grass_fade = Vector2(60.0, 75.0)
+tree_mesh_reach = Vector2(100.0, 115.0)
+textures = "low"

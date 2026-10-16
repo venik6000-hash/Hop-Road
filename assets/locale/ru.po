@@ -1,0 +1,35 @@
+msgid ""
+msgstr ""
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: src/brewing/brew_house.gd
+msgid "Зелёное и резкое: бочке стоять ещё %d день."
+msgid_plural "Зелёное и резкое: бочке стоять ещё %d дня."
+msgstr[0] "Зелёное и резкое: бочке стоять ещё %d день."
+msgstr[1] "Зелёное и резкое: бочке стоять ещё %d дня."
+msgstr[2] "Зелёное и резкое: бочке стоять ещё %d дней."
+
+#: src/brewing/brew_trade.gd
+msgid "срок %d день"
+msgid_plural "срок %d дня"
+msgstr[0] "срок %d день"
+msgstr[1] "срок %d дня"
+msgstr[2] "срок %d дней"
+
+#: src/brewing/brew_trade.gd
+msgid "висит %d день"
+msgid_plural "висит %d дня"
+msgstr[0] "висит %d день"
+msgstr[1] "висит %d дня"
+msgstr[2] "висит %d дней"
+
+#: src/lakeside/lakeside_hud.gd
+msgid "%s — %d улов · рекорд %.1f см"
+msgid_plural "%s — %d улова · рекорд %.1f см"
+msgstr[0] "%s — %d улов · рекорд %.1f см"
+msgstr[1] "%s — %d улова · рекорд %.1f см"
+msgstr[2] "%s — %d уловов · рекорд %.1f см"

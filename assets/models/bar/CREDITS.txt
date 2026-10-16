@@ -1,0 +1,24 @@
+BAR PROPS (keg.glb, rag.glb, jug.glb, stream.glb)
+Built by the scripts in tools/pipeline/bar/ (Blender). Sources:
+
+keg.glb
+  Barrel: "Wine Barrel 01" by James Ray Cock, Poly Haven, CC0 1.0
+  https://polyhaven.com/a/wine_barrel_01 (mesh and 2K maps)
+  Changes: scaled to 0.40 x 0.30 m, laid on its side, the four parts joined.
+  Cradle: modelled for this project; texture "Rough Wood", Poly Haven, CC0 1.0
+  https://polyhaven.com/a/rough_wood (tinted to dark oak, 1K).
+  Brass tap and lever: modelled for this project, tarnish baked procedurally.
+
+rag.glb
+  Folded cloth modelled for this project; texture "Rough Linen", Poly Haven,
+  CC0 1.0, https://polyhaven.com/a/rough_linen (bleached to raw linen,
+  stained, resampled onto the sheet).
+
+jug.glb
+  "Jug 01", Poly Haven, CC0 1.0, https://polyhaven.com/a/jug_01
+  Changes: scaled to 0.24 m, handle turned to +X; colour, roughness and
+  normal maps re-baked as stoneware (the scan's normal map is kept inside
+  the new one).
+
+stream.glb
+  Modelled for this project.

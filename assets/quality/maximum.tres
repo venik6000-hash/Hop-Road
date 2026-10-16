@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="QualityProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/render/quality_profile.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+id = &"maximum"
+title = "Максимальное — каждый пиксель окна"
+pixels = 921600
+ssao = 2
+cloud_steps = 64
+shadow_distance = 160.0
+shadow_size = 4096
+shadow_blend = true
+grass_fade = Vector2(95.0, 115.0)
+tree_mesh_reach = Vector2(145.0, 165.0)
+textures = "maximum"

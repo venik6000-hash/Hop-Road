@@ -1,0 +1,28 @@
+{
+"terrain": "assets/generated/terrain",
+"out": "assets/generated/rocks/cliff_seat.json",
+"faces": [
+{"note": "The upper face: 2.5 m short of the plateau, the water falls from its brink.",
+ "scan": "coastal_cliff_02", "at": [-49.5, 15.6, -149.3], "yaw": 0.0, "scale": [0.82, 1.44, 0.9]},
+{"note": "The lower face: its top is the lip of the lower fall; the shelf's stream keeps its banks.",
+ "scan": "coastal_cliff_02", "at": [-47.0, 0.0, -128.8], "yaw": 7.0, "scale": [0.8, 1.9, 0.8],
+ "keep": [-7.0, 2.0], "floor": 1.0},
+{"note": "The butte's east flank.",
+ "scan": "rock_face_01", "at": [-29.4, 16.0, -158.25], "yaw": 90.0, "scale": [-4.5, 4.0, 1.9]},
+{"note": "The butte's west flank.",
+ "scan": "rock_face_01", "at": [-70.1, 14.5, -158.25], "yaw": -90.0, "scale": [4.5, 4.3, 2.0]},
+{"note": "The lower step past the west end of its face.",
+ "scan": "rock_face_01", "at": [-68.3, 6.0, -128.7], "yaw": -20.0, "scale": [-2.7, 3.2, 1.6]},
+{"note": "The lower step past the east end of its face.",
+ "scan": "rock_face_01", "at": [-29.3, 8.5, -129.2], "yaw": 10.0, "scale": [1.4, 1.9, 1.2]},
+{"note": "The west bank of the cove the lower fall lands in.",
+ "scan": "rock_face_01", "at": [-59.2, -1.5, -121.0], "yaw": 90.0, "scale": [-2.2, 2.2, 1.0]},
+{"note": "The east bank of the cove: the wall of the mill's bench, level with its floor all along.",
+ "scan": "rock_face_01", "at": [-41.8, -1.5, -123.5], "yaw": -90.0, "scale": [2.0, 2.25, 1.0],
+ "keep": [-5.0, 5.0]},
+{"note": "The upper step past the east end of its face, no further forward than that face.",
+ "scan": "rock_face_01", "at": [-29.6, 16.0, -149.45], "yaw": 10.0, "scale": [1.9, 4.0, 1.5]},
+{"note": "The upper step past the west end of its face, no further forward than that face.",
+ "scan": "rock_face_01", "at": [-69.4, 14.5, -149.45], "yaw": -10.0, "scale": [-1.9, 4.3, 1.5]}
+]
+}

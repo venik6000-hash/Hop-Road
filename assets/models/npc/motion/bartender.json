@@ -8,7 +8,7 @@
   "left_hand_reach": 0.064,
   "length": 2.667,
   "right_hand": [
-   -0.091,
+   -0.09,
    -0.29,
    1.08
   ],
@@ -24,8 +24,8 @@
   "length": 2.467,
   "right_hand": [
    -0.09,
-   -0.29,
-   1.08
+   -0.291,
+   1.081
   ],
   "right_hand_reach": 0.103
  },
@@ -46,36 +46,36 @@
  },
  "knead": {
   "left_hand": [
-   0.099,
-   -0.279,
-   1.061
+   0.098,
+   -0.281,
+   1.063
   ],
-  "left_hand_reach": 0.243,
+  "left_hand_reach": 0.244,
   "length": 8.9,
   "right_hand": [
-   -0.1,
+   -0.098,
    -0.28,
-   1.06
+   1.063
   ],
-  "right_hand_reach": 0.237
+  "right_hand_reach": 0.227
  },
  "laugh": {
   "length": 4.067
  },
  "pour": {
   "left_hand": [
-   0.1,
-   -0.36,
-   1.13
+   0.097,
+   -0.361,
+   1.134
   ],
-  "left_hand_reach": 0.024,
+  "left_hand_reach": 0.022,
   "length": 2.3,
   "right_hand": [
-   -0.14,
-   -0.33,
-   1.311
+   -0.143,
+   -0.332,
+   1.309
   ],
-  "right_hand_reach": 0.038
+  "right_hand_reach": 0.037
  },
  "serve": {
   "length": 1.7
@@ -85,11 +85,11 @@
  },
  "slice": {
   "left_hand": [
-   0.07,
-   -0.31,
-   1.06
+   0.069,
+   -0.311,
+   1.065
   ],
-  "left_hand_reach": 0.111,
+  "left_hand_reach": 0.112,
   "length": 8.833,
   "right_hand": [
    -0.09,
@@ -102,14 +102,14 @@
   "left_hand": [
    0.378,
    0.005,
-   0.804
+   0.787
   ],
   "left_hand_reach": 0.032,
   "length": 2.3,
   "right_hand": [
    -0.02,
    -0.42,
-   1.07
+   1.069
   ],
   "right_hand_reach": 0.053
  },
@@ -124,34 +124,34 @@
  },
  "walk": {
   "length": 2.6,
-  "speed": 0.951
+  "speed": 0.911
  },
  "walk_brisk": {
   "length": 2.0,
-  "speed": 1.206
+  "speed": 1.156
  },
  "walk_slow": {
   "length": 3.4,
-  "speed": 0.657
+  "speed": 0.631
  },
  "walk_woman": {
   "length": 2.1,
-  "speed": 1.065
+  "speed": 1.034
  },
  "wipe": {
   "left_hand": [
-   0.199,
+   0.198,
    -0.3,
-   1.13
+   1.132
   ],
-  "left_hand_reach": 0.067,
+  "left_hand_reach": 0.068,
   "length": 8.9,
   "right_hand": [
-   -0.12,
+   -0.119,
    -0.33,
    1.141
   ],
-  "right_hand_reach": 0.237
+  "right_hand_reach": 0.235
  },
  "yawn": {
   "length": 2.733

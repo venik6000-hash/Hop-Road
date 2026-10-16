@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="QualityProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/render/quality_profile.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+id = &"medium"
+title = "Среднее — сжатые текстуры до 1024 px, ближе трава и деревья"
+pixels = 450000
+ssao = 1
+cloud_steps = 48
+shadow_distance = 120.0
+shadow_size = 4096
+shadow_blend = true
+grass_fade = Vector2(80.0, 95.0)
+tree_mesh_reach = Vector2(125.0, 140.0)
+textures = "medium"
