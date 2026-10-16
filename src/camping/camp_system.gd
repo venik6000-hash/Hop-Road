@@ -32,7 +32,6 @@ var population: NpcPopulation
 ## without it the moment is ValleyLoop.STILL.
 var valley: ValleyLoop
 var water_level := 0.72
-var memory_path := "user://camping.json"
 var fires: Array[Campfire] = []
 var companions: Array[NpcOuting] = []
 var placing := false
@@ -59,8 +58,10 @@ var visits: Dictionary = {}
 ## The innkeeper may pour the usual: the player has come up to him anew.
 var usual_due := true
 var _signs_clock := 0.0
+## Saved fires that restore has read but not laid yet (to_dict keeps them).
+var _unlaid_sites: Array = []
 # player's CameraRig/Camera3D, looked up on first use (see _player_camera).
-var _camera: Node
+var _camera: Camera3D
 var _camera_owner: Node
 ## Query resources are reused, but collision results are never cached.
 var _site_ground_query := PhysicsRayQueryParameters3D.new()
@@ -71,6 +72,8 @@ var _preview_tint := Color(-1, -1, -1, -1)
 
 func _ready() -> void:
 	CAMP_HUD.build(self)
+	if interactions != null:
+		interactions.add_source(_interaction)
 	ghost = Node3D.new()
 	ghost.name = "CampPlacementPreview"
 	add_child(ghost)
@@ -79,8 +82,8 @@ func _ready() -> void:
 		CampProps.stone(ghost, Vector3(cos(angle) * 0.57, 0.10, sin(angle) * 0.57), Vector3(0.28, 0.18, 0.23), index)
 	CampProps.log_mesh(ghost, Vector3.UP * 0.15, 0.84, 0.075, 0.6)
 	ghost.visible = false
-	_load_memory.call_deferred()
 	player.viewmodel.sipped.connect(_sipped)
+	GameEvents.sleep_started.connect(fast_travel)
 
 func _process(delta: float) -> void:
 	var active: bool = _player_camera().current and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
@@ -88,7 +91,7 @@ func _process(delta: float) -> void:
 	caption_panel.visible = active and _caption_time > 0
 	caption_panel.modulate.a = minf(1.0, _caption_time)
 	food_hint.visible = active and holding_food()
-	var hint := "Печёная картошка · F — съесть половину · Q — поделиться · V — пиво" if holding_food() else ""
+	var hint := InputActions.hint(tr("Печёная картошка · {eat_potato} — съесть половину · {camp_secondary} — поделиться · {drink_beer} — пиво")) if holding_food() else ""
 	if food_hint.text != hint:
 		food_hint.text = hint
 	if placing:
@@ -100,7 +103,10 @@ func _process(delta: float) -> void:
 	if held_potato != null:
 		held_potato.visible = active and holding_food() and not player.viewmodel.drinking()
 		_bite_time = maxf(0.0, _bite_time - delta)
+		if _bite_time <= 0.0:
+			player.hands.release(BodyChannels.BITE)
 		held_potato.position = Vector3(-0.19, -0.20 + sin(_bite_time * PI / 0.65) * 0.10, -0.46)
+	_hold_potato(delta)
 	_guest_clock += delta
 	if _guest_clock > 3.0 and active:
 		_guest_clock = 0.0
@@ -115,7 +121,7 @@ func _process(delta: float) -> void:
 ## The node at player's "CameraRig/Camera3D", as get_node() would return it.
 ## Looked up lazily: the player and its script can be set after _ready (tools
 ## swap in tools/lib/background_player.gd), and again when the node is replaced.
-func _player_camera() -> Node:
+func _player_camera() -> Camera3D:
 	if _camera_owner != player or not is_instance_valid(_camera) or _camera.get_parent() == null \
 			or _camera.get_parent().get_parent() != player:
 		_camera = player.get_node("CameraRig/Camera3D")
@@ -125,16 +131,16 @@ func _player_camera() -> Node:
 func _input(event: InputEvent) -> void:
 	if not _player_camera().current or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED or event.is_echo():
 		return
-	if event.is_action_pressed("place_camp"):
+	if InputActions.pressed(event, "place_camp"):
 		if interactions.climbing or not interactions.seated.is_empty():
 			say(null, "Сначала встань на тропу, чтобы выбрать место для костра.")
 		else:
 			placing = not placing
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("eat_potato") and holding_food():
+	elif InputActions.pressed(event, "eat_potato") and holding_food():
 		eat()
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("camp_secondary"):
+	elif InputActions.pressed(event, "camp_secondary"):
 		var actor := targeted_companion()
 		if holding_food():
 			share()
@@ -145,7 +151,7 @@ func _input(event: InputEvent) -> void:
 		else:
 			return
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("guide_outing"):
+	elif InputActions.pressed(event, "guide_outing"):
 		var actor := targeted_companion()
 		if actor == null:
 			actor = nearest_companion(3.5)
@@ -157,7 +163,7 @@ func _input(event: InputEvent) -> void:
 			(actor.outing as NpcOuting).guide()
 			say(actor, line_of(actor, "guide"))
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("camp_refill"):
+	elif InputActions.pressed(event, "camp_refill"):
 		if nearby_fire(player.global_position, 3.0) != null and not player.viewmodel.drinking():
 			player.viewmodel.refill()
 			say(null, "Дорожный кувшин ещё полон. Нальём по кружке.")
@@ -173,7 +179,7 @@ func _update_preview() -> void:
 	var camera := _player_camera() as Camera3D
 	_preview_query.from = camera.global_position
 	_preview_query.to = camera.global_position - camera.global_basis.z * 5.0
-	_preview_query.collision_mask = 1
+	_preview_query.collision_mask = PhysicsLayers.GROUND
 	_preview_query.exclude = [player.get_rid()]
 	var hit := get_world_3d().direct_space_state.intersect_ray(_preview_query)
 	placement = {}
@@ -197,8 +203,8 @@ func _update_preview() -> void:
 
 func placement_text() -> String:
 	if placement.has("position"):
-		return "E — положить дрова здесь · K — отменить"
-	return placement_reason + " · K — отменить"
+		return "{interact} — положить дрова здесь · {place_camp} — отменить"
+	return tr("%s · {place_camp} — отменить") % tr(placement_reason)
 
 func confirm_placement() -> bool:
 	# Recheck at the moment of the action: an NPC may have walked into the spot.
@@ -207,7 +213,7 @@ func confirm_placement() -> bool:
 		return false
 	_create_fire(placement)
 	placing = false
-	_save_memory()
+	_changed()
 	say(null, "Дрова уложены. Разожги костёр и выбирай полено поудобнее.")
 	return true
 
@@ -217,9 +223,30 @@ func _create_fire(site: Dictionary) -> Campfire:
 	fire.position = site.position
 	fire.seats.assign(site.seats)
 	add_child(fire)
+	fire.burnt_out.connect(func() -> void: say(null, "Костёр прогорел. Подбрось полено из поленницы."))
 	fires.append(fire)
 	return fire
 
+## find_target as a source of targets for E (TavernInteractions.add_source):
+## a villager to talk to or take for a walk, a fire, a seat at a fire.
+func _interaction(best: float) -> Interaction:
+	var found := find_target(best)
+	if found.is_empty():
+		return null
+	var distance: float = found.distance
+	var target: Variant = found.target
+	if target is VillageNPC:
+		var actor: VillageNPC = target
+		return interactions.npc_interaction(actor, distance)
+	if target is Campfire:
+		var fire: Campfire = target
+		return Interaction.of(fire, distance, func() -> String: return fire.interaction_text(holding_food(), holding_log()),
+			interact_fire.bind(fire))
+	var seat: Dictionary = target
+	return interactions.seat_interaction(seat, distance)
+
+## What E would do nearest within `best` metres among the villagers, the fires
+## and their seats: {distance, target}; {} when nothing.
 func find_target(best: float) -> Dictionary:
 	var result: Dictionary = {}
 	for actor in population.actors:
@@ -245,10 +272,10 @@ func find_target(best: float) -> Dictionary:
 
 func interaction_text(actor: VillageNPC) -> String:
 	if actor.outing != null:
-		return "E — поговорить · Q — попрощаться · G — любимое место"
+		return "{interact} — поговорить · {camp_secondary} — попрощаться · {guide_outing} — любимое место"
 	if actor.invitable():
-		return "E — позвать гулять · " + actor.title
-	return "E — поговорить · " + actor.title
+		return tr("{interact} — позвать гулять · %s") % tr(actor.title)
+	return tr("{interact} — поговорить · %s") % tr(actor.title)
 
 func interact_npc(actor: VillageNPC) -> void:
 	if actor.outing != null or not actor.invitable():
@@ -276,35 +303,84 @@ func take_along(actor: VillageNPC) -> void:
 	actor.add_child(outing)
 	companions.append(outing)
 
+## Whether the player carries a log of the brewery's (BrewHouse) to burn.
+func holding_log() -> bool:
+	return interactions.brewing != null and interactions.brewing.holding_log()
+
 func interact_fire(fire: Campfire) -> void:
+	if holding_log():
+		if not fire.fuel.add_log():
+			say(null, "В костре и так полно дров.")
+			return
+		interactions.brewing.throw_log(fire.global_position + Vector3.UP * 0.2)
+		if not fire.burning:
+			fire.set_burning(true)
+			say(null, "Полено занялось. Картошку можно положить прямо в угли.")
+		_changed()
+		return
 	if not fire.burning:
+		if fire.fuel.empty():
+			say(null, "Нужны дрова: возьми полено из поленницы во дворе или в пивоварне.")
+			return
 		fire.set_burning(true)
 		say(null, "Огонь занялся. Картошку можно положить прямо в угли.")
 	elif fire.meal.ready():
-		if holding_food() or not fire.meal.take():
+		if holding_food():
 			return
-		held_meal = fire.meal
-		if held_potato != null:
-			held_potato.queue_free()
-		held_potato = CampProps.potato(true)
-		held_potato.scale = Vector3.ONE * 0.70
-		player.get_node("CameraRig/Camera3D").add_child(held_potato)
-		for mesh in held_potato.find_children("*", "MeshInstance3D", true, false):
-			mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-			var material := mesh.material_override as StandardMaterial3D
-			material.no_depth_test = true
-			material.render_priority = 2
+		var busy := player.hands.busy_text(BodyChannels.POTATO)
+		if busy != "":
+			say(null, busy)
+			return
+		if not fire.meal.take():
+			return
+		_take(fire.meal)
 		say(null, "Горячая картошка, щепотка соли. Можно разломить и угостить спутника.")
 	elif not holding_food() and fire.meal.put_in_coals():
 		say(null, "Картошка в углях. Устройся рядом — есть время поговорить.")
-	_save_memory()
+	_changed()
+
+## The player's left hand under the potato while it shows (BrewHands.on_palm).
+func _hold_potato(delta: float) -> void:
+	var taken: Array[Dictionary] = []
+	if held_potato != null and held_potato.visible and player.hands.has(BodyChannels.POTATO):
+		var shoulders := player.stand_arms()
+		taken = BrewHands.on_palm(held_potato.global_position, shoulders, player.arms.global_basis.x)
+	player.hold(BodyChannels.POTATO, taken, delta)
+
+## The baked potato of `meal` into the left hand.
+func _take(meal: CampMeal) -> void:
+	player.hands.claim(BodyChannels.POTATO, holding_food)
+	held_meal = meal
+	if held_potato != null:
+		held_potato.queue_free()
+	held_potato = CampProps.potato(true)
+	held_potato.scale = Vector3.ONE * 0.70
+	player.get_node("CameraRig/Camera3D").add_child(held_potato)
+	for mesh: MeshInstance3D in held_potato.find_children("*", "MeshInstance3D", true, false):
+		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var material := mesh.material_override as StandardMaterial3D
+		material.no_depth_test = true
+		material.render_priority = 2
 
 func holding_food() -> bool:
 	return held_meal != null and held_meal.portions > 0
 
+## The left hand is free once the last of the potato is gone.
+func _let_potato_go() -> void:
+	if not holding_food():
+		player.hands.release(BodyChannels.POTATO)
+
 func eat() -> bool:
-	if not holding_food() or _bite_time > 0 or not held_meal.consume():
+	if not holding_food() or _bite_time > 0:
 		return false
+	var busy := player.hands.busy_text(BodyChannels.BITE)
+	if busy != "":
+		say(null, busy)
+		return false
+	if not held_meal.consume():
+		return false
+	_let_potato_go()
+	player.hands.claim(BodyChannels.BITE, func() -> bool: return _bite_time > 0.0)
 	_bite_time = 0.65
 	say(null, "Под хрустящей кожурой — горячая мягкая картошка. Хороший вечер.")
 	return true
@@ -321,10 +397,11 @@ func share() -> bool:
 		return false
 	if not held_meal.consume():
 		return false
+	_let_potato_go()
 	if companion != null:
 		(companion.outing as NpcOuting).toast()
 		(companion.outing as NpcOuting).receive_food()
-	fed(actor, "potato")
+	fed(actor, PeopleIds.FOOD_POTATO)
 	return true
 
 ## The nearest villager at rest within `reach` of the player, null for none.
@@ -340,7 +417,7 @@ func fed(actor: VillageNPC, food: String) -> void:
 	var loved := population.people.sheet(actor.person_id).favorite_food == food
 	warm(actor, "food", Acquaintance.FAVORITE_FOOD if loved else -1)
 	say(actor, line_of(actor, "food_" + food))
-	_save_memory()
+	_changed()
 
 ## A cook was brought a raw catch.
 func brought_catch(actor: VillageNPC) -> void:
@@ -350,11 +427,14 @@ func brought_catch(actor: VillageNPC) -> void:
 func _memory(actor: VillageNPC) -> Dictionary:
 	return memories.get(actor.name, {})
 
+## Shows `words` (a key of the table, a line of the people's sheets or words
+## translated already) under the speaker's name, in the language of the game.
 func say(actor: VillageNPC, words: String) -> void:
 	if words.is_empty():
 		return
-	caption.text = words if actor == null else actor.title + ":  " + words
-	_caption_time = Storyteller.caption_seconds(words)
+	var said := tr(words)
+	caption.text = InputActions.hint(said if actor == null else tr(actor.title) + ":  " + said)
+	_caption_time = Storyteller.caption_seconds(said)
 
 ## What the person says for `key` at the circle the player has reached with
 ## them: their own line, else the common one.
@@ -442,7 +522,7 @@ func nearest_companion(reach: float) -> VillageNPC:
 ## the eyes it is not.
 func sees(actor: VillageNPC, height := 0.65) -> bool:
 	var query := PhysicsRayQueryParameters3D.create(player.global_position + Vector3.UP * height,
-		actor.global_position + Vector3.UP * height, 1)
+		actor.global_position + Vector3.UP * height, PhysicsLayers.GROUND)
 	query.exclude = [player.get_rid(), actor.get_rid()]
 	return get_world_3d().direct_space_state.intersect_ray(query).is_empty()
 
@@ -505,12 +585,14 @@ func arrive_at_fire(outing: NpcOuting) -> void:
 	if CAMP_SIGNS.treat(self, outing) and not line_of(actor, "treat").is_empty():
 		words = line_of(actor, "treat")
 	say(actor, words)
-	_save_memory()
+	_changed()
 
 func seated_text() -> String:
 	if not interactions.seated.get("camp", false):
 		return ""
-	return " · V — пиво · X — налить" + (" · F — есть · Q — поделиться" if holding_food() else "")
+	if holding_food():
+		return tr(" · {drink_beer} — пиво · {camp_refill} — налить · {eat_potato} — есть · {camp_secondary} — поделиться")
+	return tr(" · {drink_beer} — пиво · {camp_refill} — налить")
 
 ## The player took a sip. Companions resting near raise their mugs, and it is
 ## a toast with the villagers at rest the player sits or stands at the bar
@@ -590,7 +672,12 @@ func _moment_for(outing: NpcOuting) -> Dictionary:
 	var by_fire := outing.mode == "rest"
 	var still := player_still()
 	var bond := population.people.bond(outing.actor.person_id)
-	now["activity"] = "fire" if by_fire else ("table" if at_table() else ("stand" if still else "walk"))
+	var activity := PeopleIds.ACTIVITY_STAND if still else PeopleIds.ACTIVITY_WALK
+	if by_fire:
+		activity = PeopleIds.ACTIVITY_FIRE
+	elif at_table():
+		activity = PeopleIds.ACTIVITY_TABLE
+	now["activity"] = String(activity)
 	now["listening"] = (by_fire or still) and player.global_position.distance_to(outing.actor.global_position) <= TALK_REACH
 	now["halt"] = outing.halt
 	now["company"] = CAMP_REST.company(self, outing.actor)
@@ -666,10 +753,10 @@ func _voice(actor: VillageNPC, line: Dictionary) -> bool:
 func _today() -> int:
 	return valley.day if valley != null else 1
 
-## What the player has with the villagers has changed: it is saved soon.
+## The fires or what the player has with the villagers have changed: the
+## valley saves them soon.
 func _changed() -> void:
-	if valley != null:
-		valley.save_soon()
+	SaveService.save_soon()
 
 func _check_passersby() -> void:
 	var fire := nearby_fire(player.global_position, 4.0)
@@ -692,35 +779,49 @@ func cancel_placement() -> void:
 
 func fast_travel() -> void:
 	cancel_placement()
-	for outing in companions.duplicate():
+	for outing: NpcOuting in companions.duplicate():
 		if is_instance_valid(outing):
 			dismiss(outing.actor)
 
-func _save_memory() -> void:
-	if memory_path.is_empty():
-		return
+## The fires and the villagers' memories of them as the valley's save holds
+## them (SaveService, section "camping"): {memories, sites: [[x, y, z, fuel
+## seconds], ...]}.
+func to_dict() -> Dictionary:
 	var sites: Array = []
 	for fire in fires:
-		sites.append([fire.position.x, fire.position.y, fire.position.z])
-	var file := FileAccess.open(memory_path, FileAccess.WRITE)
-	if file != null:
-		file.store_string(JSON.stringify({"version": 1, "memories": memories, "sites": sites}))
+		sites.append([fire.position.x, fire.position.y, fire.position.z, fire.fuel.seconds])
+	# Fires still waiting to be laid again (restore) are kept as they were read.
+	sites.append_array(_unlaid_sites)
+	return {"memories": memories.duplicate(true), "sites": sites}
 
-func _load_memory() -> void:
-	if memory_path.is_empty() or not FileAccess.file_exists(memory_path):
+## Takes the fires and the memories back from to_dict(), checked. The fires are
+## laid after a physics frame, on ground that still takes them.
+func restore(saved_state: Variant) -> void:
+	if not saved_state is Dictionary:
 		return
-	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(memory_path))
-	if not data is Dictionary or data.get("version") != 1:
+	var saved: Dictionary = saved_state
+	var saved_memories: Variant = saved.get("memories")
+	if saved_memories is Dictionary:
+		memories = saved_memories
+	var saved_sites: Variant = saved.get("sites")
+	if not saved_sites is Array:
 		return
-	if data.get("memories") is Dictionary:
-		memories = data.memories
+	_unlaid_sites = saved_sites
 	await get_tree().physics_frame
-	for values in data.get("sites", []):
-		if not values is Array or values.size() != 3:
+	var unlaid := _unlaid_sites
+	_unlaid_sites = []
+	for item: Variant in unlaid:
+		if not item is Array:
+			continue
+		var values: Array = item
+		if values.size() != 3 and values.size() != 4:
 			continue
 		var point := TavernInteractions.vector(values)
 		if not point.is_finite():
 			continue
 		var site := check_site(point, true)
 		if site.has("position"):
-			_create_fire(site)
+			var fire := _create_fire(site)
+			# The logs left in a fire put out wait for it to be lit again.
+			if values.size() == 4 and (values[3] is float or values[3] is int) and is_finite(float(values[3])):
+				fire.fuel.seconds = clampf(float(values[3]), 0.0, CampFuel.MAX_LOGS * CampFuel.LOG_SECONDS)

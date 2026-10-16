@@ -1,6 +1,9 @@
 class_name Campfire
 extends Node3D
+## The last log has burnt: the fire is out.
+signal burnt_out
 var meal := CampMeal.new()
+var fuel := CampFuel.new()
 var burning := false
 var seats: Array[Dictionary] = []
 var flames: HearthFire
@@ -47,6 +50,7 @@ func _ready() -> void:
 	crackle.unit_size = 2.0
 	crackle.max_distance = 14.0
 	crackle.volume_db = -13.0
+	crackle.bus = AudioBuses.AMBIENCE
 	add_child(crackle)
 	# Low stones can be stepped over; the hot centre remains a physical object.
 	var body := StaticBody3D.new()
@@ -65,11 +69,13 @@ func _ready() -> void:
 	var jug := NpcProps.jug()
 	jug.position = Vector3(-0.85, 0.015, 0.4)
 	add_child(jug)
-	NpcProps.mesh(jug, NpcProps.cylinder(0.065, 0.012), Color("d9ac54"), Vector3.UP * 0.185)
 	set_burning(false)
 	_update_potato()
 
+## A fire lit with no log in it (a tool's shot) burns on its kindling, a log long.
 func set_burning(value: bool) -> void:
+	if value and fuel.empty():
+		fuel.add_log()
 	burning = value
 	flames.visible = value
 	glow.visible = value
@@ -84,22 +90,30 @@ func set_burning(value: bool) -> void:
 	else:
 		crackle.stop()
 
-func interaction_text(holding: bool) -> String:
+func interaction_text(holding: bool, holding_log := false) -> String:
+	if holding_log:
+		if fuel.seconds > (CampFuel.MAX_LOGS - 1) * CampFuel.LOG_SECONDS:
+			return "Костёр полон дров"
+		return tr("{interact} — подбросить полено · дров: %d") % fuel.logs() if burning else tr("{interact} — подбросить полено")
 	if not burning:
-		return "E — разжечь костёр"
+		return "{interact} — разжечь костёр" if not fuel.empty() else "Нужны дрова: принеси полено из поленницы"
 	if meal.ready():
-		return "Сначала доешь картошку в руках · Q — потушить" if holding else "E — достать печёную картошку · Q — потушить"
+		return "Сначала доешь картошку в руках · {camp_secondary} — потушить" if holding else "{interact} — достать печёную картошку · {camp_secondary} — потушить"
 	if meal.cooking:
-		return "Картошка печётся в углях… · Q — потушить"
+		return "Картошка печётся в углях… · {camp_secondary} — потушить"
 	if holding:
-		return "F — есть картошку · Q — поделиться рядом со спутником"
-	return "E — положить картошку в угли · Q — потушить"
+		return "{eat_potato} — есть картошку · {camp_secondary} — поделиться рядом со спутником"
+	return "{interact} — положить картошку в угли · {camp_secondary} — потушить"
 
 func _process(delta: float) -> void:
 	_clock += delta
 	meal.advance(delta, burning)
 	if burning:
-		glow.light_energy = 3.8 + sin(_clock * 7.3) * 0.22 + sin(_clock * 13.0) * 0.1
+		if fuel.burn(delta):
+			set_burning(false)
+			burnt_out.emit()
+			return
+		glow.light_energy = (3.8 + sin(_clock * 7.3) * 0.22 + sin(_clock * 13.0) * 0.1) * fuel.strength()
 	_update_potato()
 
 func _update_potato() -> void:

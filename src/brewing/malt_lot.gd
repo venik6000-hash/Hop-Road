@@ -3,7 +3,7 @@ extends RefCounted
 ## A lot of grain on its way from a sack to the mash (docs/plans/brewing.md,
 ## section 4): barley is steeped, grown on the floor, dried in the kiln and
 ## milled; bought malt only goes through the mill, and a part of it may be
-## roasted dark in the kiln. Each mistake is a flaw id (BrewBatch.FLAWS) that
+## roasted dark in the kiln. Each mistake is a flaw id (BrewIds.FLAWS) that
 ## goes with the grain into the batch.
 
 ## What a kind of grain gives: colour (EBC), extract per kg when well grown,
@@ -109,7 +109,7 @@ func steep(water_l: float) -> void:
 		return
 	woken = clampf(water_l / (kg * STEEP_WATER), 0.0, 1.0)
 	if woken < 0.95:
-		_flaw("sleepy_grain")
+		_flaw(BrewIds.FLAW_SLEEPY_GRAIN)
 	stage = "steeped"
 
 ## A day on the floor with the heap turned `turns` times.
@@ -121,14 +121,14 @@ func floor_day(turns: int) -> void:
 	growth = minf(1.0, growth + GROWTH_A_DAY)
 	unturned_days = unturned_days + 1 if turns < TURNS_A_DAY else 0
 	if unturned_days >= MOULD_DAYS:
-		_flaw("mould")
+		_flaw(BrewIds.FLAW_MOULD)
 	if floor_days > FLOOR_DAYS:
-		_flaw("overgrown")
+		_flaw(BrewIds.FLAW_OVERGROWN)
 
 ## How well the lot grew: what of its starch the mash can turn to sugar.
 func modified() -> float:
 	var grown := woken * growth
-	if flaws.has("overgrown"):
+	if flaws.has(BrewIds.FLAW_OVERGROWN):
 		grown *= 0.85
 	return grown
 
@@ -166,7 +166,7 @@ func kiln_minutes(minutes: float, heat: float, wood: String, smoke_through: floa
 	if smoke_through > 0.0 and heat > WARM:
 		smoke = minf(1.0, smoke + minutes / 60.0 * SMOKE_AN_HOUR * smoke_through)
 		if wood != "beech" and smoke_through >= 0.5:
-			_flaw("acrid_smoke")
+			_flaw(BrewIds.FLAW_ACRID_SMOKE)
 
 ## The malt taken off the kiln: what its heat, its stewing and its smoke made
 ## of it.
@@ -176,14 +176,14 @@ func kiln_done() -> void:
 	if stage == "green":
 		kg *= 1.0 - KILN_LOSS
 		if moisture > DAMP:
-			_flaw("damp_malt")
+			_flaw(BrewIds.FLAW_DAMP_MALT)
 		kind = "caramel" if stew_minutes >= STEW_MINUTES else "pale"
 	if roast_minutes >= DARK_HOURS * 60.0:
 		kind = "dark"
 	if peak_heat > BURN_HEAT:
-		_flaw("burnt")
-	color = KINDS[kind].color * (2.0 if flaws.has("burnt") else 1.0)
-	if kind == "pale" and smoke >= SMOKED and not flaws.has("acrid_smoke"):
+		_flaw(BrewIds.FLAW_BURNT)
+	color = KINDS[kind].color * (2.0 if flaws.has(BrewIds.FLAW_BURNT) else 1.0)
+	if kind == "pale" and smoke >= SMOKED and not flaws.has(BrewIds.FLAW_ACRID_SMOKE):
 		kind = "smoked"
 	stage = kind
 
@@ -193,10 +193,10 @@ func mill(mill_gap: float) -> void:
 		return
 	gap = clampf(mill_gap, 0.0, 1.0)
 	if gap < FLOUR:
-		_flaw("flour")
+		_flaw(BrewIds.FLAW_FLOUR)
 	crush_yield = 1.0 if gap <= WHOLE else lerpf(1.0, COARSE_YIELD, (gap - WHOLE) / (1.0 - WHOLE))
 	if crush_yield < COARSE:
-		_flaw("coarse_grind")
+		_flaw(BrewIds.FLAW_COARSE_GRIND)
 
 ## Kg of extract the lot can give a mash that turns all its starch.
 func extract() -> float:
@@ -271,6 +271,6 @@ static func from_dict(data: Dictionary) -> MaltLot:
 	var listed: Variant = data.get("flaws")
 	if listed is Array:
 		for id: Variant in listed:
-			if id is String and BrewBatch.FLAWS.has(id):
+			if id is String and BrewIds.FLAWS.has(id):
 				lot._flaw(id)
 	return lot

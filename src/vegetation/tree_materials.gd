@@ -6,6 +6,8 @@ const BARK_SHADER := preload("res://src/vegetation/shaders/tree_bark.gdshader")
 const FOLIAGE_SHADER := preload("res://src/vegetation/shaders/tree_foliage.gdshader")
 const IMPOSTOR_SHADER := preload("res://src/vegetation/shaders/tree_impostor.gdshader")
 const TEXTURES := "res://assets/models/vegetation/textures/"
+## The sizes of the impostors (WorldSchemas.impostors).
+const IMPOSTORS := "res://assets/generated/vegetation/impostors.json"
 ## Per look group (TreePlacer.SPECIES_GROUP): bark texture set and its file
 ## type, leaf atlas, broadleaf gloss.
 const GROUPS := [
@@ -56,14 +58,15 @@ static func make(system: VegetationSystem) -> void:
 	system.impostor_material.shader = IMPOSTOR_SHADER
 	system.impostor_material.set_shader_parameter("impostor_albedo", load("res://assets/generated/vegetation/impostor_albedo.png"))
 	system.impostor_material.set_shader_parameter("impostor_normal", load("res://assets/generated/vegetation/impostor_normal.png"))
-	var meta: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://assets/generated/vegetation/impostors.json"))
-	for kind in meta.species.size():
-		var frame: Dictionary = meta.species[kind]
+	var meta: Dictionary = DataFile.read(IMPOSTORS, WorldSchemas.impostors())
+	var species: Array = meta.species
+	for kind: int in species.size():
+		var frame: Dictionary = species[kind]
 		system.impostor_frames.append(Vector4(frame.width_m, frame.height_m, frame.bottom_m,
 			TreePlacer.SPECIES_GROUP[kind]))
 		system.crowns.append(Vector2(frame.crown_radius_m, VegetationSystem.CROWN_SHADE[TreePlacer.SPECIES_GROUP[kind]]))
 	system.impostor_material.set_shader_parameter("frames", system.impostor_frames)
-	system.impostor_material.set_shader_parameter("lod_range", VegetationSystem.IMPOSTOR_RANGE)
+	system.impostor_material.set_shader_parameter("lod_range", system.impostor_range())
 	system.impostor_material.set_shader_parameter("rain_wets", RAIN_ON_LEAVES)
 	# Beyond the canopy field an impostor takes the wood round it from the
 	# terrain's forest mask.

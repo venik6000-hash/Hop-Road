@@ -5,17 +5,17 @@ const COOK_SECONDS := 24.0
 
 static func use_catch(lake: LakesideSystem) -> void:
 	if lake.camping.holding_food():
-		lake.notify("Сначала доешь или раздели картошку: F / Q.")
+		lake.notify("Сначала доешь или раздели картошку: {eat_potato} / {camp_secondary}.")
 		return
 	if lake.rod_out:
-		lake.notify("J — убери удочку, чтобы достать улов.")
+		lake.notify("{fishing_rod} — убери удочку, чтобы достать улов.")
 		return
 	var companion := lake.camping.nearest_companion(3.0)
 	var cooked := lake.fishing.first(true)
 	if companion != null and not cooked.is_empty():
 		if not lake.fishing.take(cooked.id).is_empty():
 			(companion.outing as NpcOuting).receive_food(fish_visual(true, 0.65))
-			lake.camping.fed(companion, "fish")
+			lake.camping.fed(companion, PeopleIds.FOOD_FISH)
 		return
 	for actor: VillageNPC in lake.interactions.population.actors:
 		if actor.job in ["chop", "stir"] and actor.present() and actor.at_work() and actor.global_position.distance_to(lake.player.global_position) < 2.5:
@@ -27,7 +27,7 @@ static func use_catch(lake: LakesideSystem) -> void:
 	var host := lake.camping.nearest_at_rest(2.5)
 	if host != null and not cooked.is_empty():
 		if not lake.fishing.take(cooked.id).is_empty():
-			lake.camping.fed(host, "fish")
+			lake.camping.fed(host, PeopleIds.FOOD_FISH)
 		return
 	var fire := lake.camping.nearby_fire(lake.player.global_position, 3.0)
 	if fire != null and fire.burning and lake.cooking.is_empty():
@@ -43,7 +43,7 @@ static func use_catch(lake: LakesideSystem) -> void:
 	if not cooked.is_empty() and lake.fishing.take(cooked.id).has("id"):
 		lake.notify("Тёплая рыба с хрустящей корочкой. Хороший привал.")
 	else:
-		lake.notify("Нужен улов: J — удочка. Сырую рыбу можно приготовить у огня или отнести повару.")
+		lake.notify("Нужен улов: {fishing_rod} — удочка. Сырую рыбу можно приготовить у огня или отнести повару.")
 
 static func make_grilling_fish() -> Node3D:
 	var result := Node3D.new()
@@ -82,6 +82,6 @@ static func advance_cooking(lake: LakesideSystem, delta: float) -> void:
 			(mesh.material_override as StandardMaterial3D).albedo_color = Color.WHITE.lerp(Color("bb8857"), minf(lake.cook_time / COOK_SECONDS, 1))
 	if lake.cook_time >= COOK_SECONDS:
 		if lake.fishing.cook(lake.cooking.id):
-			lake.notify("Рыба готова и убрана в корзину. Z — поесть / угостить спутника рядом.")
+			lake.notify("Рыба готова и убрана в корзину. {fish_use} — поесть / угостить спутника рядом.")
 		lake.cooking.clear()
 		lake.cooked_visual.queue_free()

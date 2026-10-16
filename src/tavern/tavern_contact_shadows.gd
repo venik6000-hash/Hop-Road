@@ -55,8 +55,8 @@ const DOORWAY := 1.2
 const VIEW := 5.0
 
 ## Off for an A/B and for tools that compare (every CompositorEffect has an
-## `enabled` of its own; this one is the same for all).
-static var on := true
+## `enabled` of its own; this one is the same for all that show the rooms).
+var on := true
 
 ## The share of a hidden lamp's light a pixel loses, 0..1.
 @export_range(0.0, 1.0) var strength := 1.0
@@ -190,12 +190,6 @@ static func weight(lamp: Dictionary, at: Vector3, normal: Vector3) -> float:
 		share *= cone_share(-to_lamp.dot(axis) / away, cone, lamp.cone_decay)
 	var energy: float = lamp.energy
 	return energy * share * facing
-
-## The light left to a pixel that the lamps send `total` (the sum of their
-## weights), of which `hidden` is behind something on the screen: 1 none
-## taken. The shader's last step.
-static func light_left(total: float, hidden: float, taken: float) -> float:
-	return 1.0 - taken * hidden / (total + AMBIENT)
 
 ## The lamps of `lamps` (records) that matter to an eye at `eye`, the one that
 ## weighs most there first, MAX_LAMPS at most; none when no lamp among them

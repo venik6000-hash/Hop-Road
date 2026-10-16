@@ -8,7 +8,7 @@ const Batches = preload("res://src/wildlife/lake_bed_batches.gd")
 static func place(lake: LakeBed) -> void:
 	for config: Dictionary in LakeBed.WOOD:
 		var placed := 0
-		for attempt in config.count * 60:
+		for attempt: int in config.count * 60:
 			if placed >= config.count:
 				break
 			var point := Ground.random_point(lake)
@@ -37,13 +37,13 @@ static func place(lake: LakeBed) -> void:
 static func litter(lake: LakeBed) -> void:
 	for config: Dictionary in LakeBed.LITTER:
 		for anchor in lake.wood_places:
-			for index in config.per_wood:
+			for index: int in config.per_wood:
 				_scatter(lake, config, anchor)
 		for anchor in lake.boulder_places:
 			if lake._rng.randf() < config.per_boulder:
 				_scatter(lake, config, anchor)
 		var placed := 0
-		for attempt in config.loose * 30:
+		for attempt: int in config.loose * 30:
 			if placed >= config.loose:
 				break
 			if _drop(lake, config, Ground.random_point(lake)):

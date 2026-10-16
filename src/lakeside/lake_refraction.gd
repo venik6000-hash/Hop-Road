@@ -11,6 +11,9 @@ const WATER_SQUARE := 32.0
 const WATER_SWELL := 2.0
 const SHORE := 1.5
 var water: WaterSystem
+## The level's context (its tavern's portals); null in a tool that builds
+## a part of the level alone.
+var world: WorldContext
 var viewport: SubViewport
 var camera: Camera3D
 var capture := RefractionCapture.new()
@@ -66,8 +69,9 @@ func _register_geometry() -> void:
 	for node in get_parent().find_children("*","GeometryInstance3D",true,false):
 		var geometry := node as GeometryInstance3D
 		var material := geometry.material_override as ShaderMaterial
-		if material == null and geometry is MeshInstance3D and geometry.mesh != null:
-			material = geometry.get_active_material(0) as ShaderMaterial
+		var mesh_instance := geometry as MeshInstance3D
+		if material == null and mesh_instance != null and mesh_instance.mesh != null:
+			material = mesh_instance.get_active_material(0) as ShaderMaterial
 		if material != null and material.shader != null and material.shader.resource_path in [
 			"res://src/terrain/terrain.gdshader", "res://src/rocks/rock.gdshader",
 			"res://src/rocks/rock_cliff.gdshader", "res://src/wildlife/underwater_life.gdshader",
@@ -95,7 +99,9 @@ func _process(_delta: float) -> void:
 	# Half the pixels the scene itself is shaded in: a window larger than the
 	# render tier's budget is enlarged from them, and the lake's bed needs no
 	# more than the lake.
-	var size := Vector2i(Vector2(get_viewport().size) * (get_viewport().scaling_3d_scale * 0.5))
+	var shown := get_viewport()
+	var shown_size: Vector2i = (shown as Window).size if shown is Window else (shown as SubViewport).size
+	var size := Vector2i(Vector2(shown_size) * (shown.scaling_3d_scale * 0.5))
 	size.x = clampi(size.x,320,960)
 	size.y = clampi(size.y,180,540)
 	if viewport.size != size:
@@ -112,7 +118,7 @@ func _process(_delta: float) -> void:
 ## Whether the lake can be seen at all: always from outdoors, and from the
 ## tavern's rooms when an opening shows a square of the ground that has water.
 func _through_portals() -> bool:
-	var portals := TavernPortals.current
+	var portals := world.portals if world != null else null
 	if portals == null or not portals.sight.active:
 		return true
 	if portals.revision != _portal_revision:

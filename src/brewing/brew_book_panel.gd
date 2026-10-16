@@ -1,11 +1,14 @@
 class_name BrewBookPanel
 extends CanvasLayer
 ## The brewer's book open on the desk: two pages of BrewBook.pages at a time.
+## The pages are written anew when the language changes.
 
 const PAPER := Color(0.86, 0.8, 0.66)
 const INK := Color(0.2, 0.14, 0.09)
 
 var pages := PackedStringArray()
+## Callable() -> PackedStringArray: writes the pages in the language of the game.
+var _write := Callable()
 ## The left page of the spread.
 var first := 0
 
@@ -44,8 +47,10 @@ func _page(spread: HBoxContainer) -> Label:
 	spread.add_child(page)
 	return page
 
-func open(book_pages: PackedStringArray) -> void:
-	pages = book_pages
+## Opens the book on the pages `write` gives (Callable() -> PackedStringArray).
+func open(write: Callable) -> void:
+	_write = write
+	pages = write.call()
 	first = clampi(first, 0, maxi(0, pages.size() - 1) & ~1)
 	visible = true
 	_show()
@@ -54,6 +59,11 @@ func open(book_pages: PackedStringArray) -> void:
 func turn(step: int) -> void:
 	first = clampi(first + step * 2, 0, maxi(0, pages.size() - 1) & ~1)
 	_show()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED and visible and _write.is_valid():
+		pages = _write.call()
+		_show()
 
 func _show() -> void:
 	_left.text = pages[first] if first < pages.size() else ""

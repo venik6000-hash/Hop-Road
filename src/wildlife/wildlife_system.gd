@@ -19,7 +19,7 @@ var _clearance: Dictionary = {}
 
 func _ready() -> void:
 	_rng.seed = 702026
-	for kind in ["deer", "fox", "chicken"]:
+	for kind: String in ["deer", "fox", "chicken"]:
 		var shape := CapsuleShape3D.new()
 		shape.radius = 0.36 if kind == "deer" else 0.22
 		shape.height = 1.25 if kind == "deer" else 0.48
@@ -30,11 +30,11 @@ func _ready() -> void:
 func populate() -> void:
 	await get_tree().physics_frame
 	# Fields beside the arrival trail and woods; hens stay around the village.
-	for zone in [Vector3(-22, 0, 28), Vector3(32, 0, 34), Vector3(-68, 0, 40), Vector3(68, 0, -50)]:
+	for zone: Vector3 in [Vector3(-22, 0, 28), Vector3(32, 0, 34), Vector3(-68, 0, 40), Vector3(68, 0, -50)]:
 		_add_ground("deer", zone, 22, 3)
-	for zone in [Vector3(-40, 0, 35), Vector3(46, 0, 25), Vector3(-95, 0, 30)]:
+	for zone: Vector3 in [Vector3(-40, 0, 35), Vector3(46, 0, 25), Vector3(-95, 0, 30)]:
 		_add_ground("fox", zone, 18, 2)
-	for zone in [Vector3(20, 0, -23), Vector3(-15, 0, -32), Vector3(-5, 0, 23)]:
+	for zone: Vector3 in [Vector3(20, 0, -23), Vector3(-15, 0, -32), Vector3(-5, 0, 23)]:
 		_add_ground("chicken", zone, 9, 4)
 	# Shrikes over the meadows, ravens over the woods, gulls along the lake.
 	var flocks := [
@@ -47,7 +47,7 @@ func populate() -> void:
 	]
 	for flock: Dictionary in flocks:
 		_add_flock("bird", flock.at, 5, flock.species)
-	for zone in [Vector3(-22, 0, 30), Vector3(22, 0, 22), Vector3(-60, 0, 16), Vector3(50, 0, -38)]:
+	for zone: Vector3 in [Vector3(-22, 0, 30), Vector3(22, 0, 22), Vector3(-60, 0, 16), Vector3(50, 0, -38)]:
 		_add_flock("butterfly", zone, 6)
 	bed = LakeBed.new()
 	bed.name = "LakeBed"
@@ -94,7 +94,7 @@ func ground_safe(point: Vector3, kind: String) -> bool:
 		terrain.height_at(point.x, point.z + 0.8) - y).length() / 0.8
 	if slope > 0.65:
 		return false
-	var ray := PhysicsRayQueryParameters3D.create(Vector3(point.x, y + 16.0, point.z), Vector3(point.x, y - 1.0, point.z), 1)
+	var ray := PhysicsRayQueryParameters3D.create(Vector3(point.x, y + 16.0, point.z), Vector3(point.x, y - 1.0, point.z), PhysicsLayers.GROUND)
 	if player != null:
 		ray.exclude = [player.get_rid()]
 	var hit := get_world_3d().direct_space_state.intersect_ray(ray)
@@ -104,7 +104,7 @@ func ground_safe(point: Vector3, kind: String) -> bool:
 	var query := PhysicsShapeQueryParameters3D.new()
 	query.shape = shape
 	query.transform = Transform3D(Basis.IDENTITY, Vector3(point.x, hit.position.y + shape.height * 0.5 + 0.12, point.z))
-	query.collision_mask = 1 | 4
+	query.collision_mask = PhysicsLayers.GROUND | PhysicsLayers.VILLAGERS
 	if player != null:
 		query.exclude = [player.get_rid()]
 	return get_world_3d().direct_space_state.intersect_shape(query, 1).is_empty()
@@ -199,11 +199,13 @@ func fish_count() -> int:
 func _setup_audio() -> void:
 	audio = AudioStreamPlayer3D.new()
 	audio.name = "ForestBirdsong"
-	audio.stream = load(WildlifeModel.DIRECTORY + "birds.ogg")
-	audio.stream.loop = true
+	var birdsong: AudioStreamOggVorbis = load(WildlifeModel.DIRECTORY + "birds.ogg")
+	audio.stream = birdsong
+	birdsong.loop = true
 	audio.unit_size = 24.0
 	audio.max_distance = 230.0
 	audio.volume_db = -16.0
+	audio.bus = AudioBuses.AMBIENCE
 	audio.position = Vector3(-30, terrain.height_at(-30, 30) + 7, 30)
 	add_child(audio)
 	audio.play()

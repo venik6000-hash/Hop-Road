@@ -73,6 +73,9 @@ func _process(_delta: float) -> void:
 
 func _create_gpu_resources() -> void:
 	_rd = RenderingServer.get_rendering_device()
+	# No device in a headless run (the tests).
+	if _rd == null:
+		return
 	_sampler = RdUtil.linear_sampler(_rd, RenderingDevice.SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE)
 	for pass_name: String in ["transmittance", "multiscatter", "skyview"]:
 		var spirv := RdUtil.compute_spirv("res://src/sky/atmosphere_%s.glsl" % pass_name, "Atmosphere " + pass_name)

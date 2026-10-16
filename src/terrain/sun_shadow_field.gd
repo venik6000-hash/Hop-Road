@@ -47,9 +47,9 @@ var _built_for := Vector3.ZERO
 var _published := false
 
 func _ready() -> void:
-	RenderingServer.call_on_render_thread(_create_gpu_resources.bind(
-		terrain.material.get_shader_parameter("near_height").get_rid(),
-		terrain.material.get_shader_parameter("far_height").get_rid()))
+	var near_height: Texture = terrain.material.get_shader_parameter("near_height")
+	var far_height: Texture = terrain.material.get_shader_parameter("far_height")
+	RenderingServer.call_on_render_thread(_create_gpu_resources.bind(near_height.get_rid(), far_height.get_rid()))
 
 func _exit_tree() -> void:
 	RenderingServer.call_on_render_thread(_free_gpu_resources)
@@ -76,6 +76,9 @@ func far_rect() -> Vector4:
 
 func _create_gpu_resources(near_height: RID, far_height: RID) -> void:
 	_rd = RenderingServer.get_rendering_device()
+	# No device in a headless run (the tests).
+	if _rd == null:
+		return
 	_sampler = RdUtil.linear_sampler(_rd, RenderingDevice.SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE)
 	for pass_name: String in ["sweep", "resolve"]:
 		var spirv := RdUtil.compute_spirv("res://src/terrain/sun_shadow_%s.glsl" % pass_name, "Sun shadow " + pass_name)

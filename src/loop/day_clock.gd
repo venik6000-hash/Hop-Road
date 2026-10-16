@@ -87,7 +87,10 @@ static func hours_until_wake(hour: float) -> float:
 	var ahead := fposmod(WAKE_HOUR - fposmod(hour, 24.0), 24.0)
 	return ahead if ahead > 0.0 else 24.0
 
-## "morning", "day", "evening" or "night".
+## The parts of the day, `part` names one of them.
+const PARTS: Array[String] = ["morning", "day", "evening", "night"]
+
+## One of PARTS.
 static func part(hour: float) -> String:
 	var h := fposmod(hour, 24.0)
 	if not is_day(h):

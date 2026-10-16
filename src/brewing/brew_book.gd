@@ -19,18 +19,19 @@ var flaws: Dictionary = {}
 
 static func load_files(recipes_path := RECIPES, flaws_path := FLAWS) -> BrewBook:
 	var book := BrewBook.new()
-	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(recipes_path))
+	var data: Variant = DataFile.read(recipes_path, BrewingSchemas.recipes())
 	if data is Dictionary:
-		var listed: Variant = data.get("recipes")
+		var table: Dictionary = data
+		var listed: Variant = table.get("recipes")
 		if listed is Array:
 			for recipe: Variant in listed:
 				if recipe is Dictionary:
 					book.recipes.append(_recipe(recipe))
-		var none: Variant = data.get("nameless")
+		var none: Variant = table.get("nameless")
 		book.nameless = none if none is Dictionary else {}
-		var bad: Variant = data.get("spoiled")
+		var bad: Variant = table.get("spoiled")
 		book.spoiled = bad if bad is Dictionary else {}
-	var causes: Variant = JSON.parse_string(FileAccess.get_file_as_string(flaws_path))
+	var causes: Variant = DataFile.read(flaws_path, BrewingSchemas.flaws())
 	book.flaws = causes if causes is Dictionary else {}
 	return book
 
@@ -83,90 +84,99 @@ func recipe(id: String) -> Dictionary:
 			return each
 	return {}
 
-## A recipe as a page of the book: its name, its taste, its steps.
+## A recipe as a page of the book, translated: its name, its taste, its steps.
 static func recipe_page(recipe: Dictionary) -> String:
-	var lines := PackedStringArray([str(recipe.get("name", "")), str(recipe.get("taste", "")), ""])
+	var lines := PackedStringArray([_t(str(recipe.get("name", ""))), _t(str(recipe.get("taste", ""))), ""])
 	for step: Variant in recipe.get("steps", []):
-		lines.append("— " + str(step))
+		lines.append("— " + _t(str(step)))
 	return "\n".join(lines)
 
 ## The batch's journal (BrewBatch.journal) as the brewer writes it down, a
-## line a step, and its flaws with their causes.
+## line a step, and its flaws with their causes. Translated.
 func journal_lines(journal: Array[Dictionary], batch_flaws: Array[String]) -> PackedStringArray:
 	var lines := PackedStringArray()
 	for entry: Dictionary in journal:
 		lines.append(journal_line(entry))
 	for id: String in batch_flaws:
 		var flaw: Dictionary = flaws.get(id, {})
-		lines.append("Изъян: %s. %s" % [flaw.get("name", id), flaw.get("cause", "")])
+		lines.append(tr("Изъян: %s. %s") % [tr(str(flaw.get("name", id))), tr(str(flaw.get("cause", "")))])
 	return lines
 
-## One step of the journal in words.
+## One step of the journal in words, translated.
 static func journal_line(entry: Dictionary) -> String:
 	var n := func(key: String) -> float: return float(entry.get(key, 0.0))
 	match str(entry.step):
 		"line_tun":
-			return "Дно чана выстлано можжевельником: %.1f кг." % n.call("kg")
+			return _t("Дно чана выстлано можжевельником: %.1f кг.") % n.call("kg")
 		"mash_in":
-			return "Затор: %.0f кг солода, %.0f л воды при %.0f°, затор %.0f°." % [n.call("grain_kg"), n.call("water_l"),
+			return _t("Затор: %.0f кг солода, %.0f л воды при %.0f°, затор %.0f°.") % [n.call("grain_kg"), n.call("water_l"),
 				n.call("water_temp"), n.call("mash_temp")]
 		"grain":
-			return "Досыпано %.1f кг солода, затор %.0f°." % [n.call("kg"), n.call("mash_temp")]
+			return _t("Досыпано %.1f кг солода, затор %.0f°.") % [n.call("kg"), n.call("mash_temp")]
 		"pour":
-			return "Долито %.0f л при %.0f°, затор %.0f°." % [n.call("liters"), n.call("temp"), n.call("mash_temp")]
+			return _t("Долито %.0f л при %.0f°, затор %.0f°.") % [n.call("liters"), n.call("temp"), n.call("mash_temp")]
 		"rest":
-			return "Затор стоял %.0f мин, остыл до %.0f°, осахарено %.0f %%." % [n.call("minutes"), n.call("mash_temp"),
+			return _t("Затор стоял %.0f мин, остыл до %.0f°, осахарено %.0f %%.") % [n.call("minutes"), n.call("mash_temp"),
 				n.call("conversion") * 100.0]
 		"lauter":
-			return "Слив: кран открыт на %.0f %%, промывка %.0f л, сусла %.0f л." % [n.call("tap") * 100.0, n.call("sparge_l"),
+			return _t("Слив: кран открыт на %.0f %%, промывка %.0f л, сусла %.0f л.") % [n.call("tap") * 100.0, n.call("sparge_l"),
 				n.call("volume_l")]
 		"spill":
-			return "Пролито %.0f л %s." % [n.call("liters"), "пива" if entry.get("beer", false) else "сусла"]
+			var spill := _t("Пролито %.0f л пива.") if entry.get("beer", false) else _t("Пролито %.0f л сусла.")
+			return spill % n.call("liters")
 		"water_down":
-			return "В сусло попало %.0f л воды." % n.call("liters")
+			return _t("В сусло попало %.0f л воды.") % n.call("liters")
 		"boil":
-			return "Кипело %.0f мин на огне %.0f %%, в котле %.0f л." % [n.call("minutes"), n.call("fire") * 100.0,
+			return _t("Кипело %.0f мин на огне %.0f %%, в котле %.0f л.") % [n.call("minutes"), n.call("fire") * 100.0,
 				n.call("volume_l")]
 		"hops":
-			return "Хмель: %.0f г на %.0f-й минуте кипения." % [n.call("grams"), n.call("at")]
+			return _t("Хмель: %.0f г на %.0f-й минуте кипения.") % [n.call("grams"), n.call("at")]
 		"draw_fire":
-			return "Огонь снят после %.0f мин кипения." % n.call("boil_minutes")
+			return _t("Огонь снят после %.0f мин кипения.") % n.call("boil_minutes")
 		"honey":
-			return "Мёд: %.1f кг%s." % [n.call("kg"), " после огня" if entry.get("fire_out", false) else " в кипение"]
+			var honey := _t("Мёд: %.1f кг после огня.") if entry.get("fire_out", false) else _t("Мёд: %.1f кг в кипение.")
+			return honey % n.call("kg")
 		"linden":
-			return "Липовый цвет: %.2f кг." % n.call("kg")
+			return _t("Липовый цвет: %.2f кг.") % n.call("kg")
 		"cool":
-			return "Сусло стыло %.1f ч, до %.0f°." % [n.call("hours"), n.call("wort_temp")]
+			return _t("Сусло стыло %.1f ч, до %.0f°.") % [n.call("hours"), n.call("wort_temp")]
 		"pitch":
-			return "Дрожжи: %.1f л в сусло при %.0f°%s." % [n.call("yeast_l"), n.call("wort_temp"),
-				", дрожжи сварились" if entry.get("died", false) else ""]
+			var pitch := _t("Дрожжи: %.1f л в сусло при %.0f°, дрожжи сварились.") if entry.get("died", false) \
+				else _t("Дрожжи: %.1f л в сусло при %.0f°.")
+			return pitch % [n.call("yeast_l"), n.call("wort_temp")]
 		"ferment_day":
-			return "День брожения при %.0f°%s." % [n.call("cellar_temp"), ", пена снята" if entry.get("skim", false) else ""]
+			var day := _t("День брожения при %.0f°, пена снята.") if entry.get("skim", false) else _t("День брожения при %.0f°.")
+			return day % n.call("cellar_temp")
 		"rack":
-			var spilled: String = " пролито %.0f л." % n.call("spilled_l") if n.call("spilled_l") >= 0.5 else ""
-			return "Перелив в лагерную бочку: бочка %s.%s" % ["ошпарена" if entry.get("scalded", false) else "не ошпарена",
-				spilled]
+			var rack := _t("Перелив в лагерную бочку: бочка ошпарена.") if entry.get("scalded", false) \
+				else _t("Перелив в лагерную бочку: бочка не ошпарена.")
+			if n.call("spilled_l") >= 0.5:
+				rack += _t(" Пролито %.0f л.") % n.call("spilled_l")
+			return rack
 	return str(entry.step)
+
+static func _t(key: String) -> String:
+	return TranslationServer.translate(key)
 
 ## Lines of the journal a page holds.
 const PAGE_LINES := 14
 
-## The book as its pages: the contents, a page a recipe, and the journal of
-## `batch` with what it has become so far.
+## The book as its pages, translated: the contents, a page a recipe, and the
+## journal of `batch` with what it has become so far.
 func pages(batch: BrewBatch) -> PackedStringArray:
 	var result := PackedStringArray()
-	var contents := PackedStringArray(["Книга пивовара", "", "Рецепты долины:"])
+	var contents := PackedStringArray([tr("Книга пивовара"), "", tr("Рецепты долины:")])
 	for each: Dictionary in recipes:
-		contents.append("— " + str(each.name))
+		contents.append("— " + tr(str(each.name)))
 	result.append("\n".join(contents))
 	for each: Dictionary in recipes:
 		result.append(recipe_page(each))
 	var lines := journal_lines(batch.journal, batch.flaws)
-	var head := "Журнал варки"
-	if batch.stage == "new":
-		lines = PackedStringArray(["Варка не начата."])
+	var head := tr("Журнал варки")
+	if batch.stage == BrewIds.STAGE_NEW:
+		lines = PackedStringArray([tr("Варка не начата.")])
 	elif batch.fire_out:
-		head += " · сорт по книге: " + str(name_beer(batch.profile()).get("name", ""))
+		head = tr("Журнал варки · сорт по книге: %s") % tr(str(name_beer(batch.profile()).get("name", "")))
 	for first in range(0, lines.size(), PAGE_LINES):
 		result.append(head + "\n\n" + "\n".join(lines.slice(first, first + PAGE_LINES)))
 	return result

@@ -51,7 +51,7 @@ func _process(delta: float) -> void:
 
 static func _near(point: Vector3, lit: Array[Light3D]) -> bool:
 	for lamp: Light3D in lit:
-		var reach: float = (lamp.omni_range if lamp is OmniLight3D else lamp.spot_range) + MARGIN
+		var reach: float = ((lamp as OmniLight3D).omni_range if lamp is OmniLight3D else (lamp as SpotLight3D).spot_range) + MARGIN
 		if point.distance_squared_to(lamp.global_position) < reach * reach:
 			return true
 	return false

@@ -37,7 +37,7 @@ static func build(lake: LakesideSystem) -> void:
 	lake.panel.offset_top = -230
 	lake.panel.offset_bottom = 230
 	var margin := MarginContainer.new()
-	for edge in ["left", "top", "right", "bottom"]:
+	for edge: String in ["left", "top", "right", "bottom"]:
 		margin.add_theme_constant_override("margin_" + edge, 24)
 	lake.panel.add_child(margin)
 	lake.journal_text = Label.new()
@@ -59,28 +59,36 @@ static func update(lake: LakesideSystem) -> void:
 		text = lake.message
 	elif lake.rod_out:
 		match lake.phase:
-			"idle": text = "ЛКМ: удерживай и отпусти для заброса · J — убрать · I — журнал"
-			"charging": text = "Отпусти ЛКМ — забросить · ПКМ — отмена"
-			"waiting": text = "Смотри на поплавок… · ПКМ — смотать леску"
-			"bite": text = "Клюёт! Нажми ЛКМ, чтобы подсечь"
-			"fight": text = "ЛКМ — тяни; отпускай, когда натяжение растёт · Улов %d%%" % int(lake.progress * 100)
+			"idle": text = "{fish_cast}: удерживай и отпусти для заброса · {fishing_rod} — убрать · {fish_journal} — журнал"
+			"charging": text = "Отпусти {fish_cast} — забросить · {fish_cancel} — отмена"
+			"waiting": text = "Смотри на поплавок… · {fish_cancel} — смотать леску"
+			"bite": text = "Клюёт! Нажми {fish_cast}, чтобы подсечь"
+			"fight": text = TranslationServer.translate("{fish_cast} — тяни; отпускай, когда натяжение растёт · Улов %d%%") % int(lake.progress * 100)
 	elif not lake.cooking.is_empty():
 		text = "Рыба готовится у костра…" if lake.cooking_fire.burning else "Рыба ждёт: разожги костёр"
 	else:
-		text = "J — удочка · I — журнал улова · Z — приготовить / угостить / поесть" if lake.player.global_position.y < lake.water.water_level + 4 else ""
+		text = "{fishing_rod} — удочка · {fish_journal} — журнал улова · {fish_use} — приготовить / угостить / поесть" if lake.player.global_position.y < lake.water.water_level + 4 else ""
 
+	text = InputActions.hint(TranslationServer.translate(text))
 	if lake.hud.text != text:
 		lake.hud.text = text
 
-## The journal page: every species with its record, then the basket.
+## The journal page, translated: every species with its record, then the basket.
 static func journal(fishing: FishingState) -> String:
-	var text := "РЫБЫ НАШЕГО ОЗЕРА\n\n"
+	var text := TranslationServer.translate("РЫБЫ НАШЕГО ОЗЕРА") + "\n\n"
 	for species: String in FishingState.SPECIES:
 		var record: Dictionary = fishing.journal.get(species, {})
-		text += "%s — %s\n" % [FishingState.SPECIES[species].title,
-			"ещё не встречалась" if record.is_empty() else "%d уловов · рекорд %.1f см" % [record.count, record.best_cm]]
-	text += "\nВ КОРЗИНЕ: %d / %d\n" % [fishing.bag.size(), FishingState.CAPACITY]
+		var title := TranslationServer.translate(FishingState.SPECIES[species].title)
+		if record.is_empty():
+			text += TranslationServer.translate("%s — ещё не встречалась") % title + "\n"
+		else:
+			var count := int(record.count)
+			text += TranslationServer.translate_plural("%s — %d улов · рекорд %.1f см", "%s — %d улова · рекорд %.1f см",
+				count) % [title, count, float(record.best_cm)] + "\n"
+	text += "\n" + TranslationServer.translate("В КОРЗИНЕ: %d / %d") % [fishing.bag.size(), FishingState.CAPACITY] + "\n"
 	for fish in fishing.bag:
-		text += "%s · %.2f кг%s\n" % [FishingState.SPECIES[fish.species].title, fish.kg, " · приготовлена" if fish.cooked else ""]
-	text += "\nZ — приготовить / угостить / поесть\nI или Esc — закрыть"
+		var title := TranslationServer.translate(FishingState.SPECIES[fish.species].title)
+		var words := TranslationServer.translate("%s · %.2f кг · приготовлена") if fish.cooked else TranslationServer.translate("%s · %.2f кг")
+		text += words % [title, fish.kg] + "\n"
+	text += "\n" + TranslationServer.translate("{fish_use} — приготовить / угостить / поесть\n{fish_journal} или {pause} — закрыть")
 	return text

@@ -1,10 +1,12 @@
 class_name BrewArms
 extends Node3D
-## The brewer's arms in this public copy: the game's arms carry a Sketchfab
-## hand whose licence forbids sharing the file, so here they are not drawn.
-## The works go on as in the game: the shoulders stand where the game's arms
-## have them, and BrewHouse checks the reach from them.
+## The brewer's arms in this public copy: the game's arms carry a scanned hand
+## that this copy leaves out, so here they are not drawn. The works go on as
+## in the game: the shoulders stand where the game's arms have them, and
+## BrewHouse checks the reach from them.
 ## The node stands in the eye's frame, turned with the look but kept upright.
+## The player owns one (Player.arms); the doer that has the hands
+## (BodyChannels) puts them on what it holds.
 
 ## Metres from the shoulder to the farthest bar a hand closes on.
 const REACH := 0.56
@@ -17,13 +19,13 @@ var hands: Array[Dictionary] = []
 func _ready() -> void:
 	visible = false
 
-## The sleeve's cloth: no sleeve is drawn.
-func dress(_linen: Material) -> void:
-	pass
-
 ## The hands to take (BrewHands' list).
 func reach(taken: Array[Dictionary]) -> void:
 	hands = taken
+
+## Takes the hands away.
+func drop() -> void:
+	hands = []
 
 ## Opens the fingers that held something: nothing to open.
 func let_go() -> void:

@@ -60,18 +60,22 @@ func _read(asset: String) -> Dictionary:
 static func bundle_is_valid(bundle: Resource, expected_key: String, mesh_paths: PackedStringArray) -> bool:
 	if bundle == null or int(bundle.get_meta("version", 0)) != VERSION or bundle.get_meta("source_key", "") != expected_key:
 		return false
-	var shapes: Variant = bundle.get_meta("shapes", {})
-	if not shapes is Dictionary or shapes.size() != mesh_paths.size():
+	var stored: Variant = bundle.get_meta("shapes", {})
+	if not stored is Dictionary:
+		return false
+	var shapes: Dictionary = stored
+	if shapes.size() != mesh_paths.size():
 		return false
 	for path: String in mesh_paths:
 		if not shapes.get(path) is ConcavePolygonShape3D:
 			return false
 	return true
 
-static func validate_bakes() -> PackedStringArray:
+## Why the baked faces of the solid props of `region` (RegionDef.props) cannot be shipped.
+static func validate_bakes(region: RegionDef) -> PackedStringArray:
 	var errors := PackedStringArray()
 	var seen := {}
-	var layout: Array = JSON.parse_string(FileAccess.get_file_as_string(SOURCE + "layout.json"))
+	var layout: Array = DataFile.read(region.props, WorldSchemas.props())
 	for entry: Dictionary in layout:
 		if not entry.get("solid", true) or seen.has(entry.asset):
 			continue

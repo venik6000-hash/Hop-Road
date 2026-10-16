@@ -63,6 +63,9 @@ func set_sun(direction: Vector3, radiance_scale: Vector3, viewer_radius_km: floa
 
 func _create() -> void:
 	_rd = RenderingServer.get_rendering_device()
+	# No device in a headless run (the tests).
+	if _rd == null:
+		return
 	var spirv := RdUtil.compute_spirv(SHADER, "LensPost")
 	if spirv == null:
 		return
@@ -87,9 +90,10 @@ func _create() -> void:
 func _render_callback(callback_type: int, render_data: RenderData) -> void:
 	if callback_type != EFFECT_CALLBACK_TYPE_POST_TRANSPARENT or not _pipeline.is_valid():
 		return
-	for texture: Variant in [skyview, transmittance, displacement]:
-		if texture == null or not texture.texture_rd_rid.is_valid():
-			return
+	if skyview == null or not skyview.texture_rd_rid.is_valid() \
+			or transmittance == null or not transmittance.texture_rd_rid.is_valid() \
+			or displacement == null or not displacement.texture_rd_rid.is_valid():
+		return
 	var buffers := render_data.get_render_scene_buffers() as RenderSceneBuffersRD
 	var data := render_data.get_render_scene_data() as RenderSceneDataRD
 	if buffers == null or data == null:

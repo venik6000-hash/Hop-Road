@@ -12,7 +12,6 @@ extends Node3D
 const ImageUtil = preload("res://src/common/image_util.gd")
 const DIRECTORY := "res://assets/models/flora/"
 const SHADER := preload("res://src/village/village_foliage.gdshader")
-const PLAN := preload("res://src/village/village_layout.gd")
 const TILE := 16.0
 ## How far a plant shows (m) unless it names its own `view`: about where the
 ## grass blades end, beyond which a knee-high plant is a few pixels.
@@ -45,6 +44,8 @@ const MIXES := {
 const GREEN := Rect2(-34.0, -90.0, 66.0, 74.0)
 
 var terrain: TerrainSystem
+## The region's village plan (VillageLayout.read_plan): its lanes stay bare.
+var village_plan: Dictionary
 var map: Node3D
 var plant_count := 0
 var ready_for_visitors := false
@@ -72,9 +73,9 @@ func _grow() -> void:
 	_mask_origin = Vector2(config.origin[0], config.origin[1])
 	_mask_cell = config.cell
 	_control = ImageUtil.rgba8(terrain.material.get_shader_parameter("near_control"))
-	var plan: Dictionary = PLAN.plan()
-	_lanes = plan.paths.duplicate()
-	_lanes.append({"points": plan.main_road})
+	var paths: Array = village_plan.paths
+	_lanes = paths.duplicate()
+	_lanes.append({"points": village_plan.main_road})
 	for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
 		if RockField.label_of(item).ends_with("limewashed rooms"):
 			_houses.append({"inverse": item.global_transform.affine_inverse(), "pose": item.global_transform,
@@ -98,7 +99,7 @@ func _load_plants() -> void:
 		for item: MeshInstance3D in scene.find_children("*", "MeshInstance3D", true, false):
 			var faces := 0
 			for surface in item.mesh.get_surface_count():
-				faces += item.mesh.surface_get_array_index_len(surface) / 3
+				faces += (item.mesh as ArrayMesh).surface_get_array_index_len(surface) / 3
 			if faces > int(spec.tris) or faces < int(spec.get("least", 0)):
 				continue
 			# Each variant stands on its own base point, whatever its place in the scan sheet.
@@ -150,7 +151,7 @@ func _grow_walls(rng: RandomNumberGenerator) -> void:
 
 ## Along the brook: ferns and grass at the water's edge, thinning up the bank.
 func _grow_banks(rng: RandomNumberGenerator) -> void:
-	var rows := VillageBrook.rows
+	var rows := terrain.course(VillageBrook.BROOK)
 	for index in range(2, rows.size() - 6):
 		var at: Vector3 = rows[index].at
 		var next: Vector3 = rows[index + 1].at
@@ -212,8 +213,10 @@ func _plant(mix: String, at: Vector2, rng: RandomNumberGenerator, vigour: float)
 			"poses": [], "tones": []}
 	var batch: Dictionary = _batches[key]
 	pose.origin -= batch.origin
-	batch.poses.append(pose)
-	batch.tones.append(tone)
+	var poses: Array = batch.poses
+	var tones: Array = batch.tones
+	poses.append(pose)
+	tones.append(tone)
 	plant_count += 1
 
 func _pick(odds: Dictionary, roll: float) -> String:
@@ -237,7 +240,7 @@ func _open(at: Vector2, clear: float, bank: bool) -> bool:
 	var control := _control.get_pixelv(cell)
 	if control.r > 0.35 or (control.g > 0.55 and not bank):
 		return false
-	for row: Dictionary in VillageBrook.rows:
+	for row: Dictionary in terrain.course(VillageBrook.BROOK):
 		if Vector2(row.at.x - at.x, row.at.z - at.y).length() < float(row.half) + 0.2 + clear * 0.5:
 			return false
 	for lane: Dictionary in _lanes:
@@ -254,7 +257,7 @@ func _open(at: Vector2, clear: float, bank: bool) -> bool:
 			return false
 	# Nothing but the terrain underfoot: no paving, steps, stones or props.
 	var y := terrain.height_at(at.x, at.y)
-	var ray := PhysicsRayQueryParameters3D.create(Vector3(at.x, y + 12.0, at.y), Vector3(at.x, y - 0.4, at.y), 1)
+	var ray := PhysicsRayQueryParameters3D.create(Vector3(at.x, y + 12.0, at.y), Vector3(at.x, y - 0.4, at.y), PhysicsLayers.GROUND)
 	var hit := get_world_3d().direct_space_state.intersect_ray(ray)
 	return not hit.is_empty() and hit.collider != null and String(hit.collider.name).begins_with("TerrainBody")
 
@@ -264,21 +267,23 @@ func _build() -> void:
 		multimesh.transform_format = MultiMesh.TRANSFORM_3D
 		multimesh.use_colors = true
 		multimesh.mesh = batch.mesh
-		multimesh.instance_count = batch.poses.size()
-		for i in batch.poses.size():
-			multimesh.set_instance_transform(i, batch.poses[i])
+		var poses: Array = batch.poses
+		multimesh.instance_count = poses.size()
+		for i: int in poses.size():
+			multimesh.set_instance_transform(i, poses[i])
 			multimesh.set_instance_color(i, batch.tones[i])
 		var node := MultiMeshInstance3D.new()
 		node.name = "Flora_%s" % batch.plant
 		node.multimesh = multimesh
 		node.position = batch.origin
-		node.visibility_range_end = PLANTS[batch.plant].get("view", VIEW)
+		var spec: Dictionary = PLANTS[batch.plant]
+		node.visibility_range_end = spec.get("view", VIEW)
 		node.visibility_range_end_margin = 8.0
 		node.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 		node.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 		# With the trees and the grass: lamps leave swaying plants out of their
 		# shadow maps, which they would otherwise draw again in every frame.
 		node.layers = VegetationSystem.VISUAL_LAYER
-		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if PLANTS[batch.plant].get("shadow", false) \
+		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if spec.get("shadow", false) \
 			else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(node)

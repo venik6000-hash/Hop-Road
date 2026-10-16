@@ -1,5 +1,5 @@
 extends RefCounted
-## Image helpers shared by the code that paints the terrain's masks.
+## Image helpers of the code that reads the terrain's masks.
 
 ## An editable RGBA8 copy of `texture`'s image (decompressed first).
 static func rgba8(texture: Texture2D) -> Image:

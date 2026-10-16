@@ -9,10 +9,12 @@ const SPECIES := {
 	"pike": {"title": "Щука", "length": Vector2(38, 78), "mass": 2.6, "habitat": "reeds", "time": "dawnDusk"},
 }
 const CAPACITY := 8
+## The bag or the journal has changed; the valley's save keeps them
+## (SaveService, section "fishing").
+signal changed
 var bag: Array[Dictionary] = []
 var journal: Dictionary = {}
 var next_id := 1
-var save_path := "user://lakeside-fishing.json"
 var rng := RandomNumberGenerator.new()
 
 static func habitat(depth: float, shore_distance: float) -> Dictionary:
@@ -63,7 +65,7 @@ func catch_fish(species: String, hour: float) -> Dictionary:
 	journal[species] = record
 	if bag.size() < CAPACITY:
 		bag.append(fish)
-	save()
+	changed.emit()
 	return fish
 
 func first(cooked: bool) -> Dictionary:
@@ -77,7 +79,7 @@ func take(id: int) -> Dictionary:
 		if int(bag[i].id) == id:
 			var fish := bag[i]
 			bag.remove_at(i)
-			save()
+			changed.emit()
 			return fish
 	return {}
 
@@ -85,26 +87,20 @@ func cook(id: int) -> bool:
 	for fish in bag:
 		if int(fish.id) == id and not fish.cooked:
 			fish.cooked = true
-			save()
+			changed.emit()
 			return true
 	return false
 
-func save() -> void:
-	if save_path.is_empty():
-		return
-	var file := FileAccess.open(save_path + ".tmp", FileAccess.WRITE)
-	if file == null:
-		return
-	file.store_string(JSON.stringify({"version": 1, "next_id": next_id, "bag": bag, "journal": journal}))
-	file.close()
-	DirAccess.rename_absolute(save_path + ".tmp", save_path)
+## The bag and the journal as the valley's save holds them.
+func to_dict() -> Dictionary:
+	return {"next_id": next_id, "bag": bag.duplicate(true), "journal": journal.duplicate(true)}
 
-func restore() -> void:
-	if save_path.is_empty() or not FileAccess.file_exists(save_path):
+## Takes the bag and the journal back from to_dict(), checked; what is not such
+## a record leaves the state as it is.
+func restore(saved_state: Variant) -> void:
+	if not saved_state is Dictionary:
 		return
-	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(save_path))
-	if not data is Dictionary or data.get("version") != 1:
-		return
+	var data: Dictionary = saved_state
 	if not data.get("bag", []) is Array:
 		return
 	bag.clear()
@@ -112,20 +108,26 @@ func restore() -> void:
 	next_id = 1
 	var seen := {}
 	for value: Variant in data.get("bag", []):
-		if not value is Dictionary or not SPECIES.has(value.get("species", "")):
+		if not value is Dictionary:
 			continue
-		var id := int(number(value.get("id"), 0, 0, 1000000000))
+		var row: Dictionary = value
+		if not SPECIES.has(row.get("species", "")):
+			continue
+		var id := int(number(row.get("id"), 0, 0, 1000000000))
 		if id <= 0 or seen.has(id) or bag.size() >= CAPACITY:
 			continue
 		seen[id] = true
-		bag.append({"id": id, "species": value.species, "cm": number(value.get("cm"), 20, 1, 150),
-			"kg": number(value.get("kg"), 0.2, 0.01, 20), "hour": number(value.get("hour"), 12, 0, 24), "cooked": value.get("cooked") == true})
+		bag.append({"id": id, "species": row.species, "cm": number(row.get("cm"), 20, 1, 150),
+			"kg": number(row.get("kg"), 0.2, 0.01, 20), "hour": number(row.get("hour"), 12, 0, 24), "cooked": row.get("cooked") == true})
 		next_id = maxi(next_id, id + 1)
-	if data.get("journal") is Dictionary:
+	var saved_journal: Variant = data.get("journal")
+	if saved_journal is Dictionary:
+		var saved: Dictionary = saved_journal
 		for species: String in SPECIES:
-			var entry: Variant = data.journal.get(species)
+			var entry: Variant = saved.get(species)
 			if entry is Dictionary:
-				journal[species] = {"count": int(number(entry.get("count"), 0, 0, 1000000000)), "best_cm": number(entry.get("best_cm"), 0, 0, 150), "best_kg": number(entry.get("best_kg"), 0, 0, 20)}
+				var record: Dictionary = entry
+				journal[species] = {"count": int(number(record.get("count"), 0, 0, 1000000000)), "best_cm": number(record.get("best_cm"), 0, 0, 150), "best_kg": number(record.get("best_kg"), 0, 0, 20)}
 	next_id = maxi(next_id, int(number(data.get("next_id"), 1, 1, 1000000001)))
 
 static func number(value: Variant, fallback: float, low: float, high: float) -> float:

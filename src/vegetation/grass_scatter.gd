@@ -1,6 +1,6 @@
 class_name GrassScatter
 extends RefCounted
-## What a grass MultiMesh holds, and clumps spread over a triangle mesh.
+## What a grass MultiMesh holds.
 ##
 ## One row of a buffer (TRANSFORM_3D with custom data, STRIDE floats):
 ##   transform  origin: the clump's root on the ground; Y axis: the ground's
@@ -26,10 +26,9 @@ const CROWD := 0.9
 ## The shader's FADE_SOFTNESS: clumps shrink away over the last of the ranks
 ## still standing.
 const SOFTNESS := 0.25
-## Steps of the R2 and R3 low-discrepancy sequences (M. Roberts, 2018): point
-## k is fract(k * step), and any run of them is evenly spread.
+## Steps of the R2 low-discrepancy sequence (M. Roberts, 2018): point k is
+## fract(k * step), and any run of them is evenly spread.
 const R2 := Vector2(0.7548776662466927, 0.5698402909980532)
-const R3 := Vector3(0.8191725133961645, 0.6710436067037893, 0.5497004779019703)
 
 ## The shader's thin_start, thin_power, fade_start and fade_end where neither
 ## a material nor the renderer can tell them (a headless run has no shaders).
@@ -107,97 +106,13 @@ static func ranks(buffer: PackedFloat32Array) -> PackedFloat32Array:
 		result[row] = buffer[row * STRIDE + 15]
 	return result
 
-## Lowest and highest corner of the roots in `buffer`.
-static func bounds(buffer: PackedFloat32Array) -> AABB:
-	if buffer.is_empty():
-		return AABB()
-	var low := Vector3(buffer[3], buffer[7], buffer[11])
-	var high := low
-	for at in range(0, buffer.size(), STRIDE):
-		var root := Vector3(buffer[at + 3], buffer[at + 7], buffer[at + 11])
-		low = low.min(root)
-		high = high.max(root)
-	return AABB(low, high - low)
-
 ## The rows of `buffer` grouped by the square of `size` metres (x, z) their
 ## root stands in, each group in the buffer's order.
 static func split(buffer: PackedFloat32Array, size: float) -> Dictionary:
-	var squares := {}
+	var squares: Dictionary[Vector2i, PackedFloat32Array] = {}
 	for at in range(0, buffer.size(), STRIDE):
 		var key := Vector2i(floori(buffer[at + 3] / size), floori(buffer[at + 11] / size))
 		if not squares.has(key):
 			squares[key] = PackedFloat32Array()
 		squares[key].append_array(buffer.slice(at, at + STRIDE))
 	return squares
-
-## Clumps over the triangles `indices` of a mesh, `density` to the square
-## metre of surface. `vertices` and `normals` are per vertex, in the space the
-## clumps are wanted in; where the surface turns more than `slope_limit`
-## (radians) from `up`, none grows. `cells` are the atlas's cells by kind
-## (GrassClump.Sheet.cells). `patches`, when given, varies the tone and the
-## height in broad patches and lets tall grass in seed take up to `seeding` of
-## the richest of them; `flowers` is the share of clumps that are flowers.
-static func over_triangles(vertices: PackedVector3Array, normals: PackedVector3Array, indices: PackedInt32Array,
-		density: float, slope_limit: float, up: Vector3, seed_value: int, cells: Array[PackedInt32Array],
-		patches: Noise = null, seeding := 0.0, flowers := 0.0) -> PackedFloat32Array:
-	# A hair under the limit, so that a wall grows at a limit of 90 degrees.
-	var floor_y := cos(slope_limit) - 1e-5
-	# Running total of the triangles' areas: a point of [0, total) names a
-	# triangle, and larger triangles get their larger share of the clumps.
-	# A triangle too steep at all three corners gets none.
-	var reach := PackedFloat32Array()
-	reach.resize(indices.size() / 3)
-	var total := 0.0
-	for triangle in reach.size():
-		var i := indices[triangle * 3]
-		var j := indices[triangle * 3 + 1]
-		var k := indices[triangle * 3 + 2]
-		if maxf(normals[i].dot(up), maxf(normals[j].dot(up), normals[k].dot(up))) >= floor_y:
-			total += (vertices[j] - vertices[i]).cross(vertices[k] - vertices[i]).length() * 0.5
-		reach[triangle] = total
-	var rng := RandomNumberGenerator.new()
-	rng.seed = seed_value
-	var count := int(total * density + rng.randf())
-	var start := Vector3(rng.randf(), rng.randf(), rng.randf())
-	var buffer := PackedFloat32Array()
-	buffer.resize(count * STRIDE)
-	var at := 0
-	for n in count:
-		var triangle := mini(reach.bsearch(fposmod(start.x + n * R3.x, 1.0) * total), reach.size() - 1)
-		var i := indices[triangle * 3]
-		var j := indices[triangle * 3 + 1]
-		var k := indices[triangle * 3 + 2]
-		# A point of the unit square folded into the triangle.
-		var s := fposmod(start.y + n * R3.y, 1.0)
-		var t := fposmod(start.z + n * R3.z, 1.0)
-		if s + t > 1.0:
-			s = 1.0 - s
-			t = 1.0 - t
-		# The same numbers of chance whether the clump grows or not, so that
-		# changing the slope limit moves no other clump.
-		var pick := rng.randf()
-		var variant := rng.randi()
-		var jitter := rng.randf()
-		var normal := (normals[i] + (normals[j] - normals[i]) * s + (normals[k] - normals[i]) * t).normalized()
-		if normal.dot(up) < floor_y:
-			continue
-		var root := vertices[i] + (vertices[j] - vertices[i]) * s + (vertices[k] - vertices[i]) * t
-		var size := lerpf(0.9, 1.1, jitter)
-		# Green growth, between the deep and the fresh.
-		var tone := 0.25
-		var seeded := 0.0
-		if patches != null:
-			tone = 0.25 + 0.25 * patches.get_noise_2d(root.x, root.z)
-			size *= lerpf(0.8, 1.2, 0.5 + 0.5 * patches.get_noise_2d(root.x * 2.3 + 71.0, root.z * 2.3 - 19.0))
-			seeded = seeding * clampf(patches.get_noise_2d(root.x * 0.4 - 33.0, root.z * 0.4 + 57.0) * 2.0, 0.0, 1.0)
-		var kind := GrassClump.Kind.GREEN
-		if pick < flowers:
-			kind = GrassClump.Kind.FLOWER
-		elif pick < flowers + (1.0 - flowers) * seeded:
-			kind = GrassClump.Kind.SEEDING
-		var kin := cells[kind]
-		put(buffer, at, root.x, root.y, root.z, normal.x, normal.y, normal.z, size, kin[variant % kin.size()], 1.0,
-			tone, (n + 0.5) / count)
-		at += STRIDE
-	buffer.resize(at)
-	return buffer

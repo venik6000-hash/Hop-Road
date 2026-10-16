@@ -65,7 +65,7 @@ static func under_wood(lake: LakeBed, point: Vector3, margin: float) -> bool:
 ## there (a pier post, a shore stone, a cliff).
 static func bed_at(lake: LakeBed, x: float, z: float, boulders: bool) -> float:
 	var ground := lake.habitat.terrain.height_at(x, z)
-	var ray := PhysicsRayQueryParameters3D.create(Vector3(x, lake.habitat.terrain.water_level + 3.0, z), Vector3(x, ground + 0.15, z), 1 | LakeBed.BOULDER_LAYER)
+	var ray := PhysicsRayQueryParameters3D.create(Vector3(x, lake.habitat.terrain.water_level + 3.0, z), Vector3(x, ground + 0.15, z), PhysicsLayers.GROUND)
 	var hit := lake.get_world_3d().direct_space_state.intersect_ray(ray)
 	if hit.is_empty() or String(hit.collider.name).begins_with("TerrainBody"):
 		return ground

@@ -38,7 +38,8 @@ func _on_node_added(node: Node) -> void:
 func release() -> void:
 	_tree.node_added.disconnect(_on_node_added)
 	for entry: Dictionary in _saved:
-		var node: Node = entry.node.get_ref()
+		var ref: WeakRef = entry.node
+		var node: Node = ref.get_ref()
 		if node == null:
 			continue
 		node.set_process_input(entry.input)

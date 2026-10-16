@@ -17,15 +17,35 @@ const EYE_HEIGHT := MOTION.EYE_HEIGHT
 const WATER_DRAG := MOTION.WATER_DRAG
 const STEP_HEIGHT := MOTION.STEP_HEIGHT
 const FLOOR_SNAP_LENGTH := MOTION.FLOOR_SNAP_LENGTH
+const GAME_SETTINGS = preload("res://src/settings/game_settings.gd")
 
 @onready var rig: CameraRig = $CameraRig
 @onready var viewmodel: BeerViewmodel = get_node_or_null("BeerViewmodel")
 
 var movement_locked := false
+## The right stick does not turn the view: a doer reads it (BrewHouse at a
+## station takes it as the mouse).
+var look_held := false
+## Who has the hands and the mouth (BodyChannels); the mug shows while it
+## is in the right hand.
+var hands := BodyChannels.new()
+## The player's place in each frame's processing: after all others, so that
+## the guard of the hands sees each doer's release of this frame.
+const GUARD_LAST := 1000
+## A breach the guard of the hands put right (_guard_hands), in words.
+signal hands_breached(what: String)
 ## The part of a free step left by what the hands carry (BrewCarry.pace).
 var pace := 1.0
+## The player's arms (the brewer's arms, BrewArms): the doer that has the
+## hands puts them on what it holds, the mug's own hand aside.
+var arms: BrewArms
+## The doer that put the arms on its thing with hold(), &"" for none.
+var _arms_doer := &""
 
 var _previous_velocity := Vector3.ZERO
+## CameraRig.sensitivity as the scene sets it, before the settings scale it.
+var _base_sensitivity := 0.0
+var _settings: GAME_SETTINGS
 ## Шагал ли игрок в прошлом кадре.
 ##
 ## Подъём на ступень — не один кадр, а несколько. Капсула вкатывается на ребро
@@ -50,18 +70,6 @@ static func local_acceleration(world: Vector3, yaw_deg: float) -> Vector3:
 static func wish_direction(input: Vector2, yaw_deg: float) -> Vector3:
 	return MOTION.wish_direction(input, yaw_deg)
 
-static func step_probe(wish: Vector3, delta: float) -> Vector3:
-	return MOTION.step_probe(wish, delta)
-
-static func is_too_steep(normal: Vector3, max_floor_angle: float) -> bool:
-	return MOTION.is_too_steep(normal, max_floor_angle)
-
-static func step_rise(blocked: bool, headroom: float, ahead_free: bool,
-		landing_rise: float, surface_rise: float, surface_normal: Vector3,
-		max_floor_angle: float) -> float:
-	return MOTION.step_rise(blocked, headroom, ahead_free, landing_rise, surface_rise,
-		surface_normal, max_floor_angle)
-
 static func water_speed(dry_speed: float, depth: float, sprint: bool) -> float:
 	return MOTION.water_speed(dry_speed, depth, sprint)
 
@@ -72,26 +80,123 @@ static func dive_velocity(input: Vector2, forward: Vector3, right: Vector3,
 		vertical_input: float, speed: float) -> Vector3:
 	return MOTION.dive_velocity(input, forward, right, vertical_input, speed)
 
-static func should_stick(on_floor: bool, vertical_speed: float,
-		was_grounded: bool, floor_gap: float) -> bool:
-	return MOTION.should_stick(on_floor, vertical_speed, was_grounded, floor_gap)
-
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	# Прилипание к полу — свойство тела, и задаётся оно здесь, а не в сцене,
-	# чтобы стоять рядом с высотой шага: эти две цифры связаны и врозь не имеют
-	# смысла (см. FLOOR_SNAP_LENGTH).
+	_set_up_body()
+	_join_hands()
+	_base_sensitivity = rig.sensitivity
+	_settings = get_node_or_null("/root/GameSettings")
+	if _settings != null:
+		_settings.controls_changed.connect(_apply_look_settings)
+		_apply_look_settings()
+
+## Прилипание к полу — свойство тела, и задаётся оно здесь, а не в сцене,
+## чтобы стоять рядом с высотой шага: эти две цифры связаны и врозь не имеют
+## смысла (см. FLOOR_SNAP_LENGTH). Слой и маска — из PhysicsLayers: сцена чисел
+## слоёв не держит.
+func _set_up_body() -> void:
 	floor_snap_length = FLOOR_SNAP_LENGTH
+	collision_layer = PhysicsLayers.PLAYER
+	collision_mask = PhysicsLayers.mask_of(PhysicsLayers.PLAYER)
+
+## The mug follows the hands: it shows while it is in the right hand. The
+## guard runs last of all in each frame, after every doer's own release.
+func _join_hands() -> void:
+	process_priority = GUARD_LAST
+	arms = BrewArms.new()
+	arms.name = "Arms"
+	arms.top_level = true
+	add_child(arms)
+	hands.leaked.connect(_leaked)
+	if viewmodel != null:
+		viewmodel.channels = hands
+		hands.changed.connect(_show_mug)
+		hands.claim(BodyChannels.MUG, viewmodel.is_inside_tree)
+
+func _show_mug() -> void:
+	viewmodel.visible = hands.mug_in_hand()
+
+func _process(delta: float) -> void:
+	var turn := stick_look(delta)
+	if turn != Vector2.ZERO and not look_held and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		rig.apply_look(turn)
+	_guard_hands()
+
+## The turn of the right stick in this frame, as the mouse's motion in pixels
+## (CameraRig.apply_look): GameSettings.pad_look_speed degrees a second at
+## full tilt.
+func stick_look(delta: float) -> Vector2:
+	return _stick_degrees(delta) / rig.sensitivity
+
+## The right stick as the mouse's motion for a station's gesture (BrewHouse):
+## the same pixels whatever the mouse's sensitivity.
+func stick_gesture(delta: float) -> Vector2:
+	return _stick_degrees(delta) / _base_sensitivity
+
+func _stick_degrees(delta: float) -> Vector2:
+	var stick := Input.get_vector(&"look_left", &"look_right", &"look_up", &"look_down")
+	var speed := _settings.pad_look_speed if _settings != null else GAME_SETTINGS.DEFAULT_PAD_LOOK_SPEED
+	return stick * speed * delta
+
+## The mouse's sensitivity and the vertical inversion from the settings.
+func _apply_look_settings() -> void:
+	rig.sensitivity = _base_sensitivity * _settings.mouse_sensitivity
+	rig.invert_y = _settings.invert_y
+
+## The guard of the hands, each frame: no claim outlives its doer, and
+## the mug is where the right hand says. A breach is put right and reported.
+func _guard_hands() -> void:
+	hands.audit()
+	if viewmodel != null and viewmodel.visible != hands.mug_in_hand():
+		var what := "the mug was %s past the hands" % ("shown" if viewmodel.visible else "hidden")
+		push_error("BodyChannels: " + what)
+		hands_breached.emit(what)
+		_show_mug()
+	if arms.visible and not hands.arms_held():
+		var what := "the arms showed with no doer at the hands"
+		push_error("BodyChannels: " + what)
+		hands_breached.emit(what)
+		arms.drop()
+		_arms_doer = &""
+
+## The eye's frame turned with the look about the vertical, kept upright:
+## where the arms stand.
+func eye_frame() -> Transform3D:
+	var camera := rig.get_node("Camera3D") as Camera3D
+	var ahead := -camera.global_basis.z
+	return Transform3D(Basis(Vector3.UP, atan2(-ahead.x, -ahead.z)), camera.global_position)
+
+## Stands the arms in the eye's frame; gives their shoulders, world space
+## (BrewHands' RIGHT, LEFT).
+func stand_arms() -> Array[Vector3]:
+	arms.global_transform = eye_frame()
+	return [arms.shoulder(BrewHands.RIGHT), arms.shoulder(BrewHands.LEFT)]
+
+## Puts the arms on `taken` (BrewHands' hands) for `doer`, which has its
+## parts (BodyChannels); with nothing taken, or the parts gone, takes away
+## the arms this doer showed. Called each frame after stand_arms().
+func hold(doer: StringName, taken: Array[Dictionary], delta: float) -> void:
+	if taken.is_empty() or not hands.has(doer):
+		if _arms_doer == doer:
+			arms.drop()
+			_arms_doer = &""
+		return
+	_arms_doer = doer
+	arms.reach(taken)
+	arms.pose(delta)
+
+func _leaked(doer: StringName) -> void:
+	var what := "%s kept the hands after it was done" % doer
+	push_error("BodyChannels: " + what)
+	hands_breached.emit(what)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		rig.apply_look(event.relative)
-	elif event.is_action_pressed("interact") or event.is_action_pressed("drink_beer"):
+		rig.apply_look((event as InputEventMouseMotion).relative)
+	elif InputActions.pressed(event, "interact") or InputActions.pressed(event, "drink_beer"):
 		if viewmodel != null and viewmodel.visible and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and not event.is_echo():
 			viewmodel.drink()
-	elif event.is_action_pressed("release_mouse"):
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	elif event is InputEventMouseButton and event.pressed:
+	elif (event is InputEventMouseButton or event is InputEventJoypadButton) and event.is_pressed():
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _physics_process(delta: float) -> void:
@@ -126,6 +231,8 @@ func _physics_process(delta: float) -> void:
 
 	var was_grounded := _grounded
 	var stuck := false
+	var pushed := velocity
+	var slid := false
 	# Шаг заменяет собой move_and_slide за этот кадр, а не дополняет его:
 	# горизонтальный перенос он делает сам, и второй вызов сдвинул бы игрока
 	# вперёд дважды. Пловцу шагать не с чего, а прилипание к дну спорило бы
@@ -135,7 +242,10 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 	elif not STEPPER.try_step(self, target, delta):
 		move_and_slide()
+		slid = true
 		stuck = STEPPER.stick_to_floor(self, was_grounded)
+	if slid:
+		_bump_villagers(pushed)
 	# Прилипание считается опорой наравне с полом. Иначе спуск обрывался бы на
 	# втором кадре: прилипнув, игрок формально не «на полу» (капсула лежит на
 	# ребре, а нормаль ребра круче предельного угла), и следующий кадр отпускал
@@ -145,6 +255,19 @@ func _physics_process(delta: float) -> void:
 	var horizontal := Vector2(velocity.x, velocity.z).length()
 	rig.apply_bob(0.0 if swimming else horizontal / RUN_SPEED, delta)
 	_drive_viewmodel(horizontal, delta)
+
+## A villager the player ran into faster than NpcStumble.BUMP_SPEED stumbles
+## (docs/LIFE.md, «Толчок»).
+func _bump_villagers(pushed: Vector3) -> void:
+	for index in get_slide_collision_count():
+		var met := get_slide_collision(index)
+		var villager := met.get_collider() as VillageNPC
+		if villager == null:
+			continue
+		var speed := NpcStumble.bump_speed(pushed, met.get_normal())
+		if speed >= NpcStumble.BUMP_SPEED:
+			var normal := met.get_normal()
+			villager.bump(-Vector3(normal.x, 0.0, normal.z).normalized() * speed, global_position)
 
 func _drive_viewmodel(horizontal: float, delta: float) -> void:
 	var acceleration := (velocity - _previous_velocity) / maxf(delta, 0.0001)

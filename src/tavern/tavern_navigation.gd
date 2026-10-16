@@ -18,12 +18,12 @@ func build(actor: CharacterBody3D) -> void:
 	capsule.height = 1.65
 	var query := PhysicsShapeQueryParameters3D.new()
 	query.shape = capsule
-	query.collision_mask = 1
+	query.collision_mask = PhysicsLayers.GROUND
 	var exclude: Array[RID] = []
 	# Moving people must never become permanent obstacles in the cached map.
 	for person in actor.get_tree().root.find_children("*", "CharacterBody3D", true, false):
 		if person is CharacterBody3D:
-			exclude.append(person.get_rid())
+			exclude.append((person as CharacterBody3D).get_rid())
 	query.exclude = exclude
 	var space := actor.get_world_3d().direct_space_state
 	for x in grid.region.size.x:

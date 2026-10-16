@@ -92,6 +92,6 @@ static func _library(model: String, player: AnimationPlayer, skeleton: Skeleton3
 				animation.track_set_path(track, NodePath(bones + ":" + bone))
 		library.add_animation(clip, animation)
 	scene.free()
-	var listed: Variant = JSON.parse_string(FileAccess.get_file_as_string(FOLDER + model + ".json"))
+	var listed: Variant = DataFile.read(FOLDER + model + ".json", BodySchemas.npc_motion())
 	_facts[model] = listed if listed is Dictionary else {}
 	return library

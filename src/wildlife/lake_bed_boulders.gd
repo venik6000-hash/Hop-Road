@@ -85,9 +85,12 @@ static func _boulder(lake: LakeBed, available: Array[Dictionary], at: Vector3, w
 	var key := "%s/%d/%d" % [info.name, tile.x, tile.y]
 	if not lake._boulder_groups.has(key):
 		lake._boulder_groups[key] = {"mesh": info.mesh, "transforms": [], "customs": []}
-	lake._boulder_groups[key].transforms.append(transform)
+	var group: Dictionary = lake._boulder_groups[key]
+	var transforms: Array = group.transforms
+	var customs: Array = group.customs
+	transforms.append(transform)
 	# Moss only grows above the water; the film and silt come from the shader.
-	lake._boulder_groups[key].customs.append(Color(info.layer, 0.25, lake._rng.randf(), 0))
+	customs.append(Color(info.layer, 0.25, lake._rng.randf(), 0))
 	MeshUtil.add_hull(lake._solid, transform, info.hull)
 	lake.rock_count += 1
 	return true

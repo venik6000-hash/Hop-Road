@@ -7,8 +7,10 @@ extends Node3D
 ##
 ## It is the lake's water (WaterfallSystem's stream shader on the lake's
 ## optics) on a ribbon that follows a channel cut into the terrain: carve()
-## shapes the heightfield before the terrain is drawn or made solid, paint()
-## lays the pebble bed and the wet margin into the terrain masks.
+## shapes the heightfield in the valley's ground bake
+## (tools/pipeline/terrain/valley_ground.gd), which keeps the courses for the
+## game (TerrainSystem.course()); paint() lays the pebble bed and the wet
+## margin into the terrain masks.
 ##
 ## The street's rill is drawn here too: a spring below the brewery's lane,
 ## water two hands wide past the well, along the upper lane and the cross
@@ -16,7 +18,6 @@ extends Node3D
 ## its wet margin come with the village's ground
 ## (tools/pipeline/terrain/terrain_village.py: RILL).
 
-const ImageUtil = preload("res://src/common/image_util.gd")
 ## Centre line downstream (x, z) and the half width of the water there.
 const POINTS: Array[Vector3] = [
 	Vector3(-30.0, 46.0, 0.3), Vector3(-28.6, 40.5, 0.7), Vector3(-25.8, 34.5, 0.85),
@@ -56,14 +57,15 @@ const RILL_BANK := 0.5
 ## Where it falls faster than this (m per m) it breaks white over its stones.
 const RILL_STEEP := 0.16
 
-## Rows of the course downstream: {at: Vector3 (the surface on the centre
-## line), half, speed, depth, step: bool}. Worked out by carve().
-static var rows: Array[Dictionary] = []
-## The rill's rows, as `rows`.
-static var rill: Array[Dictionary] = []
+## The names of the courses carve() cuts: the brook and the rill. A course is
+## rows downstream: {at: Vector3 (the surface on the centre line), half,
+## speed, depth, step: bool}.
+const BROOK := &"brook"
+const RILL_COURSE := &"rill"
 
 var map: Node3D
 var falls: WaterfallSystem
+var terrain: TerrainSystem
 
 func _ready() -> void:
 	if map != null:
@@ -71,6 +73,8 @@ func _ready() -> void:
 			if RockField.label_of(item) in REPLACES:
 				item.get_parent().remove_child(item)
 				item.queue_free()
+	var rows := terrain.course(BROOK)
+	var rill := terrain.course(RILL_COURSE)
 	_add_water("Water", rows, 0.8, 0.3, 0.02)
 	_add_water("Rill", rill, RILL_DEPTH * 2.0, 0.2, 0.008)
 	print("BROOK rows=%d length=%.0fm spring=%s mouth=%s rill=%.0fm from %s" % [rows.size(), rows.size() * STEP,
@@ -212,14 +216,15 @@ static func plan_rill(height: Callable, water_level: float) -> Array[Dictionary]
 	return result
 
 ## Cuts the channels into the near heightfield (row z, column x at origin +
-## index * cell) and remembers the courses for the water and the stones.
-static func carve(image: Image, origin: Vector2, cell: float, water_level: float) -> void:
+## index * cell). Returns the courses for the water and the stones, by name.
+static func carve(image: Image, origin: Vector2, cell: float, water_level: float) -> Dictionary:
 	var sample := func(x: float, z: float) -> float:
 		return image.get_pixel(int(round((x - origin.x) / cell)), int(round((z - origin.y) / cell))).r
-	rows = plan(sample, water_level)
+	var rows := plan(sample, water_level)
 	cut(image, origin, cell, rows)
-	rill = plan_rill(sample, water_level)
+	var rill := plan_rill(sample, water_level)
 	cut(image, origin, cell, rill, RILL_SET_IN, RILL_BANK)
+	return {BROOK: rows, RILL_COURSE: rill}
 
 ## Cuts the channel of `course` (rows as `rows`) into the heightfield: the
 ## stream above the upper fall takes its bed from here too
@@ -271,15 +276,12 @@ static func nearest_cells(course: Array[Dictionary], origin: Vector2, cell: floa
 	return nearest
 
 ## The beds' pebbles and the wet margins in the terrain's masks, which the
-## grass and the trees read too: neither grows in the water. Of the brook and
-## of the stream above the upper fall (WaterfallSystem.head).
-static func paint(terrain: TerrainSystem) -> void:
-	var config: Dictionary = terrain.meta.masks
-	var origin := Vector2(config.origin[0], config.origin[1])
-	var cell: float = config.cell
-	var control := _image(terrain, "near_control")
-	var extra := _image(terrain, "near_extra")
-	for course: Array[Dictionary] in [rows, WaterfallSystem.head]:
+## grass and the trees read too: neither grows in the water. Paints the path
+## mask `control` and the extra mask `extra` (texel (0, 0) at `origin`,
+## `cell` metres apart) along each of `courses` (rows as carve() cuts them):
+## the ground bake does it for the brook and the stream above the upper fall.
+static func paint(control: Image, extra: Image, origin: Vector2, cell: float, courses: Array[Array]) -> void:
+	for course: Array[Dictionary] in courses:
 		var nearest := nearest_cells(course, origin, cell, 3.0)
 		for key: Vector2i in nearest:
 			var entry: Vector2 = nearest[key]
@@ -296,8 +298,3 @@ static func paint(terrain: TerrainSystem) -> void:
 			if row.step:
 				more.r = maxf(more.r, 0.7 * (1.0 - smoothstep(half, half + 1.8, entry.y)))
 			extra.set_pixel(key.x, key.y, more)
-	terrain.material.set_shader_parameter("near_control", ImageTexture.create_from_image(control))
-	terrain.material.set_shader_parameter("near_extra", ImageTexture.create_from_image(extra))
-
-static func _image(terrain: TerrainSystem, parameter: String) -> Image:
-	return ImageUtil.rgba8(terrain.material.get_shader_parameter(parameter))

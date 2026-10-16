@@ -2,6 +2,8 @@ extends CharacterBody3D
 ## Imported skeletal motion; walking ducks collide with the world, birds fly.
 const SceneUtil = preload("res://src/common/scene_util.gd")
 const BodyPace = preload("res://src/common/body_pace.gd")
+## Ground speed, m/s, of an animal that walks its circle.
+const WALK_SPEED := 0.28
 var kind := "dog"
 var home := Vector2.ZERO
 var height := 1.0
@@ -19,8 +21,8 @@ static var _bounds_cache := {}
 
 func _ready() -> void:
 	name = "Pack_" + kind
-	collision_layer = 8
-	collision_mask = 1 | 4
+	collision_layer = PhysicsLayers.ANIMALS
+	collision_mask = PhysicsLayers.mask_of(PhysicsLayers.ANIMALS)
 	floor_snap_length = 0.5
 	var pivot := Node3D.new()
 	add_child(pivot)
@@ -52,8 +54,9 @@ func _ready() -> void:
 	pivot.scale = Vector3.ONE * factor
 	model.position -= Vector3(bounds.get_center().x, bounds.position.y, bounds.get_center().z)
 	var shape := CapsuleShape3D.new()
-	shape.radius = minf(0.35, height * 0.22)
+	shape.radius = shape_radius(height)
 	shape.height = maxf(height * 0.75, shape.radius * 2)
+	_pace.max_step = shape.radius
 	var holder := CollisionShape3D.new()
 	holder.shape = shape
 	holder.position.y = shape.height * 0.5
@@ -96,10 +99,14 @@ func _physics_process(delta: float) -> void:
 		var direction := Vector3(target.x - position.x, 0, target.y - position.z).normalized()
 		var ahead := position + direction * 0.8
 		if terrain.height_at(ahead.x, ahead.z) > terrain.water_level + 0.2:
-			velocity.x = direction.x * 0.28
-			velocity.z = direction.z * 0.28
+			velocity.x = direction.x * WALK_SPEED
+			velocity.z = direction.z * WALK_SPEED
 			rotation.y = lerp_angle(rotation.y, atan2(direction.x, direction.z), delta * 2.0)
 	_pace.slide(self, delta)
+
+## The radius, m, of the body capsule of an animal `height` m tall.
+static func shape_radius(height: float) -> float:
+	return minf(0.35, height * 0.22)
 
 ## Skinned source meshes can carry unapplied scales and inverse bind transforms.
 ## Their raw AABBs do not describe the visible animal; evaluate the bind pose.

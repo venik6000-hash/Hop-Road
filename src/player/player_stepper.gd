@@ -102,7 +102,8 @@ static func floor_gap(body: Player) -> float:
 	var query := PhysicsRayQueryParameters3D.create(from,
 		body.global_position - Vector3.UP * MOTION.FLOOR_REACH)
 	query.exclude = [body.get_rid()]
-	query.collision_mask = body.collision_mask
+	# Опора — только мир и валуны: на жителя и зверя игрок не встаёт.
+	query.collision_mask = PhysicsLayers.GROUND
 	var hit := world.direct_space_state.intersect_ray(query)
 	if hit.is_empty():
 		return -1.0
@@ -123,5 +124,5 @@ static func surface_at(body: Player, contact: Vector3, ahead: Vector3) -> Dictio
 	# Себя из выборки вон: луч выходит из точки касания, и без этого он с
 	# половины ракурсов упирается в собственную капсулу.
 	query.exclude = [body.get_rid()]
-	query.collision_mask = body.collision_mask
+	query.collision_mask = PhysicsLayers.GROUND
 	return world.direct_space_state.intersect_ray(query)

@@ -1,5 +1,6 @@
 class_name NpcProps
 extends RefCounted
+const JUG := preload("res://assets/models/bar/jug.glb")
 
 static func material(color: Color, metal := 0.0) -> StandardMaterial3D:
 	var result := StandardMaterial3D.new()
@@ -26,37 +27,16 @@ static func cylinder(radius: float, height: float, open_top := false) -> Cylinde
 	shape.cap_top = not open_top
 	return shape
 
-static func mug() -> Node3D:
-	var root := Node3D.new()
-	root.name = "Tankard"
-	mesh(root, cylinder(0.065, 0.15, true), Color("80603c"), Vector3(0, 0.075, 0))
-	for height: float in [0.025, 0.13]:
-		mesh(root, cylinder(0.067, 0.015, true), Color("6b7174"), Vector3(0, height, 0), 0.8)
-	var handle := TorusMesh.new()
-	handle.inner_radius = 0.028
-	handle.outer_radius = 0.045
-	var ring := mesh(root, handle, Color("6b7174"), Vector3(0.085, 0.078, 0), 0.8)
-	ring.rotation.x = PI / 2.0
-	var beer := mesh(root, cylinder(0.057, 0.008), Color("e5b450"), Vector3(0, 0.01, 0))
-	beer.name = "Beer"
-	return root
+## A tankard of beer (Tankard), full as `fill` says.
+static func mug(fill := 0.0) -> Tankard:
+	var tankard := Tankard.new()
+	tankard.fill = fill
+	return tankard
 
+## The beer jug: its foot at the origin, the pouring lip at "Lip".
 static func jug() -> Node3D:
-	var root := Node3D.new()
+	var root := JUG.instantiate() as Node3D
 	root.name = "BeerJug"
-	mesh(root, cylinder(0.078, 0.20, true), Color("807766"), Vector3(0, 0.1, 0), 0.65)
-	mesh(root, cylinder(0.05, 0.045, true), Color("807766"), Vector3(0, 0.22, 0), 0.65)
-	var handle := TorusMesh.new()
-	handle.inner_radius = 0.04
-	handle.outer_radius = 0.055
-	var ring := mesh(root, handle, Color("807766"), Vector3(0.09, 0.11, 0), 0.65)
-	ring.rotation.x = PI / 2.0
-	var spout := mesh(root, cylinder(0.025, 0.08, true), Color("807766"), Vector3(-0.07, 0.215, 0), 0.65)
-	spout.rotation.z = PI / 2.0
-	var lip := Marker3D.new()
-	lip.name = "Lip"
-	lip.position = Vector3(-0.11, 0.215, 0)
-	root.add_child(lip)
 	return root
 
 static func knife() -> Node3D:

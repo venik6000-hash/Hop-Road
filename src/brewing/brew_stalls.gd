@@ -22,7 +22,7 @@ var places := {}
 
 ## The stalls, the board and the cart of `trade`'s data.
 func build(trade: BrewTrade) -> void:
-	var points: Variant = JSON.parse_string(FileAccess.get_file_as_string(POINTS))
+	var points: Variant = DataFile.read(POINTS, BuildingSchemas.trade_models())
 	if not points is Dictionary:
 		return
 	for entry: Dictionary in trade.stalls():

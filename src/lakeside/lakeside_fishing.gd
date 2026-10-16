@@ -12,7 +12,8 @@ static func cast(lake: LakesideSystem) -> bool:
 	var ray := PhysicsRayQueryParameters3D.create(eye, lake.catch_point)
 	ray.exclude = [lake.player.get_rid(), lake.boat.get_rid()]
 	var hit := lake.get_world_3d().direct_space_state.intersect_ray(ray)
-	if depth < 0.35 or (not hit.is_empty() and hit.position.distance_to(lake.catch_point) > 0.3):
+	var hit_position: Vector3 = hit.get("position", lake.catch_point)
+	if depth < 0.35 or (not hit.is_empty() and hit_position.distance_to(lake.catch_point) > 0.3):
 		lake.phase = "idle"
 		lake.notify("Здесь не забросить: выбери открытую воду перед собой.")
 		return false
@@ -50,7 +51,7 @@ static func advance(lake: LakesideSystem, delta: float, active: bool) -> void:
 				lake.phase = "waiting"
 				lake.wait_time = 5.0
 	elif lake.phase == "fight" and active:
-		var reel := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+		var reel := Input.is_action_pressed("fish_cast")
 		advance_fight(lake, delta, reel)
 	if lake.phase in ["waiting", "bite", "fight"]:
 		if lake.player.global_position.distance_to(lake.catch_point) > 30:
@@ -75,5 +76,6 @@ static func advance_fight(lake: LakesideSystem, delta: float, reel: bool) -> voi
 		var fish := lake.fishing.catch_fish(lake.fish_kind, lake.sky.time_of_day)
 		lake.cancel_fishing()
 		lake.play("fish_flop", lake.player.position)
-		lake.notify("%s · %.1f см · %.2f кг\n%s" % [FishingState.SPECIES[fish.species].title, fish.cm, fish.kg,
-			"Корзина полна: рыба отпущена, запись сохранена." if full else "Улов в корзине · I — журнал · Z у костра — приготовить"])
+		var after := "Корзина полна: рыба отпущена, запись сохранена." if full else "Улов в корзине · {fish_journal} — журнал · {fish_use} у костра — приготовить"
+		lake.notify(TranslationServer.translate("%s · %.1f см · %.2f кг") % [TranslationServer.translate(FishingState.SPECIES[fish.species].title),
+			fish.cm, fish.kg] + "\n" + TranslationServer.translate(after))

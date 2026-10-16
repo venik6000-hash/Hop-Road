@@ -20,6 +20,12 @@ var _ray := PhysicsRayQueryParameters3D.new()
 
 func sync(presentation: Node3D, world_camera: Camera3D, sky: SkySystem, delta: float) -> void:
 	if world_camera == null or not world_camera.is_inside_tree(): return
+	# The mug's MugPresentation, or a stand-in with the same members (tools/verify).
+	var pivot: Node3D = presentation.get(&"pivot")
+	var environment: Environment = presentation.get(&"environment")
+	var key: DirectionalLight3D = presentation.get(&"key")
+	var fill_light: DirectionalLight3D = presentation.get(&"fill_light")
+	var fluid: BeerFluid = presentation.get(&"fluid")
 	var world := world_camera.get_world_3d()
 	if _source_world != world:
 		_source_world = world
@@ -29,12 +35,11 @@ func sync(presentation: Node3D, world_camera: Camera3D, sky: SkySystem, delta: f
 	_sample_time += delta
 	if _sample_time >= SAMPLE_SECONDS:
 		_sample_time = 0.0
-		_sample(world_camera, sky, world_camera.to_global(presentation.pivot.position))
+		_sample(world_camera, sky, world_camera.to_global(pivot.position))
 	var source := world_camera.environment
 	if source == null: source = world.environment
 	var indoors := is_instance_valid(_room)
 	if source != null:
-		var environment: Environment = presentation.environment
 		if not indoors:
 			_assign(environment, &"sky", _outdoor_sky(source))
 		_assign(environment, &"sky_rotation", (world_camera.global_basis.inverse() * Basis.from_euler(source.sky_rotation)).get_euler())
@@ -47,17 +52,16 @@ func sync(presentation: Node3D, world_camera: Camera3D, sky: SkySystem, delta: f
 			_assign(environment, &"ambient_light_energy", source.ambient_light_energy)
 			_assign(environment, &"ambient_light_sky_contribution", source.ambient_light_sky_contribution)
 			_assign(environment, &"reflected_light_source", source.reflected_light_source)
-	if indoors: _sync_room(presentation.environment)
+	if indoors: _sync_room(environment)
 	if sky != null and sky.sun != null and sky.moon != null:
-		_sync_directional(presentation.key, sky.sun, world_camera, _sun_visible)
-		_sync_directional(presentation.fill_light, sky.moon, world_camera, _moon_visible)
+		_sync_directional(key, sky.sun, world_camera, _sun_visible)
+		_sync_directional(fill_light, sky.moon, world_camera, _moon_visible)
 	_sync_local(presentation, world_camera)
-	if presentation.fluid != null and presentation.fluid.material != null:
+	if fluid != null and fluid.material != null:
 		# A drop shows the world behind it, which the hand's viewport cannot
 		# see: the lit land outdoors, the room's light indoors.
-		var environment: Environment = presentation.environment
 		var behind := environment.ambient_light_color.srgb_to_linear() * environment.ambient_light_energy
-		_uniform(presentation.fluid.material, &"backdrop", Vector3(behind.r, behind.g, behind.b))
+		_uniform(fluid.material, &"backdrop", Vector3(behind.r, behind.g, behind.b))
 
 ## One initial tree walk, then exact membership updates. Eligibility is checked
 ## when sampling so world, visibility and interior-property changes stay live.
@@ -106,11 +110,13 @@ static func probe_contains(probe: ReflectionProbe, point: Vector3, transform: Tr
 
 static func local_strength(light: Light3D, point: Vector3, transform: Transform3D) -> float:
 	var range_m := 0.0
-	if light is OmniLight3D: range_m = light.omni_range
-	elif light is SpotLight3D:
-		range_m = light.spot_range
+	var omni := light as OmniLight3D
+	var spot := light as SpotLight3D
+	if omni != null: range_m = omni.omni_range
+	elif spot != null:
+		range_m = spot.spot_range
 		var toward := (point - transform.origin).normalized()
-		if toward.dot(-transform.basis.z.normalized()) < cos(deg_to_rad(light.spot_angle)): return 0.0
+		if toward.dot(-transform.basis.z.normalized()) < cos(deg_to_rad(spot.spot_angle)): return 0.0
 	var distance := transform.origin.distance_to(point)
 	if range_m <= 0.0 or distance >= range_m: return 0.0
 	return light.light_energy * (1.0 - distance / range_m) / maxf(distance * distance, 0.25)
@@ -119,9 +125,9 @@ func _sample(viewer: Camera3D, sky: SkySystem, point: Vector3) -> void:
 	var exclude: Array[RID] = []
 	var ancestor: Node = viewer
 	while ancestor != null:
-		if ancestor is CollisionObject3D: exclude.append(ancestor.get_rid())
+		if ancestor is CollisionObject3D: exclude.append((ancestor as CollisionObject3D).get_rid())
 		ancestor = ancestor.get_parent()
-	_ray.collision_mask = 1
+	_ray.collision_mask = PhysicsLayers.GROUND
 	_ray.exclude = exclude
 	_room = null
 	var room_volume := INF
@@ -170,13 +176,14 @@ func _outdoor_sky(source: Environment) -> Sky:
 	if _land_sky_source != source.sky:
 		_land_sky_source = source.sky
 		_land_sky = Sky.new()
-		_land_sky.sky_material = source.sky.sky_material.duplicate()
+		var land_material: ShaderMaterial = source.sky.sky_material.duplicate()
+		_land_sky.sky_material = land_material
 		_land_sky.process_mode = Sky.PROCESS_MODE_INCREMENTAL
 		_land_sky.radiance_size = Sky.RADIANCE_SIZE_64
-		_land_sky.sky_material.set_shader_parameter(&"land_below", true)
+		land_material.set_shader_parameter(&"land_below", true)
 	# The ambient colour of the level is the light the lit land sends back.
 	var land := source.ambient_light_color.srgb_to_linear() * source.ambient_light_energy
-	_uniform(_land_sky.sky_material, &"land_radiance", Vector3(land.r, land.g, land.b))
+	_uniform(_land_sky.sky_material as ShaderMaterial, &"land_radiance", Vector3(land.r, land.g, land.b))
 	return _land_sky
 
 func _sync_room(environment: Environment) -> void:
@@ -221,10 +228,12 @@ func _sync_local(presentation: Node3D, viewer: Camera3D) -> void:
 		_assign(proxy, &"light_size", source.light_size)
 		_assign(proxy, &"shadow_enabled", source.shadow_enabled)
 		if is_spot:
-			_assign(proxy, &"spot_range", source.spot_range)
-			_assign(proxy, &"spot_attenuation", source.spot_attenuation)
-			_assign(proxy, &"spot_angle", source.spot_angle)
-			_assign(proxy, &"spot_angle_attenuation", source.spot_angle_attenuation)
+			var spot := source as SpotLight3D
+			_assign(proxy, &"spot_range", spot.spot_range)
+			_assign(proxy, &"spot_attenuation", spot.spot_attenuation)
+			_assign(proxy, &"spot_angle", spot.spot_angle)
+			_assign(proxy, &"spot_angle_attenuation", spot.spot_angle_attenuation)
 		else:
-			_assign(proxy, &"omni_range", source.omni_range)
-			_assign(proxy, &"omni_attenuation", source.omni_attenuation)
+			var omni := source as OmniLight3D
+			_assign(proxy, &"omni_range", omni.omni_range)
+			_assign(proxy, &"omni_attenuation", omni.omni_attenuation)

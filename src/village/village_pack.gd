@@ -1,9 +1,8 @@
 extends Node3D
 ## Authored yards plus deterministic, batched forest details from the local pack.
 const CollisionCache = preload("res://src/village/prop_collision_cache.gd")
-const ImageUtil = preload("res://src/common/image_util.gd")
 const LayoutStore = preload("res://src/layout/layout_store.gd")
-const DIRECTORY := "res://assets/models/village_pack/"
+const DIRECTORY := WorldSchemas.PACK_DIRECTORY
 const ACTOR = preload("res://src/wildlife/pack_animal.gd")
 const FOLIAGE = preload("res://src/village/pack_foliage.gdshader")
 const OutdoorScan = preload("res://src/render/outdoor_scan.gd")
@@ -14,6 +13,18 @@ const FOREST_LEAVES: Array[String] = ["fern", "clover"]
 ## mesh back from the GPU, which can time out on Metal while the level loads.
 const HULL := "res://assets/generated/village_pack/%s_hull.tres"
 const SOLID_FOREST: Array[String] = ["stump", "log", "roots"]
+## The village's animals: kind, home, height (m), clip, radius of the circle
+## they walk (m, 0.0: they stand).
+const ANIMALS := [
+	["dog", Vector2(3.0, 6.5), 0.65, "0|standing_0", 0.0],
+	["horse", Vector2(23, -35), 1.7, "Skeleton|6 Eat", 0.0],
+	["goat", Vector2(20, -61), 0.95, "rigAction", 0.0],
+	["goat", Vector2(23, -62), 0.8, "rigAction", 0.0],
+	["duck", Vector2(-31, 10), 0.45, "walk", 2.4],
+	["duck", Vector2(-33, 12), 0.4, "walk", 2.0],
+	["goose", Vector2(38, 22), 1.0, "Wings Flapping", 20.0],
+	["goose", Vector2(41, 24), 1.0, "Wings Flapping", 22.0],
+]
 ## Side of a forest batch (m). The engine picks one mesh LOD and one
 ## visibility for a whole MultiMesh, so small cells keep the full scans to
 ## the ground round the walker.
@@ -24,6 +35,8 @@ const FOREST_WOOD_VIEW := 80.0
 const FOREST_WOOD: Array[String] = ["stump", "log", "roots", "branch"]
 var terrain: TerrainSystem
 var player: Player
+## Its yard props and the forest's wood (RegionDef.props, forest_wood).
+var region: RegionDef
 var removed_labels: Array[String] = []
 var props: Array[Node3D] = []
 var animals: Array[Node3D] = []
@@ -38,9 +51,9 @@ var _forest_meshes := {}
 
 ## Keep loading on the main thread: asset workers can deadlock on Godot 4.7.2.
 ## The callback reports completed models and returns false to cancel loading.
-static func prefetch_assets(tree: SceneTree, progress: Callable) -> bool:
+static func prefetch_assets(tree: SceneTree, progress: Callable, layout_path: String) -> bool:
 	discard_prefetch()
-	var layout: Variant = JSON.parse_string(FileAccess.get_file_as_string(DIRECTORY + "layout.json"))
+	var layout: Variant = DataFile.read(layout_path, WorldSchemas.props())
 	if not layout is Array:
 		return false
 	var assets := {}
@@ -81,52 +94,23 @@ func install(map: Node3D, scatter := true) -> void:
 	_finish_install(scatter)
 
 func _layout() -> Array:
-	return JSON.parse_string(FileAccess.get_file_as_string(DIRECTORY + "layout.json"))
+	return DataFile.read(region.props, WorldSchemas.props())
 
 func _prepare_map(map: Node3D) -> void:
 	for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
 		var label := RockField.label_of(item)
-		var group: String = str(item.get_meta("extras", {}).get("alpine_group", ""))
+		var extras: Dictionary = item.get_meta("extras", {})
+		var group: String = str(extras.get("alpine_group", ""))
 		if group == "31":
 			removed_labels.append(label)
 			item.get_parent().remove_child(item)
 			item.queue_free()
-	_paint_working_ground()
 
 func _finish_install(scatter := true) -> void:
 	# Wait for all building/tree colliders before sampling the forest floor.
 	if scatter:
 		_scatter_forest.call_deferred()
 	print("VILLAGE_PACK removed=%d props=%d" % [removed_labels.size(), props.size()])
-
-func _paint_working_ground() -> void:
-	# The same control texture drives earth materials, grass and tree placement.
-	# Stamp softly worn yards and links to the lane, with irregular edges.
-	var image := ImageUtil.rgba8(terrain.material.get_shader_parameter("near_control"))
-	var config: Dictionary = terrain.meta.masks
-	var origin := Vector2(config.origin[0], config.origin[1])
-	var cell: float = config.cell
-	var yards := [Vector4(9, -31, 5.0, 3.8), Vector4(17, -41, 6.0, 5.0),
-		Vector4(23, -33, 5.5, 6.0), Vector4(14, -61.5, 4.4, 4.4),
-		Vector4(1, -19, 2.8, 3.4), Vector4(3, -30, 4.5, 1.4),
-		Vector4(10, -36, 1.5, 5.0), Vector4(20, -37, 4.0, 1.5)]
-	for yard in yards:
-		var centre := Vector2(yard.x, yard.y)
-		var reach := Vector2(yard.z, yard.w)
-		var lo := Vector2i(((centre - reach * 1.2 - origin) / cell).floor())
-		var hi := Vector2i(((centre + reach * 1.2 - origin) / cell).ceil())
-		for iz in range(maxi(0, lo.y), mini(image.get_height(), hi.y + 1)):
-			for ix in range(maxi(0, lo.x), mini(image.get_width(), hi.x + 1)):
-				var point := origin + Vector2(ix, iz) * cell
-				var distance := ((point - centre) / reach).length()
-				distance += sin(point.x * 1.7) * cos(point.y * 1.3) * 0.055
-				var wear := 1.0 - smoothstep(0.72, 1.12, distance)
-				var color := image.get_pixel(ix, iz)
-				color.r = maxf(color.r, wear)
-				color.b *= 1.0 - wear
-				color.a *= 1.0 - wear
-				image.set_pixel(ix, iz, color)
-	terrain.material.set_shader_parameter("near_control", ImageTexture.create_from_image(image))
 
 func _scene(key: String) -> PackedScene:
 	if not _scenes.has(key):
@@ -180,7 +164,7 @@ func _scatter_forest() -> void:
 	rng.seed = 3102026
 	# Trail shoulders east/south of the village, away from the lake and yards.
 	var habitats := [Vector2(38, 20), Vector2(55, -35), Vector2(32, -78), Vector2(-35, 35), Vector2(10, 52)]
-	for zone in habitats:
+	for zone: Vector2 in habitats:
 		for index in 85:
 			var point: Vector2 = zone + Vector2.from_angle(rng.randf_range(0, TAU)) * sqrt(rng.randf()) * 19.0
 			var y := terrain.height_at(point.x, point.y)
@@ -190,7 +174,7 @@ func _scatter_forest() -> void:
 				terrain.height_at(point.x, point.y + 0.6) - y).length() / 0.6
 			if slope > 0.5:
 				continue
-			var ray := PhysicsRayQueryParameters3D.create(Vector3(point.x, y + 20, point.y), Vector3(point.x, y - 0.3, point.y), 1)
+			var ray := PhysicsRayQueryParameters3D.create(Vector3(point.x, y + 20, point.y), Vector3(point.x, y - 0.3, point.y), PhysicsLayers.GROUND)
 			var hit := get_world_3d().direct_space_state.intersect_ray(ray)
 			if hit.is_empty() or not String(hit.collider.name).begins_with("TerrainBody"):
 				continue
@@ -204,16 +188,17 @@ func _scatter_forest() -> void:
 			var size := rng.randf_range(0.55, 1.05)
 			var pose := Transform3D(Basis(Vector3.UP, rng.randf_range(0, TAU)).scaled(Vector3.ONE * size), Vector3(point.x, y - 0.045, point.y))
 			_batch(asset, pose)
-	for entry: Dictionary in LayoutStore.placed(LayoutStore.FOREST_WOOD):
+	for entry: Dictionary in LayoutStore.placed(region.forest_wood, WorldSchemas.forest_wood()):
 		if entry.asset in FOREST_WOOD:
 			_batch(entry.asset, LayoutStore.unpack(entry.xform))
 	for batch: Dictionary in _forest_batches.values():
 		var mm := MultiMesh.new()
 		mm.transform_format = MultiMesh.TRANSFORM_3D
 		mm.mesh = batch.mesh
-		mm.instance_count = batch.poses.size()
-		for i in batch.poses.size():
-			mm.set_instance_transform(i, batch.poses[i])
+		var poses: Array = batch.poses
+		mm.instance_count = poses.size()
+		for i: int in poses.size():
+			mm.set_instance_transform(i, poses[i])
 		var node := MultiMeshInstance3D.new()
 		node.name = "Forest_" + batch.asset
 		node.multimesh = mm
@@ -234,7 +219,7 @@ func _forest_mesh(asset: String) -> Dictionary:
 	var transform := instance.transform
 	var parent := instance.get_parent()
 	while parent != source:
-		transform = parent.transform * transform
+		transform = (parent as Node3D).transform * transform
 		parent = parent.get_parent()
 	var mesh := instance.mesh.duplicate() as ArrayMesh
 	# Every scan takes the light of the ground it lies on, whatever material
@@ -275,7 +260,8 @@ func _batch(asset: String, pose: Transform3D) -> void:
 		_forest_batches[key] = {"asset": asset, "mesh": shared.mesh, "transform": shared.transform, "poses": [], "origin": Vector3(cell.x * FOREST_CELL, 0, cell.y * FOREST_CELL)}
 	var batch: Dictionary = _forest_batches[key]
 	pose.origin -= batch.origin
-	batch.poses.append(pose * batch.transform)
+	var poses: Array = batch.poses
+	poses.append(pose * batch.transform)
 	if asset in SOLID_FOREST:
 		if not _forest_shapes.has(asset):
 			_forest_shapes[asset] = _forest_hull(asset, batch.mesh)
@@ -291,16 +277,7 @@ func _batch(asset: String, pose: Transform3D) -> void:
 	forest_instances += 1
 
 func populate_life(population: NpcPopulation) -> void:
-	for entry in [
-		["dog", Vector2(3.0, 6.5), 0.65, "0|standing_0", 0.0],
-		["horse", Vector2(23, -35), 1.7, "Skeleton|6 Eat", 0.0],
-		["goat", Vector2(20, -61), 0.95, "rigAction", 0.0],
-		["goat", Vector2(23, -62), 0.8, "rigAction", 0.0],
-		["duck", Vector2(-31, 10), 0.45, "walk", 2.4],
-		["duck", Vector2(-33, 12), 0.4, "walk", 2.0],
-		["goose", Vector2(38, 22), 1.0, "Wings Flapping", 20.0],
-		["goose", Vector2(41, 24), 1.0, "Wings Flapping", 22.0],
-	]:
+	for entry: Array in ANIMALS:
 		var animal := ACTOR.new()
 		animal.kind = entry[0]
 		animal.home = entry[1]

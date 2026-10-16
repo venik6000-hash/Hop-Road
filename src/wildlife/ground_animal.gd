@@ -3,6 +3,12 @@ extends CharacterBody3D
 ## Quiet foraging, physical wandering and a bounded retreat from the player.
 const SceneUtil = preload("res://src/common/scene_util.gd")
 const BodyPace = preload("res://src/common/body_pace.gd")
+## The body capsule, m: Vector2(radius, height), by kind; SMALL for the rest.
+const SHAPES := {"deer": Vector2(0.3, 1.1)}
+const SMALL_SHAPE := Vector2(0.16, 0.4)
+## Ground speed, m/s: Vector2(walking, fleeing), by kind; SMALL for the rest.
+const SPEEDS := {"deer": Vector2(0.85, 3.4), "fox": Vector2(0.65, 2.4)}
+const SMALL_SPEED := Vector2(0.38, 1.3)
 var kind := "deer"
 var habitat: WildlifeSystem
 var home := Vector3.ZERO
@@ -18,13 +24,15 @@ var active := true
 var _pace := BodyPace.new()
 
 func _ready() -> void:
-	collision_layer = 8
-	collision_mask = 1 | 4 | 8
+	collision_layer = PhysicsLayers.ANIMALS
+	collision_mask = PhysicsLayers.mask_of(PhysicsLayers.ANIMALS)
 	floor_snap_length = 0.7
 	floor_max_angle = deg_to_rad(42.0)
+	var size: Vector2 = SHAPES.get(kind, SMALL_SHAPE)
 	var shape := CapsuleShape3D.new()
-	shape.radius = 0.3 if kind == "deer" else 0.16
-	shape.height = 1.1 if kind == "deer" else 0.4
+	shape.radius = size.x
+	shape.height = size.y
+	_pace.max_step = size.x
 	var holder := CollisionShape3D.new()
 	holder.shape = shape
 	holder.position.y = shape.height * 0.5 + 0.03
@@ -84,9 +92,8 @@ func _physics_process(delta: float) -> void:
 			_replan()
 
 func _speed() -> float:
-	if state == "flee":
-		return 3.4 if kind == "deer" else 2.4 if kind == "fox" else 1.3
-	return 0.85 if kind == "deer" else 0.65 if kind == "fox" else 0.38
+	var speeds: Vector2 = SPEEDS.get(kind, SMALL_SPEED)
+	return speeds.y if state == "flee" else speeds.x
 
 func _replan() -> void:
 	_blocked = 0.0
@@ -105,7 +112,7 @@ func _react() -> void:
 			state = "idle"
 		return
 	# Try a fan of escape paths so a tree or a cliff does not suppress fear.
-	for turn in [0.0, 0.45, -0.45, 0.9, -0.9, 1.25, -1.25]:
+	for turn: float in [0.0, 0.45, -0.45, 0.9, -0.9, 1.25, -1.25]:
 		var direction := away.normalized().rotated(Vector3.UP, turn)
 		var retreat := global_position + direction * scare * 1.5
 		var from_home := retreat - home

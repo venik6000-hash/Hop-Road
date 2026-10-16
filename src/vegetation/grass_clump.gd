@@ -28,6 +28,7 @@ const KINDS := ["seeding", "green", "turf", "lush", "fern", "shrub", "flower", "
 enum Flower { KNAPWEED, BUTTERCUP, YARROW, BELLFLOWER, DANDELION, CELANDINE }
 
 const DIR := "res://assets/models/vegetation/grass/"
+const CARDS := DIR + "grass_cards.json"
 ## The shader's CELLS.
 const MAX_CELLS := 32
 ## Per kind: how far the wind bends it; the share of the shader's alpha lift
@@ -69,7 +70,7 @@ static var _sheet: Sheet
 static func sheet() -> Sheet:
 	if _sheet != null:
 		return _sheet
-	var parsed: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(DIR + "grass_cards.json"))
+	var parsed: Dictionary = DataFile.read(CARDS, WorldSchemas.grass_cards())
 	var side: float = parsed.atlas_size[0]
 	var result := Sheet.new()
 	for kind in KINDS.size():

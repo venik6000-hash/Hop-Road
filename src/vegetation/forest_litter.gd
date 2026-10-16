@@ -270,12 +270,14 @@ func _lay_tile(key: Vector2i) -> Array[MultiMeshInstance3D]:
 		lying.origin -= origin
 		if not laid.has(mesh):
 			laid[mesh] = {"kind": kind, "poses": [], "customs": []}
-		laid[mesh].poses.append(lying)
+		var poses: Array = laid[mesh].poses
+		poses.append(lying)
 		var told := Color()
 		if kind == Kind.STONE:
 			told = Color(RockField.BOULDER_SCANS.find(mesh.resource_name.trim_prefix("stone_")),
 				rng.randf_range(STONE_MOSS.x, STONE_MOSS.y), rng.randf(), 0.0)
-		laid[mesh].customs.append(told)
+		var customs: Array = laid[mesh].customs
+		customs.append(told)
 	var items: Array[MultiMeshInstance3D] = []
 	for mesh: ArrayMesh in laid:
 		var kind: int = laid[mesh].kind

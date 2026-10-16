@@ -24,9 +24,6 @@ const Plants = preload("res://src/wildlife/lake_bed_plants.gd")
 const Batches = preload("res://src/wildlife/lake_bed_batches.gd")
 const DIRECTORY := "res://assets/models/lakebed/"
 const TILE := 24.0
-## The lake boulders' body answers on this layer as well as the world's, so
-## the bed can be read without the pier or the shore stones answering.
-const BOULDER_LAYER := 16
 ## Nothing drowned comes closer to the surface than this (m).
 const CLEARANCE := 0.35
 ## Steepest bed a scanned piece comes to rest on (degrees).
@@ -120,7 +117,7 @@ func build() -> void:
 	_rng.seed = 68249
 	_solid = StaticBody3D.new()
 	_solid.name = "LakeRockFaces"
-	_solid.collision_layer = 1 | BOULDER_LAYER
+	_solid.collision_layer = PhysicsLayers.BOULDERS
 	add_child(_solid)
 	Boulders.place(self)
 	await get_tree().physics_frame

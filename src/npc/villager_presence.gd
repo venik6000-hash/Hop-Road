@@ -38,8 +38,8 @@ const ROAD_GAP := 3.0
 const BODY_CENTRE := 0.83
 const BODY_GAP := 0.1
 ## Where the jug stands on the counter, from the innkeeper's feet at work:
-## beside the place of the mug he serves.
-const JUG_AT := Vector3(0.25, 1.09, -0.79)
+## where he serves the tankard (NpcBarWork.SERVE).
+const JUG_AT := Vector3(-0.11, 1.06, -0.98)
 
 var population: NpcPopulation
 var player: Player
@@ -54,7 +54,8 @@ var active := true
 var jug: Node3D
 
 var _clock := 0.0
-## Those who sit in the hall: VillageNPC -> {seat, pose (CampPose), mug}.
+## Those who sit in the hall: VillageNPC -> {seat, mug, hold (the Callable
+## that keeps the mug by the hand)}.
 var _seated: Dictionary = {}
 ## The names of the seats they sit on -> VillageNPC.
 var _taken: Dictionary = {}
@@ -67,10 +68,10 @@ var _fit := PhysicsShapeQueryParameters3D.new()
 
 func _ready() -> void:
 	var body := CapsuleShape3D.new()
-	body.radius = 0.23
-	body.height = 1.65
+	body.radius = VillageNPC.RADIUS
+	body.height = VillageNPC.HEIGHT
 	_fit.shape = body
-	_fit.collision_mask = 1
+	_fit.collision_mask = PhysicsLayers.GROUND | PhysicsLayers.PLAYER | PhysicsLayers.VILLAGERS
 
 func _process(delta: float) -> void:
 	_clock += delta
@@ -153,7 +154,7 @@ func _shows(eye: Camera3D, at: Vector3, body: VillageNPC) -> bool:
 	var from := eye.global_position
 	if from.distance_to(at) > FAR or not eye.is_position_in_frustum(at):
 		return false
-	var query := PhysicsRayQueryParameters3D.create(from, at, 1)
+	var query := PhysicsRayQueryParameters3D.create(from, at, PhysicsLayers.GROUND)
 	var passed: Array[RID] = [player.get_rid()]
 	if body != null:
 		passed.append(body.get_rid())
@@ -357,19 +358,15 @@ func _sit(actor: VillageNPC, seat: Dictionary) -> void:
 	var solid := _solid(actor)
 	if solid != null:
 		solid.disabled = true
-	var entry: Dictionary = {"seat": seat, "pose": null, "mug": null}
+	var entry: Dictionary = {"seat": seat, "mug": null, "hold": Callable()}
 	if actor.skeleton != null:
-		var pose := CampPose.new()
-		pose.actor = actor
-		pose.seat_height = float(seat.height)
-		pose.seated = true
-		actor.skeleton.add_child(pose)
-		var mug := NpcProps.mug()
+		actor.sit(float(seat.height))
+		var mug := NpcProps.mug(0.7)
 		actor.add_child(mug)
-		(mug.get_node("Beer") as Node3D).position.y = 0.11
-		pose.modification_processed.connect(_hold_mug.bind(actor, mug))
-		entry["pose"] = pose
+		var hold := _hold_mug.bind(actor, mug)
+		actor.posed.connect(hold)
 		entry["mug"] = mug
+		entry["hold"] = hold
 	_seated[actor] = entry
 	_taken[str(seat.get("name", ""))] = actor
 
@@ -380,10 +377,10 @@ func _unseat(actor: VillageNPC) -> void:
 	var seat: Dictionary = entry["seat"]
 	_seated.erase(actor)
 	_taken.erase(str(seat.get("name", "")))
-	var pose: CampPose = entry["pose"]
-	if is_instance_valid(pose):
-		pose.seated = false
-		pose.queue_free()
+	actor.stand()
+	var hold: Callable = entry["hold"]
+	if hold.is_valid() and actor.posed.is_connected(hold):
+		actor.posed.disconnect(hold)
 	var mug: Node3D = entry["mug"]
 	if is_instance_valid(mug):
 		mug.queue_free()
@@ -448,7 +445,7 @@ func _space() -> PhysicsDirectSpaceState3D:
 
 ## The ground under (x, z) between two heights, through the people.
 func _ground(x: float, z: float, top: float, bottom: float) -> Dictionary:
-	var query := PhysicsRayQueryParameters3D.create(Vector3(x, top, z), Vector3(x, bottom, z), 1)
+	var query := PhysicsRayQueryParameters3D.create(Vector3(x, top, z), Vector3(x, bottom, z), PhysicsLayers.GROUND)
 	var passed: Array[RID] = [player.get_rid()]
 	for actor in population.actors:
 		if is_instance_valid(actor):

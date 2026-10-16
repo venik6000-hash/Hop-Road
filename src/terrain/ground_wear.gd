@@ -1,9 +1,10 @@
 extends RefCounted
-## What wheels and feet do to the ground of a yard. A plan
-## (assets/generated/layout/worn_ground.json) names the yards, the routes
-## carts and people take across them and the things that stand in them; a
-## building of VillageBuildings.TABLES adds its own yard from its table
-## (`worn`). From it:
+## What wheels and feet do to the ground of a yard. A region's plan
+## (RegionDef.worn_ground) names the yards, the routes carts and people take
+## across them, the things that stand in them, and the patches of softly worn
+## earth round the village's yards; a building of the region adds its own
+## yard from its table (`worn`). The ground bake makes from it
+## (tools/pipeline/terrain/ground_bake.gd), and the game reads what it made:
 ##   - the terrain's path mask (near_control, R) is painted over. A yard is
 ##     bare along its routes and as far from them as people stray, and left
 ##     to the grass in the corners nobody crosses, at its edges, under its
@@ -17,11 +18,11 @@ extends RefCounted
 ##     a hand wide;
 ##   - a second field (cinder_field) says where coal dust and cinders are
 ##     trodden into the earth: a smithy's `cinder` patches. The ground is bare
-##     there and its earth black.
+##     there and its earth black;
+##   - the patches wear the path mask bare round the yards of the village,
+##     with ragged edges, and take the forest floor and the flowers there.
 
-const ImageUtil = preload("res://src/common/image_util.gd")
 const VILLAGE_BUILDINGS = preload("res://src/village/village_buildings.gd")
-const PLAN := "res://assets/generated/layout/worn_ground.json"
 ## Metres to a texel of the field, and the farthest distance it holds.
 const CELL := 0.25
 const REACH := 4.0
@@ -47,56 +48,63 @@ const FOOT_OF_STAND := 0.5
 const CINDER_RAGGED := 0.6
 const CINDER_PATCH := 1.3
 
-## Paints the terrain's path mask and gives its material the field.
-static func apply(terrain: TerrainSystem) -> void:
-	var started := Time.get_ticks_msec()
-	var plan := read(PLAN)
+## The worn ground of `region` for the ground bake: paints the path mask
+## `control` (texel (0, 0) at `origin`, `cell` metres apart) and returns the
+## fields {wear, cinder (null without cinders), rect}; empty when the region
+## wears no yard or route. The patches are painted either way, last.
+static func bake(region: RegionDef, control: Image, origin: Vector2, cell: float) -> Dictionary:
+	var plan := read(region.worn_ground)
 	# A building brings its yard in its table, in its own frame.
-	for table: Dictionary in VILLAGE_BUILDINGS.tables():
+	for table: Dictionary in VILLAGE_BUILDINGS.tables(region):
 		take(plan, table.get("worn", {}), VILLAGE_BUILDINGS.pose(table))
-	if plan.cart.is_empty() and plan.foot.is_empty() and plan.yards.is_empty() and plan.cinder.is_empty():
-		return
-	var masks: Dictionary = terrain.meta.masks
-	var image := ImageUtil.rgba8(terrain.material.get_shader_parameter("near_control"))
-	paint(image, Vector2(masks.origin[0], masks.origin[1]), masks.cell, plan)
-	# The mask is read blurred from far off: its smaller copies follow.
-	image.generate_mipmaps()
-	terrain.material.set_shader_parameter("near_control", ImageTexture.create_from_image(image))
-	var rect := field_rect(plan)
-	var worn := field(plan, rect)
-	terrain.material.set_shader_parameter("wear_field", ImageTexture.create_from_image(worn))
-	terrain.material.set_shader_parameter("wear_rect", Vector4(rect.position.x, rect.position.y, 1.0 / rect.size.x, 1.0 / rect.size.y))
-	if not plan.cinder.is_empty():
-		terrain.material.set_shader_parameter("cinder_field", ImageTexture.create_from_image(cinder_field(plan, rect)))
-	print("GROUND_WEAR yards=%d cart=%d foot=%d cinder=%d field=%dx%d load=%.2fs" % [plan.yards.size(), plan.cart.size(),
-		plan.foot.size(), plan.cinder.size(), worn.get_width(), worn.get_height(), (Time.get_ticks_msec() - started) / 1000.0])
+	var yards: Array = plan.yards
+	var cart: Array = plan.cart
+	var foot: Array = plan.foot
+	var cinder: Array = plan.cinder
+	var fields := {}
+	if not (cart.is_empty() and foot.is_empty() and yards.is_empty() and cinder.is_empty()):
+		paint(control, origin, cell, plan)
+		var rect := field_rect(plan)
+		fields = {"wear": field(plan, rect), "cinder": cinder_field(plan, rect) if not cinder.is_empty() else null,
+			"rect": rect}
+	paint_patches(control, origin, cell, plan)
+	return fields
 
-## The plan at `path`: {yards, cart, foot, stands, cinder}. The first three
-## are lists of PackedVector2Array (x, z): the yards' outlines and the routes,
-## smoothed; the stands are Vector3 (x, z, the radius feet keep off); the
-## patches of cinders are {outline: PackedVector2Array, fade: the metres over
-## which the cinders run out round it}.
+## The plan at `path`: {yards, cart, foot, stands, cinder, patches}. The
+## first three are lists of PackedVector2Array (x, z): the yards' outlines
+## and the routes, smoothed; the stands are Vector3 (x, z, the radius feet
+## keep off); the patches of cinders are {outline: PackedVector2Array, fade:
+## the metres over which the cinders run out round it}; the worn patches are
+## Vector4 (x, z of the middle, the half sizes). No path: an empty plan.
 static func read(path: String) -> Dictionary:
-	var plan := {"yards": [], "cart": [], "foot": [], "stands": [], "cinder": []}
-	if not FileAccess.file_exists(path):
+	var plan := {"yards": [], "cart": [], "foot": [], "stands": [], "cinder": [], "patches": []}
+	if path.is_empty() or not FileAccess.file_exists(path):
 		return plan
-	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	var data: Variant = DataFile.read(path, BuildingSchemas.worn_ground())
 	if data is Dictionary:
-		take(plan, data, Transform3D.IDENTITY)
+		var file: Dictionary = data
+		take(plan, file, Transform3D.IDENTITY)
+		var patches: Array = plan.patches
+		for patch: Dictionary in file.get("patches", []):
+			patches.append(Vector4(patch.at[0], patch.at[1], patch.reach[0], patch.reach[1]))
 	return plan
 
 ## Adds to `plan` what `data` names the way the plan's file does ({yards,
 ## routes, stands, cinder}), every point (x, z) stood in the map by `place`.
 static func take(plan: Dictionary, data: Dictionary, place: Transform3D) -> void:
+	var cinder: Array = plan.cinder
 	for patch: Dictionary in data.get("cinder", []):
-		plan.cinder.append({"outline": _points(patch.outline, place), "fade": float(patch.fade)})
+		cinder.append({"outline": _points(patch.outline, place), "fade": float(patch.fade)})
+	var yards: Array = plan.yards
 	for yard: Dictionary in data.get("yards", []):
-		plan.yards.append(_points(yard.outline, place))
+		yards.append(_points(yard.outline, place))
 	for route: Dictionary in data.get("routes", []):
-		plan[route.kind].append(smoothed(_points(route.points, place)))
+		var line: Array = plan[route.kind]
+		line.append(smoothed(_points(route.points, place)))
+	var stands: Array = plan.stands
 	for stand: Dictionary in data.get("stands", []):
 		for at: Vector2 in _points(stand.at, place):
-			plan.stands.append(Vector3(at.x, at.y, stand.radius))
+			stands.append(Vector3(at.x, at.y, stand.radius))
 
 static func _points(pairs: Array, place: Transform3D) -> PackedVector2Array:
 	var points := PackedVector2Array()
@@ -228,6 +236,27 @@ static func paint(image: Image, origin: Vector2, cell: float, plan: Dictionary) 
 			color.b *= 1.0 - color.r
 			color.a *= 1.0 - color.r
 			image.set_pixel(ix, iz, color)
+
+## Paints the worn patches of `plan` into the path mask `image` (texel (0, 0)
+## at `origin`, `cell` metres apart): bare in an ellipse round each middle,
+## with an edge that wanders, and no wood and no flowers where it is bare.
+static func paint_patches(image: Image, origin: Vector2, cell: float, plan: Dictionary) -> void:
+	for patch: Vector4 in plan.patches:
+		var centre := Vector2(patch.x, patch.y)
+		var reach := Vector2(patch.z, patch.w)
+		var lo := Vector2i(((centre - reach * 1.2 - origin) / cell).floor())
+		var hi := Vector2i(((centre + reach * 1.2 - origin) / cell).ceil())
+		for iz in range(maxi(0, lo.y), mini(image.get_height(), hi.y + 1)):
+			for ix in range(maxi(0, lo.x), mini(image.get_width(), hi.x + 1)):
+				var point := origin + Vector2(ix, iz) * cell
+				var distance := ((point - centre) / reach).length()
+				distance += sin(point.x * 1.7) * cos(point.y * 1.3) * 0.055
+				var wear := 1.0 - smoothstep(0.72, 1.12, distance)
+				var color := image.get_pixel(ix, iz)
+				color.r = maxf(color.r, wear)
+				color.b *= 1.0 - wear
+				color.a *= 1.0 - wear
+				image.set_pixel(ix, iz, color)
 
 ## The rectangle (x, z) the field covers: every yard and route and REACH
 ## around them, on whole texels.

@@ -22,7 +22,7 @@ static func group_members(trees: TreeSet, chunk: float) -> Dictionary:
 	for i in trees.size():
 		low = Vector2(minf(low.x, trees.x[i]), minf(low.y, trees.z[i]))
 	var origin := (low / chunk).floor() * chunk
-	var groups := {}
+	var groups: Dictionary[Vector2i, PackedInt32Array] = {}
 	for i in trees.size():
 		var key := Vector2i(int((trees.x[i] - origin.x) / chunk), int((trees.z[i] - origin.y) / chunk))
 		if not groups.has(key):

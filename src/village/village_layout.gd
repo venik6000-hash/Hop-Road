@@ -1,8 +1,6 @@
 extends RefCounted
 ## Placement only: the tavern precinct and original resource materials stay intact.
-const ImageUtil = preload("res://src/common/image_util.gd")
 const VILLAGE_BUILDINGS = preload("res://src/village/village_buildings.gd")
-const PLAN := "res://assets/generated/layout/village_plan.json"
 ## The campanile's pieces in the Blender map, where it stands (x, z) and the
 ## height of the map that is set on the ground there: a hand above its base,
 ## for the crown of the knoll falls a little toward the tower's corners.
@@ -27,11 +25,13 @@ static func road_x(y: float) -> float:
 	return -3.5 + 3.5 * sin((y + 11.0) * 0.079) - 0.09 * maxf(0.0, y) + 0.63 * maxf(0.0, -y - 3.0) \
 		- minf(10.0, maxf(0.0, (y - 20.0) * 0.5))
 
-static func plan() -> Dictionary:
-	return JSON.parse_string(FileAccess.get_file_as_string(PLAN))
+## The village plan at `path` (RegionDef.village_plan): houses, cottages,
+## paths and the main road.
+static func read_plan(path: String) -> Dictionary:
+	return DataFile.read(path, WorldSchemas.village_plan())
 
-static func cottage_pose(key: String) -> Transform3D:
-	var spec: Dictionary = plan().cottages[key]
+static func cottage_pose(village_plan: Dictionary, key: String) -> Transform3D:
+	var spec: Dictionary = village_plan.cottages[key]
 	var source := Vector3(spec.source[0], spec.source[1], spec.source[2])
 	var target := Vector3(spec.position[0], spec.position[1], spec.position[2])
 	var basis := Basis(Vector3.UP, deg_to_rad(spec.yaw))
@@ -39,8 +39,8 @@ static func cottage_pose(key: String) -> Transform3D:
 
 ## How a cottage moved since tools/pipeline/village_layout/build.py wrote its
 ## placed scene: the layout scene keeps that pose in `built` when it moves one.
-static func cottage_shift(key: String) -> Transform3D:
-	var spec: Dictionary = plan().cottages[key]
+static func cottage_shift(village_plan: Dictionary, key: String) -> Transform3D:
+	var spec: Dictionary = village_plan.cottages[key]
 	if not spec.has("built"):
 		return Transform3D.IDENTITY
 	var built: Dictionary = spec.built
@@ -62,16 +62,16 @@ static func house_pose(spec: Dictionary, terrain: TerrainSystem) -> Transform3D:
 	var basis := Basis(Vector3.UP, deg_to_rad(spec.yaw))
 	return Transform3D(basis, target - basis * source)
 
-static func place_houses(map: Node3D, terrain: TerrainSystem) -> void:
-	for spec: Dictionary in plan().houses:
+static func place_houses(map: Node3D, terrain: TerrainSystem, village_plan: Dictionary) -> void:
+	for spec: Dictionary in village_plan.houses:
 		var pose := house_pose(spec, terrain)
 		var prefix := "Village house %02d " % int(spec.id)
 		for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
 			if RockField.label_of(item).begins_with(prefix):
 				item.global_transform = pose * item.global_transform
 
-static func smoke_position(point: Vector3, terrain: TerrainSystem) -> Vector3:
-	for spec: Dictionary in plan().houses:
+static func smoke_position(point: Vector3, terrain: TerrainSystem, village_plan: Dictionary) -> Vector3:
+	for spec: Dictionary in village_plan.houses:
 		if Vector2(point.x - spec.source[0], point.z - spec.source[1]).length() < 3.0:
 			return house_pose(spec, terrain) * point
 	return point
@@ -92,8 +92,8 @@ static func ground_height(x: float, z: float, original: float, cottages: Diction
 		height = lerpf(height, float(spec.position[1]) - 0.025, weight)
 	return height
 
-static func settle_ground(image: Image, origin: Vector2, cell: float) -> void:
-	var cottages: Dictionary = plan().cottages
+static func settle_ground(image: Image, origin: Vector2, cell: float, village_plan: Dictionary) -> void:
+	var cottages: Dictionary = village_plan.cottages
 	for iz in range(int((-56.0 - origin.y) / cell), int((-18.0 - origin.y) / cell) + 1):
 		for ix in range(int((-18.0 - origin.x) / cell), int((12.0 - origin.x) / cell) + 1):
 			var x := origin.x + ix * cell
@@ -106,10 +106,10 @@ static func settle_ground(image: Image, origin: Vector2, cell: float) -> void:
 ## are gone: the island is rock of the terrain. The campanile rises with the
 ## knoll under it. The pier goes to the turf bank, where the water is deep at
 ## once, and the sailing boat to the pier's side. A house on whose lot a
-## building of VillageBuildings.TABLES stands goes with its colliders.
+## building of the region (RegionDef.buildings) stands goes with its colliders.
 static func settle_landmarks(map: Node3D, terrain: TerrainSystem) -> void:
 	var lift := terrain.height_at(CAMPANILE_BASE.x, CAMPANILE_BASE.z) - CAMPANILE_BASE.y
-	var replaced := VILLAGE_BUILDINGS.replaced()
+	var replaced := VILLAGE_BUILDINGS.replaced(terrain.region)
 	for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
 		var label := RockField.label_of(item)
 		if label == "Island lawn" or label.begins_with("Chapel ") or label.begins_with("Island chapel ") \
@@ -175,7 +175,7 @@ static func settle_bridge(map: Node3D, terrain: TerrainSystem) -> void:
 	for i in range(profile.size() - 1):
 		var points := PackedVector3Array()
 		for point: Vector2 in [profile[i], profile[i + 1]]:
-			for z in [centre_z - 1.08, centre_z + 1.08]:
+			for z: float in [centre_z - 1.08, centre_z + 1.08]:
 				points.append(Vector3(point.x, point.y, z))
 				points.append(Vector3(point.x, point.y - 0.18, z))
 		var shape := ConvexPolygonShape3D.new()
@@ -184,18 +184,34 @@ static func settle_bridge(map: Node3D, terrain: TerrainSystem) -> void:
 		holder.shape = shape
 		body.add_child(holder)
 
-## Trodden earth around each house: the grass thins toward the walls.
-static func paint_aprons(map: Node3D, terrain: TerrainSystem) -> void:
-	var config: Dictionary = terrain.meta.masks
-	var origin := Vector2(config.origin[0], config.origin[1])
-	var cell: float = config.cell
-	var image := ImageUtil.rgba8(terrain.material.get_shader_parameter("near_control"))
+## Trodden earth around each house: the grass thins toward the walls. Paints
+## the path mask `image` (texel (0, 0) at `origin`, `cell` metres apart) round
+## the houses of `map` as the level stands them (settle_landmarks drops those
+## a building replaces, place_houses moves the rest by `plan`). The ground
+## bake does it on a map of its own, outside the tree: a mesh's place in the
+## map is the chain of its transforms (in_map()).
+static func paint_aprons(image: Image, origin: Vector2, cell: float, map: Node3D, terrain: TerrainSystem,
+		plan: Dictionary) -> void:
+	var replaced := VILLAGE_BUILDINGS.replaced(terrain.region)
+	var poses := {}
+	for spec: Dictionary in plan.houses:
+		poses["Village house %02d " % int(spec.id)] = house_pose(spec, terrain)
 	for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
-		if not RockField.label_of(item).ends_with("limewashed rooms"):
+		var label := RockField.label_of(item)
+		if not label.ends_with("limewashed rooms") or VILLAGE_BUILDINGS.begins(label, replaced):
 			continue
-		var inverse := item.global_transform.affine_inverse()
+		var holder := item.get_parent() as Node3D
+		if holder is MeshInstance3D and RockField.label_of(holder).begins_with("Village house "):
+			push_error("VillageLayout: house mesh %s stands in another one; its apron would be off" % label)
+		var parent := in_map(map, holder)
+		var xform := parent * item.transform
+		for prefix: String in poses:
+			if label.begins_with(prefix):
+				# As place_houses sets it, and the node gives it back.
+				xform = parent * (parent.affine_inverse() * (poses[prefix] as Transform3D * xform))
+		var inverse := xform.affine_inverse()
 		var box := item.get_aabb()
-		var centre := item.global_transform * box.get_center()
+		var centre := xform * box.get_center()
 		var reach := box.size.length() * 0.5 + 2.5
 		for iz in range(int((centre.z - reach - origin.y) / cell), int((centre.z + reach - origin.y) / cell) + 2):
 			for ix in range(int((centre.x - reach - origin.x) / cell), int((centre.x + reach - origin.x) / cell) + 2):
@@ -210,4 +226,17 @@ static func paint_aprons(map: Node3D, terrain: TerrainSystem) -> void:
 				color.r = maxf(color.r, wear)
 				color.a *= 1.0 - wear
 				image.set_pixel(ix, iz, color)
-	terrain.material.set_shader_parameter("near_control", ImageTexture.create_from_image(image))
+
+## Where `node` stands in the map, as the node itself would tell in the
+## tree: the transforms from the map's root down to it, multiplied in the
+## engine's order (the level stands the map at the origin).
+static func in_map(map: Node3D, node: Node3D) -> Transform3D:
+	var chain: Array[Node3D] = []
+	var at := node
+	while at != map and at != null:
+		chain.push_front(at)
+		at = at.get_parent() as Node3D
+	var xform := map.transform
+	for link: Node3D in chain:
+		xform = xform * link.transform
+	return xform

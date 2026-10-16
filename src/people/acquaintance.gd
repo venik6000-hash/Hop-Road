@@ -61,7 +61,7 @@ func once(key: String, day: int) -> bool:
 ## What the player brought the person on `day`: "catch", else "food" for a
 ## treat, else "".
 func gift(day: int) -> String:
-	for event: String in ["catch", "food"]:
+	for event: String in PeopleIds.GIFTS:
 		var mark: Array = marks.get(event, [0, 0])
 		if mark[0] == day:
 			return event
@@ -117,39 +117,44 @@ func to_dict() -> Dictionary:
 func restore(data: Variant) -> void:
 	if not data is Dictionary:
 		return
-	warmth = maxi(0, _whole(data.get("warmth")))
-	circle = clampi(_whole(data.get("circle")), 0, thresholds.size() - 1)
+	var saved: Dictionary = data
+	warmth = maxi(0, _whole(saved.get("warmth")))
+	circle = clampi(_whole(saved.get("circle")), 0, thresholds.size() - 1)
 	while circle > 0 and warmth < thresholds[circle]:
 		circle -= 1
-	risen_day = _whole(data.get("risen_day"))
-	introduced = data.get("introduced") is bool and data.introduced
-	told_day = _whole(data.get("told_day"))
-	told_count = maxi(0, _whole(data.get("told_count")))
-	owed = data.owed if data.get("owed") is String else ""
+	risen_day = _whole(saved.get("risen_day"))
+	introduced = saved.get("introduced") is bool and saved.introduced
+	told_day = _whole(saved.get("told_day"))
+	told_count = maxi(0, _whole(saved.get("told_count")))
+	owed = saved.owed if saved.get("owed") is String else ""
 	marks = {}
-	var saved_marks: Variant = data.get("marks")
+	var saved_marks: Variant = saved.get("marks")
 	if saved_marks is Dictionary:
 		for event: Variant in saved_marks:
 			var mark: Variant = saved_marks[event]
-			if event is String and EVENTS.has(event) and mark is Array and mark.size() == 2:
-				marks[event] = [_whole(mark[0]), _whole(mark[1])]
+			if not event is String or not EVENTS.has(event) or not mark is Array:
+				continue
+			var pair: Array = mark
+			if pair.size() == 2:
+				marks[event] = [_whole(pair[0]), _whole(pair[1])]
 	notes = {}
-	var saved_notes: Variant = data.get("notes")
+	var saved_notes: Variant = saved.get("notes")
 	if saved_notes is Dictionary:
 		for key: Variant in saved_notes:
 			var noted: Variant = saved_notes[key]
 			if key is String and (noted is float or noted is int) and is_finite(float(noted)) and float(noted) == floorf(float(noted)):
 				notes[key] = int(noted)
 	stories = {}
-	var saved_stories: Variant = data.get("stories")
+	var saved_stories: Variant = saved.get("stories")
 	if saved_stories is Dictionary:
 		for story_id: Variant in saved_stories:
 			var entry: Variant = saved_stories[story_id]
 			if not story_id is String or not entry is Dictionary:
 				continue
-			var kept: Variant = entry.get("state")
+			var row: Dictionary = entry
+			var kept: Variant = row.get("state")
 			if kept is String and (kept == NAMED or kept == TOLD):
-				stories[story_id] = {"state": kept, "beat": maxi(-1, _whole(entry.get("beat"), -1))}
+				stories[story_id] = {"state": kept, "beat": maxi(-1, _whole(row.get("beat"), -1))}
 
 static func _whole(value: Variant, fallback := 0) -> int:
 	if (value is float or value is int) and is_finite(float(value)):

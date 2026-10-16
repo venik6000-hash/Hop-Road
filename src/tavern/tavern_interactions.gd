@@ -1,6 +1,14 @@
 class_name TavernInteractions
 extends Node
 ## Contextual E leaves the mug action available when no furnishing is targeted.
+##
+## Targets come from sources (add_source): each is asked in turn for its nearest
+## target within the best distance found so far, and the nearest of all wins.
+## The tavern's own furnishings are sources of this node; the brewery, the
+## camping and the boat (LakesideSystem) add theirs. A new kind of target adds
+## a source, not a branch here. The branches before the sources are states
+## that take E whole: the boat under way, a ladder, a fire being laid, work
+## at a brewery station, a seat.
 const REACH := 2.4
 const TARGET_DOT := 0.93
 const SEAT_TARGET_HEIGHT := 1.05
@@ -27,10 +35,16 @@ var handles: Array[WorkHandle] = []
 ## The brewing in the brewery: what the hand carries and works there.
 var brewing: BrewHouse
 var seated: Dictionary = {}
+## The thing E would act on this frame (Interaction.subject); null for none.
 var selected: Variant = null
 var climbing := false
 var _standing_eye := 1.6
 var _climb_tween: Tween
+## Callable(best: float) -> Interaction: the source's nearest target nearer
+## than `best`, null for none. Asked in this order; a tie keeps the earlier.
+var _sources: Array[Callable] = []
+## What E would do this frame, null for nothing.
+var _chosen: Interaction
 
 func _ready() -> void:
 	camera = player.get_node("CameraRig/Camera3D")
@@ -41,6 +55,8 @@ func _ready() -> void:
 		door.player = player
 	for handle: WorkHandle in get_tree().get_nodes_in_group(WorkHandle.GROUP):
 		handles.append(handle)
+	for source: Callable in [_bar_target, _door_target, _handle_target, _seat_target, _ladder_target, _bed_target]:
+		add_source(source)
 	brewing = get_tree().get_first_node_in_group(BrewHouse.GROUP) as BrewHouse
 	if brewing != null:
 		brewing.attach(self)
@@ -64,112 +80,139 @@ func _ready() -> void:
 	prompt.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	canvas.add_child(prompt)
 
+## Adds a source of targets for E: `source` is Callable(best: float) ->
+## Interaction, the nearest target nearer than `best` or null.
+func add_source(source: Callable) -> void:
+	_sources.append(source)
+
 func _process(_delta: float) -> void:
 	selected = null
-	prompt.text = ""
+	_chosen = null
+	prompt.text = InputActions.hint(tr(_prompt_text()))
+
+## What the prompt says in this frame: a key of the table or words already
+## translated, with the labels of InputActions.hint still to put in; picks
+## `_chosen` and `selected`.
+func _prompt_text() -> String:
 	if not camera.current or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
-		return
+		return ""
 	if valley != null and valley.sleeping:
-		return
-	# context_text() casts a ray (can_board); ask once and reuse the answer.
+		return ""
+	# In the boat E only takes the player ashore.
 	var context := lakeside.context_text() if lakeside != null else ""
 	if context != "" and not climbing:
-		prompt.text = context
-		return
+		return context
 	if climbing:
-		prompt.text = "Подъём по лестнице…" if player.global_position.y < 13.0 else "Лестница на чердак"
-		return
+		return "Подъём по лестнице…" if player.global_position.y < 13.0 else "Лестница на чердак"
 	if camping != null and camping.placing:
-		prompt.text = camping.placement_text()
-		return
+		return camping.placement_text()
 	if brewing != null and brewing.busy():
-		prompt.text = brewing.busy_text()
-		return
+		return brewing.busy_text()
 	if not seated.is_empty():
-		prompt.text = "E — встать   ·   Мышь — обзор"
-		if camping != null:
-			prompt.text += camping.seated_text()
-		return
+		return tr("{interact} — встать   ·   {look} — обзор") + (camping.seated_text() if camping != null else "")
 	var best := REACH
-	var presence: VillagerPresence = valley.presence if valley != null else null
-	if population != null and population.bartender != null:
-		var barkeeper := population.bartender
-		if barkeeper.at_work():
-			var distance := target_distance(barkeeper.interaction_point())
-			if distance < best:
-				best = distance
-				selected = barkeeper
-		elif presence != null:
-			var distance := target_distance(bar_point(barkeeper))
-			if distance < best:
-				best = distance
-				selected = "jug"
+	for source: Callable in _sources:
+		var found: Interaction = source.call(best)
+		if found != null and found.distance < best:
+			best = found.distance
+			_chosen = found
+	if _chosen == null:
+		return ""
+	selected = _chosen.subject
+	return str(_chosen.describe.call())
+
+## A villager as a target: the innkeeper at work serves, anyone else goes by
+## the camping (talk, invite for a walk).
+func npc_interaction(actor: VillageNPC, distance: float) -> Interaction:
+	if actor.job == "bartender" and actor.at_work():
+		return Interaction.of(actor, distance, actor.interaction_text, actor.interact.bind(player))
+	return Interaction.of(actor, distance, camping.interaction_text.bind(actor), camping.interact_npc.bind(actor))
+
+## A seat as a target: the tavern's own (seats) or one at a campfire.
+func seat_interaction(seat: Dictionary, distance: float) -> Interaction:
+	return Interaction.of(seat, distance, func() -> String: return tr("{interact} — сесть · %s") % tr(seat_title(str(seat.name))),
+		sit.bind(seat))
+
+## The name of a seat as the player reads it: Blender's copy number
+## ("Большой стол.003") is not part of it.
+static func seat_title(title: String) -> String:
+	var dot := title.rfind(".")
+	return title.left(dot) if dot > 0 and title.substr(dot + 1).is_valid_int() else title
+
+## The innkeeper at work, or the jug he leaves on the counter while he is out.
+func _bar_target(best: float) -> Interaction:
+	if population == null or population.bartender == null:
+		return null
+	var barkeeper := population.bartender
+	if barkeeper.at_work():
+		var distance := target_distance(barkeeper.interaction_point())
+		return npc_interaction(barkeeper, distance) if distance < best else null
+	if valley == null or valley.presence == null:
+		return null
+	var jug_distance := target_distance(bar_point(barkeeper))
+	if jug_distance >= best:
+		return null
+	return Interaction.of("jug", jug_distance, func() -> String: return "{interact} — налить из кувшина", pour_from_jug)
+
+func _door_target(best: float) -> Interaction:
+	var found: Interaction = null
 	for door: TavernDoor in doors:
 		var distance := target_distance(door.center(), door)
 		if distance < best:
 			best = distance
-			selected = door
+			found = Interaction.of(door, distance, _door_text.bind(door), door.interact)
+	return found
+
+func _door_text(door: TavernDoor) -> String:
+	if door.obstructed:
+		return "Отойдите от створки · {interact} — повернуть дверь"
+	return (tr("{interact} — закрыть · %s") if door.opened else tr("{interact} — открыть · %s")) % tr(door.title)
+
+func _handle_target(best: float) -> Interaction:
+	var found: Interaction = null
 	for handle: WorkHandle in handles:
 		var distance := target_distance(handle.global_position)
 		if distance < best:
 			best = distance
-			selected = handle
+			found = Interaction.of(handle, distance, func() -> String: return "{interact} — %s · %s" % [tr(handle.verb), tr(handle.title)],
+				handle.interact)
+	return found
+
+func _seat_target(best: float) -> Interaction:
+	var presence: VillagerPresence = valley.presence if valley != null else null
+	var found: Interaction = null
 	for seat: Dictionary in seats:
 		if presence != null and presence.seat_taken(seat):
 			continue
-		var position := vector(seat.position) + Vector3.UP * SEAT_TARGET_HEIGHT
-		var distance := target_distance(position)
+		var distance := target_distance(vector(seat.position) + Vector3.UP * SEAT_TARGET_HEIGHT)
 		if distance < best:
 			best = distance
-			selected = seat
-	var ladder := LADDER_BOTTOM + Vector3.UP if player.global_position.y < 13.0 else LADDER_TOP + Vector3.UP * 0.15
-	var ladder_distance := target_distance(ladder, null, true)
-	if ladder_distance < best:
-		best = ladder_distance
-		selected = "ladder"
-	if valley != null:
-		var bed: Variant = TavernBeds.looked_at(camera.global_position, -camera.global_basis.z)
-		if bed != null:
-			var on_bed: Vector3 = bed
-			# The point lies on the bed's collider: the ladder's leeway covers the
-			# little by which the box here and the collider differ.
-			var bed_distance := target_distance(on_bed, null, true)
-			if bed_distance < best:
-				best = bed_distance
-				selected = "bed"
-	if brewing != null:
-		var brew := brewing.find_target(best)
-		if not brew.is_empty():
-			best = brew.distance
-			selected = brew.target
-	if camping != null:
-		var target := camping.find_target(best)
-		if not target.is_empty():
-			selected = target.target
-	if selected is BrewHouse.Target:
-		prompt.text = brewing.target_text(selected)
-	elif selected is VillageNPC:
-		var actor: VillageNPC = selected
-		prompt.text = actor.interaction_text() if actor.job == "bartender" and actor.at_work() else camping.interaction_text(actor)
-	elif selected is Campfire:
-		prompt.text = selected.interaction_text(camping.holding_food())
-	elif selected is TavernDoor:
-		var door: TavernDoor = selected
-		prompt.text = "E — %s · %s" % ["закрыть" if door.opened else "открыть", door.title]
-		if door.obstructed:
-			prompt.text = "Отойдите от створки · E — повернуть дверь"
-	elif selected is WorkHandle:
-		var handle: WorkHandle = selected
-		prompt.text = "E — %s · %s" % [handle.verb, handle.title]
-	elif selected is Dictionary:
-		prompt.text = "E — сесть · " + selected.name
-	elif selected is String:
-		if selected == "bed":
-			prompt.text = "E — спать до утра"
-		elif selected == "jug":
-			prompt.text = "E — налить из кувшина"
-		else:
-			prompt.text = "E — подняться на чердак" if player.global_position.y < 13.0 else "E — спуститься с чердака"
+			found = seat_interaction(seat, distance)
+	return found
+
+func _ladder_target(best: float) -> Interaction:
+	var below := player.global_position.y < 13.0
+	var ladder := LADDER_BOTTOM + Vector3.UP if below else LADDER_TOP + Vector3.UP * 0.15
+	var distance := target_distance(ladder, null, true)
+	if distance >= best:
+		return null
+	var text := "{interact} — подняться на чердак" if below else "{interact} — спуститься с чердака"
+	return Interaction.of("ladder", distance, func() -> String: return text, climb)
+
+## A bed in a guest room; only the game's day and night (valley) make it one.
+func _bed_target(best: float) -> Interaction:
+	if valley == null:
+		return null
+	var bed: Variant = TavernBeds.looked_at(camera.global_position, -camera.global_basis.z)
+	if bed == null:
+		return null
+	var on_bed: Vector3 = bed
+	# The point lies on the bed's collider: the ladder's leeway covers the
+	# little by which the box here and the collider differ.
+	var distance := target_distance(on_bed, null, true)
+	if distance >= best:
+		return null
+	return Interaction.of("bed", distance, func() -> String: return "{interact} — спать до утра", valley.sleep_till_morning)
 
 ## The point over the counter where the innkeeper is looked at when he works.
 func bar_point(barkeeper: VillageNPC) -> Vector3:
@@ -183,12 +226,14 @@ func target_distance(point: Vector3, door: TavernDoor = null, ladder := false, a
 	var query := PhysicsRayQueryParameters3D.create(camera.global_position, point)
 	query.exclude = [player.get_rid()]
 	var hit := player.get_world_3d().direct_space_state.intersect_ray(query)
-	if not hit.is_empty() and hit.collider != door and hit.collider != actor and hit.position.distance_to(point) > (0.45 if ladder else 0.2):
-		return INF
+	if not hit.is_empty():
+		var hit_at: Vector3 = hit.position
+		if hit.collider != door and hit.collider != actor and hit_at.distance_to(point) > (0.45 if ladder else 0.2):
+			return INF
 	return distance
 
 func _input(event: InputEvent) -> void:
-	if not event.is_action_pressed("interact") or event.is_echo() or not camera.current:
+	if not InputActions.pressed(event, "interact") or event.is_echo() or not camera.current:
 		return
 	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		return
@@ -205,27 +250,8 @@ func _input(event: InputEvent) -> void:
 	elif not seated.is_empty():
 		stand()
 		get_viewport().set_input_as_handled()
-	elif Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and selected != null:
-		if selected is VillageNPC:
-			var actor: VillageNPC = selected
-			if actor.job == "bartender" and actor.at_work():
-				actor.interact(player)
-			else:
-				camping.interact_npc(actor)
-		elif selected is Campfire:
-			camping.interact_fire(selected)
-		elif selected is TavernDoor or selected is WorkHandle:
-			selected.interact()
-		elif selected is BrewHouse.Target:
-			brewing.interact(selected)
-		elif selected is Dictionary:
-			sit(selected)
-		elif selected is String and selected == "bed":
-			valley.sleep_till_morning()
-		elif selected is String and selected == "jug":
-			pour_from_jug()
-		else:
-			climb()
+	elif _chosen != null:
+		_chosen.act.call()
 		get_viewport().set_input_as_handled()
 
 func sit(seat: Dictionary) -> void:

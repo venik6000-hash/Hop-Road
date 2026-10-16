@@ -1,6 +1,15 @@
 extends Node
+## The loading screen: builds the level of `region` under itself by stages
+## behind an opaque overlay (docs/LEVEL.md, «Загрузка и запуск»). GameFlow
+## opens the save's slot first and makes it the scene; a tool may add it alone,
+## and then the loop keeps nothing.
+
+## The level stands and plays (`ok`), or the loading has failed (`error`).
+signal finished(ok: bool)
 var loaded := false
 var failed := false
+## Why the loading failed; "" while it has not.
+var error := ""
 var _started := 0
 var _stage_started := 0
 ## Keep the real first view behind an opaque overlay until staged construction,
@@ -8,6 +17,7 @@ var _stage_started := 0
 const InputGate = preload("res://src/loading/input_gate.gd")
 const WORLD := "res://scenes/alpine/main.tscn"
 const PACK = preload("res://src/village/village_pack.gd")
+const LEVEL = preload("res://src/alpine/level.gd")
 ## Seconds of frames that keep coming which one stage may take.
 const STALL_SECONDS := 180.0
 ## The most one frame adds to that: a frame held up by the graphics driver is
@@ -17,13 +27,18 @@ const STALL_STEP := 0.25
 const NOTE_AFTER := 12000
 ## Per kind of launch, the engine build whose shaders the system has compiled.
 const WARM_MARKER := "user://shader_warmup.cfg"
-const COLD_NOTE := "Первый запуск после обновления движка или шейдеров может занять несколько минут:\n" \
-	+ "система один раз собирает шейдеры. Следующие запуски будут быстрыми."
+## One literal: a key of the table is the whole text.
+const COLD_NOTE := "Первый запуск после обновления движка или шейдеров может занять несколько минут:\nсистема один раз собирает шейдеры. Следующие запуски будут быстрыми."
 var _message: Label
 var _overlay: CanvasLayer
-var _world: Node
-var _gate: RefCounted
+## The level being built, then playing; null after a failure.
+var world: Node
+var _gate: InputGate
 var _stage := "Загружаем долину…"
+## The region to build: the one way a region comes into the game. Whoever
+## starts the loader may set it first; the first region of the game's list
+## (RegionDef.listed()) otherwise.
+var region: RegionDef
 var _stage_idle := 0.0
 var _note := false
 
@@ -52,39 +67,43 @@ func _ready() -> void:
 	# Loading this scripted scene on a worker deadlocks
 	# on Godot 4.7.2 while the main thread waits on the script loader lock.
 	_set_stage("Читаем сцену долины…")
+	if region == null:
+		var regions := RegionDef.listed()
+		region = regions[0] if not regions.is_empty() else null
 	var scene := load(WORLD) as PackedScene
-	if scene == null:
+	if scene == null or region == null:
 		_fail("Не удалось загрузить сцену долины.")
 		return
 	_set_stage("Загружаем модели деревни…")
-	var assets_ready := await PACK.prefetch_assets(get_tree(), _prefetch_progress)
+	var assets_ready := await PACK.prefetch_assets(get_tree(), _prefetch_progress, region.props)
 	if failed:
 		return
 	if not assets_ready:
 		_fail("Не удалось загрузить модели деревни.")
 		return
 	_set_stage("Создаём мир…")
-	var world := scene.instantiate()
-	_world = world
-	world.staged_loading = true
+	var level: LEVEL = scene.instantiate()
+	level.region = region
+	world = level
+	level.staged_loading = true
 	# Disabling the parent process_mode removes CollisionObject3Ds from physics.
 	# Pause callbacks only, so placement rays see all real obstacles throughout.
-	world.set_process(false)
-	world.set_physics_process(false)
-	var player := world.get_node("Player")
+	level.set_process(false)
+	level.set_physics_process(false)
+	var player := level.get_node("Player")
 	player.set_physics_process(false)
 	_gate = InputGate.new()
-	_gate.lock(world, get_tree())
-	world.loading_stage.connect(_set_stage)
-	add_child(world)
-	while not failed and not world.has_meta("load_complete"):
+	_gate.lock(level, get_tree())
+	level.loading_stage.connect(_set_stage)
+	add_child(level)
+	while not failed and not level.has_meta("load_complete"):
 		await get_tree().process_frame
 	if failed:
 		return
 	_set_stage("Оживают лес и озеро…")
 	# Deferred builders explicitly await physics frames even while player input
 	# and world processing are held. No placeholder world is revealed.
-	while not world.wildlife.ready_for_visitors or not world.village_pack.forest_ready or not world.flora.ready_for_visitors:
+	while not level.wildlife.ready_for_visitors or not level.village_pack.forest_ready or not level.flora.ready_for_visitors:
 		await get_tree().physics_frame
 		if failed:
 			return
@@ -94,9 +113,9 @@ func _ready() -> void:
 		return
 	_set_stage("Последние приготовления…")
 	# The saved hour and weather, before the frames that warm the first view.
-	ValleyLoop.start(world)
-	world.set_process(true)
-	world.set_physics_process(true)
+	ValleyLoop.start(level)
+	level.set_process(true)
+	level.set_physics_process(true)
 	# Draw the actual materials at the actual camera. This warms the first view,
 	# not every possible shader variant or future camera position.
 	for frame in 6:
@@ -110,11 +129,12 @@ func _ready() -> void:
 	loaded = true
 	_mark_shaders_warm()
 	print("WORLD_READY staged=true seconds=%.3f" % ((Time.get_ticks_msec() - _started) / 1000.0))
+	finished.emit(true)
 
 func _prefetch_progress(completed: int, total: int) -> bool:
 	if failed:
 		return false
-	_set_stage("Загружаем модели деревни… %d/%d" % [completed, total])
+	_set_stage(tr("Загружаем модели деревни… %d/%d") % [completed, total])
 	return true
 
 func _set_stage(message: String) -> void:
@@ -126,8 +146,9 @@ func _set_stage(message: String) -> void:
 	_message.text = _text()
 	print("WORLD_LOADING ", message)
 
+## The screen's words: a stage is a key of the table or words translated.
 func _text() -> String:
-	return "Хмельная тропа\n\n" + _stage + ("\n\n" + COLD_NOTE if _note else "")
+	return tr("Хмельная тропа") + "\n\n" + tr(_stage) + ("\n\n" + tr(COLD_NOTE) if _note else "")
 
 ## The system's shader cache is one per engine build and, on macOS, one per
 ## Godot process running at a time: a game started from the open editor fills
@@ -151,15 +172,18 @@ func _fail(message: String) -> void:
 	if failed:
 		return
 	failed = true
+	error = message
 	PACK.discard_prefetch()
-	_message.text = message + "\nПерезапустите игру."
+	_message.text = tr(message) + "\n" + tr("Перезапустите игру.")
 	if _gate != null:
 		_gate.release()
 		_gate = null
-	if is_instance_valid(_world):
-		_world.queue_free()
+	if is_instance_valid(world):
+		world.queue_free()
+	world = null
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	push_error("World startup failed at '%s': %s" % [_stage, message])
+	finished.emit(false)
 
 func _process(delta: float) -> void:
 	if loaded or failed:
@@ -173,4 +197,4 @@ func _process(delta: float) -> void:
 		_note = true
 		_message.text = _text()
 	if _stage_idle > STALL_SECONDS:
-		_fail("Этап загрузки не завершился за 3 минуты: " + _stage)
+		_fail(tr("Этап загрузки не завершился за 3 минуты: %s") % tr(_stage))

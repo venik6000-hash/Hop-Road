@@ -5,6 +5,7 @@ const MODEL := preload("res://assets/models/beer/iron_tankard.glb")
 const CLOTH := preload("res://src/player/beer/cloth.gdshader")
 const WET := preload("res://src/player/beer/wet_tankard.gdshader")
 const WorldLighting := preload("res://src/player/beer/viewmodel_lighting.gd")
+const SLEEVE_COLOR := Color("71634c")
 var pivot: Node3D
 var fluid: BeerFluid
 var camera: Camera3D
@@ -61,17 +62,18 @@ func _ready() -> void:
 	var mug := MODEL.instantiate()
 	mug.name = "IronTankard"
 	pivot.add_child(mug)
-	_wet_tankard(mug)
+	_wet_materials = wet_tankard(mug)
 	_build_sleeve()
 	fluid = BeerFluid.new()
 	fluid.name = "Beer"
 	pivot.add_child(fluid)
 
-func _material(color: Color, cloth: float = 0.0) -> ShaderMaterial:
+## The player's sleeve, brown wool: on the mug's hand and on the brewer's arms (BrewArms).
+static func sleeve_cloth() -> ShaderMaterial:
 	var material := ShaderMaterial.new()
 	material.shader = CLOTH
-	material.set_shader_parameter("cloth_color", color)
-	material.set_shader_parameter("weave", cloth)
+	material.set_shader_parameter("cloth_color", SLEEVE_COLOR)
+	material.set_shader_parameter("weave", 1.0)
 	return material
 
 func _sleeve(label: String, start: Vector3, end: Vector3, start_radius: float,
@@ -98,7 +100,7 @@ func _sleeve(label: String, start: Vector3, end: Vector3, start_radius: float,
 		for side in sides:
 			var a := ring * sides + side
 			var b := ring * sides + (side + 1) % sides
-			for index in [a, b, a+sides, b, b+sides, a+sides]: mesh.add_index(index)
+			for index: int in [a, b, a+sides, b, b+sides, a+sides]: mesh.add_index(index)
 	mesh.generate_normals()
 	var node := MeshInstance3D.new()
 	node.name = label
@@ -107,7 +109,11 @@ func _sleeve(label: String, start: Vector3, end: Vector3, start_radius: float,
 	pivot.add_child(node)
 
 ## The tankard keeps its maps; the wet layer runs from the rim and dries with the head.
-func _wet_tankard(mug: Node) -> void:
+## Dresses the iron tankard `mug` in wet iron (wet_tankard.gdshader): the
+## player's mug and the villagers' (Tankard). Returns the materials, whose
+## "wetness" follows the beer.
+static func wet_tankard(mug: Node) -> Array[ShaderMaterial]:
+	var made: Array[ShaderMaterial] = []
 	for item: MeshInstance3D in mug.find_children("*", "MeshInstance3D", true, false):
 		for surface in item.mesh.get_surface_count():
 			var original := item.mesh.surface_get_material(surface) as StandardMaterial3D
@@ -118,7 +124,8 @@ func _wet_tankard(mug: Node) -> void:
 			wet.set_shader_parameter("normal_map", original.normal_texture)
 			wet.set_shader_parameter("orm_map", original.metallic_texture)
 			item.set_surface_override_material(surface, wet)
-			_wet_materials.append(wet)
+			made.append(wet)
+	return made
 
 func _process(_delta: float) -> void:
 	if fluid == null: return
@@ -126,9 +133,8 @@ func _process(_delta: float) -> void:
 		wet.set_shader_parameter("wetness", fluid.head)
 
 func _build_sleeve() -> void:
-	var cloth := _material(Color("71634c"), 1.0)
 	# Cuff and forearm line as prepare_hand.py prints them (SLEEVE).
-	_sleeve("LinenSleeve", Vector3(0.202, 0.105, 0.096), Vector3(0.418, -0.1, 0.457), 0.05, 0.075, cloth)
+	_sleeve("Sleeve", Vector3(0.209, 0.082, 0.079), Vector3(0.37, -0.202, 0.415), 0.05, 0.075, sleeve_cloth())
 
 ## Called from player physics so the world shadow rays use an unlocked space.
 func sync_world(world_camera: Camera3D, sky: SkySystem, delta: float = 0.0) -> void:

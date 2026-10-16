@@ -2,31 +2,37 @@ extends Node3D
 signal loading_stage(message: String)
 ## Direct main.tscn instantiation remains synchronous for tools and tests.
 var staged_loading := false
-## Playable wrapper around the imported Blender map: physical sky, generated
-## terrain, the FFT lake and the Blender buildings on top of it.
+## Playable wrapper around a region (RegionDef): its Blender map, physical
+## sky, generated terrain, the FFT lake and the buildings on top of it.
 const VILLAGE_LAYOUT = preload("res://src/village/village_layout.gd")
 const VILLAGE_MATERIALS = preload("res://src/village/village_materials.gd")
-const GROUND_WEAR = preload("res://src/terrain/ground_wear.gd")
 const GROUND_TRACKS = preload("res://src/terrain/ground_tracks.gd")
 const VILLAGE_PACK = preload("res://src/village/village_pack.gd")
-const COTTAGE = preload("res://src/village/herbalist_cottage.gd")
-const POTTER = preload("res://src/village/potter_cottage.gd")
 const VILLAGE_BUILDINGS = preload("res://src/village/village_buildings.gd")
 ## The HUD, the chimney smoke and the debug keys live in these helpers.
 const LEVEL_HUD = preload("res://src/alpine/level_hud.gd")
 const CHIMNEY_SMOKE = preload("res://src/alpine/chimney_smoke.gd")
 const LEVEL_CONTROLS = preload("res://src/alpine/level_controls.gd")
 const RenderQuality = preload("res://src/render/render_quality.gd")
+const SHARPEN_POST = preload("res://src/render/sharpen_post.gd")
+const GAME_SETTINGS = preload("res://src/settings/game_settings.gd")
 const STILL_SURFACE = preload("res://src/alpine/surface_still.gdshader")
 const LEVEL_POST = preload("res://src/alpine/level_post.gd")
-const SPAWN := Vector3(0, 12, 15)
 const VIEW_DISTANCE := 24000.0
 ## The middle of the built-up land (tavern, village, island), x and z:
 ## what RainShelter maps for the rain to fall on.
 const SHELTER_CENTRE := Vector2(-24.0, -44.0)
+## The region this level builds; main.tscn names the valley, WorldLoader may
+## set another before the level enters the tree.
+@export var region: RegionDef
 var manifest: Dictionary
+## What the level's systems share (WorldContext); a tool sets its switches
+## before the level enters the tree.
+var world := WorldContext.new()
+## The region's village plan (VillageLayout.read_plan).
+var village_plan: Dictionary
 var overview_active := false
-var spawn_position := SPAWN
+var spawn_position := Vector3.ZERO
 var sky_system: SkySystem
 var weather: WeatherSystem
 var post: LEVEL_POST
@@ -42,8 +48,10 @@ var litter: ForestLitter
 var rocks: RockField
 var tavern: TavernSystem
 var tavern_interactions: TavernInteractions
-## The brewery and the lighthouse (VillageBuildings.TABLES).
+## The region's buildings (RegionDef.buildings): the brewery, the lighthouse and the rest.
 var buildings: Array[VillageBuilding] = []
+## The region's cottages (RegionDef.cottages), under the map.
+var cottages: Array[VillageCottage] = []
 var npc_population: NpcPopulation
 var camping: CampSystem
 var wildlife: WildlifeSystem
@@ -54,11 +62,13 @@ var lamp_guard: LampShadowGuard
 var lakeside: LakesideSystem
 var lake_audio: LakeSoundscape
 var lake_shore: LakeShore
-var village_pack: Node3D
+var village_pack: VILLAGE_PACK
 var brook: VillageBrook
 var flora: VillageFlora
 var lake_refraction: LakeRefraction
 var status: Label
+## Checks every body of the level as it comes (docs/LEVEL.md, «Сторож»).
+var physics_audit: PhysicsAudit
 # Inputs of the last wind update in _process.
 var _wind_heading_deg := NAN
 var _wind_speed := NAN
@@ -69,11 +79,19 @@ var _wind_sent := Vector4.ZERO
 @onready var overview: Camera3D = $Overview
 
 func _ready() -> void:
+	physics_audit = PhysicsAudit.new()
+	physics_audit.name = "PhysicsAudit"
+	add_child(physics_audit)
 	if staged_loading:
 		set_process(false)
 		set_physics_process(false)
 		player.set_physics_process(false)
-	manifest = JSON.parse_string(FileAccess.get_file_as_string("res://assets/models/alpine/manifest.json"))
+	var map := region.map.instantiate()
+	map.name = "Map"
+	add_child(map)
+	move_child(map, 0)
+	manifest = DataFile.read(region.map_manifest, WorldSchemas.map_manifest())
+	village_plan = VILLAGE_LAYOUT.read_plan(region.village_plan)
 	player_camera.far = VIEW_DISTANCE
 	if staged_loading:
 		await _loading_step("Готовим небо и землю…")
@@ -88,11 +106,9 @@ func _ready() -> void:
 	setup_tavern()
 	settle_map_surfaces($Map)
 	VILLAGE_LAYOUT.settle_landmarks($Map, terrain)
-	VILLAGE_LAYOUT.place_houses($Map, terrain)
+	VILLAGE_LAYOUT.place_houses($Map, terrain, village_plan)
 	VILLAGE_LAYOUT.settle_bridge($Map, terrain)
 	VILLAGE_MATERIALS.apply($Map, terrain)
-	VILLAGE_LAYOUT.paint_aprons($Map, terrain)
-	GROUND_WEAR.apply(terrain)
 	var tracks := GROUND_TRACKS.new()
 	tracks.name = "Tracks"
 	tracks.terrain = terrain
@@ -100,8 +116,7 @@ func _ready() -> void:
 	add_child(tracks)
 	if staged_loading:
 		await _loading_step("Собираем деревню…")
-	setup_cottage()
-	setup_potter()
+	setup_cottages()
 	setup_buildings()
 	if staged_loading:
 		await setup_village_pack()
@@ -116,6 +131,7 @@ func _ready() -> void:
 	flora.auto_grow = not staged_loading
 	flora.terrain = terrain
 	flora.map = $Map
+	flora.village_plan = village_plan
 	add_child(flora)
 	if staged_loading:
 		await _loading_step("Готовим жителей и озеро…")
@@ -151,16 +167,20 @@ func _ready() -> void:
 	village_pack.populate_life(npc_population)
 	setup_lamps()
 	setup_lakeside()
-	var graphics := preload("res://src/settings/graphics_panel.gd").new()
-	graphics.name = "GraphicsSettings"
-	graphics.level = self
-	add_child(graphics)
+	var settings_panel := SettingsPanel.new()
+	settings_panel.name = "Settings"
+	add_child(settings_panel)
+	var sharpen := SHARPEN_POST.new()
+	sharpen.name = "SharpenPost"
+	add_child(sharpen)
 	var view: Dictionary = manifest.cameras[0]
 	set_camera(overview, view)
-	player.position = SPAWN
+	var spawn := region.spawn()
+	spawn_position = spawn.position
+	player.position = spawn_position
 	rig.sensitivity = 0.12
-	rig.yaw_deg = -30.0
-	rig.pitch_deg = 10.0
+	rig.yaw_deg = spawn.yaw_deg
+	rig.pitch_deg = spawn.pitch_deg
 	rig.apply_look(Vector2.ZERO)
 	place_on_ground.call_deferred()
 	if staged_loading:
@@ -187,6 +207,7 @@ func setup_village_pack() -> void:
 	village_pack.name = "VillagePack"
 	village_pack.terrain = terrain
 	village_pack.player = player
+	village_pack.region = region
 	$Map.add_child(village_pack)
 	if staged_loading:
 		await village_pack.wait_for_prefetch()
@@ -220,6 +241,7 @@ func setup_lakeside() -> void:
 	add_child(lake_shore)
 	lake_refraction = LakeRefraction.new()
 	lake_refraction.water = water
+	lake_refraction.world = world
 	add_child(lake_refraction)
 
 func vector(values: Array) -> Vector3:
@@ -233,7 +255,7 @@ func set_camera(camera: Camera3D, view: Dictionary) -> void:
 
 func place_on_ground() -> void:
 	await get_tree().physics_frame
-	var query := PhysicsRayQueryParameters3D.create(Vector3(0, 40, 15), Vector3(0, -10, 15))
+	var query := PhysicsRayQueryParameters3D.create(spawn_position + Vector3.UP * 28.0, spawn_position + Vector3.DOWN * 22.0)
 	query.exclude = [player.get_rid()]
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
 	if not hit.is_empty():
@@ -253,8 +275,9 @@ func setup_lighting() -> void:
 	weather.viewer = player_camera
 	add_child(weather)
 	add_child(sky_system)
-	$WorldEnvironment.environment = RealismEnvironment.build(sky_system.make_sky())
-	sky_system.environment = $WorldEnvironment.environment
+	var world_environment: WorldEnvironment = $WorldEnvironment
+	world_environment.environment = RealismEnvironment.build(sky_system.make_sky())
+	sky_system.environment = world_environment.environment
 	for config: Dictionary in manifest.lights:
 		var lamp := OmniLight3D.new()
 		lamp.name = "TavernLantern"
@@ -289,30 +312,32 @@ static func settle_map_surfaces(map: Node) -> void:
 			elif material.shader.resource_path == "res://src/alpine/surface.gdshader":
 				material.shader = STILL_SURFACE
 
-## Temporal resolve (TAA, or the upscaler of the lighter tiers) is what the
-## cloud jitter, the foliage alpha and the water glints rely on; the tier of
-## the settings picks which, and follows the window's size.
+## Temporal resolve (TAA, or the upscaler of the lighter profiles) is what
+## the cloud jitter, the foliage alpha and the water glints rely on; the
+## quality profile of the settings picks which, and follows the window's size.
 func setup_render_quality() -> void:
 	# The budgets are for the game's window. A tool that draws the level into
 	# its own SubViewport gets the picture as authored, pixel for pixel.
 	if get_viewport() != get_tree().root:
-		apply_render_quality("maximum")
+		apply_quality(QualityProfile.named(QualityProfile.AUTHORED))
 		return
-	apply_render_quality(RenderQuality.selected(get_tree()))
-	var settings := get_node_or_null("/root/GameSettings")
+	apply_quality(RenderQuality.selected(get_tree()))
+	var settings: GAME_SETTINGS = get_node_or_null("/root/GameSettings")
 	if settings != null:
-		settings.render_quality_changed.connect(apply_render_quality)
+		settings.quality_changed.connect(apply_quality)
 	get_viewport().size_changed.connect(_fit_render_resolution)
 
-func apply_render_quality(tier: String) -> void:
-	RenderQuality.apply(get_viewport(), sky_system, tier)
+func apply_quality(profile: QualityProfile) -> void:
+	RenderQuality.apply(get_viewport(), sky_system, profile, world)
 
 func _fit_render_resolution() -> void:
-	RenderQuality.apply_resolution(get_viewport(), RenderQuality.selected(get_tree()))
+	RenderQuality.apply_resolution(get_viewport(), QualityProfile.of(world))
 
 func setup_terrain() -> void:
 	terrain = TerrainSystem.new()
 	terrain.name = "Terrain"
+	terrain.world = world
+	terrain.region = region
 	add_child(terrain)
 	sun_shadow = SunShadowField.new()
 	sun_shadow.name = "SunShadowField"
@@ -337,12 +362,15 @@ func setup_tavern() -> void:
 	tavern = TavernSystem.new()
 	tavern.name = "Tavern"
 	tavern.map = $Map
+	tavern.parts = region.tavern
 	tavern.sky_system = sky_system
 	tavern.terrain = terrain
+	tavern.world = world
 	add_child(tavern)
 	eye_adaptation = EyeAdaptation.new()
 	eye_adaptation.name = "EyeAdaptation"
-	eye_adaptation.environment = $WorldEnvironment.environment
+	var world_environment: WorldEnvironment = $WorldEnvironment
+	eye_adaptation.environment = world_environment.environment
 	eye_adaptation.sky = sky_system
 	eye_adaptation.weather = weather
 	eye_adaptation.rooms = tavern.room_boxes()
@@ -359,10 +387,9 @@ func setup_lamps() -> void:
 	lamp_guard.lamps = tavern.shadowed_lanterns()
 	for glow: Dictionary in tavern.far_glows:
 		far_lights.add_glow(tavern.to_global(glow.at), glow.color, glow.radius, tavern.global_basis * glow.facing)
-	for cottage: Node in [$Map.get_node("HerbalistCottage"), $Map.get_node("PotterCottage")]:
-		var lantern: OmniLight3D = cottage.lantern
-		lamp_guard.lamps.append(lantern)
-		far_lights.add_glow(lantern.global_position, lantern.light_color, 0.2)
+	for cottage: VillageCottage in cottages:
+		lamp_guard.lamps.append(cottage.lantern)
+		far_lights.add_glow(cottage.lantern.global_position, cottage.lantern.light_color, 0.2)
 	for building: VillageBuilding in buildings:
 		lamp_guard.lamps.append_array(building.shadowed_lanterns())
 		building.light_from_afar(far_lights)
@@ -371,24 +398,21 @@ func setup_lamps() -> void:
 	lamp_guard.population = npc_population
 	add_child(lamp_guard)
 
-## Install before vegetation so the new porch and wood store are solid obstacles.
-func setup_cottage() -> void:
-	var cottage := COTTAGE.new()
-	cottage.name = "HerbalistCottage"
-	$Map.add_child(cottage)
-	cottage.install($Map, sky_system)
+## Before the vegetation, so that the new porches and wood stores are solid obstacles.
+func setup_cottages() -> void:
+	for entry: Dictionary in VillageCottage.entries(region.cottages):
+		var cottage := VillageCottage.new()
+		cottage.name = str(entry.node)
+		cottage.spec = entry
+		$Map.add_child(cottage)
+		cottage.install($Map, sky_system, village_plan)
+		cottages.append(cottage)
 
-func setup_potter() -> void:
-	var cottage := POTTER.new()
-	cottage.name = "PotterCottage"
-	$Map.add_child(cottage)
-	cottage.install($Map, sky_system)
-
-## The brewery behind the tavern and the lighthouse on the island; before the
-## vegetation, whose obstacle scan must see their colliders. The ground under
-## them is shaped as the terrain loads (VillageBuildings.settle_ground).
+## The brewery behind the tavern, the lighthouse on the island and the rest;
+## before the vegetation, whose obstacle scan must see their colliders. The
+## ground bake shaped the ground under them (VillageBuildings.settle_ground).
 func setup_buildings() -> void:
-	for table: Dictionary in VILLAGE_BUILDINGS.tables():
+	for table: Dictionary in VILLAGE_BUILDINGS.tables(region):
 		var building := VillageBuilding.new()
 		building.name = str(table.title)
 		building.table = table
@@ -413,6 +437,8 @@ func setup_rocks() -> void:
 	rocks.name = "Rocks"
 	rocks.terrain = terrain
 	rocks.map = $Map
+	rocks.layout = region.rocks
+	rocks.cliff = region.cliff
 	add_child(rocks)
 
 ## The falls below the plateau with their spray, mist and the lake's foam.
@@ -424,12 +450,12 @@ func setup_waterfall() -> void:
 	add_child(waterfall)
 
 ## The brook through the village, on the falls' water; before the rocks, whose
-## Blender brook stones it drops, and the vegetation, which reads its bed.
+## Blender brook stones it drops. Its bed is in the baked masks.
 func setup_brook() -> void:
-	VillageBrook.paint(terrain)
 	brook = VillageBrook.new()
 	brook.name = "Brook"
 	brook.map = $Map
+	brook.terrain = terrain
 	brook.falls = waterfall
 	add_child(brook)
 
@@ -439,6 +465,7 @@ func setup_vegetation() -> void:
 	vegetation = VegetationSystem.new()
 	vegetation.name = "Vegetation"
 	vegetation.terrain = terrain
+	vegetation.world = world
 	vegetation.map = $Map
 	# The rays that find the buildings' footprints pass the rocks: the village's
 	# trees and the grass stand among them. Named here because a physics engine
@@ -465,7 +492,8 @@ func setup_post() -> void:
 	lightning.name = "Lightning"
 	lightning.weather = weather
 	lightning.terrain = terrain
-	lightning.environment = $WorldEnvironment.environment
+	var world_environment: WorldEnvironment = $WorldEnvironment
+	lightning.environment = world_environment.environment
 	lightning.rooms = rooms
 	add_child(lightning)
 	for building: VillageBuilding in buildings:
@@ -506,7 +534,7 @@ func setup_smoke() -> void:
 		building.take_plumes(CHIMNEY_SMOKE.over(self, building.smoke_vents()))
 
 func setup_interface() -> void:
-	status = LEVEL_HUD.build(self)
+	status = LEVEL_HUD.build(self, LEVEL_CONTROLS.debug_keys())
 	update_status()
 
 func update_status() -> void:
@@ -514,7 +542,11 @@ func update_status() -> void:
 		return
 	status.text = LEVEL_HUD.status_text(water, sky_system, weather)
 
-func _unhandled_key_input(event: InputEvent) -> void:
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED:
+		update_status()
+
+func _unhandled_input(event: InputEvent) -> void:
 	LEVEL_CONTROLS.key_input(self, event)
 
 func toggle_overview() -> void:
@@ -536,4 +568,4 @@ func capture() -> void:
 	DirAccess.make_dir_recursive_absolute(folder)
 	var path := folder + "/" + Time.get_datetime_string_from_system().replace(":", "-") + ".png"
 	get_viewport().get_texture().get_image().save_png(path)
-	print("Снимок сохранён: ", ProjectSettings.globalize_path(path))
+	print("Screenshot saved: ", ProjectSettings.globalize_path(path))

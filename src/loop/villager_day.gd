@@ -22,9 +22,10 @@ static func entries(data: Variant) -> Array[Dictionary]:
 	for entry: Variant in data:
 		if not entry is Dictionary:
 			continue
-		var start: Variant = entry.get("from")
-		var end: Variant = entry.get("to")
-		var at: Variant = entry.get("at")
+		var row: Dictionary = entry
+		var start: Variant = row.get("from")
+		var end: Variant = row.get("to")
+		var at: Variant = row.get("at")
 		if not _is_hour(start) or not _is_hour(end) or not at is String or not PLACES.has(at):
 			continue
 		if float(start) == float(end):

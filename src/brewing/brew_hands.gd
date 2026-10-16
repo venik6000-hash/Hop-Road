@@ -26,6 +26,12 @@ const LEVER_LEFT := 0.18
 const CRANK_LEFT := 0.1
 ## The left hand under a tipped vessel's bottom, this high over its foot.
 const UNDER := 0.04
+## The fishing rod (lakeside_rod.gd): metres from its butt up to the right
+## hand; the left hand under the reel, the rod's frame.
+const ROD_BUTT := 0.06
+const ROD_REEL := Vector3(0.035, -0.07, -0.05)
+## A thing on the left palm (the baked potato): metres from its middle down to the palm.
+const PALM := 0.07
 
 ## The hands on utensil `id` of the brewery's table (`entry`: {kind, at, grip},
 ## building frame) whose node stands at `node` (world; its origin at `at`).
@@ -97,6 +103,17 @@ static func on_part(entry: Dictionary, pivot: Transform3D, shoulders: Array[Vect
 		var second := grip + bar.normalized() * CRANK_LEFT if str(entry.kind) == "spin" else grip.lerp(pivot.origin, LEVER_LEFT)
 		hands.append(hand(LEFT, second, bar, shoulders[LEFT], right, "grip"))
 	return hands
+
+## The hands on the fishing rod whose butt stands at `rod` (world) with its
+## tip at `tip`: the right on the butt, the left on the reel.
+static func on_rod(rod: Transform3D, tip: Vector3, shoulders: Array[Vector3], right: Vector3) -> Array[Dictionary]:
+	var along := (tip - rod.origin).normalized()
+	return [hand(RIGHT, rod.origin + along * ROD_BUTT, along, shoulders[RIGHT], right, "grip"),
+		hand(LEFT, rod * ROD_REEL, rod.basis.x, shoulders[LEFT], right, "grip")]
+
+## The left hand palm up under a thing whose middle is at `point` (the baked potato).
+static func on_palm(point: Vector3, shoulders: Array[Vector3], right: Vector3) -> Array[Dictionary]:
+	return [hand(LEFT, point + Vector3.DOWN * PALM, right, shoulders[LEFT], right, "hold", true)]
 
 ## A hand of `side` on a bar at `point` running along `along` (either way),
 ## the arm coming from `shoulder`; `right` is the body's right. Over the bar

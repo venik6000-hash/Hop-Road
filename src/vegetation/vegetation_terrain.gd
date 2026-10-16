@@ -164,7 +164,7 @@ func obstacle_clear(x: float, z: float, radius: float) -> bool:
 		return true
 	if obstacle_at(x, z) > 0.5:
 		return false
-	for ring in [radius * 0.5, radius]:
+	for ring: float in [radius * 0.5, radius]:
 		for k in 8:
 			var angle := k * TAU / 8.0
 			if obstacle_at(x + cos(angle) * ring, z + sin(angle) * ring) > 0.5:

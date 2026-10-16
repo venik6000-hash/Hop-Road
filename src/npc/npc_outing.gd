@@ -42,7 +42,14 @@ const SHUT_SECONDS := 1.0
 ## The pace of one who steps out of the player's way, m/s, and for how long
 ## they keep stepping once the player has walked into them, s.
 const ASIDE := 1.6
+## m/s on the way to a place, when neither the camp nor the player sets the pace.
+const WALK_SPEED := 2.7
 const ASIDE_SECONDS := 0.6
+## The height of a log by the fire over the feet, m.
+const LOG_SEAT := 0.28
+## Seconds a toast keeps the mug up, and food is held up to be eaten.
+const TOAST_SECONDS := 1.5
+const MEAL_SECONDS := 6.0
 
 var actor: VillageNPC
 var camping: CampSystem
@@ -62,7 +69,6 @@ var points: Array[Vector3] = []
 var walked: Array[Vector3] = []
 var fire: Campfire
 var camp_seat: Dictionary = {}
-var pose: CampPose
 var mug: Node3D
 var _model: Node3D
 var _blocked := 0.0
@@ -75,7 +81,6 @@ var _aside_time := 0.0
 var _met_person := false
 ## The side on which the last way round was found: it is tried first.
 var _side := 1.0
-var _toast := 0.0
 var _last_player := Vector3.ZERO
 var _last_actor := Vector3.ZERO
 var _food: Node3D
@@ -85,15 +90,10 @@ var _camp_trail: Array[Vector3] = []
 
 func _ready() -> void:
 	_model = actor.get_node("Model")
-	pose = CampPose.new()
-	pose.actor = actor
-	if actor.skeleton != null:
-		actor.skeleton.add_child(pose)
-		pose.modification_processed.connect(_sync_props)
-	mug = NpcProps.mug()
+	actor.posed.connect(_sync_props)
+	mug = NpcProps.mug(0.7)
 	actor.add_child(mug)
 	mug.visible = false
-	(mug.get_node("Beer") as Node3D).position.y = 0.11
 	_last_player = camping.player.global_position
 	_last_actor = actor.global_position
 	walked.append(actor.global_position)
@@ -103,9 +103,6 @@ func _ready() -> void:
 func drive(delta: float) -> void:
 	if unasked and actor.global_position.distance_to(camping.player.global_position) <= ARRIVED:
 		unasked = false
-	_toast = maxf(0.0, _toast - delta)
-	pose.toast_weight = sin(_toast / 1.5 * PI)
-	pose.food_weight = sin(minf(_food_time, 6.0) / 6.0 * PI) * 0.5
 	if mode == "rest":
 		_record_camp_trail()
 		if not is_instance_valid(fire) or not fire.burning or camping.player.global_position.distance_to(fire.global_position) > 7.0:
@@ -152,7 +149,7 @@ func drive(delta: float) -> void:
 			mode = "rest"
 			unasked = false
 			halt += 1
-			pose.seated = true
+			actor.sit(LOG_SEAT)
 			_model.position.y = 0.0
 			mug.visible = true
 			camping.arrive_at_fire(self)
@@ -163,7 +160,7 @@ func drive(delta: float) -> void:
 		actor.play("idle")
 		return
 	var direction := flat.normalized()
-	var speed := 2.7
+	var speed := WALK_SPEED
 	if mode == "to_camp":
 		speed = clampf(flat.length() * HURRY, PACE.x, PACE.y)
 	elif mode == "follow":
@@ -374,18 +371,19 @@ func _sync_props() -> void:
 
 func toast() -> void:
 	if mode == "rest":
-		_toast = 1.5
+		actor.gesture(NpcBody.TOAST, TOAST_SECONDS)
 
 func receive_food(portion: Node3D = null) -> void:
 	if is_instance_valid(_food):
 		_food.queue_free()
 	_food = portion if portion != null else CampProps.potato(true)
 	actor.add_child(_food)
-	_food_time = 6.0
+	_food_time = MEAL_SECONDS
+	actor.gesture(NpcBody.MEAL, MEAL_SECONDS)
 
 func leave_seat() -> void:
 	halt += 1
-	pose.seated = false
+	actor.stand()
 	_model.position.y = 0.0
 	mug.visible = false
 	fire = null
@@ -480,8 +478,10 @@ func _finish() -> void:
 func _exit_tree() -> void:
 	if is_instance_valid(_model):
 		_model.position.y = 0.0
-	if is_instance_valid(pose):
-		pose.queue_free()
+	if is_instance_valid(actor):
+		actor.stand()
+		if actor.posed.is_connected(_sync_props):
+			actor.posed.disconnect(_sync_props)
 	if is_instance_valid(mug):
 		mug.queue_free()
 	if is_instance_valid(_food):

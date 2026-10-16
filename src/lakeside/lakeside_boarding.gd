@@ -15,17 +15,23 @@ static func find_mooring(lake: LakesideSystem) -> Vector3:
 				result = Vector3(x, lake.water.water_level, z)
 	return result
 
-static func can_board(lake: LakesideSystem) -> bool:
+## The boat is boarded from this far, m (from the eye to its middle).
+const REACH := 3.5
+
+## How far the eye is from the boat (m) when the player can board it now;
+## -1 when they cannot: they sit, climb or lay a fire, or the boat is not
+## before their eyes within REACH.
+static func board_distance(lake: LakesideSystem) -> float:
 	if not lake.interactions.seated.is_empty() or lake.interactions.climbing or lake.camping.placing:
-		return false
+		return -1.0
 	var point := lake.boat.global_position + Vector3.UP * 0.3
 	var offset := point - lake.interactions.camera.global_position
-	if offset.length() > 3.5 or offset.normalized().dot(-lake.interactions.camera.global_basis.z) < 0.65:
-		return false
+	if offset.length() > REACH or offset.normalized().dot(-lake.interactions.camera.global_basis.z) < 0.65:
+		return -1.0
 	var ray := PhysicsRayQueryParameters3D.create(lake.interactions.camera.global_position, point)
 	ray.exclude = [lake.player.get_rid()]
 	var hit := lake.get_world_3d().direct_space_state.intersect_ray(ray)
-	return hit.is_empty() or hit.collider == lake.boat
+	return offset.length() if hit.is_empty() or hit.collider == lake.boat else -1.0
 
 static func board(lake: LakesideSystem) -> void:
 	lake.cancel_fishing()
@@ -53,7 +59,8 @@ static func leave_boat(lake: LakesideSystem) -> bool:
 	# Swimming is already a safe, supported mode in this game. Test the capsule first.
 	var at := lake.boat.to_global(Vector3(2.0, 0.1, 0.0))
 	var query := PhysicsShapeQueryParameters3D.new()
-	query.shape = lake.player.get_node("Collision").shape
+	var collision: CollisionShape3D = lake.player.get_node("Collision")
+	query.shape = collision.shape
 	query.transform = Transform3D(Basis.IDENTITY, at + Vector3.UP * 0.9)
 	query.exclude = [lake.player.get_rid()]
 	if lake.get_world_3d().direct_space_state.intersect_shape(query, 1).is_empty():

@@ -17,7 +17,7 @@ extends Node3D
 ## foam streams out over the lake's surface. The basin, the channel and the
 ## cove are cut into the terrain by tools/pipeline/terrain/terrain.py
 ## (SHELF_*, POOL_*), the bed above the upper fall by carve(), and the rock
-## faces stand where RockField.CLIFF_FACES puts them.
+## faces stand where the valley's cliff file puts them (RegionDef.cliff).
 
 const SHEET_SHADER := preload("res://src/water/waterfall.gdshader")
 const STREAM_SHADER := preload("res://src/water/stream.gdshader")
@@ -83,11 +83,6 @@ const FOAM_PRIORITY := 1
 const SHEET_PRIORITY := 2
 const MIST_PRIORITY := 3
 
-## Rows of the stream above the upper fall, as VillageBrook.rows has the
-## brook's: {at: Vector3 (the surface on the centre line), half, speed, depth,
-## step: bool (white water)}. Worked out by carve().
-static var head: Array[Dictionary] = []
-
 var map: Node3D
 var water: WaterSystem
 
@@ -134,7 +129,9 @@ static func _fall_from(fall: Dictionary, course: Array) -> Dictionary:
 	leaving.dip = speed * (before.y - last.y) / run.length()
 	return leaving
 
-## HEAD every VillageBrook.STEP metres.
+## Rows of the stream above the upper fall, HEAD every VillageBrook.STEP
+## metres, as a course of VillageBrook: {at: Vector3 (the surface on the
+## centre line), half, speed, depth, step: bool (white water)}.
 static func head_rows() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	for k in HEAD.size() - 1:
@@ -152,10 +149,10 @@ static func head_rows() -> Array[Dictionary]:
 
 ## Cuts the bed of the stream above the upper fall into the near heightfield
 ## (row z, column x at origin + index * cell), after the cliff's seat is laid
-## into it (RockField.seat), and remembers the course for the water.
+## into it (RockField.seat). The valley's ground bake calls it
+## (tools/pipeline/terrain/valley_ground.gd).
 static func carve(image: Image, origin: Vector2, cell: float) -> void:
-	head = WaterfallSystem.head_rows()
-	VillageBrook.cut(image, origin, cell, head)
+	VillageBrook.cut(image, origin, cell, WaterfallSystem.head_rows())
 
 ## Seconds the water of `fall` takes to drop `height` metres below its lip.
 static func fall_time(fall: Dictionary, height: float) -> float:
@@ -214,7 +211,7 @@ func stream_material() -> ShaderMaterial:
 ## runs fast, that reaches into its banks as the village's does.
 func _add_head() -> void:
 	var course := []
-	for row: Dictionary in head:
+	for row: Dictionary in WaterfallSystem.head_rows():
 		course.append([row.at, row.half + VillageBrook.INTO_BANK, row.speed])
 	var material := stream_material()
 	material.set_shader_parameter("landing", Vector2(1e6, 1e6))
@@ -246,7 +243,7 @@ func _add_ribbon(ribbon_name: String, mesh: ArrayMesh, material: ShaderMaterial)
 ## lake that rides its waves (plunge_foam.gdshader).
 func _add_plunge_foam(landing: Vector3) -> void:
 	var material := _lake_material(FOAM_SHADER, FOAM_PRIORITY)
-	for parameter in ["near_height", "far_height", "near_rect", "far_rect", "water_level"]:
+	for parameter: String in ["near_height", "far_height", "near_rect", "far_rect", "water_level"]:
 		material.set_shader_parameter(parameter, water.material.get_shader_parameter(parameter))
 	material.set_shader_parameter("plunge", Vector4(landing.x, landing.z, PLUNGE_REACH, 1.0))
 	var plane := PlaneMesh.new()

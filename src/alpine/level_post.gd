@@ -9,6 +9,7 @@ extends RefCounted
 ## storm preset's significant height at the largest local wave scale. An eye
 ## above it lets the lens pass skip its water block.
 const LENS_CREST_BOUND := 30.0
+const LEVEL = preload("res://src/alpine/level.gd")
 
 var fog: AtmosphereFog
 var refraction: RefractionPost
@@ -31,7 +32,7 @@ var _viewer_radius := 0.0
 
 ## After the tavern, the buildings and the vegetation: the fog reads their
 ## rooms and the canopy.
-func _init(level: Node3D) -> void:
+func _init(level: LEVEL) -> void:
 	_sky = level.sky_system
 	_weather = level.weather
 	_terrain = level.terrain

@@ -42,7 +42,7 @@ func frame(delta: float, is_near: bool, is_seated: bool) -> bool:
 ## a seat of the tavern, else "stand" or "walk". `distance` is to the villager.
 static func activity(barkeeper: bool, at_table: bool, seated: bool, still: bool, distance: float) -> String:
 	if barkeeper and not seated and still and distance <= BAR_REACH:
-		return "bar"
+		return PeopleIds.ACTIVITY_BAR
 	if at_table:
-		return "table"
-	return "stand" if still else "walk"
+		return PeopleIds.ACTIVITY_TABLE
+	return PeopleIds.ACTIVITY_STAND if still else PeopleIds.ACTIVITY_WALK

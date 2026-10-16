@@ -2,16 +2,16 @@ extends RefCounted
 ## Chimney smoke: one particle plume per smoke point of the Blender map and
 ## per smoking vent of the village's buildings.
 const VILLAGE_LAYOUT = preload("res://src/village/village_layout.gd")
-const COTTAGE = preload("res://src/village/herbalist_cottage.gd")
 const SMOKE_SHADER = preload("res://src/alpine/smoke.gdshader")
+const LEVEL = preload("res://src/alpine/level.gd")
 
 ## Adds the plumes of the Blender map to the level as "ChimneySmoke"
 ## children, in manifest order.
-static func build(level: Node3D, manifest: Dictionary, terrain: TerrainSystem) -> void:
+static func build(level: LEVEL, manifest: Dictionary, terrain: TerrainSystem) -> void:
 	var places: Array[Vector3] = []
 	for origin: Array in manifest.smoke:
-		if not COTTAGE.replaces_smoke(origin):
-			places.append(VILLAGE_LAYOUT.smoke_position(level.vector(origin), terrain))
+		if not level.cottages.any(func(cottage: VillageCottage) -> bool: return cottage.hides_smoke(origin)):
+			places.append(VILLAGE_LAYOUT.smoke_position(level.vector(origin), terrain, level.village_plan))
 	over(level, places)
 
 ## Adds a plume over each of `places` (world space) to the level, and returns

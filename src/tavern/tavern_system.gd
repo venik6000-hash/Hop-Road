@@ -29,8 +29,6 @@ extends Node3D
 ## that join the two are laid by tavern_threshold.gd; the ground under the
 ## stone floors is taken down by tavern_ground.gd as the terrain loads.
 
-## The exported parts (build.py GROUPS): the building's shell, the interior.
-const PARTS := ["res://assets/models/tavern/tavern.json", "res://assets/models/tavern/tavern_interior.json"]
 ## The materials, the lights, the colliders and the dressing of the part
 ## scenes live in these helpers.
 const TAVERN_MATERIALS = preload("res://src/tavern/tavern_materials.gd")
@@ -80,6 +78,9 @@ const PROBE_BLEND := TAVERN_LIGHTS.PROBE_BLEND
 const BUILDING_BOUNDS := TAVERN_LIGHTS.BUILDING_BOUNDS
 
 var map: Node3D
+## The tables of the exported parts (build.py GROUPS; RegionDef.tavern): the
+## building's shell, then the interior. Set before the tavern enters the tree.
+var parts: PackedStringArray = []
 var sky_system: SkySystem
 ## For the daylight in the rooms: the ridges that take the sun (may be null).
 var terrain: TerrainSystem
@@ -91,12 +92,16 @@ var contact_shadows := TavernContactShadows.new()
 ## What the rooms see of the outdoors, once a table has named the shell's
 ## openings.
 var portals: TavernPortals
+## The level's context, which the portals join; null in a tool that builds
+## the tavern alone.
+var world: WorldContext
 var mesh_count := 0
 var replaced := 0
 var bodies := 0
 var doors: Array[TavernDoor] = []
-## The hall's cuckoo clock, which calls the game's hours.
-var cuckoo := TavernCuckoo.new()
+## The hall's cuckoo clock, which calls the game's hours. Made in _ready: a
+## VillageBuilding has its own _ready and no clock.
+var cuckoo: TavernCuckoo
 ## The rooms' lamps that burn day and night (TavernLights.add_light): the
 ## floors between hide them from an eye on another storey (TavernPortals).
 var steady_lamps: Array[Light3D] = []
@@ -144,15 +149,16 @@ func _ready() -> void:
 	_body = StaticBody3D.new()
 	_body.name = "Solid"
 	add_child(_body)
+	cuckoo = TavernCuckoo.new()
 	cuckoo.name = "Cuckoo"
 	cuckoo.tavern = self
 	add_child(cuckoo)
-	_has_interior = FileAccess.file_exists(PARTS[1])
-	var parts := 0
-	for path: String in PARTS:
+	_has_interior = parts.size() > 1 and FileAccess.file_exists(parts[1])
+	var loaded := 0
+	for path: String in parts:
 		if FileAccess.file_exists(path):
-			_load_part(JSON.parse_string(FileAccess.get_file_as_string(path)))
-			parts += 1
+			_load_part(DataFile.read(path, BuildingSchemas.tavern_part()))
+			loaded += 1
 	TAVERN_THRESHOLD.build(self)
 	_wear_floors()
 	TAVERN_LIGHTS.add_hearth_fires(self)
@@ -165,7 +171,7 @@ func _ready() -> void:
 	var occlusion := preload("res://src/tavern/tavern_occlusion.gd").new()
 	occlusion.name = "InteriorOcclusion"
 	add_child(occlusion)
-	print("TAVERN parts=%d meshes=%d replaced=%d materials=%d lights=%d bodies=%d load=%.2fs" % [parts,
+	print("TAVERN parts=%d meshes=%d replaced=%d materials=%d lights=%d bodies=%d load=%.2fs" % [loaded,
 		mesh_count, replaced, _materials.size(), _flames.size() + _lanterns.size(), bodies,
 		(Time.get_ticks_usec() - start) / 1e6])
 
@@ -208,6 +214,7 @@ func _load_part(table: Dictionary) -> void:
 			portals = TavernPortals.new()
 			portals.name = "Portals"
 			portals.tavern = self
+			portals.world = world
 			add_child(portals)
 		portals.add(openings, table.get("portal_floors", []))
 	# Once the rooms have lights of their own, the level's two stand-in

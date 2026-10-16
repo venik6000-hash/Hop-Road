@@ -9,7 +9,8 @@ static func add(lake: LakeBed, kind: String, variant: int, transform: Transform3
 	var key := "%s/%d/%d/%d" % [kind, variant, tile.x, tile.y]
 	if not lake._groups.has(key):
 		lake._groups[key] = {"kind": kind, "variant": variant, "transforms": []}
-	lake._groups[key].transforms.append(transform)
+	var transforms: Array = lake._groups[key].transforms
+	transforms.append(transform)
 
 static func _model_name(kind: String, variant: int) -> String:
 	return kind + "_" + str(variant) if LakeBed.PLANTS.has(kind) else kind
@@ -33,9 +34,10 @@ static func build(lake: LakeBed) -> void:
 			var multi := MultiMesh.new()
 			multi.transform_format = MultiMesh.TRANSFORM_3D
 			multi.mesh = prepared[mesh_key]
-			multi.instance_count = group.transforms.size()
+			var transforms: Array = group.transforms
+			multi.instance_count = transforms.size()
 			for i in multi.instance_count:
-				multi.set_instance_transform(i, group.transforms[i] * source.transform)
+				multi.set_instance_transform(i, transforms[i] * source.transform)
 			var instance := MultiMeshInstance3D.new()
 			instance.name = key.replace("/", "_")
 			instance.multimesh = multi

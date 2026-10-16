@@ -10,7 +10,7 @@ static func _prepare_ground(camp: CampSystem) -> void:
 	for actor in camp.population.actors:
 		excluded.append(actor.get_rid())
 	camp._site_ground_query.exclude = excluded
-	camp._site_ground_query.collision_mask = 1
+	camp._site_ground_query.collision_mask = PhysicsLayers.GROUND
 
 static func ground_at(camp: CampSystem, point: Vector3, above := 2.0, below := 5.0, prepare := true) -> Dictionary:
 	if prepare:
@@ -57,7 +57,7 @@ static func check_site(camp: CampSystem, point: Vector3, restoring := false) -> 
 		cylinder.height = 1.8
 		clearance.shape = cylinder
 	clearance.transform.origin = floor_point + Vector3.UP * 1.22
-	clearance.collision_mask = 1 | 4
+	clearance.collision_mask = PhysicsLayers.GROUND | PhysicsLayers.PLAYER | PhysicsLayers.VILLAGERS
 	# Restoration may ignore actors; normal placement must reset those excludes.
 	clearance.exclude = camp._site_ground_query.exclude if restoring else []
 	if not camp.get_world_3d().direct_space_state.intersect_shape(clearance, 1).is_empty():
@@ -66,7 +66,7 @@ static func check_site(camp: CampSystem, point: Vector3, restoring := false) -> 
 	var roof := camp._site_roof_query
 	roof.from = floor_point + Vector3.UP * 0.4
 	roof.to = floor_point + Vector3.UP * 12.0
-	roof.collision_mask = 1
+	roof.collision_mask = PhysicsLayers.GROUND
 	if not camp.get_world_3d().direct_space_state.intersect_ray(roof).is_empty():
 		return {"reason": "Выбери место под открытым небом"}
 	return {"position": floor_point, "seats": seats, "reason": ""}

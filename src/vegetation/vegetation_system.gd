@@ -31,13 +31,13 @@ const TreeColliders = preload("res://src/vegetation/tree_colliders.gd")
 
 const SPECIES := TreePlacer.SPECIES_NAMES
 const LOD_COUNT := 3
-## Per LOD: fade-in start, fade-in end, fade-out start, fade-out end (m).
-const LOD_RANGES := [
+## Per LOD but the last: fade-in start, fade-in end, fade-out start,
+## fade-out end (m). The last fades out over mesh_reach, where the impostor
+## fades in (lod_ranges).
+const NEAR_LOD_RANGES: Array[Vector4] = [
 	Vector4(0.0, 0.0, 20.0, 26.0),
 	Vector4(20.0, 26.0, 60.0, 70.0),
-	Vector4(60.0, 70.0, 145.0, 165.0),
 ]
-const IMPOSTOR_RANGE := Vector4(145.0, 165.0, 1e9, 1e9)
 ## Shadow casters: [mesh LOD, near (m), far (m)]; the sun's shadow map ends at 160 m.
 const SHADOW_BANDS := [[1, 0.0, 26.0], [2, 26.0, 160.0]]
 const NO_FADE := Vector4(0.0, 0.0, 1e9, 1e9)
@@ -64,7 +64,13 @@ const COLLIDER_CELL := 128.0
 @export var camera: Camera3D
 ## Bodies the obstacle rays pass through besides the terrain (the player).
 var exclude: Array[RID] = []
+## The level's context (its tavern's portals); null in a tool that builds
+## a part of the level alone.
+var world: WorldContext
 
+## Where the last mesh LOD gives way to the impostor, m: the quality
+## profile's (QualityProfile.tree_mesh_reach) as the forest is built.
+var mesh_reach := Vector2.ZERO
 var trees: TreeSet
 var obstacles: ObstacleMap
 ## The key of the placement (VegetationCache.prepare), where it came from
@@ -121,6 +127,7 @@ var _portal_revision := 0
 
 func _ready() -> void:
 	var start := Time.get_ticks_usec()
+	mesh_reach = QualityProfile.of(world).tree_mesh_reach
 	_load_placement()
 	TreeMaterials.make(self)
 	grid = TreeLodGrid.new(trees, SPECIES.size())
@@ -137,6 +144,18 @@ func _ready() -> void:
 func _exit_tree() -> void:
 	TreeColliders.free_all(self)
 
+## Per mesh LOD: fade-in start, fade-in end, fade-out start, fade-out end (m).
+func lod_ranges() -> Array[Vector4]:
+	var ranges: Array[Vector4] = []
+	ranges.append_array(NEAR_LOD_RANGES)
+	var last := NEAR_LOD_RANGES[-1]
+	ranges.append(Vector4(last.z, last.w, mesh_reach.x, mesh_reach.y))
+	return ranges
+
+## The impostor's fade-in and fade-out (m).
+func impostor_range() -> Vector4:
+	return Vector4(mesh_reach.x, mesh_reach.y, 1e9, 1e9)
+
 ## The terrain and the obstacle grid are built every time: their digest is the
 ## key of the placement (VegetationCache), which is read from the baked file or
 ## the runtime cache when one carries it, and placed only when none does.
@@ -145,7 +164,7 @@ func _load_placement() -> void:
 	placement_key = prepared.key
 	scan_msec = prepared.scan_msec
 	digest_msec = prepared.digest_msec
-	var cache := VegetationCache.stored(prepared.key)
+	var cache := VegetationCache.stored(terrain.region, prepared.key, world != null and world.place_trees_anew)
 	if cache != null:
 		placement_source = "stored"
 	else:
@@ -187,7 +206,7 @@ func _process(_delta: float) -> void:
 		_sent_wind = wind
 	grass.follow(eye, wind)
 	var flat := Vector2(eye.x, eye.z)
-	var portals := TavernPortals.current
+	var portals := world.portals if world != null else null
 	var revision := portals.revision if portals != null else 0
 	if flat.distance_to(_last_eye) >= REFILL_STEP or revision != _portal_revision:
 		_portal_revision = revision
@@ -207,6 +226,7 @@ func _make_grass() -> void:
 	grass = GrassField.new()
 	grass.name = "Grass"
 	grass.terrain = terrain
+	grass.world = world
 	grass.obstacles = obstacles
 	grass.woods = grid
 	grass.crowns = crowns

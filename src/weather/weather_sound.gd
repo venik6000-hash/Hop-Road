@@ -28,10 +28,12 @@ func _ready() -> void:
 	_rain = AudioStreamPlayer.new()
 	_rain.stream = loop
 	_rain.volume_db = SILENT_DB
+	_rain.bus = AudioBuses.AMBIENCE
 	add_child(_rain)
 	for index in THUNDERS:
 		_streams.append(load(DIRECTORY + "thunder_%d.wav" % index))
 		var voice := AudioStreamPlayer.new()
+		voice.bus = AudioBuses.AMBIENCE
 		add_child(voice)
 		_thunder.append(voice)
 	if weather != null:

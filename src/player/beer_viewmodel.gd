@@ -5,6 +5,7 @@ signal sipped
 ## player/NPC interface is kept so shared movement and interaction files stay untouched.
 const Presentation = preload("res://src/player/beer/mug_presentation.gd")
 const Crop = preload("res://src/player/beer/viewmodel_crop.gd")
+const GameSettingsScript = preload("res://src/settings/game_settings.gd")
 const FILL_LEVEL := 0.86
 const SIP := 0.13
 ## The tavern's old beer, which the shader draws by default: its absorption
@@ -17,6 +18,8 @@ const OLD_FOAM := 0.65
 const HAZE_SCATTER := 0.5
 ## The beer in the mug (BrewBatch.profile), {} for the tavern's old beer.
 var beer := {}
+## The player's hands and mouth (Player.hands); null for a mug without a body.
+var channels: BodyChannels
 @export var layer_index := 20
 var _fill := FILL_LEVEL
 ## Seconds into the drink (DrinkMotion), 0 when the mug is in the hand.
@@ -58,10 +61,12 @@ func _ready() -> void:
 	_rig = get_parent().get_node_or_null("CameraRig") as CameraRig
 	visibility_changed.connect(_sync_visibility)
 	_sync_visibility()
-	var settings := get_node_or_null("/root/GameSettings")
+	var settings: GameSettingsScript = get_node_or_null("/root/GameSettings")
 	if settings != null:
 		_hand_resolution = settings.hand_resolution
 		settings.hand_resolution_changed.connect(set_hand_resolution)
+		set_hand_visible(settings.show_hand)
+		settings.hand_visibility_changed.connect(set_hand_visible)
 	_apply_layout()
 	get_viewport().size_changed.connect(_apply_layout)
 
@@ -134,13 +139,11 @@ func fill() -> float:
 func drinking() -> bool:
 	return _drink_time > 0.0
 
-## A user preference, independent of the temporary fishing stow (.visible).
+## A user preference, independent of the right hand given to a doer
+## (.visible, set by Player from its hands).
 func set_hand_visible(value: bool) -> void:
 	_hand_visible = value
 	_sync_visibility()
-
-func hand_visible() -> bool:
-	return _hand_visible
 
 func hand_is_shown() -> bool:
 	return _hand_visible and visible
@@ -161,6 +164,7 @@ func _sync_visibility() -> void:
 
 func drink() -> bool:
 	if not hand_is_shown() or _drink_time > 0.0 or _fill <= 0.0: return false
+	if channels != null and not channels.claim(BodyChannels.DRINK, drinking): return false
 	_drink_time = 0.0001
 	_drink_fill = _fill
 	_swallowed = 0
@@ -197,6 +201,7 @@ func _show_beer() -> void:
 
 func _end_drink() -> void:
 	_drink_time = 0.0
+	if channels != null: channels.release(BodyChannels.DRINK)
 	_swallowed = 0
 	if fluid != null: fluid.mouth = false
 	_set_head(0.0)

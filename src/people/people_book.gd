@@ -5,8 +5,6 @@ extends RefCounted
 ## common sheet. A passer-by without a sheet of their own speaks by the common
 ## one, and so does a villager where their own sheet has no line.
 
-const IDS: Array[String] = ["borr", "kul", "tomas", "ivar", "marta", "lina", "savva"]
-const COMMON := "passerby"
 const FOLDER := "res://assets/loop/people/"
 
 ## Id -> PersonSheet, id -> Acquaintance and id -> Storyteller of the villagers.
@@ -17,8 +15,8 @@ var common := PersonSheet.new()
 
 static func load_folder(folder := FOLDER) -> PeopleBook:
 	var book := PeopleBook.new()
-	book.common = PersonSheet.load_file(folder + COMMON + ".json", COMMON)
-	for id: String in IDS:
+	book.common = PersonSheet.load_file(folder + String(PeopleIds.COMMON) + ".json", PeopleIds.COMMON)
+	for id: String in PeopleIds.VILLAGERS:
 		book.add(PersonSheet.load_file(folder + id + ".json", id))
 	return book
 
@@ -77,5 +75,6 @@ func to_dict() -> Dictionary:
 func restore(data: Variant) -> void:
 	if not data is Dictionary:
 		return
+	var saved: Dictionary = data
 	for id: String in bonds:
-		bond(id).restore(data.get(id))
+		bond(id).restore(saved.get(id))

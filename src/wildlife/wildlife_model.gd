@@ -15,7 +15,8 @@ static var bird_materials: Dictionary = {}
 static func instantiate(kind: String, distance: float) -> Node3D:
 	if not scenes.has(kind):
 		scenes[kind] = load(DIRECTORY + kind + ".glb") as PackedScene
-	var model: Node3D = scenes[kind].instantiate()
+	var scene: PackedScene = scenes[kind]
+	var model: Node3D = scene.instantiate()
 	for mesh: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
 		mesh.visibility_range_end = distance
 		mesh.visibility_range_end_margin = distance * 0.15
@@ -74,7 +75,7 @@ static func copy_scan_look(material: ShaderMaterial, original: StandardMaterial3
 	material.set_shader_parameter("roughness", original.roughness)
 	material.set_shader_parameter("normal_strength", original.normal_scale)
 	material.set_shader_parameter("roughness_channel", original.roughness_texture_channel)
-	for pair in [["albedo", original.albedo_texture], ["normal", original.normal_texture], ["roughness", original.roughness_texture]]:
+	for pair: Array in [["albedo", original.albedo_texture], ["normal", original.normal_texture], ["roughness", original.roughness_texture]]:
 		material.set_shader_parameter("has_" + pair[0], pair[1] != null)
 		if pair[1] != null:
 			material.set_shader_parameter(pair[0] + "_map", pair[1])

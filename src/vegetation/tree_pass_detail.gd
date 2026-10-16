@@ -120,7 +120,7 @@ static func place_detail(placer: TreePlacer) -> void:
 ## (left, and the three above) stands closer than the larger spacing.
 static func _crowded(x: float, z: float, spacing: float, previous: PackedVector3Array, current: PackedVector3Array,
 		ix: int) -> bool:
-	for other in [current[ix], previous[ix], previous[ix + 1], previous[ix + 2]]:
+	for other: Vector3 in [current[ix], previous[ix], previous[ix + 1], previous[ix + 2]]:
 		if other.x == INF:
 			continue
 		var gap := maxf(spacing, other.z)

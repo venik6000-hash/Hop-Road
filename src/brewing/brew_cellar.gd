@@ -154,7 +154,7 @@ func advance(day: BrewDay, minutes: float, hour: float) -> void:
 		if batch == null:
 			continue
 		# The brewing day cools the wort while it is still the plate's.
-		if batch != day.batch or batch.stage == "pitched":
+		if batch != day.batch or batch.stage == BrewIds.STAGE_PITCHED:
 			batch.cool(minutes / 60.0, TEMP)
 		if float(tun.liters) <= 0.5 and batch != day.batch:
 			tun.merge(_empty_tun(), true)
@@ -169,7 +169,7 @@ func advance(day: BrewDay, minutes: float, hour: float) -> void:
 func dawn() -> void:
 	for tun: Dictionary in tuns:
 		var batch: BrewBatch = tun.batch
-		if batch != null and batch.stage == "pitched":
+		if batch != null and batch.stage == BrewIds.STAGE_PITCHED:
 			batch.ferment_day(TEMP, tun.skimmed)
 		tun.skimmed = false
 		tun.passes = 0
@@ -254,7 +254,7 @@ func pour_dipper(number: int, flow: float, minutes: float) -> void:
 ## be skimmed.
 func head(number := 1) -> bool:
 	var batch := tun_batch(number)
-	return batch != null and batch.stage == "pitched" and batch.ferment_days >= 1 and batch.ferment < 1.0 \
+	return batch != null and batch.stage == BrewIds.STAGE_PITCHED and batch.ferment_days >= 1 and batch.ferment < 1.0 \
 		and not tuns[number - 1].skimmed
 
 ## `passes` of the skimmer over tun `number`; a head taken off gives yeast
@@ -278,7 +278,7 @@ func fill_cask(number: int, flow: float, minutes: float) -> void:
 	bucket_l -= liters
 	var batch := bucket_batch
 	var cask := casks[number - 1]
-	if cask.batch == null and batch.stage == "pitched":
+	if cask.batch == null and batch.stage == BrewIds.STAGE_PITCHED:
 		cask.batch = batch
 		batch.rack(float(cask.scald_l) >= SCALD_L, INF, float(cask.cherries))
 	if cask.batch != batch:
@@ -472,20 +472,23 @@ static func from_dict(data: Dictionary, day_batch: BrewBatch) -> BrewCellar:
 		return batches[index] if index >= 0 and index < batches.size() else null
 	var saved_controls: Variant = data.get("controls")
 	if saved_controls is Dictionary:
+		var control_values: Dictionary = saved_controls
 		for id: String in CONTROLS:
-			cellar.controls[id] = _number(saved_controls.get(id), float(CONTROLS[id]), 0.0, 1.0)
+			cellar.controls[id] = _number(control_values.get(id), float(CONTROLS[id]), 0.0, 1.0)
 	cellar.sound_tuns = int(_number(data.get("sound_tuns"), START_SOUND_TUNS, START_SOUND_TUNS, TUNS))
 	cellar.sound_casks = int(_number(data.get("sound_casks"), START_SOUND_CASKS, START_SOUND_CASKS, CASKS))
 	var saved_tuns: Variant = data.get("tuns")
 	if saved_tuns is Array:
-		for index in mini(TUNS, (saved_tuns as Array).size()):
-			var item: Variant = saved_tuns[index]
+		var tun_list: Array = saved_tuns
+		for index in mini(TUNS, tun_list.size()):
+			var item: Variant = tun_list[index]
 			if not item is Dictionary:
 				continue
-			var batch: BrewBatch = ref.call(item.get("batch"))
+			var tun: Dictionary = item
+			var batch: BrewBatch = ref.call(tun.get("batch"))
 			cellar.tuns[index] = {"batch": batch,
-				"liters": _number(item.get("liters"), 0.0, 0.0, 2000.0) if batch != null else 0.0,
-				"skimmed": item.get("skimmed") == true, "passes": int(_number(item.get("passes"), 0.0, 0.0, 100.0))}
+				"liters": _number(tun.get("liters"), 0.0, 0.0, 2000.0) if batch != null else 0.0,
+				"skimmed": tun.get("skimmed") == true, "passes": int(_number(tun.get("passes"), 0.0, 0.0, 100.0))}
 	cellar.crock_l = _number(data.get("crock_l"), CROCK_START, 0.0, CROCK_L)
 	cellar.cherries_kg = _number(data.get("cherries_kg"), 0.0, 0.0, CHERRY_BASKET_KG)
 	cellar.dipper_l = _number(data.get("dipper_l"), 0.0, 0.0, DIPPER_L)
@@ -494,24 +497,28 @@ static func from_dict(data: Dictionary, day_batch: BrewBatch) -> BrewCellar:
 	cellar.bucket_at = str(data.get("bucket_at", "")) if data.get("bucket_at") is String else ""
 	var saved_casks: Variant = data.get("casks")
 	if saved_casks is Array:
-		for index in mini(CASKS, (saved_casks as Array).size()):
-			var item: Variant = saved_casks[index]
+		var cask_list: Array = saved_casks
+		for index in mini(CASKS, cask_list.size()):
+			var item: Variant = cask_list[index]
 			if not item is Dictionary:
 				continue
-			var batch: BrewBatch = ref.call(item.get("batch"))
-			cellar.casks[index] = {"batch": batch, "liters": _number(item.get("liters"), 0.0, 0.0, CASK_L) if batch != null else 0.0,
-				"scald_l": _number(item.get("scald_l"), 0.0, 0.0, 1e4), "bunged": item.get("bunged") == true,
-				"blows": int(_number(item.get("blows"), 0.0, 0.0, 100.0)),
-				"cherries": _number(item.get("cherries"), 0.0, 0.0, CHERRY_BASKET_KG * 4.0)}
+			var cask: Dictionary = item
+			var batch: BrewBatch = ref.call(cask.get("batch"))
+			cellar.casks[index] = {"batch": batch, "liters": _number(cask.get("liters"), 0.0, 0.0, CASK_L) if batch != null else 0.0,
+				"scald_l": _number(cask.get("scald_l"), 0.0, 0.0, 1e4), "bunged": cask.get("bunged") == true,
+				"blows": int(_number(cask.get("blows"), 0.0, 0.0, 100.0)),
+				"cherries": _number(cask.get("cherries"), 0.0, 0.0, CHERRY_BASKET_KG * 4.0)}
 	var saved_kegs: Variant = data.get("kegs")
 	if saved_kegs is Dictionary:
+		var keg_rows: Dictionary = saved_kegs
 		for id: String in KEGS:
-			var item: Variant = saved_kegs.get(id)
+			var item: Variant = keg_rows.get(id)
 			if not item is Dictionary:
 				continue
-			var beer := _beer(item.get("beer"))
-			cellar.kegs[id] = {"liters": _number(item.get("liters"), 0.0, 0.0, KEG_L) if not beer.is_empty() else 0.0,
-				"beer": beer, "bunged": item.get("bunged") == true, "blows": int(_number(item.get("blows"), 0.0, 0.0, 100.0))}
+			var keg: Dictionary = item
+			var beer := _beer(keg.get("beer"))
+			cellar.kegs[id] = {"liters": _number(keg.get("liters"), 0.0, 0.0, KEG_L) if not beer.is_empty() else 0.0,
+				"beer": beer, "bunged": keg.get("bunged") == true, "blows": int(_number(keg.get("blows"), 0.0, 0.0, 100.0))}
 	var under: Variant = data.get("keg_under")
 	if under is Array:
 		for index in mini(CASKS, (under as Array).size()):
@@ -539,8 +546,7 @@ static func _beer(value: Variant) -> Dictionary:
 	var beer: Dictionary = value
 	if not beer.get("notes") is Array or not beer.get("flaws") is Array or not beer.get("ruined") is bool:
 		return {}
-	for key: String in ["strength", "gravity", "body", "sweetness", "bitterness", "aroma", "color", "clarity", "smoke",
-			"foam", "quality"]:
+	for key: String in BrewIds.PROFILE_KEYS:
 		var number: Variant = beer.get(key)
 		if not (number is float or number is int) or not is_finite(float(number)):
 			return {}

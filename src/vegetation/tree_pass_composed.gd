@@ -33,7 +33,8 @@ static func place_composed(placer: TreePlacer, composed: Array) -> void:
 		var key := Vector2i(floori(px / 8.0), floori(pz / 8.0))
 		if not placer._composed_grid.has(key):
 			placer._composed_grid[key] = []
-		placer._composed_grid[key].append(Vector3(px, pz, TreePlacer.SPECIES_SPACING[kind] * grow))
+		var cell: Array = placer._composed_grid[key]
+		cell.append(Vector3(px, pz, TreePlacer.SPECIES_SPACING[kind] * grow))
 		var spot := Rect2(px, pz, 0.0, 0.0)
 		placer._composed_bounds = placer._composed_bounds.merge(spot) if placer._has_composed else spot
 		placer._has_composed = true

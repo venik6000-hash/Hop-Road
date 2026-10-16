@@ -1,7 +1,9 @@
 class_name TerrainSystem
 extends Node3D
-## Heightfield terrain from assets/generated/terrain
-## (tools/pipeline/terrain/terrain.py).
+## Heightfield terrain of a region (RegionDef): the fields of
+## tools/pipeline/terrain/terrain.py, the near heights and masks as the
+## region's ground bake settled and painted them (TerrainBake), with the water
+## courses cut there.
 ##
 ## Rendering is CDLOD (Strugar 2009): a quadtree over the 16 km far field is
 ## walked every frame from the camera; each selected node draws one shared grid
@@ -23,7 +25,6 @@ const TerrainMaterial = preload("res://src/terrain/terrain_material.gd")
 const TerrainPatchMesh = preload("res://src/terrain/terrain_patch_mesh.gd")
 const TerrainCollision = preload("res://src/terrain/terrain_collision.gd")
 const TerrainHeights = preload("res://src/terrain/terrain_heights.gd")
-const DATA := "res://assets/generated/terrain/"
 const SHADER := preload("res://src/terrain/terrain.gdshader")
 const PATCH_QUADS := 32
 const LOD0_SIZE := 8.0
@@ -67,6 +68,11 @@ const FIELD_PARAMS := ["near_height", "far_height", "near_control", "near_extra"
 		_selection_valid = false
 @export var collision_enabled := true
 @export var camera: Camera3D
+## The level's context (its tavern's portals); null in a tool that builds
+## a part of the level alone.
+var world: WorldContext
+## Set before the terrain enters the tree.
+var region: RegionDef
 
 var meta: Dictionary
 var material := ShaderMaterial.new()
@@ -80,6 +86,8 @@ var far_origin := Vector2.ZERO
 var far_cell := 8.0
 var far_size := 2048
 var selected_nodes := 0
+## The water courses of the ground bake by name (TerrainBake.courses_of).
+var courses := {}
 
 var _minmax: Array[PackedFloat32Array] = []
 var _minmax_cell := 32.0
@@ -105,7 +113,7 @@ var _selection_sight := -1
 var _sight: TavernPortals.Sight
 
 func _ready() -> void:
-	meta = JSON.parse_string(FileAccess.get_file_as_string(DATA + "terrain.json"))
+	meta = DataFile.read(region.terrain_dir.path_join("terrain.json"), WorldSchemas.terrain())
 	water_level = meta.water_level
 	near_origin = Vector2(meta.near.origin[0], meta.near.origin[1])
 	near_cell = meta.near.cell
@@ -113,18 +121,15 @@ func _ready() -> void:
 	far_origin = Vector2(meta.far.origin[0], meta.far.origin[1])
 	far_cell = meta.far.cell
 	far_size = int(meta.far.size)
-	near_image = _load_height("near_height.bin", near_size)
-	RockField.seat(near_image, near_origin, near_cell)
-	WaterfallSystem.carve(near_image, near_origin, near_cell)
-	preload("res://src/village/village_layout.gd").settle_ground(near_image, near_origin, near_cell)
-	preload("res://src/tavern/tavern_ground.gd").settle(near_image, near_origin, near_cell)
-	preload("res://src/village/village_buildings.gd").settle_ground(near_image, near_origin, near_cell)
-	VillageBrook.carve(near_image, near_origin, near_cell, water_level)
-	far_image = _load_height("far_height.bin", far_size)
+	near_image = _load_height(region.settled_heights, near_size)
+	var saved: Variant = TerrainBake.read_manifest(region)
+	var settled: Dictionary = saved if saved is Dictionary else {}
+	courses = TerrainBake.courses_of(settled)
+	far_image = _load_height(region.terrain_dir.path_join("far_height.bin"), far_size)
 	_load_minmax()
 	for level in LEVELS:
 		_ranges.append(lod_distance * LOD0_SIZE * pow(2.0, level))
-	TerrainMaterial.setup(self)
+	TerrainMaterial.setup(self, TerrainBake.read_masks(region, settled))
 	_full = _make_layer("TerrainPatches", PATCH_QUADS)
 	_quad = _make_layer("TerrainQuadrants", PATCH_QUADS / 2)
 	_full_buffer.resize(MAX_NODES * 16)
@@ -132,12 +137,18 @@ func _ready() -> void:
 	if collision_enabled:
 		TerrainCollision.build(self)
 
-func _load_height(file_name: String, size: int) -> Image:
-	var bytes := FileAccess.get_file_as_bytes(DATA + file_name)
+func _load_height(path: String, size: int) -> Image:
+	var bytes := FileAccess.get_file_as_bytes(path)
 	return Image.create_from_data(size, size, false, Image.FORMAT_RF, bytes)
 
+## The rows of the water course `course_name`; none if the bake cut no such course.
+func course(course_name: StringName) -> Array[Dictionary]:
+	if courses.has(course_name):
+		return courses[course_name]
+	return []
+
 func _load_minmax() -> void:
-	var data := FileAccess.get_file_as_bytes(DATA + "far_minmax.bin").to_float32_array()
+	var data := FileAccess.get_file_as_bytes(region.terrain_dir.path_join("far_minmax.bin")).to_float32_array()
 	_minmax_cell = meta.minmax.cell
 	var size := int(meta.minmax.size)
 	var offset := 0
@@ -223,7 +234,7 @@ func _process(_delta: float) -> void:
 	material.set_shader_parameter("terrain_camera", eye)
 	var planes: Array[Plane] = view.get_frustum()
 	# An eye in the tavern's rooms sees the ground through the openings alone.
-	var portals := TavernPortals.current if camera == null else null
+	var portals := world.portals if world != null and camera == null else null
 	var sight: TavernPortals.Sight = portals.sight if portals != null and portals.sight.active else null
 	var revision := portals.revision if sight != null else -1
 	if _selection_valid and eye == _selection_eye and planes == _selection_planes \

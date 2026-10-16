@@ -211,7 +211,7 @@ func _create() -> void:
 	if not _texture.is_valid():
 		_failed.call_deferred("Cannot create the beer density texture.")
 		return
-	for name in ["particle_fluid", "density_binned" if compact_field else "density_binned_rgba", "density_bins"]:
+	for name: String in ["particle_fluid", "density_binned" if compact_field else "density_binned_rgba", "density_bins"]:
 		var source := load("res://src/player/beer/%s.glsl" % name) as RDShaderFile
 		if source == null or not source.get_spirv().compile_error_compute.is_empty():
 			_failed.call_deferred("Cannot compile beer shader: " + name)
@@ -263,14 +263,14 @@ func _dispatch(steps: int, acceleration: Vector3, consume_count: int, generation
 	_rd.compute_list_bind_uniform_set(list, _sets[0], 0)
 	if not reset.is_empty():
 		for relaxation in 64:
-			for phase in [0, 1, 2, 3, 8]:
+			for phase: int in [0, 1, 2, 3, 8]:
 				_pass(list, phase, Vector3.ZERO, 0, generation)
 	for step in steps:
 		# Apply the previous viscosity correction with the next prediction. The
 		# last constraint correction and velocity update are also particle-local.
 		_pass(list, 0 if step == 0 else 10, acceleration, 0, generation)
 		for iteration in 3:
-			for phase in [1, 2, 9 if iteration == 2 else 3]:
+			for phase: int in [1, 2, 9 if iteration == 2 else 3]:
 				_pass(list, phase, acceleration, 0, generation, lips)
 		_pass(list, 5, acceleration, 0, generation)
 	if steps > 0: _pass(list, 6, acceleration, 0, generation)
@@ -310,8 +310,8 @@ func _accept_stats(bytes: PackedByteArray) -> void:
 
 ## Debug-only readback for numerical integration tests, never used by gameplay.
 func inspect_particles(callback: Callable) -> void:
-	RenderingServer.call_on_render_thread(func():
-		_rd.buffer_get_data_async(_buffer, func(bytes: PackedByteArray): callback.call_deferred(bytes)))
+	RenderingServer.call_on_render_thread(func() -> void:
+		_rd.buffer_get_data_async(_buffer, func(bytes: PackedByteArray) -> void: callback.call_deferred(bytes)))
 
 func _exit_tree() -> void:
 	_alive = false

@@ -120,7 +120,7 @@ static func toast(camp: CampSystem) -> VillageNPC:
 	for actor in camp.population.actors:
 		if not visited(camp, actor):
 			continue
-		var at_bar: bool = moment(camp, actor).activity == "bar"
+		var at_bar: bool = moment(camp, actor).activity == PeopleIds.ACTIVITY_BAR
 		if not at_table and not at_bar:
 			continue
 		camp.warm(actor, "toast")

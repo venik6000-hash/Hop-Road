@@ -1,8 +1,7 @@
 shader_type spatial;
 // Grass and meadow plants as textured cards, one MultiMesh instance a clump
 // (GrassClump builds the mesh and reads the atlas, GrassScatter fills the
-// instances; GrassField streams them over the terrain, GrassGenerator grows
-// them on any mesh).
+// instances; GrassField streams them over the terrain).
 //
 // A clump is a few crossed cards that all show one cell of the atlas: a
 // plant or a slice of turf with every blade drawn in the texture. vertex()

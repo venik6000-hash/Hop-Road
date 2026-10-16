@@ -157,6 +157,9 @@ func _spectrum_params() -> PackedFloat32Array:
 
 func _create_gpu_resources() -> void:
 	_rd = RenderingServer.get_rendering_device()
+	# No device in a headless run (the tests).
+	if _rd == null:
+		return
 	for pass_name: String in ["spectrum", "evolve", "ifft", "assemble", "mips", "query"]:
 		var spirv := RdUtil.compute_spirv("res://src/water/fft_%s.glsl" % pass_name, "Ocean " + pass_name)
 		if spirv == null:
@@ -264,7 +267,7 @@ func _dispatch(now: float, spectrum: PackedFloat32Array, assemble: PackedFloat32
 	_rd.compute_list_add_barrier(list)
 	_rd.compute_list_bind_compute_pipeline(list, _pipelines.ifft)
 	_rd.compute_list_bind_uniform_set(list, _sets.ifft, 0)
-	for vertical in [0, 1]:
+	for vertical: int in [0, 1]:
 		var push := PackedInt32Array([vertical, 0, 0, 0]).to_byte_array()
 		_rd.compute_list_set_push_constant(list, push, push.size())
 		_rd.compute_list_dispatch(list, SIZE, CASCADES * 2, 1)

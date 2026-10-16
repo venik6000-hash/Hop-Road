@@ -126,5 +126,5 @@ func _player() -> AudioStreamPlayer3D:
 	var player := AudioStreamPlayer3D.new()
 	player.unit_size = NEAR
 	player.max_distance = 25.0
-	player.bus = &"Master"
+	player.bus = AudioBuses.EFFECTS
 	return player

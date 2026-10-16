@@ -14,7 +14,7 @@ static func place(lake: LakeBed, kind: String) -> void:
 	var candidates: Array[Vector3] = []
 	if kind == "reed":
 		candidates = _shore_survey(lake)
-	for attempt in config.patches * 12:
+	for attempt: int in config.patches * 12:
 		if centers.size() >= config.patches or (kind == "reed" and candidates.is_empty()):
 			break
 		var center: Vector3 = candidates.pop_at(lake._rng.randi_range(0, candidates.size() - 1)) if kind == "reed" else Ground.random_point(lake)
@@ -104,7 +104,7 @@ static func reed_shore(lake: LakeBed, point: Vector3) -> bool:
 		var offset := Vector3.ZERO if index == 0 else Vector3(cos(index * TAU / 4.0), 0, sin(index * TAU / 4.0)) * LakeBed.PLANTS.reed.radius.y
 		var sample := point + offset
 		var ray := PhysicsRayQueryParameters3D.create(Vector3(sample.x, lake.habitat.terrain.water_level + 30.0, sample.z),
-			Vector3(sample.x, lake.habitat.terrain.water_level - 3.0, sample.z), 1)
+			Vector3(sample.x, lake.habitat.terrain.water_level - 3.0, sample.z), PhysicsLayers.GROUND)
 		var hit := lake.get_world_3d().direct_space_state.intersect_ray(ray)
 		if not hit.is_empty() and not String(hit.collider.name).begins_with("TerrainBody") and hit.collider != lake._solid:
 			return false

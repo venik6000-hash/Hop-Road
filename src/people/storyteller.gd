@@ -196,7 +196,8 @@ func _story_line(moment: Dictionary, has_floor: bool) -> Dictionary:
 	_halt_story = story.id
 	bond.hear(story.id, beat)
 	if beat == beats.size() - 1:
-		bond.finish(story.id, moment.day, not story.hook_after.is_empty())
+		var hook_after: String = story.hook_after
+		bond.finish(story.id, moment.day, not hook_after.is_empty())
 		telling = ""
 	var line: Dictionary = {"text": beats[beat], "kind": "beat", "last": beat == beats.size() - 1}
 	var partner: String = story.get("with", "")
@@ -240,7 +241,8 @@ func _small_talk(moment: Dictionary, asked: bool) -> Dictionary:
 				return {"text": later, "kind": "later"}
 	var turn: Array[String] = []
 	for story: Dictionary in sheet.stories:
-		if story.circle > bond.circle or story.hook_before.is_empty() or StoryRules.fits(story, moment):
+		var hook_before: String = story.hook_before
+		if story.circle > bond.circle or hook_before.is_empty() or StoryRules.fits(story, moment):
 			continue
 		if bond.state(story.id).is_empty() and (asked or _hook_halt != moment.halt):
 			bond.name_story(story.id)
@@ -251,7 +253,8 @@ func _small_talk(moment: Dictionary, asked: bool) -> Dictionary:
 	if _echo_halt != moment.halt:
 		for story: Dictionary in sheet.stories:
 			var told_now: bool = _halt == moment.halt and _halt_story == story.id
-			if bond.state(story.id) == Acquaintance.TOLD and not story.echo.is_empty() and not told_now \
+			var echo: String = story.echo
+			if bond.state(story.id) == Acquaintance.TOLD and not echo.is_empty() and not told_now \
 					and StoryRules.matches(story.context, moment):
 				_echo_halt = moment.halt
 				return {"text": story.echo, "kind": "echo"}
@@ -301,9 +304,9 @@ func _beer_remark(moment: Dictionary) -> String:
 ## a stranger's; the person's own, else the common ones. One without remarks
 ## for a table says a stranger's there.
 func _remarks(moment: Dictionary) -> Array[String]:
-	if moment.activity == "fire":
+	if moment.activity == PeopleIds.ACTIVITY_FIRE:
 		return sheet.idle_fire if not sheet.idle_fire.is_empty() else common.idle_fire
-	if moment.activity == "table" or moment.activity == "bar":
+	if moment.activity == PeopleIds.ACTIVITY_TABLE or moment.activity == PeopleIds.ACTIVITY_BAR:
 		if not sheet.idle_table.is_empty():
 			return sheet.idle_table
 		if sheet.idle.is_empty() and not common.idle_table.is_empty():

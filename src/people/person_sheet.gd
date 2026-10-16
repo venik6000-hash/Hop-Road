@@ -45,7 +45,7 @@ var yard_spot := Vector2.INF
 var stories: Array[Dictionary] = []
 
 static func load_file(path: String, of_id: String) -> PersonSheet:
-	return from_dict(of_id, JSON.parse_string(FileAccess.get_file_as_string(path)))
+	return from_dict(of_id, DataFile.read(path, PeopleSchemas.sheet()))
 
 ## A sheet from parsed JSON; what is missing or of the wrong kind stays empty.
 static func from_dict(of_id: String, data: Variant) -> PersonSheet:
@@ -53,39 +53,48 @@ static func from_dict(of_id: String, data: Variant) -> PersonSheet:
 	sheet.id = of_id
 	if not data is Dictionary:
 		return sheet
-	sheet.name = _text(data.get("name"))
-	sheet.role = _text(data.get("role"))
-	sheet.favorite_food = _text(data.get("favorite_food"))
-	var steps: Variant = data.get("circles")
-	if steps is Array and steps.size() == sheet.circles.size():
-		for index in steps.size():
-			if steps[index] is float or steps[index] is int:
-				sheet.circles[index] = int(steps[index])
-	var place: Variant = data.get("favorite_place")
+	var saved: Dictionary = data
+	sheet.name = _text(saved.get("name"))
+	sheet.role = _text(saved.get("role"))
+	sheet.favorite_food = _text(saved.get("favorite_food"))
+	var steps: Variant = saved.get("circles")
+	if steps is Array:
+		var values: Array = steps
+		if values.size() == sheet.circles.size():
+			for index: int in values.size():
+				if values[index] is float or values[index] is int:
+					sheet.circles[index] = int(values[index])
+	var place: Variant = saved.get("favorite_place")
 	if place is Dictionary:
-		sheet.favorite_zone = _text(place.get("zone"))
-		var path: Variant = place.get("path")
+		var favorite: Dictionary = place
+		sheet.favorite_zone = _text(favorite.get("zone"))
+		var path: Variant = favorite.get("path")
 		if path is Array:
 			for point: Variant in path:
-				if point is Array and point.size() == 2:
-					sheet.favorite_path.append(Vector2(float(point[0]), float(point[1])))
-	sheet.day = VillagerDay.entries(data.get("day"))
-	var cover := _text(data.get("shelter"))
+				if not point is Array:
+					continue
+				var pair: Array = point
+				if pair.size() == 2:
+					sheet.favorite_path.append(Vector2(float(pair[0]), float(pair[1])))
+	sheet.day = VillagerDay.entries(saved.get("day"))
+	var cover := _text(saved.get("shelter"))
 	if VillagerDay.SHELTERS.has(cover):
 		sheet.shelter = cover
-	sheet.hall_seat = _text(data.get("hall_seat"))
-	var spot: Variant = data.get("yard_spot")
-	if spot is Array and spot.size() == 2 and _is_number(spot[0]) and _is_number(spot[1]):
-		sheet.yard_spot = Vector2(float(spot[0]), float(spot[1]))
-	var said: Variant = data.get("lines")
+	sheet.hall_seat = _text(saved.get("hall_seat"))
+	var spot: Variant = saved.get("yard_spot")
+	if spot is Array:
+		var yard: Array = spot
+		if yard.size() == 2 and _is_number(yard[0]) and _is_number(yard[1]):
+			sheet.yard_spot = Vector2(float(yard[0]), float(yard[1]))
+	var said: Variant = saved.get("lines")
 	if said is Dictionary:
 		for key: Variant in said:
 			if key is String and said[key] is String:
 				sheet.lines[key] = said[key]
-	sheet.idle = _texts(data.get("idle"))
-	sheet.idle_fire = _texts(data.get("idle_fire"))
-	sheet.idle_table = _texts(data.get("idle_table"))
-	var told: Variant = data.get("stories")
+	sheet.idle = _texts(saved.get("idle"))
+	sheet.idle_fire = _texts(saved.get("idle_fire"))
+	sheet.idle_table = _texts(saved.get("idle_table"))
+	var told: Variant = saved.get("stories")
 	if told is Array:
 		for entry: Variant in told:
 			var story := _story(entry, of_id)
@@ -120,29 +129,30 @@ func story(story_id: String) -> Dictionary:
 static func _story(entry: Variant, of_id: String) -> Dictionary:
 	if not entry is Dictionary:
 		return {}
-	var beats := _texts(entry.get("beats"))
-	if _text(entry.get("id")).is_empty() or beats.is_empty():
+	var row: Dictionary = entry
+	var beats := _texts(row.get("beats"))
+	if _text(row.get("id")).is_empty() or beats.is_empty():
 		return {}
 	var context: Dictionary = {}
-	var conditions: Variant = entry.get("context")
+	var conditions: Variant = row.get("context")
 	if conditions is Dictionary:
 		for key: Variant in conditions:
 			var allowed := _texts(conditions[key])
 			if key is String and not allowed.is_empty():
 				context[key] = allowed
-	var circle: Variant = entry.get("circle")
-	var partner := _text(entry.get("with"))
+	var circle: Variant = row.get("circle")
+	var partner := _text(row.get("with"))
 	return {
-		"id": _text(entry.get("id")),
-		"title": _text(entry.get("title")),
+		"id": _text(row.get("id")),
+		"title": _text(row.get("title")),
 		"circle": int(circle) if circle is float or circle is int else 1,
 		"context": context,
 		"with": partner,
-		"voices": _voices(entry.get("voices"), beats.size(), of_id, partner),
-		"hook_before": _text(entry.get("hook_before")),
+		"voices": _voices(row.get("voices"), beats.size(), of_id, partner),
+		"hook_before": _text(row.get("hook_before")),
 		"beats": beats,
-		"hook_after": _text(entry.get("hook_after")),
-		"echo": _text(entry.get("echo")),
+		"hook_after": _text(row.get("hook_after")),
+		"echo": _text(row.get("echo")),
 	}
 
 ## Who says each beat of a shared story: one of the two for every beat, else
@@ -150,9 +160,12 @@ static func _story(entry: Variant, of_id: String) -> Dictionary:
 static func _voices(value: Variant, beats: int, of_id: String, partner: String) -> Array[String]:
 	var result: Array[String] = []
 	var nobody: Array[String] = []
-	if partner.is_empty() or not value is Array or value.size() != beats:
+	if partner.is_empty() or not value is Array:
 		return nobody
-	for voice: Variant in value:
+	var list: Array = value
+	if list.size() != beats:
+		return nobody
+	for voice: Variant in list:
 		if not voice is String or (voice != of_id and voice != partner):
 			return nobody
 		result.append(voice)
@@ -168,6 +181,8 @@ static func _texts(value: Variant) -> Array[String]:
 	var result: Array[String] = []
 	if value is Array:
 		for item: Variant in value:
-			if item is String and not item.is_empty():
-				result.append(item)
+			if item is String:
+				var text: String = item
+				if not text.is_empty():
+					result.append(text)
 	return result

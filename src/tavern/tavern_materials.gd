@@ -19,12 +19,11 @@ const DETAIL_MAPS := {
 }
 ## Repeats of a detail map per metre of UV when the entry gives no `detail_scale`.
 const DETAIL_SCALE := 2.5
-## False builds every material without its detail, to compare the look with and without.
-static var detail_enabled := true
-
 ## Adds a material to `materials` for each table entry it does not hold yet;
 ## ground_level is the floor height the surface shader puts the grime at.
-static func build(table: Dictionary, ground_level: float, materials: Dictionary) -> void:
+## Without `detail` no material gets its detail, to compare the look with and
+## without.
+static func build(table: Dictionary, ground_level: float, materials: Dictionary, detail := true) -> void:
 	var weather := load("res://assets/generated/sky/cloud_weather.png")
 	var moss := load("res://assets/generated/terrain/terrain_albedo.jpg")
 	var range_: float = table.get("color_range", 2.0)
@@ -97,7 +96,7 @@ static func build(table: Dictionary, ground_level: float, materials: Dictionary)
 			if spec.has("emblem_size"):
 				var size: Array = spec.emblem_size
 				material.set_shader_parameter("emblem_size", Vector2(size[0], size[1]))
-			_lay_detail(material, name, spec)
+			_lay_detail(material, name, spec, detail)
 			material.set_shader_parameter("cloud_weather", weather)
 			materials[name] = material
 			continue
@@ -125,7 +124,7 @@ static func build(table: Dictionary, ground_level: float, materials: Dictionary)
 		material.set_shader_parameter("grime", spec.get("grime", 0.0))
 		material.set_shader_parameter("moss", spec.get("moss", 0.0))
 		material.set_shader_parameter("lichen", spec.get("lichen", 0.0))
-		_lay_detail(material, name, spec)
+		_lay_detail(material, name, spec, detail)
 		if spec.has("detail_turn"):
 			material.set_shader_parameter("detail_turn", spec.detail_turn)
 		material.set_shader_parameter("color_range", range_)
@@ -135,9 +134,9 @@ static func build(table: Dictionary, ground_level: float, materials: Dictionary)
 		materials[name] = material
 
 ## The fine normal map a table entry asks for (`detail`), with its scale and strength.
-static func _lay_detail(material: ShaderMaterial, name: String, spec: Dictionary) -> void:
+static func _lay_detail(material: ShaderMaterial, name: String, spec: Dictionary, wanted: bool) -> void:
 	var detail: String = spec.get("detail", "")
-	if not detail_enabled or detail.is_empty():
+	if not wanted or detail.is_empty():
 		return
 	if not DETAIL_MAPS.has(detail):
 		push_warning("tavern material %s: no detail map called %s" % [name, detail])

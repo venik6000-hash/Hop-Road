@@ -26,8 +26,9 @@ static func species_meshes(system: VegetationSystem, kind: int) -> Array[Mesh]:
 	return meshes
 
 static func make_bands(system: VegetationSystem) -> void:
+	var ranges := system.lod_ranges()
 	for lod in VegetationSystem.LOD_COUNT:
-		var fade: Vector4 = VegetationSystem.LOD_RANGES[lod]
+		var fade := ranges[lod]
 		system._bands.append(Vector2(maxf(fade.x - VegetationSystem.MARGIN, 0.0), fade.w + VegetationSystem.MARGIN))
 		system._band_lods.append(lod)
 		system._band_fades.append(fade)
@@ -110,11 +111,12 @@ static func refill(system: VegetationSystem, flat: Vector2, sight: TavernPortals
 		hidden += int(not drawn)
 		if chunk.visible != drawn:
 			chunk.visible = drawn
-	if TavernPortals.current != null:
+	var portals := system.world.portals if system.world != null else null
+	if portals != null:
 		var cells := system.grid.unseen
-		TavernPortals.current.counts[&"tree cells"] = Vector2i(cells.x, cells.y)
-		TavernPortals.current.counts[&"tree shadow cells"] = Vector2i(cells.z, cells.w)
-		TavernPortals.current.counts[&"impostor chunks"] = Vector2i(hidden, system._impostor_chunks.size())
+		portals.counts[&"tree cells"] = Vector2i(cells.x, cells.y)
+		portals.counts[&"tree shadow cells"] = Vector2i(cells.z, cells.w)
+		portals.counts[&"impostor chunks"] = Vector2i(hidden, system._impostor_chunks.size())
 
 ## Whether trees within the bounds `box` are drawn for an eye that sees the
 ## outdoors as `sight` has it (null: all of it). Those of a visible band must

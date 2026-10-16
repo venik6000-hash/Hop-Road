@@ -11,7 +11,6 @@ extends RefCounted
 ## the quern, grist from the meal bin to the mash tun. A sack holds lots of
 ## one kind of work: raw barley, kilned malt, or grist.
 
-const SACKS: Array[String] = ["barley_sack_1", "barley_sack_2", "barley_sack_3"]
 ## Kg a barley sack holds when the brewery is handed over, and at most.
 const SACK_KG := 30.0
 const SACK_HOLDS := 40.0
@@ -71,7 +70,7 @@ var bin: Array[MaltLot] = []
 var quern_angle := 0.0
 
 func _init() -> void:
-	for id: String in SACKS:
+	for id: String in BrewIds.BARLEY_SACKS:
 		var lots: Array[MaltLot] = [MaltLot.barley(SACK_KG)]
 		sacks[id] = lots
 
@@ -320,31 +319,31 @@ func load_kg(utensil: String) -> float:
 
 ## What the eye reads at a place of the maltings (`steep`, `floor`, `kiln`,
 ## `mill`) with `held` in the hand (the thermometer shows the kiln's heat, the
-## dipstick the tub's water, the precise one when `fine`).
+## dipstick the tub's water, the precise one when `fine`). Translated.
 func reading(place: String, held := "", fine := false) -> String:
 	match place:
 		"steep":
 			if held == "dipstick":
-				return "Замочный чан: %.0f л воды" % steep_water_l
+				return tr("Замочный чан: %.0f л воды") % steep_water_l
 			if steep == null:
-				return "Замочный чан пуст" + (", воды %.0f л" % steep_water_l if steep_water_l > 0.5 else "")
+				return tr("Замочный чан пуст, воды %.0f л") % steep_water_l if steep_water_l > 0.5 else tr("Замочный чан пуст")
 			var state := "замочен" if steep.stage == "steeped" else "сухой"
 			var water := "под водой" if steep_water_l >= steep.kg * MaltLot.STEEP_WATER else ("воды мало" if steep_water_l > 0.5 else "без воды")
-			return "Замочный чан: %.0f кг ячменя, %s, %s" % [steep.kg, state, water]
+			return tr("Замочный чан: %.0f кг ячменя, %s, %s") % [steep.kg, tr(state), tr(water)]
 		"floor":
 			if couch == null:
-				return "Ток пуст"
+				return tr("Ток пуст")
 			var warm := "тёплая" if couch.unturned_days > 0 or (couch_passes < TURN_PASSES and couch.floor_days > 0) else "прохладная"
-			return "Ток: %.0f кг, ростки %.0f мм, куча %s" % [couch.kg, couch.growth * 8.0, warm]
+			return tr("Ток: %.0f кг, ростки %.0f мм, куча %s") % [couch.kg, couch.growth * 8.0, tr(warm)]
 		"kiln":
-			var heat := "Сушилка: %s" % BrewDay.degrees(kiln_temp, fine) if held == "thermometer" else "Сушилка"
+			var heat := tr("Сушилка: %s") % BrewDay.degrees(kiln_temp, fine) if held == "thermometer" else tr("Сушилка")
 			if kiln == null:
-				return heat + ", пусто"
+				return tr("%s, пусто") % heat
 			var dryness := "сырой" if kiln.moisture > MaltLot.WET else ("сыроват" if kiln.moisture > MaltLot.DAMP else "сухой")
-			return "%s, %.0f кг солода, %s, %s" % [heat, kiln.kg, dryness, _shade(kiln)]
+			return tr("%s, %.0f кг солода, %s, %s") % [heat, kiln.kg, tr(dryness), tr(_shade(kiln))]
 		"mill":
 			var hopper_kg := hopper.kg if hopper != null else 0.0
-			return "Жёрнов: зазор %.0f %%, в ковше %.0f кг, в ларе %.0f кг" % [gap() * 100.0, hopper_kg, bin_kg()]
+			return tr("Жёрнов: зазор %.0f %%, в ковше %.0f кг, в ларе %.0f кг") % [gap() * 100.0, hopper_kg, bin_kg()]
 	return ""
 
 ## The shade of malt on the kiln, by eye.
@@ -363,7 +362,7 @@ static func _shade(lot: MaltLot) -> String:
 
 func to_dict() -> Dictionary:
 	var saved_sacks := {}
-	for id: String in SACKS:
+	for id: String in BrewIds.BARLEY_SACKS:
 		var lots: Array = []
 		for lot: MaltLot in sacks[id]:
 			lots.append(lot.to_dict())
@@ -388,12 +387,14 @@ static func from_dict(data: Dictionary) -> BrewMaltings:
 	var maltings := BrewMaltings.new()
 	var saved_controls: Variant = data.get("controls")
 	if saved_controls is Dictionary:
+		var control_values: Dictionary = saved_controls
 		for id: String in CONTROLS:
-			maltings.controls[id] = _number(saved_controls.get(id), float(CONTROLS[id]), 0.0, 1.0)
+			maltings.controls[id] = _number(control_values.get(id), float(CONTROLS[id]), 0.0, 1.0)
 	var saved_sacks: Variant = data.get("sacks")
 	if saved_sacks is Dictionary:
-		for id: String in SACKS:
-			var saved: Variant = saved_sacks.get(id)
+		var sack_rows: Dictionary = saved_sacks
+		for id: String in BrewIds.BARLEY_SACKS:
+			var saved: Variant = sack_rows.get(id)
 			if not saved is Array:
 				continue
 			var lots: Array[MaltLot] = []

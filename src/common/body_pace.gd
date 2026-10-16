@@ -11,6 +11,8 @@ extends RefCounted
 ##   ... set velocity from `delta` ...
 ##   pace.slide(self, delta)     # in place of move_and_slide()
 ## A body that does not reach slide() answers on every tick.
+## A step never moves the body as far as `max_step` over the ground
+## (docs/LEVEL.md, «Шаг тела»).
 
 ## Ticks one step covers at most (15 steps a second at 60 ticks).
 const MAX_TICKS := 4
@@ -30,6 +32,9 @@ var _elapsed := 0.0
 var _count := 0
 var _covered := 1
 var _floor_clock := 0.0
+## Half the body's smallest thickness, m: no step moves the body that far, or
+## it could pass through a thin wall or another body. 0.0: no bound.
+var max_step := 0.0
 
 func _init() -> void:
 	_wait = _made % MAX_TICKS
@@ -58,13 +63,16 @@ func slide(body: CharacterBody3D, delta: float) -> void:
 		if _floor_clock > 0.0:
 			return
 		_floor_clock = FLOOR_CHECK_SECONDS
-	if _covered <= 1:
+	# A body that stood far away and now walks may have waited longer than
+	# its speed allows one step to cover: it loses the rest of that time.
+	var covered := mini(_covered, longest_ticks(_per_tick(body), max_step))
+	if covered <= 1:
 		body.move_and_slide()
 		return
 	# move_and_slide moves by the velocity over one tick.
-	body.velocity *= _covered
+	body.velocity *= covered
 	body.move_and_slide()
-	body.velocity /= _covered
+	body.velocity /= covered
 
 ## Ticks the next step may cover: by the body's speed and its distance.
 func _ticks(body: CharacterBody3D) -> int:
@@ -72,7 +80,21 @@ func _ticks(body: CharacterBody3D) -> int:
 	if camera == null:
 		return 1
 	var distance := camera.global_position.distance_to(body.global_position)
-	var per_tick := Vector2(body.velocity.x, body.velocity.z).length() / Engine.physics_ticks_per_second
+	var per_tick := _per_tick(body)
 	if per_tick < 0.0001:
 		return 1 if distance < NEAR else MAX_TICKS
-	return clampi(int(STEP_ANGLE * distance / per_tick), 1, MAX_TICKS)
+	return clampi(int(STEP_ANGLE * distance / per_tick), 1, longest_ticks(per_tick, max_step))
+
+## The ground the body covers in one tick at its velocity, m.
+static func _per_tick(body: CharacterBody3D) -> float:
+	return Vector2(body.velocity.x, body.velocity.z).length() / Engine.physics_ticks_per_second
+
+## The most ticks one step may cover, `per_tick` m each, and stay shorter than
+## `max_step` (0.0: no bound). One tick at least, however fast.
+static func longest_ticks(per_tick: float, max_step: float) -> int:
+	if max_step <= 0.0 or per_tick <= 0.0:
+		return MAX_TICKS
+	var ticks := mini(int(max_step / per_tick), MAX_TICKS)
+	while ticks > 1 and ticks * per_tick >= max_step:
+		ticks -= 1
+	return maxi(ticks, 1)

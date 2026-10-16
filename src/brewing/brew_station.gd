@@ -11,12 +11,6 @@ extends RefCounted
 ## (`fermenter_1`, `lager_3`) takes the works of its kind (NUMBERED), with its
 ## number in the part's name; a dried-out tun or cask has none.
 
-## Every utensil that is a sack of malt or oats (BrewDay.SACKS).
-const SACKS: Array[String] = ["pale_malt_sack", "caramel_malt_sack", "oats_sack", "dark_sack", "smoked_sack"]
-## The barley sacks (BrewMaltings.SACKS), and every sack whose grain the mash tun takes.
-const BARLEY_SACKS: Array[String] = ["barley_sack_1", "barley_sack_2", "barley_sack_3"]
-const GRIST_SACKS: Array[String] = ["pale_malt_sack", "caramel_malt_sack", "oats_sack", "dark_sack", "smoked_sack",
-	"barley_sack_1", "barley_sack_2", "barley_sack_3"]
 const WORKS := {
 	"liquor": [
 		{"id": "pump_liquor", "title": "качать воду в котёл", "gesture": "rock", "part": "liquor_pump_handle", "weight": 1.5},
@@ -38,7 +32,7 @@ const WORKS := {
 	],
 	"mash_tun": [
 		{"id": "liquor_cock", "title": "кран горячей воды", "gesture": "draw", "part": "liquor_cock_key"},
-		{"id": "grain", "title": "засыпать солод", "gesture": "tilt", "held": GRIST_SACKS, "weight": 2.0},
+		{"id": "grain", "title": "засыпать солод", "gesture": "tilt", "held": BrewIds.GRIST_SACKS, "weight": 2.0},
 		{"id": "stir_mash", "title": "мешать затор", "gesture": "circle", "held": ["mash_paddle"], "weight": 2.0},
 		{"id": "bucket_mash", "title": "долить ключевой воды", "gesture": "tilt", "held": ["water_bucket"]},
 		{"id": "line_tun", "title": "выстелить дно можжевельником", "gesture": "tilt", "held": ["juniper_bundle"]},
@@ -86,7 +80,7 @@ const WORKS := {
 		{"id": "weigh_hops", "title": "отвесить хмель на весы", "gesture": "tilt", "held": ["hop_basket"]},
 	],
 	"steep": [
-		{"id": "steep_barley", "title": "засыпать ячмень", "gesture": "tilt", "held": BARLEY_SACKS, "weight": 2.0},
+		{"id": "steep_barley", "title": "засыпать ячмень", "gesture": "tilt", "held": BrewIds.BARLEY_SACKS, "weight": 2.0},
 		{"id": "steep_water", "title": "вылить ведро в чан", "gesture": "tilt", "held": ["water_bucket"]},
 		{"id": "steep_plug", "title": "пробка слива", "gesture": "draw", "part": "steep_plug", "along": [0.0, 1.0]},
 		{"id": "shovel_out", "title": "выгрести зерно на ток", "gesture": "stripe", "held": ["malt_shovel"], "weight": 1.5},
@@ -99,13 +93,13 @@ const WORKS := {
 		{"id": "kiln_stoke", "title": "подбросить полено", "gesture": "throw", "held": ["log", "beech_log"], "weight": 1.5},
 		{"id": "kiln_damper", "title": "заслонка сушилки", "gesture": "draw", "part": "kiln_damper", "along": [0.0, 1.0]},
 		{"id": "rake", "title": "ворошить солод граблями", "gesture": "stripe", "held": ["kiln_rake"]},
-		{"id": "sack_kiln", "title": "насыпать солод в мешок", "gesture": "tilt", "held": BARLEY_SACKS},
+		{"id": "sack_kiln", "title": "насыпать солод в мешок", "gesture": "tilt", "held": BrewIds.BARLEY_SACKS},
 	],
 	"mill": [
 		{"id": "grind", "title": "крутить жёрнов", "gesture": "circle", "part": "quern_runner", "weight": 2.0},
 		{"id": "quern_wedge", "title": "клин жёрнова", "gesture": "draw", "part": "quern_wedge"},
-		{"id": "pour_hopper", "title": "засыпать солод в жёрнов", "gesture": "tilt", "held": BARLEY_SACKS, "weight": 2.0},
-		{"id": "sack_bin", "title": "набрать помол в мешок", "gesture": "tilt", "held": BARLEY_SACKS},
+		{"id": "pour_hopper", "title": "засыпать солод в жёрнов", "gesture": "tilt", "held": BrewIds.BARLEY_SACKS, "weight": 2.0},
+		{"id": "sack_bin", "title": "набрать помол в мешок", "gesture": "tilt", "held": BrewIds.BARLEY_SACKS},
 	],
 }
 ## Works whose gesture sets a control of BrewDay of the same id.
@@ -238,7 +232,7 @@ func update(day: BrewDay, motion: Vector2, delta: float, minutes: float) -> bool
 		"bucket_mash":
 			day.pour_bucket(BrewDay.MASH_TUN, gesture.flow(), minutes)
 		"grain":
-			if BARLEY_SACKS.has(held) and maltings != null:
+			if BrewIds.BARLEY_SACKS.has(held) and maltings != null:
 				day.pour_lots(maltings.take_grist(held, gesture.flow() * BrewDay.GRAIN_POUR * minutes))
 			else:
 				day.pour_grain(held, gesture.flow(), minutes, true)

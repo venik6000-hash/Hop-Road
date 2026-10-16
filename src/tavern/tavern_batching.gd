@@ -18,9 +18,9 @@ static func apply(root: Node3D, parent: Node3D, surface_shader: Shader, interior
 			# Transparent objects need individual depth sorting. Animated shaders
 			# may use the object's origin, which instancing would change.
 			if material is BaseMaterial3D:
-				supported = material.transparency == BaseMaterial3D.TRANSPARENCY_DISABLED
+				supported = (material as BaseMaterial3D).transparency == BaseMaterial3D.TRANSPARENCY_DISABLED
 			elif material is ShaderMaterial:
-				supported = material.shader == surface_shader
+				supported = (material as ShaderMaterial).shader == surface_shader
 			elif material != null:
 				supported = false
 			if material != null and material.next_pass != null:
@@ -43,7 +43,8 @@ static func apply(root: Node3D, parent: Node3D, surface_shader: Shader, interior
 			item.visibility_range_fade_mode, item.lod_bias, cell]
 		if not groups.has(key):
 			groups[key] = []
-		groups[key].append(item)
+		var group: Array = groups[key]
+		group.append(item)
 	var instances := 0
 	var batches := 0
 	for key: Array in groups:

@@ -9,8 +9,9 @@ extends Node3D
 ## are BrewDay's and the cellar's (BrewCellar). A full keg carried to the
 ## tavern's counter is the one Borr buys and pours from (draw_beer). The trade
 ## (BrewTrade) is bought at the stalls of the valley (BrewStalls) and its kegs
-## sold to the order board and the cart. TavernInteractions asks this node for
-## what E can do here. It stands in the building's frame.
+## sold to the order board and the cart. An order taken at the board is led
+## step by step (BrewGuide, BrewGuidePanel). TavernInteractions asks this node
+## for what E can do here. It stands in the building's frame.
 
 const GROUP := &"brew_house"
 const LIQUID := preload("res://src/brewing/brew_liquid.gdshader")
@@ -33,9 +34,9 @@ const BASIN_CLEAR := 0.45
 ## the head's upper rim.
 const CASK_MOUTH := Vector3(-0.08, 0.6, 0.0)
 ## Where a keg lies on the tavern's counter, from the innkeeper's feet at work
-## (VillageNPC.work_point): along the counter, on the other side of his place
-## from the jug (VillagerPresence.JUG_AT).
-const BAR_KEG := Vector3(-0.55, 1.09, -0.75)
+## (VillageNPC.work_point): along the counter's back edge on his right, clear
+## of his own keg on his left (NpcBarWork.KEG_AT) and of the bottles.
+const BAR_KEG := Vector3(1.0, 1.09, -0.52)
 const YEAST := Color(0.82, 0.74, 0.55)
 ## The maltings' grain: in the steeping tub, the heap on the floor, the kiln's.
 const MALT_SURFACES: Array[String] = ["steep_grain", "couch_malt", "kiln_malt"]
@@ -143,6 +144,25 @@ const SAY_SECONDS := 2.5
 const SALE_L := BrewCellar.KEG_L - 2.0
 ## What E does at each kind of the trade's places.
 const TRADE_KINDS := {"stall": "buy", "order_board": "order", "cart": "cart"}
+## Metres before a point read off that something may stand and the point
+## still counts as seen (_clear): a vessel's rim, a tap's own body.
+const SEEN_SLACK := 0.5
+## Names of the valley's woodpiles (the village's yards, the tavern's yard and
+## kitchen): a node named so is a stack a log is taken from (_wood_stacks).
+const WOOD_NAMES: Array[String] = ["yards_woodpile", "yards_firewood", "woodpile", "firewood", "kitchen woodpile",
+	"Yard props woodstack"]
+## Half the size of the brewery's own piles about their anchors (`logs`,
+## `beech_logs`, the pile's top), and how far below the top their middle is.
+const PILE_HALF := Vector3(0.25, 0.32, 0.38)
+const PILE_DROP := 0.3
+## Metres a woodpile may stand behind what the eye's ray meets first: the
+## pile's own logs before its box (VALLEY_WOOD_SLACK); in the brewery also the
+## stair rail, whose collider stands to the ceiling before the piles and is
+## met up to a metre before them when the eye looks down (BREWERY_WOOD_SLACK).
+const VALLEY_WOOD_SLACK := 0.4
+const BREWERY_WOOD_SLACK := 1.0
+## Metres within which the mark over a task's station shows.
+const MARK_NEAR := 12.0
 ## Why a ware is not bought, by BrewTrade.buy's word.
 const REFUSALS := {"coins": "Не хватает медяков", "full": "Класть некуда", "done": "Это уже есть",
 	"order": "Сначала почините третью бочку"}
@@ -158,6 +178,7 @@ var trade := BrewTrade.load_file()
 ## The trade's places in the valley; null until the level stands them.
 var stalls: BrewStalls
 var carry := BrewCarry.new()
+var guide := BrewGuide.load_file()
 ## The station the hand works, null when the player walks.
 var station: BrewStation
 var station_id := ""
@@ -176,10 +197,9 @@ var _streams := {}
 var _steam := {}
 ## Moving part id -> its entry of the table.
 var _moving := {}
+## The player's arms (Player.arms): the brewery puts them on its work while it has the hands.
 var _arms: BrewArms
 var _sounds: BrewSounds
-## Whether the arms stood in place of the mug's hand in the last frame.
-var _arms_shown := false
 var _let_go := 0.0
 ## How far the eye is lowered at the work (the body crouched); how far the
 ## body leans now, world space.
@@ -198,6 +218,8 @@ var _label: Label
 var _panel: BrewBookPanel
 var _said := 0.0
 var _last_hour := -1.0
+## The batch's stage at the last look (BrewBatch.stage).
+var _stage := ""
 ## The keg on the counter waits for the world to stand before it is set there.
 var _seat_tap := false
 ## Where the bar's keg lies, world space; found by a ray once the world stands.
@@ -210,6 +232,14 @@ var _motion := Vector2.ZERO
 var _held_rest := Transform3D.IDENTITY
 ## Stall id -> the index of the ware its board offers (the mouse wheel).
 var _wares := {}
+## The order the board offers to take, as the mouse wheel turns it.
+var _offer := 0
+var _guide_panel: BrewGuidePanel
+## The task the parchment shows (its step and its words), "" when it is closed.
+var _guide_shown := ""
+## Stacks of logs a log is taken from: {box (world AABB), log (utensil id),
+## title, valley (a woodpile of the valley, not the brewery's own), slack}.
+var _wood_stacks: Array[Dictionary] = []
 
 func _init() -> void:
 	add_to_group(GROUP)
@@ -236,10 +266,6 @@ func _ready() -> void:
 	for entry: Dictionary in table.get("moving", []):
 		_groups[entry.id] = str(entry.group)
 		_moving[entry.id] = entry
-	_arms = BrewArms.new()
-	_arms.name = "Arms"
-	_arms.top_level = true
-	add_child(_arms)
 	_sounds = BrewSounds.new()
 	_sounds.name = "Sounds"
 	add_child(_sounds)
@@ -270,6 +296,8 @@ func _ready() -> void:
 	for vent: Dictionary in table.get("vents", []):
 		if vent.id == "kiln":
 			_steam.kiln = _plume(_vector(vent.at), 1.2)
+	_stage = day.batch.stage
+	GameEvents.night_slept.connect(pass_hours)
 
 ## The trade's stalls, board and cart for the level to stand.
 func make_stalls() -> BrewStalls:
@@ -335,6 +363,8 @@ func attach(interactions: TavernInteractions) -> void:
 	_interactions = interactions
 	_player = interactions.player
 	_camera = interactions.camera
+	_arms = _player.arms
+	interactions.add_source(_interaction)
 	var canvas := CanvasLayer.new()
 	add_child(canvas)
 	_label = Label.new()
@@ -353,46 +383,62 @@ func attach(interactions: TavernInteractions) -> void:
 	canvas.add_child(_label)
 	_panel = BrewBookPanel.new()
 	add_child(_panel)
-	var linen := building.material("tav_linen")
-	if linen != null:
-		_arms.dress(linen)
+	_guide_panel = BrewGuidePanel.new()
+	_guide_panel.name = "GuidePanel"
+	add_child(_guide_panel)
+	_gather_wood_stacks()
 	if building.sky_system != null:
 		_last_hour = building.sky_system.time_of_day
 
 func _input(event: InputEvent) -> void:
 	if _panel != null and _panel.visible:
-		if event is InputEventKey and event.pressed and not event.echo:
-			var key: Key = event.physical_keycode
-			if key == KEY_A or key == KEY_LEFT:
-				_panel.turn(-1)
-			elif key == KEY_D or key == KEY_RIGHT:
-				_panel.turn(1)
-			elif key == KEY_ESCAPE:
-				interact_busy()
-			else:
-				return
-			get_viewport().set_input_as_handled()
-		elif event is InputEventMouseMotion:
-			get_viewport().set_input_as_handled()
+		# The book takes the walk to turn its pages.
+		if event.is_echo():
+			return
+		if InputActions.pressed(event, "move_left"):
+			_panel.turn(-1)
+		elif InputActions.pressed(event, "move_right"):
+			_panel.turn(1)
+		elif InputActions.pressed(event, "pause"):
+			interact_busy()
+		elif not event is InputEventMouseMotion:
+			return
+		get_viewport().set_input_as_handled()
 		return
 	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		return
+	var turn := _choice(event)
 	if station == null:
-		_turn_wares(event)
+		_turn_wares(turn)
 		return
-	if event is InputEventMouseMotion:
-		_motion += event.relative
+	var motion_event := event as InputEventMouseMotion
+	if motion_event != null:
+		_motion += motion_event.relative
 		get_viewport().set_input_as_handled()
-	elif event is InputEventMouseButton and event.pressed:
-		var button: MouseButton = event.button_index
-		if button == MOUSE_BUTTON_WHEEL_UP or button == MOUSE_BUTTON_WHEEL_DOWN:
-			station.next(day, 1 if button == MOUSE_BUTTON_WHEEL_DOWN else -1)
-			_approach()
-			get_viewport().set_input_as_handled()
+	elif turn != 0:
+		station.next(day, turn)
+		_approach()
+		get_viewport().set_input_as_handled()
+
+## +1 for "choice_next", -1 for "choice_previous" (the mouse wheel), else 0.
+static func _choice(event: InputEvent) -> int:
+	if event.is_echo():
+		return 0
+	if InputActions.pressed(event, "choice_next"):
+		return 1
+	if InputActions.pressed(event, "choice_previous"):
+		return -1
+	return 0
 
 func _process(delta: float) -> void:
 	_tick_clock()
+	_watch_stage()
+	# At a station the right stick works as the mouse does.
+	if _player != null:
+		_player.look_held = station != null
 	if station != null:
+		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+			_motion += _player.stick_gesture(delta)
 		var work := station.work()
 		var before := [station.gesture.count, station.gesture.amount, station.gesture.turns]
 		var thrown := station.update(day, _motion, delta, _minutes)
@@ -408,10 +454,17 @@ func _process(delta: float) -> void:
 	_run_streams()
 	_burn()
 	_sound_running(delta)
+	_lead()
 	if _label != null:
 		_said -= delta
 		if _said <= 0.0:
-			_label.text = _reading()
+			_label.text = InputActions.hint(tr(_reading()))
+
+## GameEvents hears when the batch comes to another stage.
+func _watch_stage() -> void:
+	if day.batch.stage != _stage:
+		_stage = day.batch.stage
+		GameEvents.brew_stage_changed.emit(_stage)
 
 ## Game minutes since the last frame go into the day and the cellar; the
 ## clock turned back (a debug key) gives none.
@@ -425,8 +478,8 @@ func _tick_clock() -> void:
 		advance(_minutes, _last_hour)
 	_last_hour = hour
 
-## The night slept away goes by in the brewery too (ValleyLoop): the clock
-## already stands at the morning.
+## The night slept away goes by in the brewery too (GameEvents.night_slept):
+## the clock already stands at the morning.
 func pass_hours(hours: float) -> void:
 	if building == null or building.sky_system == null:
 		advance(hours * 60.0, fposmod(DayClock.WAKE_HOUR - hours, 24.0))
@@ -469,15 +522,15 @@ func busy() -> bool:
 
 func busy_text() -> String:
 	if _panel != null and _panel.visible:
-		return "A / D — листать   ·   E — закрыть книгу"
+		return "{move_left} / {move_right} — листать   ·   {interact} — закрыть книгу"
 	var work := station.work()
-	var hint := {"tilt": "мышь от себя — наклонить", "circle": "мышь по кругу", "rock": "мышь вниз-вверх — качать",
-		"draw": "мышь — тянуть", "stripe": "мышь полосами", "strike": "замах и удар", "throw": "замах вниз, бросок вверх"}
-	var title := str(work.title)
-	var text := "%s   ·   %s" % [title.left(1).to_upper() + title.substr(1), hint.get(work.gesture, "")]
+	var hint := {"tilt": "{look} от себя — наклонить", "circle": "{look} по кругу", "rock": "{look} вниз-вверх — качать",
+		"draw": "{look} — тянуть", "stripe": "{look} полосами", "strike": "замах и удар", "throw": "замах вниз, бросок вверх"}
+	var title := tr(str(work.title))
+	var text := "%s   ·   %s" % [title.left(1).to_upper() + title.substr(1), tr(str(hint.get(work.gesture, "")))]
 	if station.works.size() > 1:
-		text += "   ·   колесо — другое дело"
-	return text + "   ·   E — отойти"
+		text += tr("   ·   {choice} — другое дело")
+	return text + tr("   ·   {interact} — отойти")
 
 ## E while busy: steps away from the station, shuts the book.
 func interact_busy() -> void:
@@ -487,12 +540,23 @@ func interact_busy() -> void:
 	elif station != null:
 		_leave_station()
 
+## find_target as a source of targets for E (TavernInteractions.add_source).
+func _interaction(best: float) -> Interaction:
+	var found := find_target(best)
+	if found.is_empty():
+		return null
+	var target: Target = found.target
+	return Interaction.of(target, float(found.distance), target_text.bind(target), interact.bind(target))
+
 ## What E would do nearest within `best` metres: {distance, target}; {} when
 ## nothing. Putting down what the hand holds comes last of all.
 func find_target(best: float) -> Dictionary:
 	if _interactions == null:
 		return {}
 	var trading := _trade_target(best)
+	var wood := _wood_target(best)
+	if not wood.is_empty() and (trading.is_empty() or float(wood.distance) < float(trading.distance)):
+		return wood
 	if not trading.is_empty() or not _near():
 		return trading
 	# Of what is in sight nearer than `best`, the thing the eye is most on:
@@ -509,8 +573,16 @@ func find_target(best: float) -> Dictionary:
 		var stand := to_global(_vector(_stations[id].stand))
 		if Vector2(stand.x - _player.global_position.x, stand.z - _player.global_position.z).length() > STAND:
 			continue
+		# A station is aimed at by its look or by a part its works move: the
+		# pump's handle, a cock's key.
 		var look := to_global(_vector(_stations[id].look))
-		candidates.append(["book" if reads else "station", id, look, _aimed(look)])
+		var aim := _aimed(look)
+		for point in _part_points(id):
+			var distance := _aimed(point)
+			if distance < aim:
+				aim = distance
+				look = point
+		candidates.append(["book" if reads else "station", id, look, aim])
 	if carry.held == "":
 		for id: String in _utensils:
 			if _hidden(id) or id == cellar.tap:
@@ -544,62 +616,110 @@ func target_text(target: Target) -> String:
 	match target.kind:
 		"station":
 			var works := BrewStation.works_for(target.id, carry.held, cellar)
-			return "E — %s · %s" % [str(works[0].title), _stations[target.id].title]
+			return "{interact} — %s · %s" % [tr(str(works[0].title)), tr(str(_stations[target.id].title))]
 		"book":
-			return "E — открыть книгу пивовара"
+			return "{interact} — открыть книгу пивовара"
 		"take":
-			return "E — взять · %s" % _utensils[target.id].entry.title
+			return tr("{interact} — взять · %s") % tr(str(_utensils[target.id].entry.title))
+		"firewood":
+			var stack: Dictionary = _wood_stacks[int(target.id)]
+			return tr("{interact} — взять полено · %s") % tr(str(stack.title))
 		"hourglass":
-			return "E — перевернуть песочные часы"
+			return "{interact} — перевернуть песочные часы"
 		"put":
-			var where: String = " на стойку" if target.place.get("anchor", "") == "bar_keg" else ""
-			return "E — поставить%s · %s" % [where, _utensils[carry.held].entry.title]
+			var put := tr("{interact} — поставить на стойку · %s") if target.place.get("anchor", "") == "bar_keg" \
+				else tr("{interact} — поставить · %s")
+			return put % tr(str(_utensils[carry.held].entry.title))
 		"buy":
 			var wares: Array = trade.stall(target.id).get("wares", [])
 			var ware_id := _ware(target.id)
-			var text := "E — купить: %s · %d медн. · в кошельке %d" % [str(trade.ware(ware_id).title), trade.price(ware_id),
-				trade.coins]
-			return text + ("   ·   колесо — другой товар" if wares.size() > 1 else "")
+			var text := tr("{interact} — купить: %s · %d медн. · в кошельке %d") % [tr(str(trade.ware(ware_id).title)),
+				trade.price(ware_id), trade.coins]
+			return text + (tr("   ·   {choice} — другой товар") if wares.size() > 1 else "")
+		"take_order":
+			var offer: Dictionary = trade.orders[posmod(_offer, trade.orders.size())]
+			var text := tr("{interact} — взять заказ · %s") % trade.order_words(offer, book)
+			return text + (tr("   ·   {choice} — другой заказ") if trade.orders.size() > 1 else "")
+		"drop_order":
+			return tr("{interact} — отказаться от заказа: он уйдёт с доски · %s") % tr(str(trade.template(guide.order_id).get("who", "")))
 		"order":
-			var index := trade.order_for(_held_beer(), book)
+			var index := trade.order_for(_held_beer(), book, guide.order_id)
 			if index < 0:
 				return "Бочонок не подходит ни к одному заказу"
 			var order: Dictionary = trade.orders[index]
-			return "E — сдать бочонок по заказу · %s · %d медн." % [str(trade.template(str(order.id)).who),
+			return tr("{interact} — сдать бочонок по заказу · %s · %d медн.") % [tr(str(trade.template(str(order.id)).who)),
 				trade.order_pay(order)]
 		"cart":
-			return "E — погрузить бочонок на телегу · %d медн." % trade.cart_price(_held_beer(), book)
+			return tr("{interact} — погрузить бочонок на телегу · %d медн.") % trade.cart_price(_held_beer(), book)
 	return ""
 
 func interact(target: Target) -> void:
 	match target.kind:
 		"station":
-			_enter_station(target.id)
+			if _hands_free():
+				_enter_station(target.id)
 		"book":
-			_panel.open(book.pages(_book_batch()))
+			_panel.open(func() -> PackedStringArray: return book.pages(_book_batch()))
 			_player.movement_locked = true
 		"take":
-			_take(target.id)
+			if _hands_free():
+				_take(target.id)
+		"firewood":
+			if not _hands_free():
+				return
+			var stack: Dictionary = _wood_stacks[int(target.id)]
+			if stack.valley:
+				trade.gather_log(str(stack.log))
+			_take(str(stack.log))
 		"hourglass":
 			day.turn_hourglass()
 		"put":
 			_put(target.place)
 		"buy":
 			_buy(target.id)
+		"take_order":
+			guide.take(trade.orders[posmod(_offer, trade.orders.size())], trade)
+			say(tr("Заказ взят: %s") % tr(str(trade.template(guide.order_id).get("who", ""))))
+			GameEvents.order_taken.emit(guide.order_id)
+		"drop_order":
+			# A refused order leaves the board: its term ran from the taking.
+			var dropped := guide.order_id
+			trade.orders.assign(trade.orders.filter(func(order: Dictionary) -> bool: return str(order.id) != dropped))
+			guide.drop()
+			say("Заказ отменён")
+			GameEvents.order_dropped.emit(dropped)
 		"order":
 			var keg := carry.held
-			var paid := trade.deliver(keg, _held_beer(), book)
+			var index := trade.order_for(_held_beer(), book, guide.order_id)
+			var guided := index >= 0 and str(trade.orders[index].id) == guide.order_id
+			var order_id := str(trade.orders[index].id) if index >= 0 else ""
+			var paid := trade.deliver(keg, _held_beer(), book, guide.order_id)
+			if guided and paid > 0:
+				guide.delivered()
 			if paid > 0:
-				_sold(keg, "Заказ сдан: %d медн. · в кошельке %d" % [paid, trade.coins])
+				_sold(keg, tr("Заказ сдан: %d медн. · в кошельке %d") % [paid, trade.coins])
+				GameEvents.order_delivered.emit(order_id, paid)
 			else:
 				say("Бочонок не подходит ни к одному заказу")
 		"cart":
 			var keg := carry.held
 			var paid := trade.load_cart(keg, _held_beer(), book)
-			_sold(keg, "Бочонок на телеге: %d медн. · в кошельке %d" % [paid, trade.coins])
+			_sold(keg, tr("Бочонок на телеге: %d медн. · в кошельке %d") % [paid, trade.coins])
 
 func holding() -> bool:
 	return carry.held != ""
+
+## Whether the brewery has the hands: a thing held, a station worked, or the
+## fingers still letting go.
+func _at_work() -> bool:
+	return holding() or station != null or _let_go > 0.0
+
+## Whether the hands are free for the brewery's work; says what holds them when not.
+func _hands_free() -> bool:
+	var busy := _player.hands.busy_text(BodyChannels.BREWERY)
+	if busy != "":
+		say(busy)
+	return busy == ""
 
 ## Kg of what a carried thing holds: the brewing day's or the cellar's.
 func load_kg(id: String) -> float:
@@ -608,14 +728,15 @@ func load_kg(id: String) -> float:
 ## The batch the book's journal shows: the brewing day's, else the cellar's
 ## latest once the day has handed its wort over.
 func _book_batch() -> BrewBatch:
-	if day.batch.stage == "new" and cellar.latest_batch() != null:
+	if day.batch.stage == BrewIds.STAGE_NEW and cellar.latest_batch() != null:
 		return cellar.latest_batch()
 	return day.batch
 
 # ---- The trade -----------------------------------------------------------------
 
 ## The trade's place the eye is on within `best` metres: a stall to buy at;
-## with a full keg in the hand, the order board or the cart; {} when none.
+## with a full keg in the hand, the order board or the cart; with an empty
+## hand, the order board to take an order or give it up; {} when none.
 func _trade_target(best: float) -> Dictionary:
 	if stalls == null:
 		return {}
@@ -623,7 +744,12 @@ func _trade_target(best: float) -> Dictionary:
 	for id: String in stalls.places:
 		var place: Dictionary = stalls.places[id]
 		var kind := str(TRADE_KINDS[place.kind])
-		if kind != "buy" and not _keg_for_sale():
+		if kind == "order" and carry.held == "":
+			if guide.taken():
+				kind = "drop_order"
+			elif not trade.orders.is_empty():
+				kind = "take_order"
+		if kind != "buy" and kind != "take_order" and kind != "drop_order" and not _keg_for_sale():
 			continue
 		for point: Vector3 in place.looks:
 			var distance := _interactions.target_distance(point, null, true)
@@ -648,18 +774,20 @@ func _ware(id: String) -> String:
 	var wares: Array = trade.stall(id).get("wares", [])
 	return str(wares[posmod(int(_wares.get(id, 0)), wares.size())]) if not wares.is_empty() else ""
 
-## The mouse wheel at a stall: the next ware of its board.
-func _turn_wares(event: InputEvent) -> void:
-	if not event is InputEventMouseButton or not event.pressed or _interactions == null:
-		return
-	var button: MouseButton = event.button_index
-	if button != MOUSE_BUTTON_WHEEL_UP and button != MOUSE_BUTTON_WHEEL_DOWN:
+## A choice (`turn`, _choice) at a stall: the next ware of its board, or at
+## the order board the next order.
+func _turn_wares(turn: int) -> void:
+	if turn == 0 or _interactions == null:
 		return
 	var selected: Variant = _interactions.selected
+	if selected is Target and (selected as Target).kind == "take_order":
+		_offer += turn
+		get_viewport().set_input_as_handled()
+		return
 	if not selected is Target or (selected as Target).kind != "buy":
 		return
 	var id := (selected as Target).id
-	_wares[id] = int(_wares.get(id, 0)) + (1 if button == MOUSE_BUTTON_WHEEL_DOWN else -1)
+	_wares[id] = int(_wares.get(id, 0)) + turn
 	get_viewport().set_input_as_handled()
 
 ## The ware stall `id` offers bought: the coins left in its box.
@@ -667,9 +795,9 @@ func _buy(id: String) -> void:
 	var ware_id := _ware(id)
 	var refused := trade.buy(ware_id, day, cellar, maltings)
 	if refused != "":
-		say("%s: %s" % [str(REFUSALS[refused]), str(trade.ware(ware_id).title)])
+		say("%s: %s" % [tr(str(REFUSALS[refused])), tr(str(trade.ware(ware_id).title))])
 		return
-	say("Куплено: %s · в кошельке %d медн." % [str(trade.ware(ware_id).title), trade.coins])
+	say(tr("Куплено: %s · в кошельке %d медн.") % [tr(str(trade.ware(ware_id).title)), trade.coins])
 	_save_soon()
 
 ## Keg `keg` in the hand went away with its beer: the hand is empty.
@@ -677,9 +805,8 @@ func _sold(keg: String, words: String) -> void:
 	cellar.empty_keg(keg)
 	carry.held = ""
 	_home_keg(keg)
-	_player.pace = 1.0
-	if _player.viewmodel != null:
-		_player.viewmodel.visible = true
+	if _player != null:
+		_player.pace = 1.0
 	say(words)
 	_save_soon()
 
@@ -704,23 +831,185 @@ func _trade_reading() -> String:
 			"stall":
 				var prices := PackedStringArray()
 				for ware_id: Variant in trade.stall(id).get("wares", []):
-					prices.append("%s — %d" % [str(trade.ware(str(ware_id)).title), trade.price(str(ware_id))])
-				return "%s: %s" % [str(place.title), "; ".join(prices)]
+					prices.append("%s — %d" % [tr(str(trade.ware(str(ware_id)).title)), trade.price(str(ware_id))])
+				return "%s: %s" % [tr(str(place.title)), "; ".join(prices)]
 			"order_board":
 				if trade.orders.is_empty():
 					return "Доска заказов пуста"
 				var lines := PackedStringArray()
 				for order: Dictionary in trade.orders:
 					lines.append(trade.order_words(order, book))
-				return "Заказы · " + " · ".join(lines)
+				return tr("Заказы · %s") % " · ".join(lines)
 			"cart":
 				return "Телега берёт бочонки за половину цены Борра, кислое пиво — на уксус"
 	return ""
 
+# ---- The guide of the order taken -----------------------------------------------
+
+## The order taken led on: the steps done are ticked on the parchment, the
+## arrow turns to the next task's place, the mark stands over its station.
+func _lead() -> void:
+	if _guide_panel == null or _player == null:
+		return
+	if not guide.taken():
+		if guide.ended == "late":
+			say("Заказ просрочен: доска его сняла")
+			guide.ended = ""
+		if _guide_shown != "" and not _guide_panel.ticking():
+			_guide_panel.close()
+			_guide_shown = ""
+		return
+	var entry := guide.current()
+	var done := guide.update(day, cellar, trade, book, _place_distance(str(entry.get("place", ""))) <= _arrive(entry))
+	if _guide_shown == "":
+		_guide_panel.open("")
+	for _step in done:
+		_guide_panel.tick()
+	if not guide.taken():
+		if guide.ended == "":
+			say("Заказ выполнен")
+		_guide_panel.point(false, 0.0, "")
+		_guide_panel.mark(false, Vector2.ZERO)
+		return
+	var order := _guided_order()
+	if not order.is_empty():
+		_guide_panel.open(tr("Заказ · %s") % trade.order_words(order, book))
+	entry = guide.current()
+	var text := tr(str(entry.text))
+	if str(entry.done[0]) == "kegs" or str(entry.done[0]) == "delivered":
+		text += tr(" Бочонков по заказу: %d, готово: %d.") % [guide.kegs_left, guide.full_kegs(cellar, trade, book)]
+	# The language is part of what is shown: the parchment is written anew in another.
+	var shown := "%s %d %s" % [TranslationServer.get_locale(), guide.step, text]
+	if shown != _guide_shown:
+		_guide_panel.task(text, guide.step, guide.active().size())
+		_guide_panel.note(_guide_note())
+		_guide_shown = shown
+	_point_guide(entry)
+
+## The open order the guide leads, {} when the board has it no more.
+func _guided_order() -> Dictionary:
+	for order: Dictionary in trade.orders:
+		if str(order.id) == guide.order_id:
+			return order
+	return {}
+
+## A warning for the parchment: the beer in the cellar is not of the order's sort.
+func _guide_note() -> String:
+	var latest := cellar.latest_batch()
+	if latest == null or latest.ferment < 1.0:
+		return ""
+	var named := book.name_beer(latest.profile())
+	if str(named.get("id", "")) == guide.beer:
+		return ""
+	return tr("Партия в погребе вышла другим сортом: «%s». Этот заказ её не возьмёт.") % tr(str(named.get("name", "")))
+
+## Where task place `id` is in the world: the brewery's gates, a stall, the
+## order board.
+func _place_point(id: String) -> Vector3:
+	if id == "brewery":
+		return to_global(_vector(_stations.gate.stand))
+	if stalls != null and stalls.places.has(id):
+		var looks: Array = stalls.places[id].looks
+		if not looks.is_empty():
+			return looks[0]
+	return to_global(_vector(_stations.gate.stand))
+
+## Metres on the ground from the player to task place `id`.
+func _place_distance(id: String) -> float:
+	var point := _place_point(id)
+	return Vector2(point.x - _player.global_position.x, point.z - _player.global_position.z).length()
+
+## Metres within which the player is at the place of task `entry`.
+func _arrive(entry: Dictionary) -> float:
+	var place: Dictionary = guide.places.get(str(entry.get("place", "")), {})
+	return float(place.get("arrive", STAND))
+
+## The arrow to the task's place while the player is far from it; near, the
+## mark over the task's station.
+func _point_guide(entry: Dictionary) -> void:
+	var place := str(entry.get("place", ""))
+	var distance := _place_distance(place)
+	var far := distance > _arrive(entry)
+	if far:
+		var point := _place_point(place)
+		var forward := -_camera.global_basis.z
+		var ahead := Vector2(forward.x, forward.z)
+		var toward := Vector2(point.x - _camera.global_position.x, point.z - _camera.global_position.z)
+		var angle := ahead.angle_to(toward) if ahead.length() > 0.01 and toward.length() > 0.01 else 0.0
+		var place_row: Dictionary = guide.places.get(place, {})
+		var title := str(place_row.get("title", ""))
+		_guide_panel.point(true, angle, tr("%s · %d м") % [tr(title), roundi(distance)])
+	else:
+		_guide_panel.point(false, 0.0, "")
+	var station_id := str(entry.get("mark", ""))
+	var shown := false
+	var at := Vector2.ZERO
+	if not far and _stations.has(station_id) and station == null:
+		var look := to_global(_vector(_stations[station_id].look))
+		if look.distance_to(_camera.global_position) < MARK_NEAR and not _camera.is_position_behind(look):
+			shown = true
+			at = _camera.unproject_position(look)
+	_guide_panel.mark(shown, at)
+
 ## The valley is saved soon: coins changed hands.
 func _save_soon() -> void:
-	if _interactions != null and _interactions.valley != null:
-		_interactions.valley.save_soon()
+	SaveService.save_soon()
+
+# ---- Firewood ------------------------------------------------------------------
+
+## The stacks of logs: the brewery's two piles by their anchors, and every
+## woodpile of the valley by its name (WOOD_NAMES), its mesh or its box.
+func _gather_wood_stacks() -> void:
+	_wood_stacks.clear()
+	for pile: Array in [["logs", "log", "Поленница"], ["beech_logs", "beech_log", "Буковая поленница"]]:
+		if not _anchors.has(pile[0]):
+			continue
+		var middle: Vector3 = _anchors[pile[0]] - Vector3.UP * PILE_DROP
+		var box := AABB(to_global(middle), Vector3.ZERO)
+		for corner in 8:
+			var side := Vector3(1.0 if corner & 1 else -1.0, 1.0 if corner & 2 else -1.0, 1.0 if corner & 4 else -1.0)
+			box = box.expand(to_global(middle + PILE_HALF * side))
+		_wood_stacks.append({"box": box, "log": pile[1], "title": pile[2], "valley": false, "slack": BREWERY_WOOD_SLACK})
+	_find_woodpiles(_level())
+
+func _find_woodpiles(node: Node) -> void:
+	if node == self:
+		return
+	var name_of := str(node.name)
+	if WOOD_NAMES.any(func(prefix: String) -> bool: return name_of.begins_with(prefix)):
+		var box := AABB()
+		if node is MeshInstance3D and (node as MeshInstance3D).mesh != null:
+			box = (node as MeshInstance3D).global_transform * (node as MeshInstance3D).get_aabb()
+		elif node is CollisionShape3D and (node as CollisionShape3D).shape is BoxShape3D:
+			var size := ((node as CollisionShape3D).shape as BoxShape3D).size
+			box = (node as CollisionShape3D).global_transform * AABB(-size * 0.5, size)
+		# A pile's mesh and its collider are one stack.
+		if box.has_volume() and not _wood_stacks.any(func(stack: Dictionary) -> bool: return (stack.box as AABB).is_equal_approx(box)):
+			_wood_stacks.append({"box": box, "log": "log", "title": "Поленница", "valley": true, "slack": VALLEY_WOOD_SLACK})
+	for child in node.get_children():
+		_find_woodpiles(child)
+
+## The woodpile the crosshair is on within `best` metres with an empty hand:
+## the view's ray enters its box before anything else stops it.
+func _wood_target(best: float) -> Dictionary:
+	if carry.held != "" or _camera == null or _player == null or _wood_stacks.is_empty():
+		return {}
+	var from := _camera.global_position
+	var to := from - _camera.global_basis.z * REACH
+	var query := PhysicsRayQueryParameters3D.create(from, to)
+	query.exclude = [_player.get_rid()]
+	var hit := _player.get_world_3d().direct_space_state.intersect_ray(query)
+	var wall := INF if hit.is_empty() else from.distance_to(hit.position)
+	var found := {}
+	for index in _wood_stacks.size():
+		var entry: Variant = (_wood_stacks[index].box as AABB).intersects_segment(from, to)
+		if entry == null:
+			continue
+		var distance := from.distance_to(entry as Vector3)
+		if distance < best and distance <= wall + float(_wood_stacks[index].slack):
+			best = distance
+			found = _target("firewood", str(index), distance)
+	return found
 
 # ---- Carrying -----------------------------------------------------------------
 
@@ -728,6 +1017,7 @@ func _take(id: String) -> void:
 	if not trade.has_log(id):
 		say("Поленница пуста: вязанки продаёт лавка рынка")
 		return
+	_player.hands.claim(BodyChannels.BREWERY, _at_work)
 	carry.held = id
 	if id == "hoist_bucket":
 		day.hang_bucket(false)
@@ -750,8 +1040,6 @@ func _take(id: String) -> void:
 		_held_rest.basis = Basis.IDENTITY
 	var grip := _grip_local(id)
 	_held_rest.origin = _hold_offset(id) - _held_rest.basis * grip
-	if _player.viewmodel != null:
-		_player.viewmodel.visible = false
 
 func _put(place: Dictionary) -> void:
 	var id := carry.held
@@ -771,7 +1059,7 @@ func _put(place: Dictionary) -> void:
 				"ruined": "Борр нюхает и качает головой: это не пиво"}[refused]))
 			return
 		var paid := trade.sell_to_borr(cellar.kegs[id].beer, book)
-		say("Борр берёт бочонок: %d медн. · в кошельке %d" % [paid, trade.coins])
+		say(tr("Борр берёт бочонок: %d медн. · в кошельке %d") % [paid, trade.coins])
 		_save_soon()
 		node.global_transform = _bar
 	else:
@@ -794,8 +1082,6 @@ func _put(place: Dictionary) -> void:
 					day.hang_bucket(true, false)
 	carry.held = ""
 	_player.pace = 1.0
-	if _player.viewmodel != null:
-		_player.viewmodel.visible = true
 
 ## Where the held thing would land: a place of its own on the line of sight
 ## before the face the eye meets (or within reach, with no face), else
@@ -904,8 +1190,7 @@ func _find_bar() -> bool:
 
 ## The eye's frame turned with the look about the vertical, kept upright.
 func _hold_frame() -> Transform3D:
-	var ahead := -_camera.global_basis.z
-	return Transform3D(Basis(Vector3.UP, atan2(-ahead.x, -ahead.z)), _camera.global_position)
+	return _player.eye_frame()
 
 func _hold_offset(id: String) -> Vector3:
 	if id.begins_with("keg_"):
@@ -1024,7 +1309,11 @@ func _place_hands(delta: float) -> void:
 	_player.rig.crouch = move_toward(_player.rig.crouch, minf(_crouch + bow, CROUCH), CROUCH_PACE * delta)
 	# The body's own frame, without the lean: the lean is reckoned from it.
 	var frame := Transform3D(_hold_frame().basis, _player.global_position + Vector3.UP * _player.rig.position.y)
-	_arms.global_transform = frame
+	# The arms are the brewery's only while it has the hands: the rod or the
+	# potato may have them now.
+	var mine := _player.hands.has(BodyChannels.BREWERY)
+	if mine:
+		_arms.global_transform = frame
 	_let_go = maxf(_let_go - delta, 0.0)
 	var shoulders: Array[Vector3] = [_arms.shoulder(BrewHands.RIGHT), _arms.shoulder(BrewHands.LEFT)]
 	var hands := _hands_now(frame, shoulders)
@@ -1034,13 +1323,14 @@ func _place_hands(delta: float) -> void:
 	_player.rig.position = Vector3(lean.x, _player.rig.position.y, lean.z)
 	if station != null:
 		_aim(_player.rig.global_position)
-	_arms.global_transform = frame.translated(_leaned)
-	if _let_go <= 0.0:
-		_arms.reach(_in_reach(hands, [shoulders[0] + _leaned, shoulders[1] + _leaned]))
-	_arms.pose(delta)
-	if _arms.visible != _arms_shown and _player.viewmodel != null and not holding():
-		_player.viewmodel.visible = not _arms.visible
-	_arms_shown = _arms.visible
+	if mine:
+		_arms.global_transform = frame.translated(_leaned)
+		if _let_go <= 0.0:
+			_arms.reach(_in_reach(hands, [shoulders[0] + _leaned, shoulders[1] + _leaned]))
+		_arms.pose(delta)
+	# The hands come back to the mug once the arms have let go of the last thing.
+	if not _at_work():
+		_player.hands.release(BodyChannels.BREWERY)
 
 ## How far the body leans (world space, level) to bring the shoulders within
 ## the arm's reach of the hand farthest out of it; LEAN at most.
@@ -1141,11 +1431,38 @@ func _hands_now(frame: Transform3D, shoulders: Array[Vector3]) -> Array[Dictiona
 					work.gesture == "rock" or work.gesture == "circle")
 	return hands
 
+## Whether the hand holds a log to burn.
+func holding_log() -> bool:
+	return carry.held == "log" or carry.held == "beech_log"
+
+## The log in the hand thrown into a fire of the valley at world point `at`
+## (a campfire): it flies there and goes to the woodpile again.
+func throw_log(at: Vector3) -> void:
+	if not holding_log():
+		return
+	var id := carry.held
+	_let_log_go()
+	var node: Node3D = _utensils[id].node
+	var flight := create_tween()
+	flight.tween_property(node, "global_position", at, 0.3)
+	flight.tween_callback(func() -> void: node.transform = Transform3D(Basis.IDENTITY, _home(id)))
+
 ## A log thrown into the fire goes to the woodpile again: the pile has more.
 func _throw_held() -> void:
 	var id := carry.held
 	if id == "":
 		return
+	_let_log_go()
+	var node: Node3D = _utensils[id].node
+	var flight := create_tween()
+	var mouth: Vector3 = _anchors.kiln_stoke if station_id == "kiln" else _anchors.copper_stoke
+	flight.tween_property(node, "position", mouth + Vector3(0.0, 0.0, 0.3), 0.3)
+	flight.tween_callback(func() -> void: node.transform = Transform3D(Basis.IDENTITY, _home(id)))
+	_leave_station()
+
+## The log in the hand leaves it for a fire: burnt off the woodpile, the hand free.
+func _let_log_go() -> void:
+	var id := carry.held
 	var node: Node3D = _utensils[id].node
 	node.reparent(self)
 	carry.held = ""
@@ -1153,13 +1470,7 @@ func _throw_held() -> void:
 	_let_go = LET_GO
 	trade.burn_log(id)
 	_player.pace = 1.0
-	if _player.viewmodel != null:
-		_player.viewmodel.visible = true
-	var flight := create_tween()
-	var mouth: Vector3 = _anchors.kiln_stoke if station_id == "kiln" else _anchors.copper_stoke
-	flight.tween_property(node, "position", mouth + Vector3(0.0, 0.0, 0.3), 0.3)
-	flight.tween_callback(func() -> void: node.transform = Transform3D(Basis.IDENTITY, _home(id)))
-	_leave_station()
+	_save_soon()
 
 ## Whether utensil `id` is tipped over sideways at a pour: a basket or a
 ## pot, held by its rim or its handle.
@@ -1203,6 +1514,7 @@ func _enter_station(id: String) -> void:
 	var mode := BrewStation.open(id, carry.held, day, cellar, maltings)
 	if mode == null:
 		return
+	_player.hands.claim(BodyChannels.BREWERY, _at_work)
 	station = mode
 	station_id = id
 	_motion = Vector2.ZERO
@@ -1404,12 +1716,16 @@ func _cellar_news() -> void:
 ## beer the book names and its flaws.
 static func taste_words(taste: Dictionary, brew_book: BrewBook) -> String:
 	var flaws: Array = taste.get("flaws", [])
-	if flaws.has("green"):
-		return "Зелёное и резкое: бочке стоять ещё %d дн." % int(taste.get("days_left", 0))
-	var words: String = "%s, %.1f %%" % [str(brew_book.name_beer(taste).get("name", "")), float(taste.get("strength", 0.0))]
+	if flaws.has(BrewIds.FLAW_GREEN):
+		var days := int(taste.get("days_left", 0))
+		return TranslationServer.translate_plural("Зелёное и резкое: бочке стоять ещё %d день.",
+			"Зелёное и резкое: бочке стоять ещё %d дня.", days) % days
+	var words: String = "%s, %.1f %%" % [TranslationServer.translate(str(brew_book.name_beer(taste).get("name", ""))),
+		float(taste.get("strength", 0.0))]
 	var names := PackedStringArray()
 	for id: Variant in flaws:
-		names.append(str(brew_book.flaws.get(id, {}).get("name", id)))
+		var flaw: Dictionary = brew_book.flaws.get(id, {})
+		names.append(TranslationServer.translate(str(flaw.get("name", id))))
 	if not names.is_empty():
 		words += " · " + ", ".join(names)
 	return words
@@ -1533,7 +1849,7 @@ func _level_tun(id: String, surface: Dictionary) -> void:
 	node.position.y = _surface_height(wort) - float(_surfaces[wort].built) + (0.03 if foam else 0.0)
 	var material: ShaderMaterial = surface.material
 	var batch := cellar.tun_batch(number)
-	var working := batch.stage == "pitched" and batch.ferment_days >= 1 and batch.ferment < 1.0
+	var working := batch.stage == BrewIds.STAGE_PITCHED and batch.ferment_days >= 1 and batch.ferment < 1.0
 	material.set_shader_parameter("tint", YEAST if foam else wort_color(_batch_ebc(batch), VESSEL_DEPTH))
 	material.set_shader_parameter("boil", 0.0)
 	material.set_shader_parameter("foam", 1.0 if foam else (0.35 if working else 0.15))
@@ -1853,8 +2169,14 @@ func _reading() -> String:
 	if carry.held == "thermometer" or carry.held == "dipstick":
 		var best := REACH
 		var found := ""
+		# An instrument goes into the vessel: its surface lies behind the rim
+		# or the copper's walls. A fermenting tun is read only when the tun
+		# itself is in sight: the cellar has a wall to the brewhouse.
 		for id: String in VESSELS + ["fermenting_tun_1_wort", "fermenting_tun_2_wort"]:
 			var distance := _aimed(to_global(_surface_point(id)))
+			if id.begins_with("fermenting_tun_"):
+				var look := to_global(_vector(_stations["fermenter_" + id.get_slice("_", 2)].look))
+				distance = distance if _clear(look) else INF
 			if distance < best:
 				best = distance
 				found = id
@@ -1864,19 +2186,19 @@ func _reading() -> String:
 	var marks := {"hourglass": _moving_point("hourglass"), "balance": _moving_point("hop_balance_beam")}
 	if carry.held != "thermometer" and _utensils.has("thermometer"):
 		marks.thermometer = _grip("thermometer")
-	if BrewDay.SACKS.has(carry.held) or BrewMaltings.SACKS.has(carry.held):
+	if BrewDay.SACKS.has(carry.held) or BrewIds.BARLEY_SACKS.has(carry.held):
 		marks.steelyard = _moving_point("steelyard")
 	var best := REACH
 	var shown := ""
 	for mark: String in marks:
-		var distance := _aimed(marks[mark])
+		var distance := _read_at(marks[mark])
 		if distance < best:
 			best = distance
 			shown = mark
 	var cellar_text := ""
 	var cellar_marks := _cellar_marks()
 	for point: Vector3 in cellar_marks:
-		var distance := _aimed(point)
+		var distance := _read_at(point)
 		if distance < best:
 			best = distance
 			cellar_text = str(cellar_marks[point])
@@ -1884,8 +2206,8 @@ func _reading() -> String:
 		return cellar_text
 	if shown == "":
 		return ""
-	if shown == "steelyard" and BrewMaltings.SACKS.has(carry.held):
-		return "Безмен: %.1f кг" % (maltings.load_kg(carry.held) + float(BrewCarry.WEIGHTS.sack))
+	if shown == "steelyard" and BrewIds.BARLEY_SACKS.has(carry.held):
+		return tr("Безмен: %.1f кг") % (maltings.load_kg(carry.held) + float(BrewCarry.WEIGHTS.sack))
 	return day.reading(shown, carry.held if shown == "steelyard" else "")
 
 ## What the eye reads off the maltings looked at: the tub, the floor, the
@@ -1894,7 +2216,7 @@ func _malt_reading() -> String:
 	var best := REACH
 	var shown := ""
 	for place: String in ["steep", "floor", "kiln", "mill"]:
-		var distance := _aimed(to_global(_vector(_stations[place].look)))
+		var distance := _read_at(to_global(_vector(_stations[place].look)))
 		if distance < best:
 			best = distance
 			shown = place
@@ -1906,9 +2228,9 @@ func _tun_reading(instrument: String, number: int) -> String:
 	if batch == null:
 		return "Бродильный чан пуст"
 	if instrument == "dipstick":
-		return "Бродильный чан: %.0f л" % cellar.tun_l(number)
-	var cooling := batch.stage == "cooled" or (batch.stage == "pitched" and batch.ferment_days == 0)
-	return "Бродильный чан: %s" % BrewDay.degrees(batch.wort_temp if cooling else BrewCellar.TEMP, day.fine_thermometer)
+		return tr("Бродильный чан: %.0f л") % cellar.tun_l(number)
+	var cooling := batch.stage == BrewIds.STAGE_COOLED or (batch.stage == BrewIds.STAGE_PITCHED and batch.ferment_days == 0)
+	return tr("Бродильный чан: %s") % BrewDay.degrees(batch.wort_temp if cooling else BrewCellar.TEMP, day.fine_thermometer)
 
 ## What the eye reads off the cellar's things looked at: world point -> words.
 func _cellar_marks() -> Dictionary:
@@ -1920,10 +2242,11 @@ func _cellar_marks() -> Dictionary:
 	for id: String in BrewCellar.KEGS:
 		if id != carry.held and not _hidden(id):
 			marks[_grip(id)] = _keg_words(id)
-	marks[_grip("yeast_crock")] = "Горшок с дрожжами: %.1f л" % cellar.crock_l
+	marks[_grip("yeast_crock")] = tr("Горшок с дрожжами: %.1f л") % cellar.crock_l
 	for id: String in BrewTrade.WOOD_CAP:
 		if id != carry.held and _utensils.has(id):
-			marks[_grip(id)] = "%s: %d шт." % ["Буковые поленья" if id == "beech_log" else "Еловые поленья", int(trade.wood[id])]
+			var logs := tr("Буковые поленья: %d шт.") if id == "beech_log" else tr("Еловые поленья: %d шт.")
+			marks[_grip(id)] = logs % int(trade.wood[id])
 	return marks
 
 func _tun_words(number: int) -> String:
@@ -1932,17 +2255,19 @@ func _tun_words(number: int) -> String:
 	var batch := cellar.tun_batch(number)
 	if batch == null:
 		return "Бродильный чан пуст"
-	var words := "Бродильный чан: %.0f л" % cellar.tun_l(number)
+	var liters := cellar.tun_l(number)
 	match batch.stage:
-		"cooled":
-			return words + " сусла · ждёт дрожжей"
-		"pitched":
+		BrewIds.STAGE_COOLED:
+			return tr("Бродильный чан: %.0f л сусла · ждёт дрожжей") % liters
+		BrewIds.STAGE_PITCHED:
 			if batch.ferment_days == 0:
-				return words + " · дрожжи в сусле"
+				return tr("Бродильный чан: %.0f л · дрожжи в сусле") % liters
 			if batch.ferment >= 1.0:
-				return words + " · брожение кончилось"
-			return words + " · бродит, день %d%s" % [batch.ferment_days, " · шапка пены" if cellar.head(number) else ""]
-	return words + " пива"
+				return tr("Бродильный чан: %.0f л · брожение кончилось") % liters
+			if cellar.head(number):
+				return tr("Бродильный чан: %.0f л · бродит, день %d · шапка пены") % [liters, batch.ferment_days]
+			return tr("Бродильный чан: %.0f л · бродит, день %d") % [liters, batch.ferment_days]
+	return tr("Бродильный чан: %.0f л пива") % liters
 
 func _cask_words(number: int) -> String:
 	if not cellar.sound_cask(number):
@@ -1950,16 +2275,17 @@ func _cask_words(number: int) -> String:
 	var cask: Dictionary = cellar.casks[number - 1]
 	var batch: BrewBatch = cask.batch
 	if batch == null:
-		return "Лагерная бочка пуста%s" % (" · ошпарена" if cellar.scalded(number) else "")
-	return "Лагерная бочка: %.0f л · выдержка %d из %d дн. · %s" % [float(cask.liters), batch.age_days, batch.ready_days(),
-		"под пробкой" if cask.bunged else "без пробки"]
+		return "Лагерная бочка пуста · ошпарена" if cellar.scalded(number) else "Лагерная бочка пуста"
+	var aged := tr("Лагерная бочка: %.0f л · выдержка %d из %d дн. · под пробкой") if cask.bunged \
+		else tr("Лагерная бочка: %.0f л · выдержка %d из %d дн. · без пробки")
+	return aged % [float(cask.liters), batch.age_days, batch.ready_days()]
 
 func _keg_words(id: String) -> String:
 	var keg: Dictionary = cellar.kegs[id]
 	if float(keg.liters) < 0.5:
 		return "Бочонок пуст"
-	var words := "Бочонок: %.0f л · %s" % [float(keg.liters), str(book.name_beer(keg.beer).get("name", ""))]
-	return words + (" · под пробкой" if keg.bunged else "")
+	var words := tr("Бочонок: %.0f л · %s · под пробкой") if keg.bunged else tr("Бочонок: %.0f л · %s")
+	return words % [float(keg.liters), tr(str(book.name_beer(keg.beer).get("name", "")))]
 
 ## Whether the player is about the brewery at all, carrying something or not.
 func _near() -> bool:
@@ -1973,16 +2299,44 @@ func _aimed(point: Vector3) -> float:
 		return INF
 	return distance
 
-## A word by the crosshair for a while.
+## How far a point read off is when the eye is on it (_aimed), INF when a wall
+## stands between (_clear).
+func _read_at(point: Vector3) -> float:
+	var distance := _aimed(point)
+	return distance if distance < INF and _clear(point) else INF
+
+## Whether nothing stands between the eye and a point: a ray from the eye meets
+## nothing farther than SEEN_SLACK from it (a vessel's own rim may stand before it).
+func _clear(point: Vector3) -> bool:
+	var query := PhysicsRayQueryParameters3D.create(_camera.global_position, point)
+	query.exclude = [_player.get_rid()]
+	var hit := _player.get_world_3d().direct_space_state.intersect_ray(query)
+	return hit.is_empty() or (hit.position as Vector3).distance_to(point) <= SEEN_SLACK
+
+## World points of the parts station `id`'s works move (their grip and pivot).
+func _part_points(id: String) -> Array[Vector3]:
+	var points: Array[Vector3] = []
+	for work: Dictionary in BrewStation.works_for(id, carry.held, cellar):
+		var part := str(work.get("part", ""))
+		if not _moving.has(part):
+			continue
+		var entry: Dictionary = _moving[part]
+		points.append(to_global(_vector(entry.pivot)))
+		if entry.has("grip"):
+			points.append(to_global(_vector(entry.grip)))
+	return points
+
+## A word by the crosshair for a while: a key of the table or words translated.
 func say(text: String) -> void:
 	if _label != null:
-		_label.text = text
+		_label.text = InputActions.hint(tr(text))
 		_said = SAY_SECONDS
 
 # ---- Save ---------------------------------------------------------------------------
 
-## The brewery as plain data for ValleyLoop's save: the day, and where each
-## utensil stands that is not at home ([x, y, z, yaw] in the building's frame).
+## The brewery as plain data for its section of the save ("brewing"): the
+## day, and where each utensil stands that is not at home ([x, y, z, yaw] in
+## the building's frame).
 func to_dict() -> Dictionary:
 	var places := {}
 	for id: String in _utensils:
@@ -1992,7 +2346,7 @@ func to_dict() -> Dictionary:
 		if id != carry.held and node.position.distance_to(_home(id)) > 0.001 and not (id == "hoist_bucket" and day.hooked):
 			places[id] = [node.position.x, node.position.y, node.position.z, node.rotation.y]
 	return {"day": day.to_dict(), "utensils": places, "cellar": cellar.to_dict(day.batch), "maltings": maltings.to_dict(),
-		"trade": trade.to_dict()}
+		"trade": trade.to_dict(), "guide": guide.to_dict()}
 
 ## Reads back to_dict(); what is wrong in it is left as it stands.
 func restore(data: Dictionary) -> void:
@@ -2008,6 +2362,9 @@ func restore(data: Dictionary) -> void:
 	var trade_saved: Variant = data.get("trade")
 	if trade_saved is Dictionary:
 		trade.restore(trade_saved)
+	var guide_saved: Variant = data.get("guide")
+	if guide_saved is Dictionary:
+		guide.restore(guide_saved)
 	_restore_places(data.get("utensils"))
 	# Kegs stand upright under the taps, the funnel in a bung hole; the keg on
 	# the counter waits for the world.
@@ -2018,16 +2375,20 @@ func restore(data: Dictionary) -> void:
 	if cellar.funnel_on != "" and cellar.keg_under.has(cellar.funnel_on):
 		(_utensils.funnel.node as Node3D).transform = Transform3D(Basis.IDENTITY, _bung(cellar.funnel_on))
 	_seat_tap = cellar.tap != ""
+	_stage = day.batch.stage
 
 func _restore_places(places: Variant) -> void:
 	if not places is Dictionary:
 		return
 	for id: Variant in places:
 		var place: Variant = places[id]
-		if not _utensils.has(id) or not place is Array or place.size() != 4:
+		if not _utensils.has(id) or not place is Array:
+			continue
+		var values: Array = place
+		if values.size() != 4:
 			continue
 		var numbers: Array[float] = []
-		for value: Variant in place:
+		for value: Variant in values:
 			if (value is float or value is int) and is_finite(float(value)):
 				numbers.append(float(value))
 		if numbers.size() == 4 and Vector3(numbers[0], numbers[1], numbers[2]).length() < 50.0:

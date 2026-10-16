@@ -4,7 +4,7 @@ extends Node3D
 ## of tools/pipeline/rocks/rock_textures.py) in place of the Blender scene's
 ## blockout stones, and the scanned faces of the waterfall cliff.
 ##
-## The stones come from the list the layout scene writes (rocks.json); the
+## The stones come from the list the layout scene writes (`layout`); the
 ## Blender map's blockout stones are only removed. A scan stands where the
 ## list says, turned and scaled as the list says.
 ##
@@ -21,8 +21,6 @@ const SHAPES := preload("res://assets/models/rocks/rock_shapes.glb")
 const SHADER := preload("res://src/rocks/rock.gdshader")
 const CLIFF_SHADER := preload("res://src/rocks/rock_cliff.gdshader")
 const DATA := "res://assets/generated/rocks/"
-## The ground behind the cliff's faces (tools/pipeline/rocks/cliff_seat.py).
-const SEAT := DATA + "cliff_seat.json"
 const TILE := 64.0
 ## Scans without moss; the lake bed sorts its drowned boulders by it.
 const BARE_SCANS := ["boulder_01", "namaqualand_boulder_02", "namaqualand_boulder_03", "rock_07", "rock_09",
@@ -43,41 +41,21 @@ const CLIFF_GRADES := [Vector4(2.05, 2.05, 2.15, 0.55), Vector4(1.23, 1.23, 1.29
 ## Blender batches of blockout stones (alpine_label) that the scans replace.
 const REPLACED_BATCHES := ["Cliff talus and shoreline boulders", "Island rocky foundation",
 	"Meadow granite and mossy stones", "Village brook rock banks"]
-## Faces of the waterfall cliff: scan, base point (centre of the footprint at
-## the lowest point), yaw in degrees, scale. The upper step of the terrain
-## drops from the 30 m plateau to the 17 m shelf along z = -149, the lower one
-## to about 7 m along z = -129, both between x = -66 and -33; the water falls
-## at x = -50. The scans face +z, toward the lake: coastal_cliff_02 is a shell
-## whose face lies about 2 m in front of its pivot, its top curling 4 m back.
-## The upper face stands 2.5 m short of the plateau: the ground comes down to
-## the back of its top as a shoulder (cliff_seat.py, which has this face too),
-## and the water crosses that top to fall from its brink (WaterfallSystem.HEAD).
-## The lower face is tall enough for its top to be the lip of the lower fall:
-## a ledge at the stream's level from z = -130 to -128.5 (terrain.py carries
-## the shelf forward to meet it).
-## Past the ends of those two the steps turn into the flanks of the butte and
-## of the shelf, and under the lower fall into the banks of its cove: slopes
-## too steep for the terrain's textures. There lie rock_face_01 scans, which
-## lean back as those slopes do (foot 1.9 m before the pivot, top as far behind).
-## None stands further forward than the great face beside it: the ground that
-## seat() lays under it would show a bare side there.
-## That scan is cut square at its -x end and runs out low at the other: a scale
-## of -x turns it over, so that the square end is the one inside the next face.
-const CLIFF_FACES := [
-	{"scan": "coastal_cliff_02", "at": Vector3(-49.5, 15.6, -149.3), "yaw": 0.0, "scale": Vector3(0.82, 1.44, 0.9)},
-	{"scan": "coastal_cliff_02", "at": Vector3(-47.0, 0.0, -128.8), "yaw": 7.0, "scale": Vector3(0.8, 1.9, 0.8)},
-	{"scan": "rock_face_01", "at": Vector3(-29.4, 16.0, -158.25), "yaw": 90.0, "scale": Vector3(-4.5, 4.0, 1.9)},
-	{"scan": "rock_face_01", "at": Vector3(-70.1, 14.5, -158.25), "yaw": -90.0, "scale": Vector3(4.5, 4.3, 2.0)},
-	{"scan": "rock_face_01", "at": Vector3(-68.3, 6.0, -128.7), "yaw": -20.0, "scale": Vector3(-2.7, 3.2, 1.6)},
-	{"scan": "rock_face_01", "at": Vector3(-29.3, 8.5, -129.2), "yaw": 10.0, "scale": Vector3(1.4, 1.9, 1.2)},
-	{"scan": "rock_face_01", "at": Vector3(-59.2, -1.5, -121.0), "yaw": 90.0, "scale": Vector3(-2.2, 2.2, 1.0)},
-	{"scan": "rock_face_01", "at": Vector3(-41.8, -1.5, -123.5), "yaw": -90.0, "scale": Vector3(2.0, 2.25, 1.0)},
-	{"scan": "rock_face_01", "at": Vector3(-29.6, 16.0, -149.45), "yaw": 10.0, "scale": Vector3(1.9, 4.0, 1.5)},
-	{"scan": "rock_face_01", "at": Vector3(-69.4, 14.5, -149.45), "yaw": -10.0, "scale": Vector3(-1.9, 4.3, 1.5)},
-]
-
 var terrain: TerrainSystem
 var map: Node3D
+## The list of placed stones (RegionDef.rocks).
+var layout := ""
+## The region's cliff (RegionDef.cliff): its scanned faces, each a scan, a
+## base point (centre of the footprint at the lowest point), a yaw in degrees
+## and a scale, and the ground behind them (tools/pipeline/rocks/cliff_seat.py,
+## which reads the faces from the region's cliff_faces.json). The valley's
+## stand at its waterfall: two coastal_cliff_02 shells across the steps of
+## the terrain, the water falling from the brink of the upper one and over the
+## top of the lower one, and rock_face_01 scans on the steep flanks beside
+## them. A scale of -x turns a scan over. None stands further forward than the
+## great face beside it: the ground that seat() lays under it would show a
+## bare side there. Empty: the region has no cliff.
+var cliff := ""
 var stone_count := 0
 
 var _shapes: Array[Dictionary] = []   # {name, mesh, size, layer, cliff, bare, hull, coarse}
@@ -100,22 +78,28 @@ func _ready() -> void:
 		if REPLACED_BATCHES.has(label) or label == "Jointed waterfall cliff geology":
 			_remove(item)
 			removed += 1
-	for entry: Dictionary in LayoutStore.placed(LayoutStore.ROCKS):
+	for entry: Dictionary in LayoutStore.placed(layout, WorldSchemas.rocks()):
 		if _by_name.has(entry.shape):
 			_place_stone(_by_name[entry.shape], LayoutStore.unpack(entry.xform), entry.moss, entry.tone)
-	for face: Dictionary in CLIFF_FACES:
+	for face: Dictionary in faces(cliff):
 		_add_cliff_face(face)
 	_build_multimeshes()
 	print("ROCKS stones=%d groups=%d replaced=%d load=%.2fs" % [stone_count, _groups.size(), removed,
 		(Time.get_ticks_usec() - start) / 1e6])
 
-## Lays the ground the cliff's faces stand against into the near heightfield
-## (row z, column x at origin + index * cell): the heights cliff_seat.py worked
-## out for the samples round each face. Before anything is built on the
-## heightfield or cut into it.
-static func seat(image: Image, origin: Vector2, cell: float) -> void:
-	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(SEAT))
-	for face: Dictionary in data.faces:
+## The faces of the cliff file at `path` (RegionDef.cliff); none without one.
+static func faces(path: String) -> Array:
+	if path.is_empty():
+		return []
+	var data: Variant = DataFile.read(path, WorldSchemas.cliff_seat())
+	return (data as Dictionary).get("faces", []) if data is Dictionary else []
+
+## Lays the ground the faces of the cliff file at `path` stand against into
+## the near heightfield (row z, column x at origin + index * cell): the
+## heights cliff_seat.py worked out for the samples round each face. Before
+## anything is built on the heightfield or cut into it.
+static func seat(image: Image, origin: Vector2, cell: float, path: String) -> void:
+	for face: Dictionary in faces(path):
 		var corner := Vector2i(((Vector2(face.origin[0], face.origin[1]) - origin) / cell).round())
 		var heights: Array = face.heights
 		for row in heights.size():
@@ -251,11 +235,13 @@ func _add_cliff_face(face: Dictionary) -> void:
 	var index: int = _by_name[face.scan]
 	var info: Dictionary = _shapes[index]
 	var turn := Basis(Vector3.UP, deg_to_rad(face.yaw))
-	var xform := Transform3D(turn * Basis.from_scale(face.scale), face.at)
+	var face_scale := Vector3(face.scale[0], face.scale[1], face.scale[2])
+	var at := Vector3(face.at[0], face.at[1], face.at[2])
+	var xform := Transform3D(turn * Basis.from_scale(face_scale), at)
 	# A face turned over is drawn as a mirrored copy of the mesh, set upright:
 	# an instance of a MultiMesh that mirrors shows its triangles from behind.
-	if face.scale.x < 0.0:
-		_instance(_mirror_of(index), Transform3D(turn * Basis.from_scale(face.scale.abs()), face.at),
+	if face_scale.x < 0.0:
+		_instance(_mirror_of(index), Transform3D(turn * Basis.from_scale(face_scale.abs()), at),
 			Color(info.layer, 0.6, 0.5, 0.0), 1000.0)
 	else:
 		_instance(index, xform, Color(info.layer, 0.6, 0.5, 0.0), 1000.0)
@@ -306,8 +292,10 @@ func _instance(shape: int, xform: Transform3D, custom: Color, reach: float) -> v
 	if not _groups.has(key):
 		_groups[key] = {"shape": shape, "transforms": [], "customs": [], "reach": 0.0}
 	var group: Dictionary = _groups[key]
-	group.transforms.append(xform)
-	group.customs.append(custom)
+	var transforms: Array = group.transforms
+	var customs: Array = group.customs
+	transforms.append(xform)
+	customs.append(custom)
 	group.reach = maxf(group.reach, reach)
 
 func _build_multimeshes() -> void:

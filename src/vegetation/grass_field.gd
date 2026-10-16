@@ -109,6 +109,9 @@ class Tile:
 @export var terrain: TerrainSystem
 ## Footprint of the buildings (from the vegetation placement).
 var obstacles: ObstacleMap
+## The level's context (its tavern's portals); null in a tool that builds
+## a part of the level alone.
+var world: WorldContext
 ## The trees the meadow gives way to, and per species the radius of a crown
 ## at scale 1 (m) and how deep its shade is (0..1).
 var woods: TreeLodGrid
@@ -147,6 +150,9 @@ func _ready() -> void:
 	material.set_shader_parameter("wind_noise", noise)
 	material.set_shader_parameter("cloud_weather", noise)
 	GrassClump.dress(material)
+	set_fade(QualityProfile.of(world).grass_fade)
+	if world != null:
+		world.quality_changed.connect(_quality_changed)
 	for detail in GrassClump.DETAIL.size():
 		_meshes.append(GrassClump.mesh(detail))
 		_flower_meshes.append(GrassClump.mesh(detail, true))
@@ -161,6 +167,15 @@ func _ready() -> void:
 		print("CANOPY trees=%d side=%d build=%.0fms" % [canopy.tree_count, canopy.samples, canopy.build_usec / 1000.0])
 	_ground_key = _key()
 	_read_ground()
+
+## Where the grass starts to fade and where it is gone (m): the shader's
+## fade_start and fade_end. The field looks over its tiles at the next step.
+func set_fade(fade: Vector2) -> void:
+	material.set_shader_parameter("fade_start", fade.x)
+	material.set_shader_parameter("fade_end", fade.y)
+
+func _quality_changed(profile: QualityProfile) -> void:
+	set_fade(profile.grass_fade)
 
 func _exit_tree() -> void:
 	for tile: Tile in _pending:
@@ -185,7 +200,7 @@ func follow(eye: Vector3, wind: Vector4) -> void:
 		_clear()
 	var fade := GrassScatter.fade_of(material)
 	var mat_fade := GrassScatter.mat_fade_of(material)
-	var portals := TavernPortals.current
+	var portals := world.portals if world != null else null
 	var revision := portals.revision if portals != null else 0
 	_sight = portals.sight if portals != null and portals.sight.active else null
 	if not _surveyed or eye.distance_to(_eye) >= REFRESH_STEP or fade != _fade or mat_fade != _mat_fade:

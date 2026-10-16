@@ -1,6 +1,10 @@
 class_name LakeBoat
 extends CharacterBody3D
 ## Small clinker rowboat. Physics is independent of the camera and input focus.
+## Top speed under the oars, m/s.
+const TOP_SPEED := 2.7
+## The hull's collision box, m.
+const HULL := Vector3(1.50, 0.50, 3.7)
 var terrain: TerrainSystem
 var water: WaterSystem
 var rowing := false
@@ -13,20 +17,19 @@ var anchor := Vector3.ZERO
 var last_stroke := -1
 var _navigation_key: Array = []
 var _navigation_clear := false
-var navigation_samples := 0
 var _hull_yaw := INF
 var _hull_basis := Basis.IDENTITY
 signal stroke(point: Vector3)
 
 func _ready() -> void:
 	name = "Rowboat"
-	collision_layer = 1
-	collision_mask = 1
+	collision_layer = PhysicsLayers.WORLD
+	collision_mask = int(PhysicsLayers.exception_for(self, "mask")["mask"])
 	add_child(visual)
 	build_hull()
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()
-	box.size = Vector3(1.50, 0.50, 3.7)
+	box.size = HULL
 	shape.shape = box
 	shape.position.y = 0.0
 	add_child(shape)
@@ -35,7 +38,7 @@ func _ready() -> void:
 func build_hull() -> void:
 	var model := preload("res://assets/models/lakeside/rowboat.glb").instantiate() as Node3D
 	visual.add_child(model)
-	for part in ["OarPort", "OarStarboard"]:
+	for part: String in ["OarPort", "OarStarboard"]:
 		oars.append(model.find_child(part, true, false) as Node3D)
 	for mesh: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
 		mesh.visibility_range_end = 220
@@ -57,10 +60,9 @@ func _sample_navigation(at: Vector3) -> bool:
 	if rotation.y != _hull_yaw:
 		_hull_yaw = rotation.y
 		_hull_basis = Basis(Vector3.UP, _hull_yaw)
-	for z in [-1.85, 0.0, 1.85]:
-		for x in [-0.72, 0.72]:
+	for z: float in [-1.85, 0.0, 1.85]:
+		for x: float in [-0.72, 0.72]:
 			var point := at + _hull_basis * Vector3(x, 0, z)
-			navigation_samples += 1
 			if water.water_level - terrain.height_at(point.x, point.z) < 0.65:
 				return false
 	return true
@@ -73,7 +75,7 @@ func _physics_process(delta: float) -> void:
 		if not can_navigate(global_position):
 			rotation.y = old_yaw
 	var forward := -global_basis.z
-	var target := forward * throttle * 2.7 if rowing else Vector3.ZERO
+	var target := forward * throttle * TOP_SPEED if rowing else Vector3.ZERO
 	velocity = velocity.move_toward(target, delta * (0.65 if rowing else 0.32))
 	velocity.y = 0
 	if can_navigate(global_position + velocity * delta):

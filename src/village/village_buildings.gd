@@ -1,41 +1,47 @@
 extends RefCounted
 ## The village's buildings that tools/pipeline/buildings/kit.py makes: their
-## tables, and the ground under them. A table (assets/models/<name>/<name>.json)
-## stands its building by `origin` and `yaw`; docs/VILLAGE.md
-## tells what else it holds.
+## tables, and the ground under them. A region names its tables
+## (RegionDef.buildings; each assets/models/<name>/<name>.json). A table
+## stands its building by `origin` and `yaw`; docs/VILLAGE.md tells what else
+## it holds. A table with `utensils` is a brewery (BrewHouse): the stations of
+## its `stations` are what the brewing's guide marks (BrewingSchemas.guide).
 
-const TABLES: Array[String] = [
-	"res://assets/models/brewery/brewery.json",
-	"res://assets/models/lighthouse/lighthouse.json",
-	"res://assets/models/smithy/smithy.json",
-	"res://assets/models/mill/mill.json",
-	"res://assets/models/lamplighter/lamplighter.json",
-	"res://assets/models/hop_kiln/hop_kiln.json",
-	"res://assets/models/marsh_walk/marsh_walk.json",
-	"res://assets/models/wash_stage/wash_stage.json",
-	"res://assets/models/quay/quay.json",
-	"res://assets/models/road_lanterns/road_lanterns.json",
-	"res://assets/models/cooperage/cooperage.json",
-	"res://assets/models/hop_garden/hop_garden.json",
-]
+## The tables read and checked so far, by path: callers only read them.
+static var _tables := {}
 
-static func tables() -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
-	for path: String in TABLES:
-		result.append(JSON.parse_string(FileAccess.get_file_as_string(path)))
-	return result
+## The tables of `region`, in its order.
+static func tables(region: RegionDef) -> Array[Dictionary]:
+	var read: Array[Dictionary] = []
+	for path: String in region.buildings:
+		read.append(table(path))
+	return read
+
+## The table at `path`, read and checked once; empty if it cannot be read.
+static func table(path: String) -> Dictionary:
+	if not _tables.has(path):
+		var data: Variant = DataFile.read(path, schema(path))
+		_tables[path] = data if data is Dictionary else {}
+	return _tables[path]
+
+## The schema of the table at `path`: a brewery's stations are the ids the
+## brewing's guide points at.
+static func schema(path: String) -> Dictionary:
+	var raw: Variant = JSON.parse_string(FileAccess.get_file_as_string(path)) if FileAccess.file_exists(path) else null
+	var brewery: bool = raw is Dictionary and (raw as Dictionary).has("utensils")
+	return BuildingSchemas.building(&"brewery_station" if brewery else &"")
 
 ## Where a building stands in the map.
-static func pose(table: Dictionary) -> Transform3D:
-	var origin: Array = table.origin
-	return Transform3D(Basis(Vector3.UP, deg_to_rad(table.get("yaw", 0.0))), Vector3(origin[0], origin[1], origin[2]))
+static func pose(building: Dictionary) -> Transform3D:
+	var origin: Array = building.origin
+	return Transform3D(Basis(Vector3.UP, deg_to_rad(building.get("yaw", 0.0))), Vector3(origin[0], origin[1], origin[2]))
 
-## How the labels begin of the Blender map's pieces a building stands in
-## place of (a table's `replaces`): the old house on the smithy's lot.
-static func replaced() -> PackedStringArray:
+## How the labels begin of the Blender map's pieces the buildings of
+## `region` stand in place of (a table's `replaces`): the old house on the
+## smithy's lot.
+static func replaced(region: RegionDef) -> PackedStringArray:
 	var beginnings := PackedStringArray()
-	for table: Dictionary in tables():
-		for beginning: String in table.get("replaces", []):
+	for building: Dictionary in tables(region):
+		for beginning: String in building.get("replaces", []):
 			beginnings.append(beginning)
 	return beginnings
 
@@ -47,10 +53,10 @@ static func begins(label: String, beginnings: PackedStringArray) -> bool:
 	return false
 
 ## Shapes the heights `image` (texel (0, 0) at `origin`, `cell` metres apart)
-## under every building, as its table's `terrain` asks.
-static func settle_ground(image: Image, origin: Vector2, cell: float) -> void:
-	for table: Dictionary in tables():
-		shape_ground(image, origin, cell, pose(table), table.get("terrain", {}))
+## under every building of `region`, as its table's `terrain` asks.
+static func settle_ground(image: Image, origin: Vector2, cell: float, region: RegionDef) -> void:
+	for building: Dictionary in tables(region):
+		shape_ground(image, origin, cell, pose(building), building.get("terrain", {}))
 
 ## What a table's `terrain` asks of the ground, in the building's own frame
 ## (x and z from its origin, heights from its floor):

@@ -9,8 +9,6 @@ extends RefCounted
 ## How seldom each weather comes: a story kept for a storm outweighs one for
 ## a fair day.
 const WEATHER_RARITY := {"clear": 1, "fair": 1, "overcast": 2, "mist": 3, "rain": 3, "storm": 5}
-## How many parts the day has (DayClock.part).
-const PARTS := 4
 ## What a shared story adds to the rarity of its context: the two are seldom
 ## found together.
 const SHARED_RARITY := 2
@@ -33,8 +31,10 @@ static func fits(story: Dictionary, moment: Dictionary) -> bool:
 	if partner.is_empty():
 		return true
 	var company: Variant = moment.get("company", [])
-	var near: bool = company is Array and company.has(partner)
-	return near
+	if not company is Array:
+		return false
+	var present: Array = company
+	return present.has(partner)
 
 ## How seldom a context comes together. A place, an activity or a gift counts
 ## 1; the part of the day the more, the fewer parts it allows; the weather as
@@ -44,7 +44,7 @@ static func rarity(context: Dictionary) -> int:
 	for key: String in context:
 		var allowed: Array = context[key]
 		if key == "part":
-			total += maxi(1, PARTS - allowed.size())
+			total += maxi(1, DayClock.PARTS.size() - allowed.size())
 		elif key == "weather":
 			var commonest := 0
 			for kind: String in allowed:

@@ -11,8 +11,12 @@ config_version=5
 [application]
 
 config/name="Хмельная тропа"
+config/name_localized={
+"en": "Hop Road"
+}
 config/description="Расслабляющая прогулка по фэнтезийной долине"
-run/main_scene="res://scenes/alpine/loading.tscn"
+config/version="0.1.0"
+run/main_scene="res://scenes/menu/main_menu.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
 [autoload]
@@ -20,6 +24,24 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 EditorSessionGuard="*res://src/core/editor_session_guard.gd"
 GameSettings="*res://src/settings/game_settings.gd"
 InputActions="*res://src/core/input_actions.gd"
+GameEvents="*res://src/core/game_events.gd"
+SaveService="*res://src/save/save_service.gd"
+GameFlow="*res://src/flow/game_flow.gd"
+
+[debug]
+
+file_logging/enable_file_logging=true
+file_logging/log_path="user://logs/game.log"
+file_logging/max_log_files=10
+gdscript/warnings/directory_rules={
+"res://addons": 0,
+"res://src/water": 0
+}
+gdscript/warnings/untyped_declaration=2
+gdscript/warnings/unsafe_property_access=2
+gdscript/warnings/unsafe_method_access=2
+gdscript/warnings/unsafe_cast=1
+gdscript/warnings/unsafe_call_argument=1
 
 [display]
 
@@ -47,6 +69,22 @@ texture={
 "mipmaps/generate": true,
 "process/size_limit": 2048
 }
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://assets/locale/en.po", "res://assets/locale/ru.po")
+locale/fallback="ru"
+
+[layer_names]
+
+3d_physics/layer_1="мир"
+3d_physics/layer_2="игрок"
+3d_physics/layer_3="жители"
+3d_physics/layer_4="звери"
+3d_physics/layer_5="валуны"
+3d_physics/layer_6="переносимые предметы"
+3d_physics/layer_7="кости рэгдолла"
+3d_physics/layer_8="зоны"
 
 [physics]
 

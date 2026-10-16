@@ -27,17 +27,6 @@ extends Node
 ## hold until it has moved that far; `revision` counts every change.
 ## Outdoors, in a doorway's depth and under another camera nothing is hidden.
 
-## One switch for an A/B in a window: off, everything is drawn as outdoors.
-static var enabled := true
-## Set, a line of counts goes to the log once a second.
-static var debug := false
-## The portals of the level that runs, for the systems outdoors; null without
-## a tavern (the tools that build a part of the level alone).
-static var current: TavernPortals
-## The reach of the sun's shadows the render tier asks for, m; 0 until
-## RenderQuality has named it.
-static var tier_shadow_reach := 0.0
-
 ## The eye is looked from again once it has moved a step: STEP_SHARE of its
 ## distance to the nearest opening, between STEP_NEAR and STEP_FAR (m). The
 ## wedges hold for an eye within that step and SLACK more (the camera moves
@@ -108,6 +97,14 @@ const LOG_EVERY := 1.0
 enum {SHOWN, SHADOW_ONLY, HIDDEN}
 
 var tavern: TavernSystem
+## The level's context: the portals are its `portals` while they stand, and
+## take the render tier's reach of the sun's shadows from it. Null in a tool
+## that builds the tavern alone.
+var world: WorldContext
+## One switch for an A/B in a window: off, everything is drawn as outdoors.
+var enabled := true
+## Set, a line of counts goes to the log once a second.
+var debug := false
 ## The rooms an eye must be in for anything to be hidden (world space);
 ## the tavern's own unless set.
 var rooms: Array[AABB] = []
@@ -398,7 +395,8 @@ static func leaf_measure(door: TavernDoor) -> Vector2:
 	return Vector2(maxf(box.size.x, box.size.z), door.position.y + box.end.y)
 
 func _enter_tree() -> void:
-	current = self
+	if world != null:
+		world.portals = self
 	# For a look at the running game: `-- --portals-off`, `-- --portals-debug`.
 	var asked := OS.get_cmdline_user_args()
 	if "--portals-off" in asked:
@@ -410,8 +408,8 @@ func _enter_tree() -> void:
 
 func _exit_tree() -> void:
 	_release()
-	if current == self:
-		current = null
+	if world != null and world.portals == self:
+		world.portals = null
 
 ## Adds the openings of one table (its `portals`) and the floors between
 ## the storeys (its `portal_floors`).
@@ -468,9 +466,6 @@ func hang(opening_name: String, door: TavernDoor) -> void:
 		if opening.name == opening_name:
 			(opening.doors as Array[TavernDoor]).append(door)
 			opening.leaf_top = _filled_to(opening)
-
-func opening_count() -> int:
-	return _openings.size()
 
 ## Whether an eye at `eye` is in a room.
 func is_inside(eye: Vector3) -> bool:
@@ -636,8 +631,9 @@ func _process(delta: float) -> void:
 		_looked_from = eye
 		_looked_shut = shut
 		_looked_light = light
-		# Until the render tier has named its reach the lamps keep their own.
-		var reach := reach_for(tier_shadow_reach, true) * REACH_SLANT if tier_shadow_reach > 0.0 else INF
+		# Until the quality profile has named its reach the lamps keep their own.
+		var tier := _tier_reach()
+		var reach := reach_for(tier, true) * REACH_SLANT if tier > 0.0 else INF
 		sight = look(eye, light, tavern.global_transform * TavernSystem.BUILDING_BOUNDS, reach)
 		_changed(entered)
 
@@ -645,8 +641,8 @@ func _process(delta: float) -> void:
 ## the sun's shadows take the reach of the side the eye is on.
 func _changed(crossed: bool) -> void:
 	revision += 1
-	if crossed and tier_shadow_reach > 0.0 and tavern.sky_system != null:
-		set_shadow_reach(tavern.sky_system, tier_shadow_reach)
+	if crossed and _tier_reach() > 0.0 and tavern.sky_system != null:
+		world.set_shadow_reach(tavern.sky_system)
 	var start := Time.get_ticks_usec()
 	if sight.active:
 		_collect()
@@ -658,17 +654,10 @@ func _changed(crossed: bool) -> void:
 static func reach_for(reach: float, indoors: bool) -> float:
 	return minf(reach, SHADOW_REACH) if indoors else reach
 
-## Gives the sun and the moon the reach of their shadows: the render tier's
-## (`reach`, m) outdoors, SHADOW_REACH at most for an eye in the rooms.
-static func set_shadow_reach(sky: SkySystem, reach: float) -> void:
-	tier_shadow_reach = reach
-	var distance := reach_for(reach, current != null and current.sight.active)
-	for light: DirectionalLight3D in [sky.sun, sky.moon]:
-		light.directional_shadow_max_distance = distance
-	# Past the shadow map the trees' shadow is the canopy field's
-	# (src/vegetation/shaders/canopy.gdshaderinc).
-	RenderingServer.global_shader_parameter_set("sun_shadow_reach",
-		Vector2(sky.sun.directional_shadow_fade_start, 1.0) * distance)
+## The reach of the sun's shadows the quality profile asks for (WorldContext),
+## m; 0 until it has named one, or without a world.
+func _tier_reach() -> float:
+	return world.shadow_reach() if world != null else 0.0
 
 ## Takes under watch what stands still outdoors and holds its own place: the
 ## stones, the old map's pieces, the lake bed's, each village building as

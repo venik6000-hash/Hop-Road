@@ -29,7 +29,7 @@ const PROBE_REACH := 0.12
 const FLARE := 0.45
 const FLARE_LIGHT := 0.6
 
-## The building's table (VillageBuildings.TABLES); set before it enters the tree.
+## The building's table (RegionDef.buildings); set before it enters the tree.
 var table: Dictionary
 ## The turning light, where the table has an `optic` (the lighthouse).
 var optic: LighthouseOptic
@@ -114,7 +114,8 @@ func _ready() -> void:
 		var light := get_child(get_child_count() - 1) as Light3D
 		light.shadow_enabled = config.shadow or config.get("layer", "interior") == "interior"
 		if _kept.has(config.name):
-			_kept[config.name].lamps.append(light)
+			var lamps: Array = _kept[config.name].lamps
+			lamps.append(light)
 		if light.shadow_enabled and config.get("layer", "interior") == "exterior":
 			_twins.append({"lamp": light, "twin": twin_for_the_restless(light)})
 	for config: Dictionary in table.get("fires", []):
@@ -146,7 +147,8 @@ func _add_fire(config: Dictionary) -> void:
 			flames.append(index)
 	_fires.append({"fire": fire, "blown": str(config.get("blown", "")), "flames": flames, "draught": 0.0})
 	if _kept.has(config.name):
-		_kept[config.name].fires.append(fire)
+		var fires: Array = _kept[config.name].fires
+		fires.append(fire)
 
 func _process(delta: float) -> void:
 	super(delta)
@@ -247,7 +249,8 @@ func light_from_afar(far: FarLights) -> void:
 		var index := far.add_glow(glow.at, glow.color, glow.radius, glow.facing)
 		var fire := str(glow.get("fire", ""))
 		if _kept.has(fire):
-			_kept[fire].glows.append(index)
+			var kept_glows: Array = _kept[fire].glows
+			kept_glows.append(index)
 			far.set_lit(index, int(_kept[fire].lit) != 0)
 
 ## What the building is from far away at night, in world space: its lanterns,
@@ -295,7 +298,8 @@ func take_plumes(plumes: Array[CPUParticles3D]) -> void:
 			continue
 		var fire := str(vent.get("fire", ""))
 		if _kept.has(fire):
-			_kept[fire].plumes.append(plumes[index])
+			var kept_plumes: Array = _kept[fire].plumes
+			kept_plumes.append(plumes[index])
 			plumes[index].emitting = int(_kept[fire].lit) != 0
 		index += 1
 

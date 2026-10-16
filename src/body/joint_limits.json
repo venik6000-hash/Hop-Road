@@ -1,0 +1,43 @@
+{
+	"profiles": {
+		"villager": {
+			"frame": {"right": [-1, 0, 0], "up": [0, 1, 0], "forward": [0, 0, 1]},
+			"joints": [
+				{"bone": "Spine", "kind": "cone", "axis": "rest", "cone": 38, "twist": [-30, 30]},
+				{"bone": "Spine1", "kind": "cone", "axis": "rest", "cone": 30, "twist": [-25, 25]},
+				{"bone": "Spine2", "kind": "cone", "axis": "rest", "cone": 25, "twist": [-20, 20]},
+				{"bone": "Neck", "kind": "cone", "axis": "rest", "cone": 48, "twist": [-60, 60]},
+				{"bone": "Head", "kind": "cone", "axis": "rest", "cone": 40, "twist": [-50, 50]},
+				{"bone": "Arm_*", "kind": "cone", "axis": [0.7, 0, 0.5], "cone": 120, "twist": [-110, 110]},
+				{"bone": "ForeArm_*", "kind": "hinge", "bends": [0.2, 0.55, 1], "min": -10, "max": 145, "play": 15, "twist": [-90, 90]},
+				{"bone": "Hand_*", "kind": "cone", "axis": "straight", "cone": 75, "twist": [-30, 30], "spill": true},
+				{"bone": "UpLeg_*", "kind": "cone", "axis": [0.1, -0.64, 0.77], "cone": 80, "twist": [-45, 45]},
+				{"bone": "Leg_*", "kind": "hinge", "bends": [0, 0, -1], "min": -6, "max": 140, "play": 10, "twist": [-20, 20]},
+				{"bone": "Foot_*", "kind": "cone", "axis": "rest", "cone": 45, "twist": [-40, 40]}
+			]
+		},
+		"player_arm": {
+			"frame": {"right": [1, 0, 0], "up": [0, 1, 0], "forward": [0, 0, -1]},
+			"joints": [
+				{"bone": "upper_arm.*", "kind": "cone", "axis": [0.7, 0, 0.5], "cone": 120, "twist": [-90, 90]},
+				{"bone": "forearm.*", "kind": "hinge", "bends": [0, 1, 0], "min": -10, "max": 145, "play": 15, "twist": [-30, 170]},
+				{"bone": "hand.*", "kind": "cone", "axis": "straight", "cone": 75, "twist": [-30, 30]},
+				{"bone": "thumb_1.*", "kind": "cone", "axis": "rest", "cone": 50, "twist": [-60, 60]},
+				{"bone": "thumb_2.*", "kind": "hinge", "bends": [0.8, -0.35, 0.5], "min": -10, "max": 60, "play": 15, "twist": [-15, 15]},
+				{"bone": "thumb_3.*", "kind": "hinge", "bends": [0.8, -0.35, 0.5], "min": -15, "max": 80, "play": 15, "twist": [-15, 15]},
+				{"bone": "index_1.*", "kind": "hinge", "bends": [0, -1, 0], "min": -25, "max": 90, "play": 25, "twist": [-15, 15]},
+				{"bone": "index_2.*", "kind": "hinge", "bends": [0, -1, 0], "min": 0, "max": 105, "play": 10, "twist": [-10, 10]},
+				{"bone": "index_3.*", "kind": "hinge", "bends": [0, -1, 0], "min": -10, "max": 85, "play": 10, "twist": [-10, 10]},
+				{"bone": "middle_1.*", "kind": "hinge", "bends": [0, -1, 0], "min": -25, "max": 90, "play": 25, "twist": [-15, 15]},
+				{"bone": "middle_2.*", "kind": "hinge", "bends": [0, -1, 0], "min": 0, "max": 105, "play": 10, "twist": [-10, 10]},
+				{"bone": "middle_3.*", "kind": "hinge", "bends": [0, -1, 0], "min": -10, "max": 85, "play": 10, "twist": [-10, 10]},
+				{"bone": "ring_1.*", "kind": "hinge", "bends": [0, -1, 0], "min": -25, "max": 90, "play": 25, "twist": [-15, 15]},
+				{"bone": "ring_2.*", "kind": "hinge", "bends": [0, -1, 0], "min": 0, "max": 105, "play": 10, "twist": [-10, 10]},
+				{"bone": "ring_3.*", "kind": "hinge", "bends": [0, -1, 0], "min": -10, "max": 85, "play": 10, "twist": [-10, 10]},
+				{"bone": "little_1.*", "kind": "hinge", "bends": [0, -1, 0], "min": -25, "max": 90, "play": 25, "twist": [-15, 15]},
+				{"bone": "little_2.*", "kind": "hinge", "bends": [0, -1, 0], "min": 0, "max": 105, "play": 10, "twist": [-10, 10]},
+				{"bone": "little_3.*", "kind": "hinge", "bends": [0, -1, 0], "min": -10, "max": 85, "play": 10, "twist": [-10, 10]}
+			]
+		}
+	}
+}
