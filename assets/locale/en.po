@@ -47,8 +47,8 @@ msgid "ХМЕЛЬНАЯ ТРОПА   ·   Альпийская долина   ·
 msgstr "HOP ROAD   ·   Alpine valley   ·   {help} — hide"
 
 #: src/alpine/level_hud.gd
-msgid "{move} — ходьба   ·   {sprint} — бег   ·   {look} — обзор   ·   {interact} — двери / сесть / лестница / позвать / поговорить   ·   {pause} — курсор"
-msgstr "{move} — walk   ·   {sprint} — run   ·   {look} — look around   ·   {interact} — doors / sit / ladder / call / talk   ·   {pause} — cursor"
+msgid "{move} — ходьба   ·   {sprint} — бег   ·   {look} — обзор   ·   {interact} — двери / сесть / лестница / позвать / поговорить   ·   {pause} — пауза"
+msgstr "{move} — walk   ·   {sprint} — run   ·   {look} — look around   ·   {interact} — doors / sit / ladder / call / talk   ·   {pause} — pause"
 
 #: src/alpine/level_hud.gd
 msgid "{swim_up} / {swim_down} — всплыть / нырнуть   ·   {screenshot} — снимок   ·   {settings} — настройки   ·   {toggle_hand} — рука"
@@ -194,89 +194,73 @@ msgstr "No brew begun yet."
 msgid "Журнал варки · сорт по книге: %s"
 msgstr "Brewing journal · by the book it is: %s"
 
-#: src/brewing/brew_day.gd
+#: src/brewing/brew_gauges.gd
 msgid "Котёл"
 msgstr "Copper"
 
-#: src/brewing/brew_day.gd
+#: src/brewing/brew_gauges.gd
 msgid "Заторный чан"
 msgstr "Mash tun"
 
-#: src/brewing/brew_day.gd
+#: src/brewing/brew_gauges.gd
 msgid "Приёмный чан"
 msgstr "Underback"
 
-#: src/brewing/brew_day.gd
+#: src/brewing/brew_gauges.gd
 msgid "Хмелецедильный чан"
 msgstr "Hop back"
 
-#: src/brewing/brew_day.gd
+#: src/brewing/brew_gauges.gd
 msgid "Холодильная тарелка"
 msgstr "Coolship"
 
-#: src/brewing/brew_day.gd
+#: src/brewing/brew_gauges.gd
 msgid "Котёл пуст"
 msgstr "The copper is empty"
 
-#: src/brewing/brew_day.gd
+#: src/brewing/brew_gauges.gd
 msgid "Заторный чан пуст"
 msgstr "The mash tun is empty"
 
-#: src/brewing/brew_day.gd
+#: src/brewing/brew_gauges.gd
 msgid "Приёмный чан пуст"
 msgstr "The underback is empty"
 
-#: src/brewing/brew_day.gd
+#: src/brewing/brew_gauges.gd
 msgid "Хмелецедильный чан пуст"
 msgstr "The hop back is empty"
 
-#: src/brewing/brew_day.gd
+#: src/brewing/brew_gauges.gd
 msgid "Холодильная тарелка пуста"
 msgstr "The coolship is empty"
 
-#: src/brewing/brew_day.gd
+#: src/brewing/brew_gauges.gd
 msgid "Градусник: в пивоварне %s"
 msgstr "Thermometer: %s in the brewery"
 
-#: src/brewing/brew_day.gd
+#: src/brewing/brew_gauges.gd
 msgid "%s: %.0f л"
 msgstr "%s: %.0f l"
 
-#: src/brewing/brew_day.gd
+#: src/brewing/brew_gauges.gd
 msgid "Песочные часы на %.0f мин"
 msgstr "Hourglass of %.0f min"
 
-#: src/brewing/brew_day.gd
+#: src/brewing/brew_gauges.gd
 msgid "Песок пересыпался"
 msgstr "The sand has run through"
 
-#: src/brewing/brew_day.gd
+#: src/brewing/brew_gauges.gd
 msgid "Песочные часы: осталось %.0f мин"
 msgstr "Hourglass: %.0f min left"
 
-#: src/brewing/brew_day.gd
+#: src/brewing/brew_gauges.gd
 msgid "Весы: %.0f г хмеля"
 msgstr "Scales: %.0f g of hops"
 
-#: src/brewing/brew_day.gd
+#: src/brewing/brew_gauges.gd
 msgid "Безмен: %.1f кг"
 msgstr "Steelyard: %.1f kg"
-
-#: src/brewing/brew_house.gd
-msgid "Не хватает медяков"
-msgstr "Not enough coppers"
-
-#: src/brewing/brew_house.gd
-msgid "Класть некуда"
-msgstr "No room to put it"
-
-#: src/brewing/brew_house.gd
-msgid "Это уже есть"
-msgstr "You have this already"
-
-#: src/brewing/brew_house.gd
-msgid "Сначала почините третью бочку"
-msgstr "Mend the third cask first"
 
 #: src/brewing/brew_house.gd
 msgid "Лагерная бочка"
@@ -379,26 +363,6 @@ msgid "{interact} — погрузить бочонок на телегу · %d 
 msgstr "{interact} — load the keg onto the cart · %d coppers"
 
 #: src/brewing/brew_house.gd
-msgid "Заказ взят: %s"
-msgstr "Order taken: %s"
-
-#: src/brewing/brew_house.gd
-msgid "Заказ отменён"
-msgstr "Order given up"
-
-#: src/brewing/brew_house.gd
-msgid "Заказ сдан: %d медн. · в кошельке %d"
-msgstr "Order delivered: %d coppers · %d in the purse"
-
-#: src/brewing/brew_house.gd
-msgid "Бочонок на телеге: %d медн. · в кошельке %d"
-msgstr "Keg on the cart: %d coppers · %d in the purse"
-
-#: src/brewing/brew_house.gd
-msgid "Куплено: %s · в кошельке %d медн."
-msgstr "Bought: %s · %d coppers in the purse"
-
-#: src/brewing/brew_house.gd
 msgid "Доска заказов пуста"
 msgstr "The order board is empty"
 
@@ -409,14 +373,6 @@ msgstr "Orders · %s"
 #: src/brewing/brew_house.gd
 msgid "Телега берёт бочонки за половину цены Борра, кислое пиво — на уксус"
 msgstr "The cart takes kegs at half Borr's price, and sour beer for vinegar"
-
-#: src/brewing/brew_house.gd
-msgid "Заказ просрочен: доска его сняла"
-msgstr "The order is overdue: the board has taken it down"
-
-#: src/brewing/brew_house.gd
-msgid "Заказ выполнен"
-msgstr "Order fulfilled"
 
 #: src/brewing/brew_house.gd
 msgid "Заказ · %s"
@@ -441,26 +397,6 @@ msgstr "Woodpile"
 #: src/brewing/brew_house.gd
 msgid "Буковая поленница"
 msgstr "Beech woodpile"
-
-#: src/brewing/brew_house.gd
-msgid "Поленница пуста: вязанки продаёт лавка рынка"
-msgstr "The woodpile is empty: the market stall sells bundles"
-
-#: src/brewing/brew_house.gd
-msgid "На стойке уже стоит бочонок"
-msgstr "A keg already stands on the bar"
-
-#: src/brewing/brew_house.gd
-msgid "Борр берёт только полный бочонок под пробкой"
-msgstr "Borr takes only a full keg with its bung in"
-
-#: src/brewing/brew_house.gd
-msgid "Борр нюхает и качает головой: это не пиво"
-msgstr "Borr sniffs and shakes his head: this is not beer"
-
-#: src/brewing/brew_house.gd
-msgid "Борр берёт бочонок: %d медн. · в кошельке %d"
-msgstr "Borr takes the keg: %d coppers · %d in the purse"
 
 #: src/brewing/brew_house.gd
 msgid "Зелёное и резкое: бочке стоять ещё %d день."
@@ -656,206 +592,6 @@ msgstr "smoky"
 msgid "светлый"
 msgstr "pale"
 
-#: src/brewing/brew_station.gd
-msgid "качать воду в котёл"
-msgstr "pump water into the copper"
-
-#: src/brewing/brew_station.gd
-msgid "кран трубы к котлу"
-msgstr "cock of the pipe to the copper"
-
-#: src/brewing/brew_station.gd
-msgid "зачерпнуть воды"
-msgstr "scoop up water"
-
-#: src/brewing/brew_station.gd
-msgid "люк котла"
-msgstr "copper hatch"
-
-#: src/brewing/brew_station.gd
-msgid "мешать в котле"
-msgstr "stir the copper"
-
-#: src/brewing/brew_station.gd
-msgid "бросить хмель в люк"
-msgstr "throw hops into the hatch"
-
-#: src/brewing/brew_station.gd
-msgid "вылить ведро в люк"
-msgstr "pour the bucket into the hatch"
-
-#: src/brewing/brew_station.gd
-msgid "зачерпнуть кипятку"
-msgstr "scoop up boiling water"
-
-#: src/brewing/brew_station.gd
-msgid "влить мёд в люк"
-msgstr "pour honey into the hatch"
-
-#: src/brewing/brew_station.gd
-msgid "бросить липовый цвет в люк"
-msgstr "throw linden blossom into the hatch"
-
-#: src/brewing/brew_station.gd
-msgid "подбросить полено"
-msgstr "throw on a log"
-
-#: src/brewing/brew_station.gd
-msgid "заслонка котла"
-msgstr "copper damper"
-
-#: src/brewing/brew_station.gd
-msgid "кран горячей воды"
-msgstr "hot liquor tap"
-
-#: src/brewing/brew_station.gd
-msgid "засыпать солод"
-msgstr "pour in the malt"
-
-#: src/brewing/brew_station.gd
-msgid "мешать затор"
-msgstr "stir the mash"
-
-#: src/brewing/brew_station.gd
-msgid "долить ключевой воды"
-msgstr "add spring water"
-
-#: src/brewing/brew_station.gd
-msgid "выстелить дно можжевельником"
-msgstr "line the bed with juniper"
-
-#: src/brewing/brew_station.gd
-msgid "кран заторного чана"
-msgstr "mash tun tap"
-
-#: src/brewing/brew_station.gd
-msgid "качать сусло в котёл"
-msgstr "pump the wort into the copper"
-
-#: src/brewing/brew_station.gd
-msgid "кран котла"
-msgstr "copper tap"
-
-#: src/brewing/brew_station.gd
-msgid "кран хмелецедильного чана"
-msgstr "hop back tap"
-
-#: src/brewing/brew_station.gd
-msgid "крутить ворот"
-msgstr "turn the windlass"
-
-#: src/brewing/brew_station.gd
-msgid "вылить бадью на тарелку"
-msgstr "empty the bucket onto the coolship"
-
-#: src/brewing/brew_station.gd
-msgid "затвор тарелки"
-msgstr "coolship gate"
-
-#: src/brewing/brew_station.gd
-msgid "повернуть носик"
-msgstr "turn the spout"
-
-#: src/brewing/brew_station.gd
-msgid "зачерпнуть дрожжей"
-msgstr "dip up yeast"
-
-#: src/brewing/brew_station.gd
-msgid "кран бродильного чана"
-msgstr "fermenting tun tap"
-
-#: src/brewing/brew_station.gd
-msgid "влить дрожжи"
-msgstr "pitch the yeast"
-
-#: src/brewing/brew_station.gd
-msgid "снять пену"
-msgstr "skim the head"
-
-#: src/brewing/brew_station.gd
-msgid "кран лагерной бочки"
-msgstr "lager cask tap"
-
-#: src/brewing/brew_station.gd
-msgid "налить пробу в кружку"
-msgstr "draw a taste into the mug"
-
-#: src/brewing/brew_station.gd
-msgid "вылить ведро в бочку"
-msgstr "pour the bucket into the cask"
-
-#: src/brewing/brew_station.gd
-msgid "ошпарить бочку кипятком"
-msgstr "scald the cask with boiling water"
-
-#: src/brewing/brew_station.gd
-msgid "засыпать вишню в бочку"
-msgstr "tip the cherries into the cask"
-
-#: src/brewing/brew_station.gd
-msgid "забить пробку в бочку"
-msgstr "drive the bung into the cask"
-
-#: src/brewing/brew_station.gd
-msgid "забить пробку в бочонок"
-msgstr "drive the bung into the keg"
-
-#: src/brewing/brew_station.gd
-msgid "отвесить хмель на весы"
-msgstr "weigh the hops on the scales"
-
-#: src/brewing/brew_station.gd
-msgid "засыпать ячмень"
-msgstr "pour in the barley"
-
-#: src/brewing/brew_station.gd
-msgid "вылить ведро в чан"
-msgstr "pour the bucket into the tub"
-
-#: src/brewing/brew_station.gd
-msgid "пробка слива"
-msgstr "drain plug"
-
-#: src/brewing/brew_station.gd
-msgid "выгрести зерно на ток"
-msgstr "shovel the grain out onto the floor"
-
-#: src/brewing/brew_station.gd
-msgid "ворошить кучу"
-msgstr "turn the couch"
-
-#: src/brewing/brew_station.gd
-msgid "перекинуть солод на сушилку"
-msgstr "shovel the malt onto the kiln"
-
-#: src/brewing/brew_station.gd
-msgid "заслонка сушилки"
-msgstr "kiln damper"
-
-#: src/brewing/brew_station.gd
-msgid "ворошить солод граблями"
-msgstr "rake the malt"
-
-#: src/brewing/brew_station.gd
-msgid "насыпать солод в мешок"
-msgstr "fill a sack with malt"
-
-#: src/brewing/brew_station.gd
-msgid "крутить жёрнов"
-msgstr "turn the quern"
-
-#: src/brewing/brew_station.gd
-msgid "клин жёрнова"
-msgstr "quern wedge"
-
-#: src/brewing/brew_station.gd
-msgid "засыпать солод в жёрнов"
-msgstr "pour the malt into the quern"
-
-#: src/brewing/brew_station.gd
-msgid "набрать помол в мешок"
-msgstr "fill a sack with grist"
-
 #: src/brewing/brew_trade.gd
 msgid "срок %d день"
 msgid_plural "срок %d дня"
@@ -917,14 +653,6 @@ msgid "Печёная картошка · {eat_potato} — съесть поло
 msgstr "Baked potato · {eat_potato} — eat half · {camp_secondary} — share · {drink_beer} — beer"
 
 #: src/camping/camp_system.gd
-msgid "Сначала встань на тропу, чтобы выбрать место для костра."
-msgstr "Step onto the path first to pick a spot for the fire."
-
-#: src/camping/camp_system.gd
-msgid "Дорожный кувшин ещё полон. Нальём по кружке."
-msgstr "The road jug is still full. A mug each, then."
-
-#: src/camping/camp_system.gd
 msgid "Посмотри на землю в нескольких шагах от себя"
 msgstr "Look at the ground a few steps away"
 
@@ -937,14 +665,6 @@ msgid "%s · {place_camp} — отменить"
 msgstr "%s · {place_camp} — cancel"
 
 #: src/camping/camp_system.gd
-msgid "Дрова уложены. Разожги костёр и выбирай полено поудобнее."
-msgstr "The firewood is laid. Light the fire and pick a comfortable log."
-
-#: src/camping/camp_system.gd
-msgid "Костёр прогорел. Подбрось полено из поленницы."
-msgstr "The fire has burnt down. Throw on a log from the woodpile."
-
-#: src/camping/camp_system.gd
 msgid "{interact} — поговорить · {camp_secondary} — попрощаться · {guide_outing} — любимое место"
 msgstr "{interact} — talk · {camp_secondary} — say goodbye · {guide_outing} — favourite place"
 
@@ -955,38 +675,6 @@ msgstr "{interact} — ask along for a walk · %s"
 #: src/camping/camp_system.gd
 msgid "{interact} — поговорить · %s"
 msgstr "{interact} — talk · %s"
-
-#: src/camping/camp_system.gd
-msgid "В костре и так полно дров."
-msgstr "The fire has plenty of wood as it is."
-
-#: src/camping/camp_system.gd
-msgid "Полено занялось. Картошку можно положить прямо в угли."
-msgstr "The log has caught. A potato can go straight into the embers."
-
-#: src/camping/camp_system.gd
-msgid "Нужны дрова: возьми полено из поленницы во дворе или в пивоварне."
-msgstr "You need firewood: take a log from the woodpile in the yard or in the brewery."
-
-#: src/camping/camp_system.gd
-msgid "Огонь занялся. Картошку можно положить прямо в угли."
-msgstr "The fire has caught. A potato can go straight into the embers."
-
-#: src/camping/camp_system.gd
-msgid "Горячая картошка, щепотка соли. Можно разломить и угостить спутника."
-msgstr "A hot potato and a pinch of salt. Break it in two and treat your companion."
-
-#: src/camping/camp_system.gd
-msgid "Картошка в углях. Устройся рядом — есть время поговорить."
-msgstr "The potato is in the embers. Settle in beside it — there is time to talk."
-
-#: src/camping/camp_system.gd
-msgid "Под хрустящей кожурой — горячая мягкая картошка. Хороший вечер."
-msgstr "Under the crisp skin, a hot, soft potato. A good evening."
-
-#: src/camping/camp_system.gd
-msgid "Подойди к спутнику поближе, чтобы поделиться картошкой."
-msgstr "Come closer to your companion to share the potato."
 
 #: src/camping/camp_system.gd
 msgid " · {drink_beer} — пиво · {camp_refill} — налить · {eat_potato} — есть · {camp_secondary} — поделиться"
@@ -1257,12 +945,20 @@ msgid "Выбрать ячейку"
 msgstr "Choose a slot"
 
 #: src/flow/main_menu.gd
+msgid "Авторы"
+msgstr "Credits"
+
+#: src/flow/main_menu.gd
 msgid "Выход"
 msgstr "Quit"
 
 #: src/flow/main_menu.gd
 msgid "Начать заново"
 msgstr "Start over"
+
+#: src/flow/main_menu.gd
+msgid "Версия %s"
+msgstr "Version %s"
 
 #: src/flow/main_menu.gd
 msgid "Продолжить — %s"
@@ -1312,21 +1008,17 @@ msgstr "Saved to slot %s."
 msgid "Не удалось сохранить."
 msgstr "Could not save."
 
-#: src/lakeside/fishing_state.gd
-msgid "Краснопёрка"
-msgstr "Rudd"
+#: src/flow/save_notice.gd
+msgid "Сохранение повреждено. Игра продолжена из прошлой копии."
+msgstr "The save is damaged. The game goes on from the previous copy."
 
-#: src/lakeside/fishing_state.gd
-msgid "Окунь"
-msgstr "Perch"
+#: src/flow/save_notice.gd
+msgid "Сохранение не читается. Игра начата заново, старый файл отложен рядом."
+msgstr "The save cannot be read. A new game has started; the old file is kept beside it."
 
-#: src/lakeside/fishing_state.gd
-msgid "Форель"
-msgstr "Trout"
-
-#: src/lakeside/fishing_state.gd
-msgid "Щука"
-msgstr "Pike"
+#: src/flow/save_notice.gd
+msgid "Игра не сохранилась: файл не записан. Прежнее сохранение цело."
+msgstr "The game was not saved: the file could not be written. The previous save is intact."
 
 #: src/lakeside/lakeside_boarding.gd
 msgid "Борт закрыт препятствием. Отплыви немного дальше."
@@ -1559,6 +1251,14 @@ msgid "Не удалось загрузить текстуры. Требуетс
 msgstr "Could not load the textures. A restart is needed."
 
 #: src/settings/settings_panel.gd
+msgid "В окне"
+msgstr "Windowed"
+
+#: src/settings/settings_panel.gd
+msgid "Полный экран"
+msgstr "Fullscreen"
+
+#: src/settings/settings_panel.gd
 msgid "Общая громкость"
 msgstr "Master volume"
 
@@ -1623,6 +1323,30 @@ msgid "Резкость картинки"
 msgstr "Picture sharpening"
 
 #: src/settings/settings_panel.gd
+msgid "Экран"
+msgstr "Display"
+
+#: src/settings/settings_panel.gd
+msgid "Окно"
+msgstr "Window"
+
+#: src/settings/settings_panel.gd
+msgid "Размер окна"
+msgstr "Window size"
+
+#: src/settings/settings_panel.gd
+msgid "Вертикальная синхронизация"
+msgstr "Vertical sync"
+
+#: src/settings/settings_panel.gd
+msgid "Масштаб интерфейса"
+msgstr "Interface scale"
+
+#: src/settings/settings_panel.gd
+msgid "Поле зрения, градусов по вертикали"
+msgstr "Field of view, vertical degrees"
+
+#: src/settings/settings_panel.gd
 msgid "Звук"
 msgstr "Sound"
 
@@ -1671,8 +1395,8 @@ msgid "Сохранено. Текстуры и дальность деревье
 msgstr "Saved. Textures and tree distance will change after a restart. The walk will begin at the tavern."
 
 #: src/settings/settings_panel.gd
-msgid "Картинка, тени, трава, звук и управление меняются сразу. Текстуры и деревья — после перезапуска."
-msgstr "Picture, shadows, grass, sound and controls change at once. Textures and trees — after a restart."
+msgid "Картинка, экран, тени, трава, звук и управление меняются сразу. Текстуры и деревья — после перезапуска."
+msgstr "Picture, display, shadows, grass, sound and controls change at once. Textures and trees — after a restart."
 
 #: src/tavern/tavern_door.gd
 msgid "Дверь"
@@ -1753,30 +1477,6 @@ msgstr "Traveller"
 #: src/village/village_pack.gd
 msgid "Дровосек"
 msgstr "Woodcutter"
-
-#: src/weather/weather_system.gd
-msgid "Ясно"
-msgstr "Clear"
-
-#: src/weather/weather_system.gd
-msgid "Облачно"
-msgstr "Cloudy"
-
-#: src/weather/weather_system.gd
-msgid "Пасмурно"
-msgstr "Overcast"
-
-#: src/weather/weather_system.gd
-msgid "Туман"
-msgstr "Fog"
-
-#: src/weather/weather_system.gd
-msgid "Дождь"
-msgstr "Rain"
-
-#: src/weather/weather_system.gd
-msgid "Гроза"
-msgstr "Thunderstorm"
 
 #: assets/loop/people/borr.json
 msgid "Борр"
@@ -5625,6 +5325,358 @@ msgstr "Set a keg under the cask tap, put in the funnel, open the tap. Take out 
 #: assets/brewing/guide.json
 msgid "Отнесите полный бочонок к доске заказов у рынка и нажмите E."
 msgstr "Carry the full keg to the order board by the market and press E."
+
+#: assets/brewing/works.json
+msgid "качать воду в котёл"
+msgstr "pump water into the copper"
+
+#: assets/brewing/works.json
+msgid "кран трубы к котлу"
+msgstr "cock of the pipe to the copper"
+
+#: assets/brewing/works.json
+msgid "зачерпнуть воды"
+msgstr "scoop up water"
+
+#: assets/brewing/works.json
+msgid "люк котла"
+msgstr "copper hatch"
+
+#: assets/brewing/works.json
+msgid "мешать в котле"
+msgstr "stir the copper"
+
+#: assets/brewing/works.json
+msgid "бросить хмель в люк"
+msgstr "throw hops into the hatch"
+
+#: assets/brewing/works.json
+msgid "вылить ведро в люк"
+msgstr "pour the bucket into the hatch"
+
+#: assets/brewing/works.json
+msgid "зачерпнуть кипятку"
+msgstr "scoop up boiling water"
+
+#: assets/brewing/works.json
+msgid "влить мёд в люк"
+msgstr "pour honey into the hatch"
+
+#: assets/brewing/works.json
+msgid "бросить липовый цвет в люк"
+msgstr "throw linden blossom into the hatch"
+
+#: assets/brewing/works.json
+msgid "подбросить полено"
+msgstr "throw on a log"
+
+#: assets/brewing/works.json
+msgid "заслонка котла"
+msgstr "copper damper"
+
+#: assets/brewing/works.json
+msgid "кран горячей воды"
+msgstr "hot liquor tap"
+
+#: assets/brewing/works.json
+msgid "засыпать солод"
+msgstr "pour in the malt"
+
+#: assets/brewing/works.json
+msgid "мешать затор"
+msgstr "stir the mash"
+
+#: assets/brewing/works.json
+msgid "долить ключевой воды"
+msgstr "add spring water"
+
+#: assets/brewing/works.json
+msgid "выстелить дно можжевельником"
+msgstr "line the bed with juniper"
+
+#: assets/brewing/works.json
+msgid "кран заторного чана"
+msgstr "mash tun tap"
+
+#: assets/brewing/works.json
+msgid "качать сусло в котёл"
+msgstr "pump the wort into the copper"
+
+#: assets/brewing/works.json
+msgid "кран котла"
+msgstr "copper tap"
+
+#: assets/brewing/works.json
+msgid "кран хмелецедильного чана"
+msgstr "hop back tap"
+
+#: assets/brewing/works.json
+msgid "крутить ворот"
+msgstr "turn the windlass"
+
+#: assets/brewing/works.json
+msgid "вылить бадью на тарелку"
+msgstr "empty the bucket onto the coolship"
+
+#: assets/brewing/works.json
+msgid "затвор тарелки"
+msgstr "coolship gate"
+
+#: assets/brewing/works.json
+msgid "повернуть носик"
+msgstr "turn the spout"
+
+#: assets/brewing/works.json
+msgid "зачерпнуть дрожжей"
+msgstr "dip up yeast"
+
+#: assets/brewing/works.json
+msgid "кран бродильного чана"
+msgstr "fermenting tun tap"
+
+#: assets/brewing/works.json
+msgid "влить дрожжи"
+msgstr "pitch the yeast"
+
+#: assets/brewing/works.json
+msgid "снять пену"
+msgstr "skim the head"
+
+#: assets/brewing/works.json
+msgid "кран лагерной бочки"
+msgstr "lager cask tap"
+
+#: assets/brewing/works.json
+msgid "налить пробу в кружку"
+msgstr "draw a taste into the mug"
+
+#: assets/brewing/works.json
+msgid "вылить ведро в бочку"
+msgstr "pour the bucket into the cask"
+
+#: assets/brewing/works.json
+msgid "ошпарить бочку кипятком"
+msgstr "scald the cask with boiling water"
+
+#: assets/brewing/works.json
+msgid "засыпать вишню в бочку"
+msgstr "tip the cherries into the cask"
+
+#: assets/brewing/works.json
+msgid "забить пробку в бочку"
+msgstr "drive the bung into the cask"
+
+#: assets/brewing/works.json
+msgid "забить пробку в бочонок"
+msgstr "drive the bung into the keg"
+
+#: assets/brewing/works.json
+msgid "отвесить хмель на весы"
+msgstr "weigh the hops on the scales"
+
+#: assets/brewing/works.json
+msgid "засыпать ячмень"
+msgstr "pour in the barley"
+
+#: assets/brewing/works.json
+msgid "вылить ведро в чан"
+msgstr "pour the bucket into the tub"
+
+#: assets/brewing/works.json
+msgid "пробка слива"
+msgstr "drain plug"
+
+#: assets/brewing/works.json
+msgid "выгрести зерно на ток"
+msgstr "shovel the grain out onto the floor"
+
+#: assets/brewing/works.json
+msgid "ворошить кучу"
+msgstr "turn the couch"
+
+#: assets/brewing/works.json
+msgid "перекинуть солод на сушилку"
+msgstr "shovel the malt onto the kiln"
+
+#: assets/brewing/works.json
+msgid "заслонка сушилки"
+msgstr "kiln damper"
+
+#: assets/brewing/works.json
+msgid "ворошить солод граблями"
+msgstr "rake the malt"
+
+#: assets/brewing/works.json
+msgid "насыпать солод в мешок"
+msgstr "fill a sack with malt"
+
+#: assets/brewing/works.json
+msgid "крутить жёрнов"
+msgstr "turn the quern"
+
+#: assets/brewing/works.json
+msgid "клин жёрнова"
+msgstr "quern wedge"
+
+#: assets/brewing/works.json
+msgid "засыпать солод в жёрнов"
+msgstr "pour the malt into the quern"
+
+#: assets/brewing/works.json
+msgid "набрать помол в мешок"
+msgstr "fill a sack with grist"
+
+#: assets/brewing/lines.json
+msgid "Заказ взят: %s"
+msgstr "Order taken: %s"
+
+#: assets/brewing/lines.json
+msgid "Заказ отменён"
+msgstr "Order given up"
+
+#: assets/brewing/lines.json
+msgid "Заказ сдан: %d медн. · в кошельке %d"
+msgstr "Order delivered: %d coppers · %d in the purse"
+
+#: assets/brewing/lines.json
+msgid "Бочонок на телеге: %d медн. · в кошельке %d"
+msgstr "Keg on the cart: %d coppers · %d in the purse"
+
+#: assets/brewing/lines.json
+msgid "Не хватает медяков"
+msgstr "Not enough coppers"
+
+#: assets/brewing/lines.json
+msgid "Класть некуда"
+msgstr "No room to put it"
+
+#: assets/brewing/lines.json
+msgid "Это уже есть"
+msgstr "You have this already"
+
+#: assets/brewing/lines.json
+msgid "Сначала почините третью бочку"
+msgstr "Mend the third cask first"
+
+#: assets/brewing/lines.json
+msgid "Куплено: %s · в кошельке %d медн."
+msgstr "Bought: %s · %d coppers in the purse"
+
+#: assets/brewing/lines.json
+msgid "Заказ просрочен: доска его сняла"
+msgstr "The order is overdue: the board has taken it down"
+
+#: assets/brewing/lines.json
+msgid "Заказ выполнен"
+msgstr "Order fulfilled"
+
+#: assets/brewing/lines.json
+msgid "Поленница пуста: вязанки продаёт лавка рынка"
+msgstr "The woodpile is empty: the market stall sells bundles"
+
+#: assets/brewing/lines.json
+msgid "На стойке уже стоит бочонок"
+msgstr "A keg already stands on the bar"
+
+#: assets/brewing/lines.json
+msgid "Борр берёт только полный бочонок под пробкой"
+msgstr "Borr takes only a full keg with its bung in"
+
+#: assets/brewing/lines.json
+msgid "Борр нюхает и качает головой: это не пиво"
+msgstr "Borr sniffs and shakes his head: this is not beer"
+
+#: assets/brewing/lines.json
+msgid "Борр берёт бочонок: %d медн. · в кошельке %d"
+msgstr "Borr takes the keg: %d coppers · %d in the purse"
+
+#: assets/camping/lines.json
+msgid "Сначала встань на тропу, чтобы выбрать место для костра."
+msgstr "Step onto the path first to pick a spot for the fire."
+
+#: assets/camping/lines.json
+msgid "Дорожный кувшин ещё полон. Нальём по кружке."
+msgstr "The road jug is still full. A mug each, then."
+
+#: assets/camping/lines.json
+msgid "Дрова уложены. Разожги костёр и выбирай полено поудобнее."
+msgstr "The firewood is laid. Light the fire and pick a comfortable log."
+
+#: assets/camping/lines.json
+msgid "Костёр прогорел. Подбрось полено из поленницы."
+msgstr "The fire has burnt down. Throw on a log from the woodpile."
+
+#: assets/camping/lines.json
+msgid "В костре и так полно дров."
+msgstr "The fire has plenty of wood as it is."
+
+#: assets/camping/lines.json
+msgid "Полено занялось. Картошку можно положить прямо в угли."
+msgstr "The log has caught. A potato can go straight into the embers."
+
+#: assets/camping/lines.json
+msgid "Нужны дрова: возьми полено из поленницы во дворе или в пивоварне."
+msgstr "You need firewood: take a log from the woodpile in the yard or in the brewery."
+
+#: assets/camping/lines.json
+msgid "Огонь занялся. Картошку можно положить прямо в угли."
+msgstr "The fire has caught. A potato can go straight into the embers."
+
+#: assets/camping/lines.json
+msgid "Горячая картошка, щепотка соли. Можно разломить и угостить спутника."
+msgstr "A hot potato and a pinch of salt. Break it in two and treat your companion."
+
+#: assets/camping/lines.json
+msgid "Картошка в углях. Устройся рядом — есть время поговорить."
+msgstr "The potato is in the embers. Settle in beside it — there is time to talk."
+
+#: assets/camping/lines.json
+msgid "Под хрустящей кожурой — горячая мягкая картошка. Хороший вечер."
+msgstr "Under the crisp skin, a hot, soft potato. A good evening."
+
+#: assets/camping/lines.json
+msgid "Подойди к спутнику поближе, чтобы поделиться картошкой."
+msgstr "Come closer to your companion to share the potato."
+
+#: assets/lakeside/fish.json
+msgid "Краснопёрка"
+msgstr "Rudd"
+
+#: assets/lakeside/fish.json
+msgid "Окунь"
+msgstr "Perch"
+
+#: assets/lakeside/fish.json
+msgid "Форель"
+msgstr "Trout"
+
+#: assets/lakeside/fish.json
+msgid "Щука"
+msgstr "Pike"
+
+#: assets/weather/weathers.json
+msgid "Ясно"
+msgstr "Clear"
+
+#: assets/weather/weathers.json
+msgid "Облачно"
+msgstr "Cloudy"
+
+#: assets/weather/weathers.json
+msgid "Пасмурно"
+msgstr "Overcast"
+
+#: assets/weather/weathers.json
+msgid "Туман"
+msgstr "Fog"
+
+#: assets/weather/weathers.json
+msgid "Дождь"
+msgstr "Rain"
+
+#: assets/weather/weathers.json
+msgid "Гроза"
+msgstr "Thunderstorm"
 
 #: assets/models/brewery/brewery.json
 msgid "Варочный котёл"

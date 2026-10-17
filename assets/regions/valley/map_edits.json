@@ -1,0 +1,19 @@
+{
+"drop": {
+	"labels": ["Island lawn"],
+	"prefixes": ["Chapel ", "Island chapel "]
+},
+"raise": [
+	{"labels": ["Village campanile stone tower", "Bell tower terracotta spire", "Bell arch oak window"], "base": [-12.0, 2.15, -64.0]}
+],
+"split": [
+	{"label": "Lake sailboat hull mast rigging and pier", "z": -47.0, "south": [-4.5, 0.0, -10.0], "north": [-1.5, 0.0, 2.8],
+		"foot": 0.0, "sink": 1.0}
+],
+"lower": [
+	{"labels": ["Arched village footbridge", "Bridge stone walkway"], "by": 0.42}
+],
+"walkways": [
+	{"deck": "Bridge stone walkway", "name": "VillageBridgeWalkway", "half_width": 1.08, "approach": 1.8, "depth": 0.18, "above": 0.015}
+]
+}

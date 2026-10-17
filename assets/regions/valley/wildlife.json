@@ -1,0 +1,31 @@
+{
+"herds": [
+	{"kind": "deer", "at": [-22.0, 28.0], "radius": 22.0, "count": 3},
+	{"kind": "deer", "at": [32.0, 34.0], "radius": 22.0, "count": 3},
+	{"kind": "deer", "at": [-68.0, 40.0], "radius": 22.0, "count": 3},
+	{"kind": "deer", "at": [68.0, -50.0], "radius": 22.0, "count": 3},
+	{"kind": "fox", "at": [-40.0, 35.0], "radius": 18.0, "count": 2},
+	{"kind": "fox", "at": [46.0, 25.0], "radius": 18.0, "count": 2},
+	{"kind": "fox", "at": [-95.0, 30.0], "radius": 18.0, "count": 2},
+	{"kind": "chicken", "at": [20.0, -23.0], "radius": 9.0, "count": 4},
+	{"kind": "chicken", "at": [-15.0, -32.0], "radius": 9.0, "count": 4},
+	{"kind": "chicken", "at": [-5.0, 23.0], "radius": 9.0, "count": 4}
+],
+"flocks": [
+	{"kind": "bird", "species": "bird", "at": [0.0, 15.0], "count": 5},
+	{"kind": "bird", "species": "bird", "at": [15.0, 50.0], "count": 5},
+	{"kind": "bird", "species": "bird", "at": [-90.0, 50.0], "count": 5},
+	{"kind": "bird", "species": "raven", "at": [-70.0, -20.0], "count": 5},
+	{"kind": "bird", "species": "raven", "at": [50.0, -65.0], "count": 5},
+	{"kind": "bird", "species": "raven", "at": [-170.0, -70.0], "count": 5},
+	{"kind": "bird", "species": "seagull", "at": [-110.0, -55.0], "count": 5},
+	{"kind": "bird", "species": "seagull", "at": [-55.0, -100.0], "count": 5},
+	{"kind": "bird", "species": "seagull", "at": [-150.0, -40.0], "count": 5},
+	{"kind": "butterfly", "at": [-22.0, 30.0], "count": 6},
+	{"kind": "butterfly", "at": [22.0, 22.0], "count": 6},
+	{"kind": "butterfly", "at": [-60.0, 16.0], "count": 6},
+	{"kind": "butterfly", "at": [50.0, -38.0], "count": 6}
+],
+"fish_water": [-175.0, -100.0, -55.0, -10.0],
+"birdsong": [-30.0, 30.0]
+}

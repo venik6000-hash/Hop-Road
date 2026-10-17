@@ -5,6 +5,18 @@ Creative Commons Attribution 4.0: https://creativecommons.org/licenses/by/4.0/
 Changes: extracted iron variant; normalized height to 0.24 m; centred cup body;
 removed duplicated UV channels. Original PBR maps retained. Author marks NoAI.
 
+RIGHT HAND
+Free sample full-body scan by Ten24 (3D Scan Store)
+https://ten24.info/sample-scan/
+Terms on the page: "Feel free to use this scan as you wish for both commercial
+and personal projects", with credit to Ten24.
+Changes (assets/models/source/beer/scan_hand.glb): cut the right forearm and
+hand from the subdivision level 3 OBJ; finger joints found from the mesh and a
+skeleton with the old hand's bone names added, weights by Blender's automatic
+weights; UVs packed for the arm alone; the 16k colour and the level 3 normal
+map baked to 4096 px and scaled to 2048 px. prepare_hand.py then closes the
+hand round the handle. The cut, rig and bake were run once and are not kept.
+
 Linen sleeve: procedural geometry authored for this project.
 Fluid: native Godot implementation of Position Based Fluids (Macklin & Müller,
 2013), informed by dgreenheck/threejs-particle-fluids; no Three.js runtime or

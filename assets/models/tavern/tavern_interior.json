@@ -1,7 +1,77 @@
 {
+ "bounds": [
+  3.6,
+  6.6,
+  -14.4,
+  27.4,
+  20.8,
+  0.4
+ ],
  "color_range": 2.0,
  "drop_colliders": [
   "Interior oak floor beams bar and tables"
+ ],
+ "fires": [
+  {
+   "along": [
+    0,
+    0,
+    -1
+   ],
+   "at": [
+    6.32,
+    7.21,
+    -10.3
+   ],
+   "height": 0.75,
+   "name": "hall hearth",
+   "width": 0.95
+  },
+  {
+   "along": [
+    1,
+    0,
+    0
+   ],
+   "at": [
+    24.5,
+    7.26,
+    -11.05
+   ],
+   "height": 0.68,
+   "name": "kitchen hearth",
+   "width": 0.9
+  },
+  {
+   "along": [
+    1,
+    0,
+    0
+   ],
+   "at": [
+    25.6,
+    7.42,
+    -9.75
+   ],
+   "height": 0.47,
+   "name": "bread oven",
+   "width": 0.45
+  },
+  {
+   "along": [
+    0,
+    0,
+    -1
+   ],
+   "at": [
+    6.59,
+    11.09,
+    -10.3
+   ],
+   "height": 0.42,
+   "name": "back west room fire",
+   "width": 0.45
+  }
  ],
  "indoor": {
   "materials": {
@@ -90,17 +160,15 @@
    ],
    "energy": 0.5,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "candle",
    "name": "Great table candle",
-   "night": 0.0,
    "position": [
     12.92,
     8.0527,
     -4.55
    ],
    "range": 3.2,
-   "shadow": false,
-   "size": 0.05,
+   "room": "hall",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -113,17 +181,15 @@
    ],
    "energy": 0.45,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "candle",
    "name": "\u0421\u0442\u043e\u043b \u0443 \u0437\u0430\u043f\u0430\u0434\u043d\u044b\u0445 \u043e\u043a\u043e\u043d: \u0441\u0432\u0435\u0447\u0430",
-   "night": 0.0,
    "position": [
     6.7759,
     8.0169,
     -5.0966
    ],
    "range": 3.0,
-   "shadow": false,
-   "size": 0.05,
+   "room": "hall",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -136,17 +202,15 @@
    ],
    "energy": 0.45,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "candle",
    "name": "\u0421\u0442\u043e\u043b \u0443 \u0432\u0445\u043e\u0434\u0430: \u0441\u0432\u0435\u0447\u0430",
-   "night": 0.0,
    "position": [
     9.1577,
     8.0136,
     -3.8406
    ],
    "range": 3.0,
-   "shadow": false,
-   "size": 0.05,
+   "room": "hall",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -159,17 +223,15 @@
    ],
    "energy": 0.45,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "candle",
    "name": "\u0421\u0442\u043e\u043b\u0438\u043a \u0443 \u0441\u0442\u043e\u0439\u043a\u0438: \u0441\u0432\u0435\u0447\u0430",
-   "night": 0.0,
    "position": [
     12.5577,
     8.0217,
     -8.8406
    ],
    "range": 3.0,
-   "shadow": false,
-   "size": 0.05,
+   "room": "hall",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -182,17 +244,15 @@
    ],
    "energy": 0.45,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "candle",
    "name": "\u0421\u0442\u043e\u043b \u0443 \u043a\u0443\u0445\u043d\u0438: \u0441\u0432\u0435\u0447\u0430",
-   "night": 0.0,
    "position": [
     14.9574,
     8.0108,
     -9.2819
    ],
    "range": 3.0,
-   "shadow": false,
-   "size": 0.05,
+   "room": "hall",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -205,17 +265,15 @@
    ],
    "energy": 5.0,
    "flicker": 0.22,
-   "layer": "interior",
+   "kind": "hearth",
    "name": "Hall hearth fire",
-   "night": 0.0,
    "position": [
     6.62,
     7.41,
     -10.3
    ],
    "range": 11.0,
-   "shadow": true,
-   "size": 0.25,
+   "room": "hall",
    "speed": 0.9,
    "sway": 0.0,
    "type": "point"
@@ -228,17 +286,15 @@
    ],
    "energy": 0.45,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "candle",
    "name": "Mantel candles",
-   "night": 0.0,
    "position": [
     7.09,
     9.835,
     -10.3
    ],
    "range": 3.0,
-   "shadow": false,
-   "size": 0.05,
+   "room": "hall",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -251,17 +307,15 @@
    ],
    "energy": 2.2,
    "flicker": 0.05,
-   "layer": "interior",
+   "kind": "chandelier",
    "name": "Chandelier 1",
-   "night": 0.0,
    "position": [
     10.82,
     9.61,
     -4.7
    ],
    "range": 8.5,
-   "shadow": false,
-   "size": 0.05,
+   "room": "hall",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -274,17 +328,15 @@
    ],
    "energy": 2.2,
    "flicker": 0.05,
-   "layer": "interior",
+   "kind": "chandelier",
    "name": "Chandelier 2",
-   "night": 0.0,
    "position": [
     10.82,
     9.61,
     -8.7
    ],
    "range": 8.5,
-   "shadow": false,
-   "size": 0.05,
+   "room": "hall",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -297,17 +349,15 @@
    ],
    "energy": 0.9,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "chandelier",
    "name": "Bar candelabra",
-   "night": 0.0,
    "position": [
     10.1998,
     8.696,
     -11.5208
    ],
    "range": 4.2,
-   "shadow": false,
-   "size": 0.05,
+   "room": "hall",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -320,17 +370,15 @@
    ],
    "energy": 0.6,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "lantern",
    "name": "Bar lantern",
-   "night": 0.0,
    "position": [
     13.05,
     8.21,
     -11.43
    ],
    "range": 3.6,
-   "shadow": false,
-   "size": 0.05,
+   "room": "hall",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -343,17 +391,15 @@
    ],
    "energy": 0.8,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "lantern",
    "name": "Stair lantern",
-   "night": 0.0,
    "position": [
     17.35,
     8.9261,
     -1.35
    ],
    "range": 4.5,
-   "shadow": false,
-   "size": 0.05,
+   "room": "hall",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -366,17 +412,15 @@
    ],
    "energy": 3.6,
    "flicker": 0.25,
-   "layer": "interior",
+   "kind": "hearth",
    "name": "Kitchen hearth fire",
-   "night": 0.0,
    "position": [
     24.5,
     7.51,
     -10.7
    ],
    "range": 9.0,
-   "shadow": true,
-   "size": 0.25,
+   "room": "kitchen",
    "speed": 1.1,
    "sway": 0.0,
    "type": "point"
@@ -389,17 +433,15 @@
    ],
    "energy": 1.1,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "lantern",
    "name": "Kitchen lantern",
-   "night": 0.0,
    "position": [
     22.3,
     9.05,
     -5.4
    ],
    "range": 6.5,
-   "shadow": false,
-   "size": 0.05,
+   "room": "kitchen",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -412,17 +454,15 @@
    ],
    "energy": 0.4,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "candle",
    "name": "Kitchen candle",
-   "night": 0.0,
    "position": [
     18.67,
     7.7531,
     -3.4
    ],
    "range": 3.0,
-   "shadow": false,
-   "size": 0.05,
+   "room": "kitchen",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -435,17 +475,15 @@
    ],
    "energy": 0.6,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "candle",
    "name": "Front west room candle",
-   "night": 0.0,
    "position": [
     4.52,
     11.5596,
     -3.35
    ],
    "range": 4.4,
-   "shadow": false,
-   "size": 0.05,
+   "room": "upper_front_w",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -458,17 +496,15 @@
    ],
    "energy": 0.6,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "candle",
    "name": "Front east room candle",
-   "night": 0.0,
    "position": [
     15.4,
     11.5621,
     -3.23
    ],
    "range": 4.4,
-   "shadow": false,
-   "size": 0.05,
+   "room": "upper_front_e",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -481,17 +517,15 @@
    ],
    "energy": 0.8,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "lantern",
    "name": "Stairwell lantern",
-   "night": 0.0,
    "position": [
     17.48,
     12.8561,
     -6.2
    ],
    "range": 4.6,
-   "shadow": false,
-   "size": 0.05,
+   "room": "upper_front_e",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -504,17 +538,15 @@
    ],
    "energy": 1.3,
    "flicker": 0.2,
-   "layer": "interior",
+   "kind": "stove",
    "name": "Back west room fire",
-   "night": 0.0,
    "position": [
     6.94,
     11.39,
     -10.3
    ],
    "range": 4.5,
-   "shadow": false,
-   "size": 0.05,
+   "room": "upper_back_w",
    "speed": 1.2,
    "sway": 0.0,
    "type": "point"
@@ -527,17 +559,15 @@
    ],
    "energy": 0.45,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "candle",
    "name": "Back west room candle",
-   "night": 0.0,
    "position": [
     6.9,
     12.1218,
     -9.73
    ],
    "range": 3.6,
-   "shadow": false,
-   "size": 0.05,
+   "room": "upper_back_w",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -550,17 +580,15 @@
    ],
    "energy": 0.9,
    "flicker": 0.18,
-   "layer": "interior",
+   "kind": "stove",
    "name": "Back east room stove",
-   "night": 0.0,
    "position": [
     14.4,
     11.32,
     -12.705
    ],
    "range": 3.6,
-   "shadow": false,
-   "size": 0.05,
+   "room": "upper_back_e",
    "speed": 0.8,
    "sway": 0.0,
    "type": "point"
@@ -573,17 +601,15 @@
    ],
    "energy": 0.55,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "candle",
    "name": "Back east room candle",
-   "night": 0.0,
    "position": [
     12.9422,
     11.8386,
     -10.7951
    ],
    "range": 4.2,
-   "shadow": false,
-   "size": 0.05,
+   "room": "upper_back_e",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -596,17 +622,15 @@
    ],
    "energy": 0.8,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "lantern",
    "name": "Corridor lantern",
-   "night": 0.0,
    "position": [
     11.9,
     12.6561,
     -7.838
    ],
    "range": 5.5,
-   "shadow": false,
-   "size": 0.05,
+   "room": "corridor",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -619,17 +643,15 @@
    ],
    "energy": 0.9,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "lantern",
    "name": "Attic lantern",
-   "night": 0.0,
    "position": [
     11.12,
     15.3696,
     -1.14
    ],
    "range": 5.5,
-   "shadow": false,
-   "size": 0.05,
+   "room": "attic",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -642,17 +664,15 @@
    ],
    "energy": 0.8,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "lantern",
    "name": "Dormer lantern",
-   "night": 0.0,
    "position": [
     15.25,
     15.519,
     -8.1
    ],
    "range": 4.8,
-   "shadow": false,
-   "size": 0.05,
+   "room": "attic",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -665,17 +685,15 @@
    ],
    "energy": 1.4,
    "flicker": 0.18,
-   "layer": "interior",
+   "kind": "stove",
    "name": "Bread oven fire",
-   "night": 0.0,
    "position": [
     25.6,
     7.5,
     -9.22
    ],
    "range": 3.0,
-   "shadow": false,
-   "size": 0.05,
+   "room": "kitchen",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -688,17 +706,15 @@
    ],
    "energy": 0.55,
    "flicker": 0.04,
-   "layer": "interior",
+   "kind": "lantern",
    "name": "Pantry reflected lantern",
-   "night": 0.0,
    "position": [
     15.7,
     8.83,
     -5.4
    ],
    "range": 2.7,
-   "shadow": false,
-   "size": 0.05,
+   "room": "hall",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -711,17 +727,15 @@
    ],
    "energy": 0.9,
    "flicker": 0.08,
-   "layer": "interior",
+   "kind": "candle",
    "name": "Back door candles",
-   "night": 0.0,
    "position": [
     5.6,
     9.08,
     -11.93
    ],
    "range": 4.5,
-   "shadow": false,
-   "size": 0.05,
+   "room": "hall",
    "speed": 1.0,
    "sway": 0.0,
    "type": "point"
@@ -1763,108 +1777,124 @@
   }
  },
  "moved_colliders": [],
- "portal_floors": [
+ "openings": [
   {
-   "height": 10.86,
-   "holes": [
-    [
-     15.95,
-     -6.6,
-     17.74,
-     -3.1
-    ]
-   ]
-  },
-  {
-   "height": 14.875,
-   "holes": [
-    [
-     8.85,
-     -8.08,
-     9.65,
-     -7.34
-    ]
-   ]
-  }
- ],
- "portals": [
-  {
+   "daylight": true,
    "inward": [
     0,
     0,
     -1
    ],
+   "kind": "window",
    "name": "hall_front_w",
    "position": [
     7.55,
     8.775,
     -0.0
    ],
+   "reveal": 0.31,
+   "rooms": [
+    "hall",
+    "out"
+   ],
    "sill": 7.6,
+   "spring": 9.3,
    "top": 9.95,
    "width": 1.3
   },
   {
+   "daylight": true,
    "inward": [
     0,
     0,
     -1
    ],
+   "kind": "window",
    "name": "hall_front_e",
    "position": [
     14.45,
     8.775,
     -0.0
    ],
+   "reveal": 0.31,
+   "rooms": [
+    "hall",
+    "out"
+   ],
    "sill": 7.6,
+   "spring": 9.3,
    "top": 9.95,
    "width": 1.3
   },
   {
+   "daylight": true,
    "inward": [
     1,
     0,
     0
    ],
+   "kind": "window",
    "name": "hall_west_s",
    "position": [
     4.0,
     8.75,
     -3.0
    ],
+   "reveal": 0.31,
+   "rooms": [
+    "hall",
+    "out"
+   ],
    "sill": 7.6,
+   "spring": 9.3,
    "top": 9.9,
    "width": 1.2
   },
   {
+   "daylight": true,
    "inward": [
     1,
     0,
     0
    ],
+   "kind": "window",
    "name": "hall_west_n",
    "position": [
     4.0,
     8.75,
     -6.8
    ],
+   "reveal": 0.31,
+   "rooms": [
+    "hall",
+    "out"
+   ],
    "sill": 7.6,
+   "spring": 9.3,
    "top": 9.9,
    "width": 1.2
   },
   {
+   "daylight": true,
    "inward": [
     0,
     0,
     1
    ],
+   "kind": "window",
    "name": "hall_rear",
    "position": [
     16.3,
     8.8,
     -14.0
    ],
+   "reveal": 0.31,
+   "rooms": [
+    "hall",
+    "out"
+   ],
    "sill": 7.7,
+   "spring": 9.35,
    "top": 9.9,
    "width": 1.1
   },
@@ -1874,61 +1904,90 @@
     0,
     1
    ],
+   "kind": "door",
    "name": "back_door",
    "position": [
     5.6,
     7.925,
     -14.0
    ],
+   "rooms": [
+    "hall",
+    "out"
+   ],
    "sill": 6.6,
    "top": 9.25,
    "width": 1.15
   },
   {
+   "daylight": true,
    "inward": [
     0,
     0,
     -1
    ],
+   "kind": "window",
    "name": "kitchen_front",
    "position": [
     25.3,
     7.9,
     -1.0
    ],
+   "reveal": 0.225,
+   "rooms": [
+    "kitchen",
+    "out"
+   ],
    "sill": 7.35,
+   "spring": 8.45,
    "top": 8.45,
    "width": 0.9
   },
   {
+   "daylight": true,
    "inward": [
     -1,
     0,
     0
    ],
+   "kind": "window",
    "name": "kitchen_east",
    "position": [
     27.0,
     7.9,
     -4.2
    ],
+   "reveal": 0.225,
+   "rooms": [
+    "kitchen",
+    "out"
+   ],
    "sill": 7.35,
+   "spring": 8.45,
    "top": 8.45,
    "width": 0.9
   },
   {
+   "daylight": true,
    "inward": [
     0,
     0,
     1
    ],
+   "kind": "window",
    "name": "kitchen_rear",
    "position": [
     22.6,
     7.9,
     -12.0
    ],
+   "reveal": 0.225,
+   "rooms": [
+    "kitchen",
+    "out"
+   ],
    "sill": 7.35,
+   "spring": 8.45,
    "top": 8.45,
    "width": 0.9
   },
@@ -1938,12 +1997,17 @@
     0,
     -1
    ],
+   "kind": "window",
    "name": "front_upper_w",
    "position": [
     8.3,
     12.8712,
     0.12
    ],
+   "rooms": [
+    "upper_front_w",
+    "out"
+   ],
    "sill": 11.9352,
    "top": 13.8072,
    "width": 1.9
@@ -1954,12 +2018,17 @@
     0,
     -1
    ],
+   "kind": "window",
    "name": "front_upper_e",
    "position": [
     13.7,
     12.8712,
     0.12
    ],
+   "rooms": [
+    "upper_front_e",
+    "out"
+   ],
    "sill": 11.9352,
    "top": 13.8072,
    "width": 1.9
@@ -1970,11 +2039,16 @@
     0,
     -1
    ],
+   "kind": "window",
    "name": "attic",
    "position": [
     11.0,
     17.5044,
     0.12
+   ],
+   "rooms": [
+    "attic",
+    "out"
    ],
    "sill": 16.5274,
    "top": 18.4814,
@@ -1986,11 +2060,16 @@
     0,
     0
    ],
+   "kind": "window",
    "name": "east_upper_s",
    "position": [
     18.12,
     12.8244,
     -5.25
+   ],
+   "rooms": [
+    "upper_front_e",
+    "out"
    ],
    "sill": 12.0244,
    "top": 13.6244,
@@ -2002,12 +2081,17 @@
     0,
     0
    ],
+   "kind": "window",
    "name": "east_upper_n",
    "position": [
     18.12,
     12.8244,
     -12.25
    ],
+   "rooms": [
+    "upper_back_e",
+    "out"
+   ],
    "sill": 12.0244,
    "top": 13.6244,
    "width": 1.3
@@ -2018,12 +2102,17 @@
     0,
     0
    ],
+   "kind": "window",
    "name": "west_upper_s",
    "position": [
     3.88,
     12.8244,
     -5.25
    ],
+   "rooms": [
+    "upper_front_w",
+    "out"
+   ],
    "sill": 12.0244,
    "top": 13.6244,
    "width": 1.3
@@ -2034,11 +2123,16 @@
     0,
     0
    ],
+   "kind": "window",
    "name": "west_upper_n",
    "position": [
     3.88,
     12.8244,
     -12.25
+   ],
+   "rooms": [
+    "upper_back_w",
+    "out"
    ],
    "sill": 12.0244,
    "top": 13.6244,
@@ -2050,11 +2144,16 @@
     0,
     1
    ],
+   "kind": "window",
    "name": "rear_upper_w",
    "position": [
     9.0,
     12.8244,
     -14.19
+   ],
+   "rooms": [
+    "upper_back_w",
+    "out"
    ],
    "sill": 12.0244,
    "top": 13.6244,
@@ -2066,11 +2165,16 @@
     0,
     1
    ],
+   "kind": "window",
    "name": "rear_upper_e",
    "position": [
     13.0,
     12.8244,
     -14.19
+   ],
+   "rooms": [
+    "upper_back_e",
+    "out"
    ],
    "sill": 12.0244,
    "top": 13.6244,
@@ -2082,11 +2186,16 @@
     0,
     -1
    ],
+   "kind": "window",
    "name": "annex_front",
    "position": [
     24.5,
     9.876,
     -0.83
+   ],
+   "rooms": [
+    "kitchen",
+    "out"
    ],
    "sill": 9.256,
    "top": 10.496,
@@ -2098,11 +2207,16 @@
     0,
     0
    ],
+   "kind": "window",
    "name": "annex_east",
    "position": [
     27.15,
     9.8292,
     -7.1
+   ],
+   "rooms": [
+    "kitchen",
+    "out"
    ],
    "sill": 9.2292,
    "top": 10.4292,
@@ -2114,29 +2228,43 @@
     0,
     0
    ],
+   "kind": "window",
    "name": "dormer",
    "position": [
     16.28,
     17.45,
     -8.0
    ],
+   "rooms": [
+    "attic",
+    "out"
+   ],
    "sill": 16.95,
    "top": 17.95,
    "width": 1.2
   },
   {
+   "daylight": true,
+   "floor": 6.6,
    "inward": [
     0,
     0,
     -1
    ],
+   "kind": "door",
    "name": "entrance",
    "position": [
     11.0,
     8.6592,
     0.17
    ],
+   "reveal": 0.48,
+   "rooms": [
+    "hall",
+    "out"
+   ],
    "sill": 6.6,
+   "spring": 9.057,
    "top": 10.7184,
    "width": 2.88
   },
@@ -2146,36 +2274,80 @@
     0,
     -1
    ],
+   "kind": "door",
    "name": "annex_door",
    "position": [
     20.4,
     7.76,
     -1.0
    ],
+   "rooms": [
+    "kitchen",
+    "out"
+   ],
    "sill": 6.62,
    "top": 8.9,
    "width": 1.3
+  },
+  {
+   "height": 10.86,
+   "hole": [
+    15.95,
+    -6.6,
+    17.74,
+    -3.1
+   ],
+   "kind": "stair",
+   "name": "stairs",
+   "rooms": [
+    "hall",
+    "upper_front_e"
+   ]
+  },
+  {
+   "height": 14.875,
+   "hole": [
+    8.85,
+    -8.08,
+    9.65,
+    -7.34
+   ],
+   "kind": "hatch",
+   "name": "hatch",
+   "rooms": [
+    "corridor",
+    "attic"
+   ]
   }
  ],
- "probes": [
+ "replaces": [
+  "Interior oak floor beams bar and tables"
+ ],
+ "rooms": [
   {
    "ambient": [
     0.07,
     0.05,
     0.036
    ],
-   "extents": [
-    6.670000076293945,
-    2.1115000247955322,
-    6.670000076293945
+   "boxes": [
+    [
+     11.0,
+     8.7115,
+     -7.0,
+     6.67,
+     2.1115,
+     6.67
+    ]
    ],
-   "name": "Probe hall",
-   "position": [
-    11.0,
-    8.7115,
-    -7.0
-   ],
-   "room": "hall"
+   "floor": 6.93,
+   "name": "hall",
+   "profile": "hall",
+   "wall": [
+    0.45,
+    0.45,
+    0.52
+   ]
   },
   {
    "ambient": [
@@ -2183,18 +2355,24 @@
     0.055,
     0.04
    ],
-   "extents": [
-    4.212499618530273,
-    4.225500106811523,
-    5.255000114440918
+   "boxes": [
+    [
+     22.5425,
+     10.8155,
+     -6.5,
+     4.2125,
+     4.2255,
+     5.255
+    ]
    ],
-   "name": "Probe kitchen",
-   "position": [
-    22.5425,
-    10.8155,
-    -6.5
-   ],
-   "room": "kitchen"
+   "floor": 6.64,
+   "name": "kitchen",
+   "profile": "hall",
+   "wall": [
+    0.65,
+    0.45,
+    0.45
+   ]
   },
   {
    "ambient": [
@@ -2202,18 +2380,24 @@
     0.045,
     0.034
    ],
-   "extents": [
-    3.3450002670288086,
-    1.9000000953674316,
-    3.1550002098083496
+   "boxes": [
+    [
+     7.585,
+     12.74,
+     -3.375,
+     3.345,
+     1.9,
+     3.155
+    ]
    ],
-   "name": "Probe upper_front_w",
-   "position": [
-    7.585,
-    12.74,
-    -3.375
-   ],
-   "room": "upper_front_w"
+   "floor": 10.86,
+   "name": "upper_front_w",
+   "profile": "hall",
+   "wall": [
+    0.45,
+    0.45,
+    0.45
+   ]
   },
   {
    "ambient": [
@@ -2221,18 +2405,24 @@
     0.045,
     0.034
    ],
-   "extents": [
-    3.3450002670288086,
-    1.9000000953674316,
-    3.1550002098083496
+   "boxes": [
+    [
+     14.415,
+     12.74,
+     -3.375,
+     3.345,
+     1.9,
+     3.155
+    ]
    ],
-   "name": "Probe upper_front_e",
-   "position": [
-    14.415,
-    12.74,
-    -3.375
-   ],
-   "room": "upper_front_e"
+   "floor": 10.86,
+   "name": "upper_front_e",
+   "profile": "hall",
+   "wall": [
+    0.45,
+    0.45,
+    0.45
+   ]
   },
   {
    "ambient": [
@@ -2240,18 +2430,24 @@
     0.045,
     0.034
    ],
-   "extents": [
-    3.1449999809265137,
-    1.9000000953674316,
-    2.7549996376037598
+   "boxes": [
+    [
+     7.385,
+     12.74,
+     -11.025,
+     3.145,
+     1.9,
+     2.755
+    ]
    ],
-   "name": "Probe upper_back_w",
-   "position": [
-    7.385,
-    12.74,
-    -11.025
-   ],
-   "room": "upper_back_w"
+   "floor": 10.86,
+   "name": "upper_back_w",
+   "profile": "hall",
+   "wall": [
+    0.45,
+    0.45,
+    0.45
+   ]
   },
   {
    "ambient": [
@@ -2259,18 +2455,24 @@
     0.045,
     0.034
    ],
-   "extents": [
-    3.5450000762939453,
-    1.9000000953674316,
-    2.7549996376037598
+   "boxes": [
+    [
+     14.215,
+     12.74,
+     -11.025,
+     3.545,
+     1.9,
+     2.755
+    ]
    ],
-   "name": "Probe upper_back_e",
-   "position": [
-    14.215,
-    12.74,
-    -11.025
-   ],
-   "room": "upper_back_e"
+   "floor": 10.86,
+   "name": "upper_back_e",
+   "profile": "hall",
+   "wall": [
+    0.45,
+    0.45,
+    0.45
+   ]
   },
   {
    "ambient": [
@@ -2278,18 +2480,24 @@
     0.045,
     0.034
    ],
-   "extents": [
-    6.760000228881836,
-    1.9000000953674316,
-    0.7300000190734863
+   "boxes": [
+    [
+     11.0,
+     12.74,
+     -7.4,
+     6.76,
+     1.9,
+     0.73
+    ]
    ],
-   "name": "Probe corridor",
-   "position": [
-    11.0,
-    12.74,
-    -7.4
-   ],
-   "room": "corridor"
+   "floor": 10.86,
+   "name": "corridor",
+   "profile": "hall",
+   "wall": [
+    0.45,
+    0.45,
+    0.45
+   ]
   },
   {
    "ambient": [
@@ -2297,22 +2505,25 @@
     0.04,
     0.032
    ],
-   "extents": [
-    6.760000228881836,
-    2.822500228881836,
-    6.779999732971191
+   "boxes": [
+    [
+     11.0,
+     17.6775,
+     -7.0,
+     6.76,
+     2.8225,
+     6.78
+    ]
    ],
-   "name": "Probe attic",
-   "position": [
-    11.0,
-    17.6775,
-    -7.0
-   ],
-   "room": "attic"
+   "floor": 14.875,
+   "name": "attic",
+   "profile": "hall",
+   "wall": [
+    0.65,
+    0.45,
+    0.45
+   ]
   }
- ],
- "replaces": [
-  "Interior oak floor beams bar and tables"
  ],
  "scenes": [
   "res://assets/models/tavern/optimized/tavern_interior.glb",
@@ -3058,188 +3269,6 @@
     10.86,
     -11.32
    ]
-  }
- ],
- "windows": [
-  {
-   "floor": 6.93,
-   "inward": [
-    0,
-    0,
-    -1
-   ],
-   "name": "hall_front_w",
-   "position": [
-    7.55,
-    8.775,
-    -0.0
-   ],
-   "reveal": 0.31,
-   "room": "hall",
-   "sill": 7.6,
-   "spring": 9.3,
-   "top": 9.95,
-   "width": 1.3
-  },
-  {
-   "floor": 6.93,
-   "inward": [
-    0,
-    0,
-    -1
-   ],
-   "name": "hall_front_e",
-   "position": [
-    14.45,
-    8.775,
-    -0.0
-   ],
-   "reveal": 0.31,
-   "room": "hall",
-   "sill": 7.6,
-   "spring": 9.3,
-   "top": 9.95,
-   "width": 1.3
-  },
-  {
-   "floor": 6.93,
-   "inward": [
-    1,
-    0,
-    0
-   ],
-   "name": "hall_west_s",
-   "position": [
-    4.0,
-    8.75,
-    -3.0
-   ],
-   "reveal": 0.31,
-   "room": "hall",
-   "sill": 7.6,
-   "spring": 9.3,
-   "top": 9.9,
-   "width": 1.2
-  },
-  {
-   "floor": 6.93,
-   "inward": [
-    1,
-    0,
-    0
-   ],
-   "name": "hall_west_n",
-   "position": [
-    4.0,
-    8.75,
-    -6.8
-   ],
-   "reveal": 0.31,
-   "room": "hall",
-   "sill": 7.6,
-   "spring": 9.3,
-   "top": 9.9,
-   "width": 1.2
-  },
-  {
-   "floor": 6.93,
-   "inward": [
-    0,
-    0,
-    1
-   ],
-   "name": "hall_rear",
-   "position": [
-    16.3,
-    8.8,
-    -14.0
-   ],
-   "reveal": 0.31,
-   "room": "hall",
-   "sill": 7.7,
-   "spring": 9.35,
-   "top": 9.9,
-   "width": 1.1
-  },
-  {
-   "floor": 6.64,
-   "inward": [
-    0,
-    0,
-    -1
-   ],
-   "name": "kitchen_front",
-   "position": [
-    25.3,
-    7.9,
-    -1.0
-   ],
-   "reveal": 0.225,
-   "room": "kitchen",
-   "sill": 7.35,
-   "spring": 8.45,
-   "top": 8.45,
-   "width": 0.9
-  },
-  {
-   "floor": 6.64,
-   "inward": [
-    -1,
-    0,
-    0
-   ],
-   "name": "kitchen_east",
-   "position": [
-    27.0,
-    7.9,
-    -4.2
-   ],
-   "reveal": 0.225,
-   "room": "kitchen",
-   "sill": 7.35,
-   "spring": 8.45,
-   "top": 8.45,
-   "width": 0.9
-  },
-  {
-   "floor": 6.64,
-   "inward": [
-    0,
-    0,
-    1
-   ],
-   "name": "kitchen_rear",
-   "position": [
-    22.6,
-    7.9,
-    -12.0
-   ],
-   "reveal": 0.225,
-   "room": "kitchen",
-   "sill": 7.35,
-   "spring": 8.45,
-   "top": 8.45,
-   "width": 0.9
-  },
-  {
-   "floor": 6.6,
-   "inward": [
-    0,
-    0,
-    -1
-   ],
-   "name": "entrance",
-   "position": [
-    11.0,
-    8.6592,
-    0.17
-   ],
-   "reveal": 0.48,
-   "room": "hall",
-   "sill": 6.6,
-   "spring": 9.057,
-   "top": 10.7184,
-   "width": 2.88
   }
  ]
 }

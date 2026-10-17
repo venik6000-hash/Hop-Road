@@ -1,0 +1,13 @@
+{
+ "archives": [
+  {"url": "https://opengameart.org/sites/default/files/RPGsounds_Kenney.zip", "page": "https://opengameart.org/content/50-rpg-sound-effects",
+   "title": "50 RPG sound effects", "author": "Kenney (www.kenney.nl)", "license": "CC0-1.0",
+   "sha256": "3ae398ad63e293f9c450bda22d5d81c3af69c74df66fc1400f33c012c0bbc231",
+   "files": [
+    {"member": "OGG/handleSmallLeather.ogg", "sha256": "ae3cbf695aa0a8b98b5a80a835be5a3ccbd5446a24db2235cd4c3cd6fc92ed96", "name": "hover"},
+    {"member": "OGG/metalLatch.ogg", "sha256": "ba9ba60b172b3ebc131a940f25793cd2e207aca7af73dc80d637277f060f1708", "name": "click"},
+    {"member": "OGG/bookOpen.ogg", "sha256": "953390534377222bee89ac8cd9e60a58fdc037c71a4d7c18c43cd647c7f34ba8", "name": "open"},
+    {"member": "OGG/bookClose.ogg", "sha256": "81e976532565f4372abd14e83d2684195fa548d0a28d345de221e56052454f32", "name": "close"}
+   ]}
+ ]
+}

@@ -2,7 +2,7 @@
 
 The models (`brewery.glb`, `brewery_interior.glb`) are original work, modelled in Blender by `tools/pipeline/brewery/build.py` (utensils in `utensils.py`, on `craft.py`). Source: `assets/models/source/brewery/brewery.blend`.
 
-The game's `brew_hands.glb` (the brewer's arms) and its scanned hand are left out of this public copy. Here the arms are not drawn (`src/brewing/brew_arms.gd`).
+`brew_hands.glb` holds the brewer's arms, built by `tools/pipeline/brewery/hands.py`. Its hands are the scanned hand of Ten24's free sample scan, the source of the beer mug's hand; source, licence and changes are in `assets/models/beer/CREDITS.txt`. The script adds the upper arms and forearms, the mirrored left hand, the finger clips and the linen sleeves, modelled in Blender for this project. In the game the skin takes the beer hand's maps and the sleeves the tavern's `tav_linen`.
 
 The GLBs hold no images. Their surfaces name entries of the tavern's material table (`brewery.json`, key `materials`). Those entries use these scans, all CC0:
 

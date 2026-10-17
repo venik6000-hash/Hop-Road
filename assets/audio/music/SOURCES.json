@@ -1,0 +1,14 @@
+{
+ "bitrate": 112000,
+ "files": [
+  {"url": "https://opengameart.org/sites/default/files/Loop_The_Bards_Tale.wav", "page": "https://opengameart.org/content/medieval-the-bards-tale",
+   "title": "Medieval: The Bard's Tale (loop version)", "author": "RandomMind", "license": "CC0-1.0",
+   "sha256": "6d0852a758dc41a763cd33b0693fa878e36d7f1d0149f7674bc82241a7a90de1", "name": "bards_tale"},
+  {"url": "https://opengameart.org/sites/default/files/Loop_The_Old_Tower_Inn.wav", "page": "https://opengameart.org/content/medieval-the-old-tower-inn",
+   "title": "Medieval: The Old Tower Inn (loop version)", "author": "RandomMind", "license": "CC0-1.0",
+   "sha256": "e18b497fb0edde74a745c4b5a0b90b3fc346c44555f33e3a1485411bbcc171bc", "name": "old_tower_inn"},
+  {"url": "https://opengameart.org/sites/default/files/Loop_Kings_Feast_0.wav", "page": "https://opengameart.org/content/medieval-kings-feast",
+   "title": "Medieval: King's Feast (loop version)", "author": "RandomMind", "license": "CC0-1.0",
+   "sha256": "2a37227a3d454b92168a3a633b8af8dd07af135bffb9094a05d4df1fb203a8e5", "name": "kings_feast"}
+ ]
+}

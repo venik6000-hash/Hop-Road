@@ -1,3 +1,3 @@
 {
-"regions": ["res://assets/regions/valley.tres"]
+"regions": [{"id": "valley", "region": "res://assets/regions/valley.tres"}]
 }

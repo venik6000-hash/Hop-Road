@@ -1,0 +1,30 @@
+{
+  "plants": {
+    "fern": {"model": "fern_02", "tris": 2400, "scale": [0.8, 1.5], "sway": 0.05},
+    "nettle": {"model": "nettle_plant", "tris": 6000, "scale": [3.5, 6.0], "sway": 0.3},
+    "periwinkle": {"model": "periwinkle_plant", "tris": 5400, "scale": [1.0, 1.5], "sway": 0.08},
+    "dandelion": {"model": "dandelion_01", "tris": 3200, "scale": [1.0, 1.6], "sway": 0.1},
+    "celandine": {"model": "celandine_01", "tris": 4400, "scale": [1.1, 1.8], "sway": 0.1},
+    "weed": {"model": "weed_plant_02", "tris": 3000, "scale": [1.2, 2.2], "sway": 0.05},
+    "tuft": {"model": "grass_medium_01", "tris": 2400, "least": 250, "scale": [1.6, 2.8], "sway": 0.25},
+    "tall_grass": {"model": "grass_medium_02", "tris": 2500, "scale": [1.3, 2.3], "sway": 0.2},
+    "sprig": {"model": "shrub_03", "tris": 2400, "scale": [1.6, 2.6], "sway": 0.12},
+    "shrub": {"model": "shrub_02", "tris": 9500, "scale": [0.75, 1.25], "sway": 0.02, "shadow": true, "view": 70.0}
+  },
+  "mixes": {
+    "wall": {
+      "nettle": 3.0,
+      "tall_grass": 3.0,
+      "fern": 2.0,
+      "tuft": 2.0,
+      "periwinkle": 1.5,
+      "weed": 1.0,
+      "celandine": 1.0,
+      "sprig": 1.0,
+      "shrub": 0.45
+    },
+    "bank": {"fern": 3.5, "tall_grass": 3.0, "tuft": 2.0, "celandine": 1.5, "periwinkle": 1.2, "nettle": 1.0, "sprig": 1.0, "shrub": 0.35},
+    "verge": {"tuft": 3.0, "dandelion": 2.5, "celandine": 2.0, "weed": 2.0, "tall_grass": 1.5, "periwinkle": 0.8},
+    "green": {"tuft": 3.0, "tall_grass": 2.5, "celandine": 1.5, "dandelion": 1.5, "periwinkle": 1.0, "fern": 0.8, "sprig": 1.0, "shrub": 0.5}
+  }
+}

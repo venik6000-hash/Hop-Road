@@ -1,0 +1,38 @@
+{
+  "clear": {
+    "name": "Ясно",
+    "lake": "calm",
+    "state": {"coverage": 0.16, "density": 0.9, "cumulus": 0.15, "darkness": 0.0, "cirrus": 0.7, "haze": 0.0, "mist": 0.0, "rain": 0.0, "storm": 0.0, "wind": 0.7},
+    "next": {"fair": 3, "mist": 1}
+  },
+  "fair": {
+    "name": "Облачно",
+    "lake": "breeze",
+    "state": {"coverage": 0.42, "density": 1.0, "cumulus": 0.1, "darkness": 0.0, "cirrus": 0.0, "haze": 0.0, "mist": 0.0, "rain": 0.0, "storm": 0.0, "wind": 1.0},
+    "next": {"clear": 2, "overcast": 2}
+  },
+  "overcast": {
+    "name": "Пасмурно",
+    "lake": "breeze",
+    "state": {"coverage": 0.9, "density": 1.3, "cumulus": -0.2, "darkness": 0.15, "cirrus": 0.0, "haze": 0.35, "mist": 0.1, "rain": 0.0, "storm": 0.0, "wind": 1.2},
+    "next": {"fair": 2, "rain": 2, "mist": 1}
+  },
+  "mist": {
+    "name": "Туман",
+    "lake": "calm",
+    "state": {"coverage": 0.3, "density": 0.9, "cumulus": 0.0, "darkness": 0.0, "cirrus": 0.35, "haze": 0.45, "mist": 1.0, "rain": 0.0, "storm": 0.0, "wind": 0.4},
+    "next": {"clear": 1, "fair": 2}
+  },
+  "rain": {
+    "name": "Дождь",
+    "lake": "choppy",
+    "state": {"coverage": 0.96, "density": 1.9, "cumulus": -0.1, "darkness": 0.6, "cirrus": 0.0, "haze": 0.6, "mist": 0.2, "rain": 1.0, "storm": 0.0, "wind": 1.6},
+    "next": {"overcast": 2, "storm": 1, "fair": 1}
+  },
+  "storm": {
+    "name": "Гроза",
+    "lake": "storm",
+    "state": {"coverage": 1.0, "density": 2.6, "cumulus": 0.35, "darkness": 1.0, "cirrus": 0.0, "haze": 0.7, "mist": 0.0, "rain": 1.0, "storm": 1.0, "wind": 2.6},
+    "next": {"rain": 2, "overcast": 1}
+  }
+}

@@ -1,0 +1,27 @@
+{
+ "profiles": {
+  "hall": {
+   "exposure": {"day": 1.5, "night": 1.6, "over_day": 0.8, "over_night": 0.4},
+   "ambient": {"day": 1.6, "night": 0.45},
+   "haze": 0.0,
+   "daylight": {
+    "sky": 2.4,
+    "sky_area": 2.8,
+    "overcast": 0.55,
+    "moonlit": 0.12,
+    "beam": 0.03,
+    "moon_air": 12.0,
+    "bounce": 0.22,
+    "moon_patch": 4.0,
+    "moon_bounce": 0.5
+   }
+  }
+ },
+ "lamps": {
+  "candle": {"shadow": true, "size": 0.0},
+  "lantern": {"shadow": true, "size": 0.0},
+  "chandelier": {"shadow": true, "size": 0.0},
+  "stove": {"shadow": true, "size": 0.0},
+  "hearth": {"shadow": true, "size": 0.25}
+ }
+}

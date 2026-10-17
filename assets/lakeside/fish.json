@@ -1,0 +1,6 @@
+{
+  "rudd": {"title": "Краснопёрка", "length": [16, 32], "mass": 0.32, "habitat": "shallows", "time": "day"},
+  "perch": {"title": "Окунь", "length": [18, 38], "mass": 0.65, "habitat": "pier", "time": "day"},
+  "trout": {"title": "Форель", "length": [24, 52], "mass": 1.3, "habitat": "deep", "time": "dawnDusk"},
+  "pike": {"title": "Щука", "length": [38, 78], "mass": 2.6, "habitat": "reeds", "time": "dawnDusk"}
+}

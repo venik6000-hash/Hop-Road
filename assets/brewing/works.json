@@ -1,0 +1,181 @@
+{
+  "stations": {
+    "liquor": [
+      {
+        "id": "pump_liquor",
+        "title": "качать воду в котёл",
+        "gesture": "rock",
+        "part": "liquor_pump_handle",
+        "weight": 1.5
+      },
+      {"id": "pipe_cock", "title": "кран трубы к котлу", "gesture": "draw", "part": "liquor_pipe_cock_key"},
+      {"id": "fill_bucket", "title": "зачерпнуть воды", "gesture": "tilt", "held": ["water_bucket"]}
+    ],
+    "copper": [
+      {"id": "hatch", "title": "люк котла", "gesture": "draw", "part": "copper_hatch", "along": [0.0, 1.0]},
+      {"id": "stir_copper", "title": "мешать в котле", "gesture": "circle", "held": ["mash_paddle"], "weight": 1.5},
+      {"id": "throw_hops", "title": "бросить хмель в люк", "gesture": "throw", "held": ["hop_basket"]},
+      {"id": "bucket_copper", "title": "вылить ведро в люк", "gesture": "tilt", "held": ["water_bucket"]},
+      {"id": "scoop", "title": "зачерпнуть кипятку", "gesture": "tilt", "held": ["water_bucket"]},
+      {"id": "pour_honey", "title": "влить мёд в люк", "gesture": "tilt", "held": ["honey_pot"]},
+      {"id": "throw_linden", "title": "бросить липовый цвет в люк", "gesture": "throw", "held": ["linden_bunch"]}
+    ],
+    "firebox": [
+      {
+        "id": "stoke",
+        "title": "подбросить полено",
+        "gesture": "throw",
+        "held": ["log", "beech_log"],
+        "weight": 1.5
+      },
+      {"id": "damper", "title": "заслонка котла", "gesture": "draw", "part": "copper_damper", "along": [0.0, 1.0]}
+    ],
+    "mash_tun": [
+      {"id": "liquor_cock", "title": "кран горячей воды", "gesture": "draw", "part": "liquor_cock_key"},
+      {
+        "id": "grain",
+        "title": "засыпать солод",
+        "gesture": "tilt",
+        "held": ["pale_malt_sack", "caramel_malt_sack", "oats_sack", "dark_sack", "smoked_sack", "barley_sack_1", "barley_sack_2", "barley_sack_3"],
+        "weight": 2.0
+      },
+      {"id": "stir_mash", "title": "мешать затор", "gesture": "circle", "held": ["mash_paddle"], "weight": 2.0},
+      {"id": "bucket_mash", "title": "долить ключевой воды", "gesture": "tilt", "held": ["water_bucket"]},
+      {"id": "line_tun", "title": "выстелить дно можжевельником", "gesture": "tilt", "held": ["juniper_bundle"]}
+    ],
+    "underback": [
+      {"id": "mash_tap", "title": "кран заторного чана", "gesture": "draw", "part": "mash_tap_key"}
+    ],
+    "wort_pump": [
+      {
+        "id": "pump_wort",
+        "title": "качать сусло в котёл",
+        "gesture": "rock",
+        "part": "wort_pump_lever",
+        "weight": 1.5
+      }
+    ],
+    "hop_back": [
+      {"id": "copper_tap", "title": "кран котла", "gesture": "draw", "part": "copper_tap_key"}
+    ],
+    "hop_back_tap": [
+      {"id": "hop_back_tap", "title": "кран хмелецедильного чана", "gesture": "draw", "part": "hop_back_tap_key"}
+    ],
+    "windlass": [
+      {"id": "wind", "title": "крутить ворот", "gesture": "circle", "part": "windlass", "weight": 2.0}
+    ],
+    "coolship": [
+      {
+        "id": "pour_coolship",
+        "title": "вылить бадью на тарелку",
+        "gesture": "tilt",
+        "held": ["hoist_bucket"],
+        "weight": 2.0
+      },
+      {"id": "coolship_gate", "title": "затвор тарелки", "gesture": "draw", "part": "coolship_gate"}
+    ],
+    "spout": [
+      {"id": "spout", "title": "повернуть носик", "gesture": "draw", "part": "swivel_spout"}
+    ],
+    "yeast_shelf": [
+      {"id": "dip_yeast", "title": "зачерпнуть дрожжей", "gesture": "tilt", "held": ["dipper"]}
+    ],
+    "fermenter": [
+      {"id": "fermenter_tap", "title": "кран бродильного чана", "gesture": "draw", "part": "fermenter_tap_%d_key"},
+      {"id": "pitch", "title": "влить дрожжи", "gesture": "tilt", "held": ["dipper"]},
+      {"id": "skim", "title": "снять пену", "gesture": "stripe", "held": ["skimmer"]}
+    ],
+    "lager": [
+      {"id": "lager_tap", "title": "кран лагерной бочки", "gesture": "draw", "part": "lager_tap_%d_key"},
+      {"id": "taste", "title": "налить пробу в кружку", "gesture": "draw", "part": "lager_tap_%d_key"},
+      {
+        "id": "fill_cask",
+        "title": "вылить ведро в бочку",
+        "gesture": "tilt",
+        "held": ["cellar_bucket"],
+        "weight": 1.5
+      },
+      {"id": "scald", "title": "ошпарить бочку кипятком", "gesture": "tilt", "held": ["water_bucket"]},
+      {
+        "id": "cherry_cask",
+        "title": "засыпать вишню в бочку",
+        "gesture": "tilt",
+        "held": ["cherry_basket"],
+        "weight": 1.5
+      },
+      {"id": "bung_cask", "title": "забить пробку в бочку", "gesture": "strike", "held": ["mallet"]},
+      {"id": "bung_keg", "title": "забить пробку в бочонок", "gesture": "strike", "held": ["mallet"]}
+    ],
+    "desk": [
+      {"id": "weigh_hops", "title": "отвесить хмель на весы", "gesture": "tilt", "held": ["hop_basket"]}
+    ],
+    "steep": [
+      {
+        "id": "steep_barley",
+        "title": "засыпать ячмень",
+        "gesture": "tilt",
+        "held": ["barley_sack_1", "barley_sack_2", "barley_sack_3"],
+        "weight": 2.0
+      },
+      {"id": "steep_water", "title": "вылить ведро в чан", "gesture": "tilt", "held": ["water_bucket"]},
+      {"id": "steep_plug", "title": "пробка слива", "gesture": "draw", "part": "steep_plug", "along": [0.0, 1.0]},
+      {
+        "id": "shovel_out",
+        "title": "выгрести зерно на ток",
+        "gesture": "stripe",
+        "held": ["malt_shovel"],
+        "weight": 1.5
+      }
+    ],
+    "floor": [
+      {"id": "turn_couch", "title": "ворошить кучу", "gesture": "stripe", "held": ["malt_shovel"], "weight": 1.5}
+    ],
+    "kiln": [
+      {
+        "id": "load_kiln",
+        "title": "перекинуть солод на сушилку",
+        "gesture": "stripe",
+        "held": ["malt_shovel"],
+        "weight": 1.5
+      },
+      {
+        "id": "kiln_stoke",
+        "title": "подбросить полено",
+        "gesture": "throw",
+        "held": ["log", "beech_log"],
+        "weight": 1.5
+      },
+      {
+        "id": "kiln_damper",
+        "title": "заслонка сушилки",
+        "gesture": "draw",
+        "part": "kiln_damper",
+        "along": [0.0, 1.0]
+      },
+      {"id": "rake", "title": "ворошить солод граблями", "gesture": "stripe", "held": ["kiln_rake"]},
+      {
+        "id": "sack_kiln",
+        "title": "насыпать солод в мешок",
+        "gesture": "tilt",
+        "held": ["barley_sack_1", "barley_sack_2", "barley_sack_3"]
+      }
+    ],
+    "mill": [
+      {"id": "grind", "title": "крутить жёрнов", "gesture": "circle", "part": "quern_runner", "weight": 2.0},
+      {"id": "quern_wedge", "title": "клин жёрнова", "gesture": "draw", "part": "quern_wedge"},
+      {
+        "id": "pour_hopper",
+        "title": "засыпать солод в жёрнов",
+        "gesture": "tilt",
+        "held": ["barley_sack_1", "barley_sack_2", "barley_sack_3"],
+        "weight": 2.0
+      },
+      {
+        "id": "sack_bin",
+        "title": "набрать помол в мешок",
+        "gesture": "tilt",
+        "held": ["barley_sack_1", "barley_sack_2", "barley_sack_3"]
+      }
+    ]
+  }
+}

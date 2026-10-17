@@ -34,7 +34,7 @@
       "wares": ["logs", "beech_logs", "cherries", "fine_thermometer", "full_weights"]}
   ],
   "order_board": {"title": "Доска заказов", "at": [-7.6, 2.12, -32.8], "face": [-7.6, -35.0]},
-  "cart": {"title": "Телега у ворот погреба", "at": [8.5, 3.8, -26.8], "face": [11.0, -26.8]},
+  "cart": {"title": "Телега у ворот погреба", "at": [19.6, 3.78, -29.5], "face": [16.0, -29.5]},
   "beer_prices": {
     "table_pale": 9, "cream": 12, "caramel": 12, "smoked": 13, "juniper": 13, "linden_honey": 15, "cherry_dark": 16,
     "nameless": 6, "spoiled": 2

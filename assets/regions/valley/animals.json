@@ -1,0 +1,12 @@
+{
+"animals": [
+	{"kind": "dog", "at": [3.0, 6.5], "height": 0.65, "clip": "0|standing_0", "radius": 0.0},
+	{"kind": "horse", "at": [23.0, -35.0], "height": 1.7, "clip": "Skeleton|6 Eat", "radius": 0.0},
+	{"kind": "goat", "at": [20.0, -61.0], "height": 0.95, "clip": "rigAction", "radius": 0.0},
+	{"kind": "goat", "at": [23.0, -62.0], "height": 0.8, "clip": "rigAction", "radius": 0.0},
+	{"kind": "duck", "at": [-31.0, 10.0], "height": 0.45, "clip": "walk", "radius": 2.4},
+	{"kind": "duck", "at": [-33.0, 12.0], "height": 0.4, "clip": "walk", "radius": 2.0},
+	{"kind": "goose", "at": [38.0, 22.0], "height": 1.0, "clip": "Wings Flapping", "radius": 20.0},
+	{"kind": "goose", "at": [41.0, 24.0], "height": 1.0, "clip": "Wings Flapping", "radius": 22.0}
+]
+}

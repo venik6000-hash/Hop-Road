@@ -1,0 +1,8 @@
+{
+  "barley": {"color": 4.0, "extract": 0.78, "smoke": 0.0},
+  "pale": {"color": 6.0, "extract": 0.78, "smoke": 0.0},
+  "caramel": {"color": 120.0, "extract": 0.72, "smoke": 0.0},
+  "dark": {"color": 600.0, "extract": 0.65, "smoke": 0.0},
+  "smoked": {"color": 8.0, "extract": 0.76, "smoke": 1.0},
+  "oats": {"color": 4.0, "extract": 0.7, "smoke": 0.0}
+}

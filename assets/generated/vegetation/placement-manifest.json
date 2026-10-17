@@ -1,7 +1,7 @@
 {
 	"format_version": 3,
-	"key": "64ff07a52987d9ad645dceb21284cdd70d18bbae971e42b78f9637c251960b65",
-	"placement_sha256": "201bdfa32fc60e1a2c547c19df01e4e602c6e16e70c02acc1fb7bbea74c13dcb",
-	"static_digest": "5298b03992d1979a316f9deab878c7c2c65f2ca3bdb39a9c4400a6dc764a6a9d",
+	"key": "d2ecafce7a59e37de622b085961d9974f4a341d194063ed1e8c1b2233a4430d9",
+	"placement_sha256": "bf22ee66955294312a43d9ae7355cfdc83acfdb346bf45410d6de5e716fa1022",
+	"static_digest": "d17b741ca69dce52cec0eb2c73e2810c0b71a791fbce134b38ccf46390bb2e31",
 	"tree_placer_version": 2
 }
