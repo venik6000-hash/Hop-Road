@@ -28,9 +28,9 @@ static func entries(data: Variant) -> Array[Dictionary]:
 		var at: Variant = row.get("at")
 		if not _is_hour(start) or not _is_hour(end) or not at is String or not PLACES.has(at):
 			continue
-		if float(start) == float(end):
+		if Values.real(start) == Values.real(end):
 			continue
-		result.append({"from": float(start), "to": float(end), "at": at})
+		result.append({"from": Values.real(start), "to": Values.real(end), "at": at})
 	return result
 
 ## Whether the entry covers the hour: `from` is in, `to` is out.
@@ -58,5 +58,5 @@ static func place(day: Array[Dictionary], hour: float, weather: String, shelter:
 static func _is_hour(value: Variant) -> bool:
 	if not (value is float or value is int):
 		return false
-	var hour: float = float(value)
+	var hour: float = Values.real(value)
 	return is_finite(hour) and hour >= 0.0 and hour <= 24.0

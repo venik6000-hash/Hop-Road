@@ -7,9 +7,9 @@ const REED := preload("res://src/wildlife/reed.gdshader")
 static func add(lake: LakeBed, kind: String, variant: int, transform: Transform3D) -> void:
 	var tile := Vector2i(floori(transform.origin.x / LakeBed.TILE), floori(transform.origin.z / LakeBed.TILE))
 	var key := "%s/%d/%d/%d" % [kind, variant, tile.x, tile.y]
-	if not lake._groups.has(key):
-		lake._groups[key] = {"kind": kind, "variant": variant, "transforms": []}
-	var transforms: Array = lake._groups[key].transforms
+	if not lake.groups.has(key):
+		lake.groups[key] = {"kind": kind, "variant": variant, "transforms": []}
+	var transforms: Array = lake.groups[key].transforms
 	transforms.append(transform)
 
 static func _model_name(kind: String, variant: int) -> String:
@@ -18,9 +18,9 @@ static func _model_name(kind: String, variant: int) -> String:
 static func build(lake: LakeBed) -> void:
 	var models: Dictionary = {}
 	var prepared: Dictionary = {}
-	for key: String in lake._groups:
-		var group: Dictionary = lake._groups[key]
-		var model_name := _model_name(group.kind, group.variant)
+	for key: String in lake.groups:
+		var group: Dictionary = lake.groups[key]
+		var model_name := _model_name(str(group.kind), Values.whole(group.variant))
 		if not models.has(model_name):
 			models[model_name] = (load(LakeBed.DIRECTORY + model_name + ".glb") as PackedScene).instantiate()
 		var scene: Node3D = models[model_name]
@@ -29,7 +29,7 @@ static func build(lake: LakeBed) -> void:
 			if not prepared.has(mesh_key):
 				var mesh := source.mesh.duplicate() as ArrayMesh
 				for surface in mesh.get_surface_count():
-					mesh.surface_set_material(surface, _material(lake, group.kind, WildlifeModel.material_for(source, surface) as StandardMaterial3D))
+					mesh.surface_set_material(surface, _material(lake, str(group.kind), WildlifeModel.material_for(source, surface) as StandardMaterial3D))
 				prepared[mesh_key] = mesh
 			var multi := MultiMesh.new()
 			multi.transform_format = MultiMesh.TRANSFORM_3D
@@ -37,7 +37,8 @@ static func build(lake: LakeBed) -> void:
 			var transforms: Array = group.transforms
 			multi.instance_count = transforms.size()
 			for i in multi.instance_count:
-				multi.set_instance_transform(i, transforms[i] * source.transform)
+				var pose: Transform3D = transforms[i]
+				multi.set_instance_transform(i, pose * source.transform)
 			var instance := MultiMeshInstance3D.new()
 			instance.name = key.replace("/", "_")
 			instance.multimesh = multi
@@ -54,8 +55,8 @@ static func build(lake: LakeBed) -> void:
 ## One material per kind (plants) or per source material (scans).
 static func _material(lake: LakeBed, kind: String, original: StandardMaterial3D) -> ShaderMaterial:
 	var key := kind if LakeBed.PLANTS.has(kind) else str(original.get_instance_id())
-	if lake._materials.has(key):
-		return lake._materials[key]
+	if lake.materials.has(key):
+		return lake.materials[key]
 	var material := ShaderMaterial.new()
 	if kind == "reed":
 		material.shader = REED
@@ -77,5 +78,5 @@ static func _material(lake: LakeBed, kind: String, original: StandardMaterial3D)
 	material.set_shader_parameter("water_level", lake.habitat.terrain.water_level)
 	material.set_shader_parameter("water_absorption", WaterSystem.ABSORPTION)
 	material.set_shader_parameter("water_scattering", WaterSystem.SCATTERING)
-	lake._materials[key] = material
+	lake.materials[key] = material
 	return material

@@ -1,4 +1,4 @@
-extends SceneTree
+extends "res://tools/lib/tool_script.gd"
 ## Bakes the settled ground of a region (ground_bake.gd): its near heights
 ## with the rocks, buildings and water courses laid in, its masks with the
 ## beds, yards and worn ground painted in, and the manifest with the courses
@@ -6,7 +6,7 @@ extends SceneTree
 ## current is left alone; pass `-- --force` to bake anyway,
 ## `-- --region=res://...tres` for another region.
 ##
-##   tools/run/godot_lock.sh "$GODOT" --headless --path . --script res://tools/pipeline/terrain/bake_ground.gd
+##   tools/run/godot_lock.sh "$GODOT" --headless --path . --script res://tools/lib/tool_runner.gd -- res://tools/pipeline/terrain/bake_ground.gd
 ##
 ## After writing, the files are read back as the game reads them and must give
 ## the same heights, courses and masks.
@@ -27,6 +27,11 @@ func _bake(region: RegionDef, force: bool) -> int:
 	if region == null:
 		push_error("TERRAIN_GROUND_BAKE no region")
 		return 1
+	# A region that reads another's bake (the test's stub) must not overwrite it.
+	for other: RegionDef in RegionDef.listed():
+		if other.id != region.id and not _shared(region, other).is_empty():
+			push_error("TERRAIN_GROUND_BAKE %s names the bake of %s: %s" % [region.id, other.id, _shared(region, other)])
+			return 1
 	var key := GroundBake.key(region)
 	if key.is_empty():
 		push_error("TERRAIN_GROUND_BAKE an input of %s is missing: %s" % [region.id, GroundBake.inputs(region)])
@@ -67,3 +72,11 @@ func _bake(region: RegionDef, force: bool) -> int:
 	print("TERRAIN_GROUND_BAKE region=%s size=%d courses=%s masks=%s key=%s settle=%.0fms read=%.0fms" % [region.id,
 		image.get_width(), courses.keys(), masks.keys(), key.left(12), settle_msec, read_msec])
 	return 0
+
+## The files of the bake that `region` and `other` both name.
+static func _shared(region: RegionDef, other: RegionDef) -> PackedStringArray:
+	var shared := PackedStringArray()
+	for path: String in [region.settled_heights, region.settled_masks, region.settled_ground]:
+		if path in [other.settled_heights, other.settled_masks, other.settled_ground]:
+			shared.append(path)
+	return shared

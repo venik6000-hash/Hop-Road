@@ -4,14 +4,14 @@ extends Node
 ## Layer 19 is private to the capture camera; shared materials clip at the water.
 const LAYER := 1 << 18
 const GUARD := 1.25
-## For an eye in the tavern's rooms (TavernPortals): the lake is looked for
+## For an eye in a room (InteriorSight): the lake is looked for
 ## in squares down to this side (m), this far over and under its level (m),
 ## where the ground lies no higher over the level than SHORE (m).
 const WATER_SQUARE := 32.0
 const WATER_SWELL := 2.0
 const SHORE := 1.5
 var water: WaterSystem
-## The level's context (its tavern's portals); null in a tool that builds
+## The level's context (its rooms' sight, Interiors); null in a tool that builds
 ## a part of the level alone.
 var world: WorldContext
 var viewport: SubViewport
@@ -19,8 +19,8 @@ var camera: Camera3D
 var capture := RefractionCapture.new()
 var enabled := true
 var _bound := false
-## The TavernPortals.revision the lake was last looked for by, and whether
-## an opening of the tavern showed it.
+## The Interiors.revision the lake was last looked for by, and whether
+## an opening of the room showed it.
 var _portal_revision := -1
 var _water_seen := true
 
@@ -118,15 +118,15 @@ func _process(_delta: float) -> void:
 ## Whether the lake can be seen at all: always from outdoors, and from the
 ## tavern's rooms when an opening shows a square of the ground that has water.
 func _through_portals() -> bool:
-	var portals := world.portals if world != null else null
-	if portals == null or not portals.sight.active:
+	var interiors := world.interiors if world != null else null
+	if interiors == null or not interiors.sight.active:
 		return true
-	if portals.revision != _portal_revision:
-		_portal_revision = portals.revision
+	if interiors.revision != _portal_revision:
+		_portal_revision = interiors.revision
 		var terrain := water.terrain
 		var level := water.water_level
-		_water_seen = portals.sight.sees_ground(terrain.far_origin, WaterSystem.LOD0_SIZE * pow(2.0, WaterSystem.LEVELS - 1),
+		_water_seen = interiors.sight.sees_ground(terrain.far_origin, WaterSystem.LOD0_SIZE * pow(2.0, WaterSystem.LEVELS - 1),
 			level - WATER_SWELL, level + WATER_SWELL, WATER_SQUARE,
 			func(x: float, z: float, size: float) -> bool: return terrain.height_bounds(x, z, size).x < level + SHORE)
-		portals.counts[&"lake capture"] = Vector2i(int(not _water_seen), 1)
+		interiors.counts[&"lake capture"] = Vector2i(int(not _water_seen), 1)
 	return _water_seen

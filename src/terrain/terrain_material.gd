@@ -20,7 +20,7 @@ static func setup(terrain: TerrainSystem, baked: Dictionary) -> void:
 	terrain.material.set_shader_parameter("near_rect", Vector4(terrain.near_origin.x, terrain.near_origin.y, terrain.near_cell, terrain.near_size))
 	terrain.material.set_shader_parameter("far_rect", Vector4(terrain.far_origin.x, terrain.far_origin.y, terrain.far_cell, terrain.far_size))
 	var masks: Dictionary = terrain.meta.masks
-	terrain.material.set_shader_parameter("mask_rect", Vector4(masks.origin[0], masks.origin[1], masks.cell, masks.size))
+	terrain.material.set_shader_parameter("mask_rect", Vector4(Values.real(masks.origin[0]), Values.real(masks.origin[1]), Values.real(masks.cell), Values.real(masks.size)))
 	if baked.is_empty():
 		push_error("TerrainMaterial: no settled masks for %s; run tools/run/rebuild.sh --only terrain-ground"
 			% terrain.region.id)

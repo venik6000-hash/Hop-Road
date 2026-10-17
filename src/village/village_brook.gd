@@ -16,18 +16,14 @@ extends Node3D
 ## water two hands wide past the well, along the upper lane and the cross
 ## lane, and a fall over stones into the pond. Its groove, its pebbles and
 ## its wet margin come with the village's ground
-## (tools/pipeline/terrain/terrain_village.py: RILL).
+## (tools/pipeline/terrain/terrain_village.py reads the same line).
+##
+## Both lines lie in the region's file (RegionDef.brook, WorldSchemas.brook):
+## the centre line downstream, each point x, z and the half width of the
+## water there. The rill's are the points of its groove; a cell of the
+## heightfield is half a metre, so no narrower water has a bed everywhere
+## along it.
 
-## Centre line downstream (x, z) and the half width of the water there.
-const POINTS: Array[Vector3] = [
-	Vector3(-30.0, 46.0, 0.3), Vector3(-28.6, 40.5, 0.7), Vector3(-25.8, 34.5, 0.85),
-	Vector3(-27.4, 27.5, 0.9), Vector3(-24.2, 20.5, 0.9), Vector3(-25.6, 13.0, 1.0),
-	Vector3(-21.8, 6.0, 1.0), Vector3(-22.6, -1.0, 1.0), Vector3(-18.8, -7.0, 1.05),
-	Vector3(-17.6, -13.0, 1.1), Vector3(-14.4, -17.5, 1.1), Vector3(-13.4, -21.5, 1.0),
-	Vector3(-14.6, -25.2, 1.3), Vector3(-18.2, -27.0, 1.5), Vector3(-22.0, -27.6, 1.5),
-	Vector3(-23.5, -30.0, 1.4), Vector3(-24.6, -32.4, 1.5), Vector3(-27.6, -34.2, 1.7),
-	Vector3(-31.5, -35.0, 2.2), Vector3(-36.5, -35.5, 2.5), Vector3(-42.8, -35.8, 3.0),
-]
 ## Blender pieces this replaces (their alpine_label).
 const REPLACES := ["Village brook current", "Village brook rock banks"]
 ## Metres between the rows of the course.
@@ -41,15 +37,7 @@ const LEAST_FALL := 0.022
 const FAN := 7.0
 ## The ribbon reaches this far into its banks.
 const INTO_BANK := 0.45
-## The street's rill downstream, as POINTS: terrain_village.py's RILL, with the
-## half width of its water. A cell of the heightfield is half a metre: no
-## narrower water has a bed everywhere along it.
-const RILL: Array[Vector3] = [
-	Vector3(13.2, -29.3, 0.3), Vector3(13.4, -31.0, 0.32), Vector3(12.7, -33.0, 0.32), Vector3(11.0, -34.8, 0.32),
-	Vector3(10.3, -37.0, 0.34), Vector3(10.2, -40.0, 0.34), Vector3(10.0, -46.0, 0.34), Vector3(9.0, -49.8, 0.34),
-	Vector3(4.5, -50.4, 0.34), Vector3(0.5, -50.8, 0.32), Vector3(-3.2, -52.4, 0.3), Vector3(-5.0, -53.2, 0.3),
-]
-## Its water is this deep, lies this far under its banks, and those stand that
+## The rill's water is this deep, lies this far under its banks, and those stand that
 ## high within this many metres of the water (the brook's: SET_IN in 1.2 m).
 const RILL_DEPTH := 0.1
 const RILL_SET_IN := 0.1
@@ -103,8 +91,27 @@ func _add_water(ribbon: String, course: Array[Dictionary], depth: float, ripples
 	item.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 	add_child(item)
 
+## The brook and the rill of the file `path` (WorldSchemas.brook): {brook,
+## rill: Array[Vector3] of (x, z, half width)}; {} for "" or a file that does
+## not read.
+static func read(path: String) -> Dictionary:
+	if path.is_empty():
+		return {}
+	var data: Variant = DataFile.read(path, WorldSchemas.brook())
+	if not data is Dictionary:
+		return {}
+	var file: Dictionary = data
+	var lines := {}
+	for key: String in ["brook", "rill"]:
+		var points: Array[Vector3] = []
+		var listed: Array = file[key]
+		for point: Variant in listed:
+			points.append(Values.vec3(point))
+		lines[key] = points
+	return lines
+
 ## The centre line through `points` every STEP metres: (x, z, half width).
-static func centre_line(points: Array[Vector3] = POINTS) -> Array[Vector3]:
+static func centre_line(points: Array[Vector3]) -> Array[Vector3]:
 	var dense: Array[Vector3] = []
 	for k in points.size() - 1:
 		var p0 := points[maxi(k - 1, 0)]
@@ -131,16 +138,17 @@ static func centre_line(points: Array[Vector3] = POINTS) -> Array[Vector3]:
 		carried += length
 	return line
 
-## The course over the ground `height` (x, z -> m) gives: the surface falls
-## in pools and steps, as mountain brooks do, and ends at the lake's level.
-static func plan(height: Callable, water_level: float) -> Array[Dictionary]:
-	var line := centre_line()
+## The course of the brook through `points` over the ground `height` (x, z
+## -> m) gives: the surface falls in pools and steps, as mountain brooks do,
+## and ends at the lake's level.
+static func plan(points: Array[Vector3], height: Callable, water_level: float) -> Array[Dictionary]:
+	var line := centre_line(points)
 	var count := line.size()
 	var surface := PackedFloat32Array()
 	surface.resize(count)
 	var low := INF
 	for i in count:
-		low = minf(low, float(height.call(line[i].x, line[i].y)) - SET_IN)
+		low = minf(low, Values.real(height.call(line[i].x, line[i].y)) - SET_IN)
 		surface[i] = maxf(low, water_level + 0.02 + LEAST_FALL * maxf((count - 1 - i) * STEP - FAN, 0.0))
 	var result: Array[Dictionary] = []
 	for i in count:
@@ -187,17 +195,17 @@ static func plan(height: Callable, water_level: float) -> Array[Dictionary]:
 		row.step = false
 	return result
 
-## The rill's course over the ground `height` (x, z -> m) gives: its water
-## lies in the groove dug for it and never runs uphill, slow where the street
-## is level and white where it falls to the pond, under whose surface (the
-## lake's, `water_level`) its last rows slip.
-static func plan_rill(height: Callable, water_level: float) -> Array[Dictionary]:
-	var line := centre_line(RILL)
+## The course of the rill through `points` over the ground `height` (x, z ->
+## m) gives: its water lies in the groove dug for it and never runs uphill,
+## slow where the street is level and white where it falls to the pond, under
+## whose surface (the lake's, `water_level`) its last rows slip.
+static func plan_rill(points: Array[Vector3], height: Callable, water_level: float) -> Array[Dictionary]:
+	var line := centre_line(points)
 	var count := line.size()
 	var result: Array[Dictionary] = []
 	var low := INF
 	for i in count:
-		low = minf(low, float(height.call(line[i].x, line[i].y)))
+		low = minf(low, Values.real(height.call(line[i].x, line[i].y)))
 		result.append({"at": Vector3(line[i].x, maxf(low, water_level + 0.02), line[i].y), "half": line[i].z, "speed": 0.5,
 			"depth": RILL_DEPTH, "step": false})
 	for i in count:
@@ -215,14 +223,19 @@ static func plan_rill(height: Callable, water_level: float) -> Array[Dictionary]
 		row.step = false
 	return result
 
-## Cuts the channels into the near heightfield (row z, column x at origin +
-## index * cell). Returns the courses for the water and the stones, by name.
-static func carve(image: Image, origin: Vector2, cell: float, water_level: float) -> Dictionary:
+## Cuts the channels of `lines` (read; {} for none) into the near
+## heightfield (row z, column x at origin + index * cell). Returns the
+## courses for the water and the stones, by name.
+static func carve(image: Image, origin: Vector2, cell: float, water_level: float, lines: Dictionary) -> Dictionary:
+	if lines.is_empty():
+		return {}
 	var sample := func(x: float, z: float) -> float:
-		return image.get_pixel(int(round((x - origin.x) / cell)), int(round((z - origin.y) / cell))).r
-	var rows := plan(sample, water_level)
+		return image.get_pixel(roundi((x - origin.x) / cell), roundi((z - origin.y) / cell)).r
+	var brook: Array[Vector3] = lines.brook
+	var rill_line: Array[Vector3] = lines.rill
+	var rows := plan(brook, sample, water_level)
 	cut(image, origin, cell, rows)
-	var rill := plan_rill(sample, water_level)
+	var rill := plan_rill(rill_line, sample, water_level)
 	cut(image, origin, cell, rill, RILL_SET_IN, RILL_BANK)
 	return {BROOK: rows, RILL_COURSE: rill}
 
@@ -261,7 +274,7 @@ static func nearest_cells(course: Array[Dictionary], origin: Vector2, cell: floa
 	var nearest := {}
 	for index in course.size():
 		var row: Dictionary = course[index]
-		var at := Vector2(row.at.x, row.at.z)
+		var at := Vector2(Values.real(row.at.x), Values.real(row.at.z))
 		var radius: float = row.half + reach
 		var lo := Vector2i(((at - Vector2.ONE * radius - origin) / cell).floor())
 		var hi := Vector2i(((at + Vector2.ONE * radius - origin) / cell).ceil())

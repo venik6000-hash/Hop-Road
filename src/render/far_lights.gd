@@ -44,7 +44,8 @@ func add_glow(at: Vector3, color: Color, radius: float, facing := Vector3.ZERO) 
 func set_lit(index: int, lit: bool) -> void:
 	_glows[index].lit = lit
 	if multimesh != null:
-		multimesh.set_instance_color(index, _glows[index].color if lit else Color.BLACK)
+		var color: Color = _glows[index].color
+		multimesh.set_instance_color(index, color if lit else Color.BLACK)
 
 func build() -> void:
 	var quad := QuadMesh.new()
@@ -61,12 +62,14 @@ func build() -> void:
 	var bounds := AABB()
 	for index in _glows.size():
 		var glow: Dictionary = _glows[index]
-		var local: Vector3 = to_local(glow.at) if is_inside_tree() else glow.at
+		var at: Vector3 = glow.at
+		var local: Vector3 = to_local(at) if is_inside_tree() else at
 		# Not a pose (see the shader): x carries the radius, z the facing.
 		var facing: Vector3 = glow.facing
-		var basis := Basis(Vector3(glow.radius, 0.0, 0.0), Vector3.UP, facing.normalized() if facing != Vector3.ZERO else Vector3.ZERO)
+		var basis := Basis(Vector3(Values.real(glow.radius), 0.0, 0.0), Vector3.UP, facing.normalized() if facing != Vector3.ZERO else Vector3.ZERO)
 		multimesh.set_instance_transform(index, Transform3D(basis, local))
-		multimesh.set_instance_color(index, glow.color if glow.lit else Color.BLACK)
+		var color: Color = glow.color
+		multimesh.set_instance_color(index, color if glow.lit else Color.BLACK)
 		bounds = AABB(local, Vector3.ZERO) if index == 0 else bounds.expand(local)
 	# The quads are sized on the screen: no box around them holds them all.
 	multimesh.custom_aabb = bounds.grow(6.0)

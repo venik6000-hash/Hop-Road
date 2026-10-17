@@ -76,9 +76,9 @@ static func copy_scan_look(material: ShaderMaterial, original: StandardMaterial3
 	material.set_shader_parameter("normal_strength", original.normal_scale)
 	material.set_shader_parameter("roughness_channel", original.roughness_texture_channel)
 	for pair: Array in [["albedo", original.albedo_texture], ["normal", original.normal_texture], ["roughness", original.roughness_texture]]:
-		material.set_shader_parameter("has_" + pair[0], pair[1] != null)
+		material.set_shader_parameter(StringName(str("has_" + pair[0])), pair[1] != null)
 		if pair[1] != null:
-			material.set_shader_parameter(pair[0] + "_map", pair[1])
+			material.set_shader_parameter(StringName(str(pair[0] + "_map")), pair[1])
 
 static func play(animation: AnimationPlayer, clip: String, speed := 1.0) -> void:
 	if animation == null or not animation.has_animation(clip):

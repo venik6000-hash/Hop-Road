@@ -86,7 +86,7 @@ func _ready() -> void:
 	# before geometry consumes it. Keep the original pass in other backends
 	# or the single-texture incremental path, where it can remain visible.
 	sky_material.set_shader_parameter("skip_cubemap_quarter_pass",
-		RenderingServer.get_current_rendering_method() == "forward_plus" and bool(
+		RenderingServer.get_current_rendering_method() == "forward_plus" and Values.flag(
 			ProjectSettings.get_setting_with_override("rendering/reflections/sky_reflections/texture_array_reflections")))
 	sky_material.set_shader_parameter("cloud_shape", load("res://assets/generated/sky/cloud_shape.png"))
 	sky_material.set_shader_parameter("cloud_detail", load("res://assets/generated/sky/cloud_detail.png"))

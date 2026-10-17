@@ -81,11 +81,11 @@ func holds(thing: StringName) -> bool:
 func blocker(doer: StringName, parts := -1) -> StringName:
 	var row: Dictionary = doers[doer]
 	if parts < 0:
-		parts = int(row.parts)
+		parts = Values.whole(row.parts)
 	var needs: StringName = row.get("needs", &"")
 	if needs != &"" and not holds(needs):
 		var keeper := _keeper(needs)
-		return holder(int(doers[keeper].parts)) if has(keeper) else keeper
+		return holder(Values.whole(doers[keeper].parts)) if has(keeper) else keeper
 	var stows: Array = row.get("stows", [])
 	for part in PARTS:
 		if not part & parts:
@@ -110,8 +110,8 @@ func claim(doer: StringName, busy := Callable(), parts := -1) -> bool:
 	if blocker(doer, parts) != &"":
 		return false
 	if parts < 0:
-		parts = int(doers[doer].parts)
-	var before := int(_claims.get(doer, 0))
+		parts = Values.whole(doers[doer].parts)
+	var before := Values.whole(_claims.get(doer, 0))
 	if before == 0:
 		_order.append(doer)
 	_claims[doer] = before | parts
@@ -152,7 +152,7 @@ func audit() -> void:
 		if not _busy.has(doer):
 			continue
 		var busy: Callable = _busy[doer]
-		if not busy.is_valid() or not bool(busy.call()):
+		if not busy.is_valid() or not Values.flag(busy.call()):
 			release(doer)
 			leaked.emit(doer)
 
@@ -173,7 +173,7 @@ func step(delta: float) -> bool:
 	for doer: StringName in _drive.keys():
 		var drive: PackedFloat32Array = _drive[doer]
 		var row: Dictionary = doers[doer]
-		var rate := delta / float(row.get("fade", FADE))
+		var rate := delta / Values.real(row.get("fade", FADE))
 		var left := false
 		for index in PARTS.size():
 			var goal := 1.0 if holder(PARTS[index]) == doer else 0.0
@@ -216,7 +216,7 @@ func drives(doer: StringName) -> bool:
 	return false
 
 func _rank(doer: StringName) -> int:
-	return int(doers[doer].layer)
+	return Values.whole(doers[doer].layer)
 
 ## The doer of the table that holds `thing`.
 func _keeper(thing: StringName) -> StringName:

@@ -37,10 +37,10 @@ var skyview_lut := Texture2DRD.new()
 
 var _rd: RenderingDevice
 var _sampler: RID
-var _shaders := {}
-var _pipelines := {}
-var _textures := {}
-var _sets := {}
+var _shaders: Dictionary[String, RID] = {}
+var _pipelines: Dictionary[String, RID] = {}
+var _textures: Dictionary[String, RID] = {}
+var _sets: Dictionary[String, RID] = {}
 var _built_tune := Vector4(-1, -1, -1, -1)
 var _ready_for_frames := false
 var _built_view := Vector2(INF, INF)
@@ -83,17 +83,17 @@ func _create_gpu_resources() -> void:
 			return
 		_shaders[pass_name] = _rd.shader_create_from_spirv(spirv)
 		_pipelines[pass_name] = _rd.compute_pipeline_create(_shaders[pass_name])
-	_textures.transmittance = _make_texture(TRANSMITTANCE_SIZE)
-	_textures.multiscatter = _make_texture(MULTISCATTER_SIZE)
-	_textures.skyview = _make_texture(SKYVIEW_SIZE)
-	_sets.transmittance = _rd.uniform_set_create([RdUtil.image(0, _textures.transmittance)], _shaders.transmittance, 0)
-	_sets.multiscatter = _rd.uniform_set_create([
-		RdUtil.sampled(0, _sampler, _textures.transmittance), RdUtil.image(1, _textures.multiscatter)], _shaders.multiscatter, 0)
-	_sets.skyview = _rd.uniform_set_create([
-		RdUtil.sampled(0, _sampler, _textures.transmittance), RdUtil.sampled(1, _sampler, _textures.multiscatter),
-		RdUtil.image(2, _textures.skyview)], _shaders.skyview, 0)
-	transmittance_lut.texture_rd_rid = _textures.transmittance
-	skyview_lut.texture_rd_rid = _textures.skyview
+	_textures["transmittance"] = _make_texture(TRANSMITTANCE_SIZE)
+	_textures["multiscatter"] = _make_texture(MULTISCATTER_SIZE)
+	_textures["skyview"] = _make_texture(SKYVIEW_SIZE)
+	_sets["transmittance"] = _rd.uniform_set_create([RdUtil.image(0, _textures["transmittance"])], _shaders["transmittance"], 0)
+	_sets["multiscatter"] = _rd.uniform_set_create([
+		RdUtil.sampled(0, _sampler, _textures["transmittance"]), RdUtil.image(1, _textures["multiscatter"])], _shaders["multiscatter"], 0)
+	_sets["skyview"] = _rd.uniform_set_create([
+		RdUtil.sampled(0, _sampler, _textures["transmittance"]), RdUtil.sampled(1, _sampler, _textures["multiscatter"]),
+		RdUtil.image(2, _textures["skyview"])], _shaders["skyview"], 0)
+	transmittance_lut.texture_rd_rid = _textures["transmittance"]
+	skyview_lut.texture_rd_rid = _textures["skyview"]
 	_publish.call_deferred()
 
 func _publish() -> void:
@@ -123,21 +123,21 @@ func _dispatch(sun_zenith_cos: float, radius_km: float, air: Vector4, rebuild: b
 	if rebuild:
 		var push := _push([air.x, air.y, air.z, air.w,
 			TRANSMITTANCE_SIZE.x, TRANSMITTANCE_SIZE.y, 0.0, 0.0])
-		_rd.compute_list_bind_compute_pipeline(list, _pipelines.transmittance)
-		_rd.compute_list_bind_uniform_set(list, _sets.transmittance, 0)
+		_rd.compute_list_bind_compute_pipeline(list, _pipelines["transmittance"])
+		_rd.compute_list_bind_uniform_set(list, _sets["transmittance"], 0)
 		_rd.compute_list_set_push_constant(list, push, push.size())
 		_rd.compute_list_dispatch(list, TRANSMITTANCE_SIZE.x / 8, TRANSMITTANCE_SIZE.y / 8, 1)
 		_rd.compute_list_add_barrier(list)
 		push = _push([air.x, air.y, air.z, air.w, MULTISCATTER_SIZE.x, MULTISCATTER_SIZE.y, 0.0, 0.0])
-		_rd.compute_list_bind_compute_pipeline(list, _pipelines.multiscatter)
-		_rd.compute_list_bind_uniform_set(list, _sets.multiscatter, 0)
+		_rd.compute_list_bind_compute_pipeline(list, _pipelines["multiscatter"])
+		_rd.compute_list_bind_uniform_set(list, _sets["multiscatter"], 0)
 		_rd.compute_list_set_push_constant(list, push, push.size())
 		_rd.compute_list_dispatch(list, MULTISCATTER_SIZE.x, MULTISCATTER_SIZE.y, 1)
 		_rd.compute_list_add_barrier(list)
 	var view_push := _push([air.x, air.y, air.z, air.w, SKYVIEW_SIZE.x, SKYVIEW_SIZE.y, 0.0, 0.0,
 		sun_zenith_cos, radius_km, 0.0, 0.0])
-	_rd.compute_list_bind_compute_pipeline(list, _pipelines.skyview)
-	_rd.compute_list_bind_uniform_set(list, _sets.skyview, 0)
+	_rd.compute_list_bind_compute_pipeline(list, _pipelines["skyview"])
+	_rd.compute_list_bind_uniform_set(list, _sets["skyview"], 0)
 	_rd.compute_list_set_push_constant(list, view_push, view_push.size())
 	_rd.compute_list_dispatch(list, ceili(SKYVIEW_SIZE.x / 8.0), ceili(SKYVIEW_SIZE.y / 8.0), 1)
 	_rd.compute_list_end()

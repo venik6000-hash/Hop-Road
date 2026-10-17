@@ -14,7 +14,7 @@ static func mesh(parent: Node3D, shape: Mesh, color: Color, at := Vector3.ZERO, 
 	result.mesh = shape
 	result.material_override = material(color, metal)
 	result.position = at
-	result.layers = 1 | TavernSystem.LAYER
+	result.layers = 1 | LightLayers.ROOMS
 	parent.add_child(result)
 	return result
 

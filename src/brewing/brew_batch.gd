@@ -1,10 +1,10 @@
 class_name BrewBatch
 extends RefCounted
 ## One batch from the mash to the lager barrel (docs/plans/brewing.md,
-## section 4), and what it tastes like (profile). Each step is a call in the
-## order of the brewing day; a step out of order does nothing. A mistake adds
-## a flaw id, the cause is in assets/brewing/flaws.json. `journal` keeps each step
-## with its numbers for the brewer's book.
+## section 4). Each step is a call in the order of the brewing day; a step
+## out of order does nothing. A mistake adds a flaw id, the cause is in
+## assets/brewing/flaws.json. `journal` keeps each step with its numbers for
+## the brewer's book (BrewJournal). What the batch tastes like is BrewTaste's.
 
 ## Heat the grain holds against water's 1, and its °C when it goes in.
 const GRAIN_HEAT := 0.4
@@ -22,8 +22,6 @@ const CONVERTED := 0.85
 const CLUMPS := 0.3
 ## A stir turn leaves this part of the clumps; oats stick and halve the turn.
 const STIR_LEAVES := 0.8
-## Turns of the paddle oats need for a creamy body.
-const OATS_STIRS := 40
 ## Litres of wort a kg of spent grain keeps; sparge litres a kg to rinse it;
 ## sparge °C below which the rinse is weak.
 const GRAIN_KEEPS := 1.0
@@ -44,14 +42,6 @@ const EVAPORATION := 0.1
 const FOAM := 0.85
 const FOAM_MINUTES := 15.0
 const SCORCH := 30.0
-## Minutes of strong boil that caramelize the wort.
-const LONG_BOIL := 100.0
-## Hop alpha acid, the utilization of a long boil and its speed (Tinseth),
-## and the minutes before the end from which hops give aroma.
-const HOP_ALPHA := 0.04
-const HOP_USE := 0.275
-const HOP_SPEED := 0.04
-const LATE_HOPS := 15.0
 ## Extract a kg of honey or cherries gives.
 const HONEY_EXTRACT := 0.8
 const CHERRY_EXTRACT := 0.1
@@ -75,20 +65,6 @@ const SKIM_BY := 2
 ## Days in the lager barrel before it is ready; with cherries.
 const AGE_DAYS := 7
 const CHERRY_AGE_DAYS := 14
-## Signature amounts: what makes a note heard in the beer.
-const OATS_NOTE := 0.2
-const CARAMEL_NOTE := 1.0
-const SMOKE_NOTE := 0.15
-const HOPS_NOTE := 0.5
-const JUNIPER_NOTE := 0.004
-const HONEY_NOTE := 0.015
-const LINDEN_NOTE := 0.001
-const CHERRY_NOTE := 0.05
-
-## Steps whose runs the journal keeps as one line: these numbers are summed,
-## the others are the last step's. A boil at another fire starts a new line.
-const RUNS := {"rest": ["minutes"], "boil": ["minutes"], "cool": ["hours"], "grain": ["kg"], "pour": ["liters"],
-	"spill": ["liters"], "water_down": ["liters"], "pitch": ["yeast_l"]}
 
 ## The variables a save keeps.
 ## A key is the name of its variable. tests/test_brew_saves.gd fails when a
@@ -161,36 +137,24 @@ func _flaw(id: String) -> void:
 	if not flaws.has(id):
 		flaws.append(id)
 
-func _note(step: String, numbers: Dictionary) -> void:
-	var entry := {"step": step}
-	entry.merge(numbers)
-	if RUNS.has(step) and not journal.is_empty():
-		var last: Dictionary = journal[journal.size() - 1]
-		if last.step == step and last.get("fire") == entry.get("fire"):
-			for key: String in RUNS[step]:
-				entry[key] = float(last[key]) + float(entry[key])
-			journal[journal.size() - 1] = entry
-			return
-	journal.append(entry)
-
 ## Value of [x, y] points at x, held flat past the ends.
 static func curve(points: Array, x: float) -> float:
 	var first: Array = points[0]
-	if x <= float(first[0]):
-		return float(first[1])
+	if x <= Values.real(first[0]):
+		return Values.real(first[1])
 	for index in range(1, points.size()):
 		var low: Array = points[index - 1]
 		var high: Array = points[index]
-		if x <= float(high[0]):
-			return lerpf(float(low[1]), float(high[1]), (x - float(low[0])) / (float(high[0]) - float(low[0])))
+		if x <= Values.real(high[0]):
+			return lerpf(Values.real(low[1]), Values.real(high[1]), (x - Values.real(low[0])) / (Values.real(high[0]) - Values.real(low[0])))
 	var last: Array = points[points.size() - 1]
-	return float(last[1])
+	return Values.real(last[1])
 
 ## Lays juniper branches on the bottom of the mash tun.
 func line_tun(kg: float) -> void:
 	if stage == BrewIds.STAGE_NEW:
 		juniper_kg += kg
-		_note("line_tun", {"kg": kg})
+		BrewJournal.note(journal, "line_tun", {"kg": kg})
 
 ## Puts the milled lots into `water_l` of water at `water_temp` °C.
 func mash_in(lots: Array[MaltLot], water_l: float, water_temp: float) -> void:
@@ -201,7 +165,8 @@ func mash_in(lots: Array[MaltLot], water_l: float, water_temp: float) -> void:
 	mash_temp = GRAIN_TEMP
 	stage = BrewIds.STAGE_MASH
 	_pour(water_l, water_temp)
-	_note("mash_in", {"grain_kg": grain_kg, "water_l": water_l, "water_temp": water_temp, "mash_temp": mash_temp})
+	BrewJournal.note(journal, "mash_in", {"grain_kg": grain_kg, "water_l": water_l, "water_temp": water_temp,
+		"mash_temp": mash_temp})
 
 ## More milled grain into the mash: it comes in cold, at GRAIN_TEMP.
 func add_grain(lots: Array[MaltLot]) -> void:
@@ -212,17 +177,8 @@ func add_grain(lots: Array[MaltLot]) -> void:
 	_take_grain(lots)
 	var added := (grain_kg - before) * GRAIN_HEAT
 	mash_temp = (mass * mash_temp + added * GRAIN_TEMP) / maxf(mass + added, 0.001)
-	# Grain poured on with nothing done between but the rest is still the
-	# mashing in.
-	for index in range(journal.size() - 1, -1, -1):
-		var entry: Dictionary = journal[index]
-		if entry.step == "mash_in":
-			entry.grain_kg = grain_kg
-			entry.mash_temp = mash_temp
-			return
-		if entry.step != "rest":
-			break
-	_note("grain", {"kg": grain_kg - before, "mash_temp": mash_temp})
+	if not BrewJournal.amend_mash_in(journal, grain_kg, mash_temp):
+		BrewJournal.note(journal, "grain", {"kg": grain_kg - before, "mash_temp": mash_temp})
 
 func _take_grain(lots: Array[MaltLot]) -> void:
 	for lot: MaltLot in lots:
@@ -230,8 +186,8 @@ func _take_grain(lots: Array[MaltLot]) -> void:
 		grain_extract += lot.extract()
 		color_points += lot.kg * lot.color
 		smoke_points += lot.kg * lot.smoke
-		oats_kg += lot.kg if lot.kind == "oats" else 0.0
-		caramel_kg += lot.kg if lot.kind == "caramel" else 0.0
+		oats_kg += lot.kg if lot.kind == BrewIds.MALT_OATS else 0.0
+		caramel_kg += lot.kg if lot.kind == BrewIds.MALT_CARAMEL else 0.0
 		flour = flour or lot.flaws.has(BrewIds.FLAW_FLOUR)
 		for id: String in lot.flaws:
 			if id != "flour":
@@ -252,7 +208,7 @@ func _pour(liters: float, temp: float) -> void:
 func pour(liters: float, temp: float) -> void:
 	if stage == BrewIds.STAGE_MASH:
 		_pour(liters, temp)
-		_note("pour", {"liters": liters, "temp": temp, "mash_temp": mash_temp})
+		BrewJournal.note(journal, "pour", {"liters": liters, "temp": temp, "mash_temp": mash_temp})
 
 ## Turns the paddle round the tun `turns` times.
 func stir(turns: int) -> void:
@@ -265,13 +221,13 @@ func stir(turns: int) -> void:
 func rest(minutes: float) -> void:
 	if stage != BrewIds.STAGE_MASH:
 		return
-	for _minute in int(round(minutes)):
+	for _minute in roundi(minutes):
 		var rate := 0.0 if enzymes_dead else curve(CONVERSION, mash_temp) * (1.0 - 0.5 * clumps)
 		var gained := (1.0 - conversion) * rate
 		conversion += gained
 		fermentable_sum += gained * curve(FERMENTABLE, mash_temp)
 		mash_temp -= TUN_COOLING / 60.0
-	_note("rest", {"minutes": minutes, "mash_temp": mash_temp, "conversion": conversion})
+	BrewJournal.note(journal, "rest", {"minutes": minutes, "mash_temp": mash_temp, "conversion": conversion})
 
 ## Runs the wort off through the tap opened to `tap` (0..1) and rinses the
 ## grain with `sparge_l` of water at `sparge_temp` °C.
@@ -298,7 +254,8 @@ func lauter(tap: float, sparge_l: float, sparge_temp: float) -> void:
 		_flaw(BrewIds.FLAW_MURKY)
 		haze += 0.3
 	stage = BrewIds.STAGE_WORT
-	_note("lauter", {"tap": tap, "sparge_l": sparge_l, "volume_l": volume_l, "extract_kg": malt_extract})
+	BrewJournal.note(journal, "lauter", {"tap": tap, "sparge_l": sparge_l, "volume_l": volume_l,
+		"extract_kg": malt_extract})
 
 ## The kettle over `fire` (0..1) for `minutes`, the paddle going or not.
 func boil(minutes: float, fire: float, stirring: bool) -> void:
@@ -318,7 +275,7 @@ func boil(minutes: float, fire: float, stirring: bool) -> void:
 			if unstirred_strong > SCORCH:
 				_flaw(BrewIds.FLAW_SCORCHED)
 	volume_l *= 1.0 - EVAPORATION * fire * minutes / 60.0
-	_note("boil", {"minutes": minutes, "fire": fire, "volume_l": volume_l})
+	BrewJournal.note(journal, "boil", {"minutes": minutes, "fire": fire, "volume_l": volume_l})
 
 ## Wort or beer lost on the floor: a tun, a bucket or a keg run over, a
 ## bucket spilt, a tap left open over nothing.
@@ -332,25 +289,26 @@ func spill(liters: float) -> void:
 		lost_l += liters
 	else:
 		return
-	_note("spill", {"liters": liters, "beer": stage == BrewIds.STAGE_PITCHED or stage == BrewIds.STAGE_BARREL})
+	BrewJournal.note(journal, "spill", {"liters": liters,
+		"beer": stage == BrewIds.STAGE_PITCHED or stage == BrewIds.STAGE_BARREL})
 
 ## Water left in the kettle thins the wort run onto it.
 func water_down(liters: float) -> void:
 	if liters > 0.0 and (stage == BrewIds.STAGE_WORT or stage == BrewIds.STAGE_BOIL):
 		volume_l += liters
-		_note("water_down", {"liters": liters})
+		BrewJournal.note(journal, "water_down", {"liters": liters})
 
 ## Hops from the scales into the kettle.
 func add_hops(grams: float) -> void:
 	if stage == BrewIds.STAGE_BOIL or stage == BrewIds.STAGE_WORT:
 		hops.append({"grams": grams, "at": boil_minutes})
-		_note("hops", {"grams": grams, "at": boil_minutes})
+		BrewJournal.note(journal, "hops", {"grams": grams, "at": boil_minutes})
 
 ## Takes the fire from under the kettle: the boil is over.
 func draw_fire() -> void:
 	if stage == BrewIds.STAGE_BOIL:
 		fire_out = true
-		_note("draw_fire", {"boil_minutes": boil_minutes})
+		BrewJournal.note(journal, "draw_fire", {"boil_minutes": boil_minutes})
 
 ## Honey into the kettle; its aroma lives only when the fire is drawn. After
 ## the fire it goes into the wort while the wort is hot enough to steep it.
@@ -360,12 +318,12 @@ func add_honey(kg: float) -> void:
 	sugar_extract += kg * HONEY_EXTRACT
 	if fire_out:
 		honey_kg += kg
-	_note("honey", {"kg": kg, "fire_out": fire_out})
+	BrewJournal.note(journal, "honey", {"kg": kg, "fire_out": fire_out})
 
 func add_linden(kg: float) -> void:
 	if (stage == BrewIds.STAGE_BOIL and fire_out) or steeps():
 		linden_kg += kg
-		_note("linden", {"kg": kg})
+		BrewJournal.note(journal, "linden", {"kg": kg})
 
 ## The fire is drawn and the wort is still hot enough to steep honey and
 ## blossom in it.
@@ -391,7 +349,7 @@ func cool(hours: float, air_temp: float) -> void:
 		_flaw(BrewIds.FLAW_SOUR_WORT)
 	if stage != BrewIds.STAGE_PITCHED:
 		stage = BrewIds.STAGE_COOLED
-	_note("cool", {"hours": hours, "air_temp": air_temp, "wort_temp": wort_temp})
+	BrewJournal.note(journal, "cool", {"hours": hours, "air_temp": air_temp, "wort_temp": wort_temp})
 
 ## Yeast into the wort in the fermenting tun, a dipper at a time until the
 ## first day of fermentation. Yeast poured into wort above YEAST_DIES °C dies.
@@ -402,7 +360,7 @@ func pitch(liters: float) -> void:
 		yeast_l += liters
 	yeast_rate = clampf(yeast_l / (YEAST_PER_100 * maxf(volume_l, 1.0) / 100.0), 0.0, 1.0)
 	stage = BrewIds.STAGE_PITCHED
-	_note("pitch", {"yeast_l": liters, "wort_temp": wort_temp, "died": wort_temp > YEAST_DIES})
+	BrewJournal.note(journal, "pitch", {"yeast_l": liters, "wort_temp": wort_temp, "died": wort_temp > YEAST_DIES})
 
 ## A day of fermentation in the cellar at `cellar_temp` °C; `skim` takes the
 ## yeast head off.
@@ -418,7 +376,7 @@ func ferment_day(cellar_temp: float, skim: bool) -> void:
 		_flaw(BrewIds.FLAW_WARM_FERMENT)
 	if ferment_days >= SKIM_BY and not skimmed:
 		_flaw(BrewIds.FLAW_MUDDY_HEAD)
-	_note("ferment_day", {"cellar_temp": cellar_temp, "skim": skim, "ferment": ferment})
+	BrewJournal.note(journal, "ferment_day", {"cellar_temp": cellar_temp, "skim": skim, "ferment": ferment})
 
 ## Runs the beer into the lager barrel of `capacity_l`, scalded or not, with
 ## `cherries_kg` of cherries in it.
@@ -432,7 +390,7 @@ func rack(scalded: bool, capacity_l: float, cherries: float) -> void:
 	cherries_kg = cherries
 	sugar_extract += cherries * CHERRY_EXTRACT
 	stage = BrewIds.STAGE_BARREL
-	_note("rack", {"scalded": scalded, "spilled_l": spilled, "cherries_kg": cherries})
+	BrewJournal.note(journal, "rack", {"scalded": scalded, "spilled_l": spilled, "cherries_kg": cherries})
 
 func age_day() -> void:
 	if stage == BrewIds.STAGE_BARREL:
@@ -440,88 +398,6 @@ func age_day() -> void:
 
 func ready_days() -> int:
 	return CHERRY_AGE_DAYS if cherries_kg > 0.0 else AGE_DAYS
-
-## Strength of a wort of `extract` kg in `liters`, degrees Plato.
-static func plato(extract: float, liters: float) -> float:
-	return 0.0 if liters <= 0.0 else 100.0 * extract / (liters + extract)
-
-## IBU of the hops after `minutes` total of boil.
-func bitterness() -> float:
-	var total := 0.0
-	for addition: Dictionary in hops:
-		var grams: float = addition.grams
-		var at: float = addition.at
-		var boiled := maxf(0.0, boil_minutes - at)
-		total += grams * HOP_ALPHA * 1000.0 * HOP_USE * (1.0 - exp(-HOP_SPEED * boiled)) / maxf(volume_l, 1.0)
-	return total
-
-func _added_late(at: float) -> bool:
-	return boil_minutes - at <= LATE_HOPS
-
-## Hops grams a litre added in the last LATE_HOPS minutes or after the fire.
-func hop_aroma() -> float:
-	var grams := 0.0
-	for addition: Dictionary in hops:
-		var at: float = addition.at
-		if _added_late(at):
-			var weight: float = addition.grams
-			grams += weight
-	return grams / maxf(volume_l, 1.0)
-
-## What the batch tastes like now: {strength (% ABV), gravity (°P), body,
-## sweetness, bitterness (IBU), aroma (late hops g/l), color (EBC), clarity,
-## smoke, foam (0..1), notes, flaws, ruined, quality (0..1)}.
-func profile() -> Dictionary:
-	var extract := malt_extract + sugar_extract
-	var gravity := plato(extract, volume_l)
-	var fermentable := 0.0 if conversion <= 0.0 else fermentable_sum / conversion
-	var eaten := 0.0 if extract <= 0.0 else (malt_extract * fermentable + sugar_extract) * ferment / extract
-	var rest_gravity := gravity * (1.0 - eaten)
-	var oats_body := oats_share * 4.0 * minf(1.0, float(stir_turns) / OATS_STIRS)
-	var ibu := bitterness()
-	var caramel := caramel_share * 5.0 + (0.5 if strong_minutes >= LONG_BOIL else 0.0)
-	var mcu := color_points / maxf(volume_l, 1.0) * 7.0 + (5.0 if strong_minutes >= LONG_BOIL else 0.0)
-	var taste: Array[String] = flaws.duplicate()
-	if stage == BrewIds.STAGE_BARREL and age_days < ready_days():
-		taste.append(BrewIds.FLAW_GREEN)
-	var notes: Array[String] = []
-	var per_l := 1.0 / maxf(volume_l, 1.0)
-	if hop_aroma() >= HOPS_NOTE:
-		notes.append(BrewIds.NOTE_HOPS)
-	if oats_share >= OATS_NOTE and stir_turns >= OATS_STIRS:
-		notes.append(BrewIds.NOTE_OATS)
-	if caramel >= CARAMEL_NOTE:
-		notes.append(BrewIds.NOTE_CARAMEL)
-	if smoke >= SMOKE_NOTE:
-		notes.append(BrewIds.NOTE_SMOKE)
-	if juniper_kg * per_l >= JUNIPER_NOTE:
-		notes.append(BrewIds.NOTE_JUNIPER)
-	if honey_kg * per_l >= HONEY_NOTE:
-		notes.append(BrewIds.NOTE_HONEY)
-	if linden_kg * per_l >= LINDEN_NOTE:
-		notes.append(BrewIds.NOTE_LINDEN)
-	if cherries_kg * per_l >= CHERRY_NOTE:
-		notes.append(BrewIds.NOTE_CHERRY)
-	var ruined := false
-	for id: StringName in BrewIds.RUINS:
-		ruined = ruined or taste.has(id)
-	var clarity := clampf(0.4 + 0.06 * age_days, 0.0, 1.0) - haze - (0.2 if flour else 0.0) - 0.3 * oats_share
-	return {
-		"strength": gravity * eaten * 0.5,
-		"gravity": gravity,
-		"body": rest_gravity + oats_body,
-		"sweetness": rest_gravity + caramel_share * 8.0,
-		"bitterness": ibu,
-		"aroma": hop_aroma(),
-		"color": 300.0 * (1.0 - exp(-mcu / 300.0)),
-		"clarity": clampf(clarity, 0.0, 1.0),
-		"smoke": smoke,
-		"foam": clampf(0.55 + 0.6 * oats_share + 0.5 * caramel_share + (0.1 if ibu > 20.0 else 0.0), 0.0, 1.0),
-		"notes": notes,
-		"flaws": taste,
-		"ruined": ruined,
-		"quality": 0.0 if ruined else maxf(0.0, 1.0 - 0.15 * taste.size()),
-	}
 
 ## The batch as plain data for a save: the variables of SAVED.
 func to_dict() -> Dictionary:
@@ -538,22 +414,24 @@ static func from_dict(data: Dictionary) -> BrewBatch:
 		if not data.has(key):
 			continue
 		var value: Variant = data[key]
-		var number := (value is float or value is int) and is_finite(float(value))
+		var number := (value is float or value is int) and is_finite(Values.real(value))
 		var current: Variant = batch.get(key)
 		match typeof(current):
 			TYPE_FLOAT:
 				if number:
-					batch.set(key, float(value))
+					batch.set(key, Values.real(value))
 			TYPE_INT:
 				if number:
-					batch.set(key, int(value))
+					batch.set(key, Values.whole(value))
 			TYPE_BOOL, TYPE_STRING:
 				if typeof(value) == typeof(current):
 					batch.set(key, value)
 			TYPE_ARRAY:
 				if value is Array:
-					var kind := (current as Array).get_typed_builtin()
-					(current as Array).assign((value as Array).filter(func(item: Variant) -> bool: return typeof(item) == kind))
+					var held: Array = current
+					var given: Array = value
+					var kind := held.get_typed_builtin()
+					held.assign(given.filter(func(item: Variant) -> bool: return typeof(item) == kind))
 	if not BrewIds.STAGES.has(batch.stage):
 		batch.stage = BrewIds.STAGE_NEW
 	return batch

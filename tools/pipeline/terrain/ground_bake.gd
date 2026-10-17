@@ -62,7 +62,7 @@ static func key(region: RegionDef) -> String:
 ## image (FORMAT_RF), control, extra (RGBA8)}.
 static func source(region: RegionDef) -> Dictionary:
 	var meta: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(region.terrain_dir.path_join(SOURCE_META)))
-	var size := int(meta.near.size)
+	var size := Values.whole(meta.near.size)
 	var bytes := FileAccess.get_file_as_bytes(region.terrain_dir.path_join(SOURCE_HEIGHTS))
 	var loaded := {"meta": meta, "image": Image.create_from_data(size, size, false, Image.FORMAT_RF, bytes)}
 	for mask: String in SOURCE_MASKS:
@@ -81,11 +81,11 @@ static func settle(region: RegionDef) -> Dictionary:
 	settled.courses = {}
 	var script := recipe(region)
 	if script != null:
-		settled.courses = script.call("settle", region, image, Vector2(meta.near.origin[0], meta.near.origin[1]),
-			float(meta.near.cell), float(meta.water_level))
+		settled.courses = script.call("settle", region, image, Values.vec2(meta.near.origin),
+			Values.real(meta.near.cell), Values.real(meta.water_level))
 		var masks: Dictionary = meta.masks
-		var fields: Dictionary = script.call("paint", region, settled, Vector2(masks.origin[0], masks.origin[1]),
-			float(masks.cell))
+		var fields: Dictionary = script.call("paint", region, settled, Values.vec2(masks.origin),
+			Values.real(masks.cell))
 		settled.merge(fields)
 	return settled
 
@@ -131,7 +131,9 @@ static func manifest(bake_key: String, heights: PackedByteArray, masks_sha256: S
 	var encoded := {}
 	var courses: Dictionary = settled.get("courses", {})
 	for course_name: Variant in courses:
-		encoded[str(course_name)] = encode_course(courses[course_name])
+		var course: Array[Dictionary] = []
+		course.assign(Values.list(courses[course_name]))
+		encoded[str(course_name)] = encode_course(course)
 	var context := HashingContext.new()
 	context.start(HashingContext.HASH_SHA256)
 	context.update(heights)
@@ -165,7 +167,7 @@ static func problems(region: RegionDef, with_key := true) -> PackedStringArray:
 		found.append("No settled ground for %s; run tools/run/rebuild.sh --only terrain-ground" % region.id)
 		return found
 	var data: Dictionary = saved
-	if int(data.get("format_version", 0)) != TerrainBake.FORMAT_VERSION:
+	if Values.whole(data.get("format_version", 0)) != TerrainBake.FORMAT_VERSION:
 		found.append("The settled ground of %s is of another format; bake it again" % region.id)
 	if str(data.get("heights_sha256", "")) != FileAccess.get_sha256(region.settled_heights):
 		found.append("The settled heights of %s differ from their manifest; bake them again" % region.id)

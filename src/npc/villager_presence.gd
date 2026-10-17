@@ -5,38 +5,18 @@ extends Node
 ## is put there — on their road, at their work, on their seat of the hall, on
 ## their spot of the yard, or out of the valley — when the player can see
 ## neither them nor the place they are due at; and at once for everybody at
-## the start and after a night's sleep (apply_now). Nobody walks between
+## the start and after a night's sleep (apply_now, GameEvents.night_slept). Nobody walks between
 ## places. A villager on an outing is left alone until it ends; one sent home
 ## as the player lies down is in their place by the morning. The valley's
 ## loop owns the node; a level without the loop has none, and its villagers
-## keep to what their jobs say.
+## keep to what their jobs say. What the player sees is VillagerSight's
+## question, where a body can stand VillagerSpots's.
 
 const CHECK_SECONDS := 1.0
-## The villagers' meshes end this far from the camera.
-const FAR := 65.0
-## The heights over the feet at which a body is looked for: the chest and the
-## head. One who shows either is seen.
-const LOOKS: Array[float] = [0.9, 1.55]
-## A look that ends at least this far short of the point has met a wall.
-const SHORT := 0.5
 ## How near their place one who came back from an outing takes it in sight.
 const SETTLE_REACH := 2.0
-## The height of the yard's ground, and how far from it a place to stand may
-## lie: the steps of the door and the top of a barrel are not the yard.
-const YARD_LEVEL := 6.6
-const YARD_STEP := 0.3
-## The rings round a yard spot that are tried when the spot itself is taken.
-const YARD_RINGS: Array[float] = [0.6, 1.2, 1.8]
 ## How near each other two in the yard stand to turn to each other.
 const YARD_TALK := 6.0
-## How near another body a villager is not put.
-const ELBOW := 0.6
-## How near another body a walker is not put on the road.
-const ROAD_GAP := 3.0
-## The centre of a villager's capsule over the feet, and the gap left under it
-## for the unevenness of the ground.
-const BODY_CENTRE := 0.83
-const BODY_GAP := 0.1
 ## Where the jug stands on the counter, from the innkeeper's feet at work:
 ## where he serves the tankard (NpcBarWork.SERVE).
 const JUG_AT := Vector3(-0.11, 1.06, -0.98)
@@ -64,14 +44,13 @@ var _taken: Dictionary = {}
 var _unsettled: Dictionary = {}
 ## The height of the innkeeper's feet behind the bar; endless until seen.
 var _bar_floor := INF
-var _fit := PhysicsShapeQueryParameters3D.new()
+var _sight: VillagerSight
+var _spots: VillagerSpots
 
 func _ready() -> void:
-	var body := CapsuleShape3D.new()
-	body.radius = VillageNPC.RADIUS
-	body.height = VillageNPC.HEIGHT
-	_fit.shape = body
-	_fit.collision_mask = PhysicsLayers.GROUND | PhysicsLayers.PLAYER | PhysicsLayers.VILLAGERS
+	_sight = VillagerSight.new(population, player, camera)
+	_spots = VillagerSpots.new(population, player, interactions, _sight)
+	GameEvents.night_slept.connect(_night_slept)
 
 func _process(delta: float) -> void:
 	_clock += delta
@@ -84,6 +63,11 @@ func _process(delta: float) -> void:
 func apply_now() -> void:
 	_clock = 0.0
 	_look(true)
+
+## The night slept away (GameEvents.night_slept): everybody is where the
+## morning has them.
+func _night_slept(_hours: float) -> void:
+	apply_now()
 
 ## Whether a villager sits on the seat of the tavern.
 func seat_taken(seat: Dictionary) -> bool:
@@ -98,28 +82,7 @@ func release(actor: VillageNPC) -> void:
 		var entry: Dictionary = _seated[actor]
 		var seat: Dictionary = entry["seat"]
 		_unseat(actor)
-		var stepped := false
-		var exits: Array = seat.get("exits", [])
-		for exit: Variant in exits:
-			if not exit is Array:
-				continue
-			var way: Array = exit
-			var point := TavernInteractions.vector(way)
-			if _fits(actor, point):
-				actor.global_position = point + Vector3.UP * 0.015
-				stepped = true
-				break
-		if not stepped:
-			# Every way out is taken: anywhere round the seat with a floor and
-			# room for a body.
-			var origin := TavernInteractions.vector(seat.position)
-			for radius: float in [0.8, 1.0, 1.25]:
-				for index in range(16):
-					var angle := TAU * float(index) / 16.0
-					var around := origin + Vector3(cos(angle), 0.0, sin(angle)) * radius
-					if not stepped and interactions.can_stand(around) and _fits(actor, around):
-						actor.global_position = around + Vector3.UP * 0.015
-						stepped = true
+		_spots.step_out(actor, seat)
 		_unsettled[actor] = true
 	elif actor.place == "yard" and actor.outing == null:
 		_unsettled[actor] = true
@@ -136,35 +99,6 @@ func sits_near(point: Vector3, reach := 0.5) -> bool:
 			return true
 	return false
 
-## Whether the player sees nothing at `point` (the feet of a body, or of the
-## place for one): it is farther than the villagers are drawn, out of the
-## picture, or behind something. `body` is the villager who stands there.
-func unseen(point: Vector3, body: VillageNPC = null) -> bool:
-	var eye := _eye()
-	if eye == null:
-		return true
-	for height: float in LOOKS:
-		if _shows(eye, point + Vector3.UP * height, body):
-			return false
-	return true
-
-## Whether the camera has the point in the picture with nothing solid before
-## it. `body` is looked through.
-func _shows(eye: Camera3D, at: Vector3, body: VillageNPC) -> bool:
-	var from := eye.global_position
-	if from.distance_to(at) > FAR or not eye.is_position_in_frustum(at):
-		return false
-	var query := PhysicsRayQueryParameters3D.create(from, at, PhysicsLayers.GROUND)
-	var passed: Array[RID] = [player.get_rid()]
-	if body != null:
-		passed.append(body.get_rid())
-	query.exclude = passed
-	var hit := _space().intersect_ray(query)
-	if hit.is_empty():
-		return true
-	var met: Vector3 = hit.position
-	return met.distance_to(at) <= SHORT
-
 ## A look at everybody. `forced` moves those who are due elsewhere at once.
 func _look(forced: bool) -> void:
 	if not active or not is_instance_valid(population) or not population.is_inside_tree():
@@ -180,7 +114,7 @@ func _look(forced: bool) -> void:
 			var outing := actor.outing as NpcOuting
 			if not forced or outing == null or outing.mode != "return":
 				continue
-			outing._finish()
+			outing.finish()
 			_unsettled[actor] = true
 		var sheet := population.people.sheet(actor.person_id)
 		if sheet.day.is_empty():
@@ -196,14 +130,14 @@ func _look(forced: bool) -> void:
 			continue
 		if not forced and _in_a_story(actor):
 			continue
-		var hidden := forced or actor.place == "home" or unseen(actor.global_position, actor)
+		var hidden := forced or actor.place == "home" or _sight.unseen(actor.global_position, actor)
 		if not hidden and not back:
 			continue
 		var goal := _goal(actor, sheet, due)
 		if goal.is_empty():
 			continue
 		var at: Vector3 = goal["at"]
-		var allowed := forced or (hidden and (due == "home" or unseen(at, actor)))
+		var allowed := forced or (hidden and (due == "home" or _sight.unseen(at, actor)))
 		if not allowed and back:
 			var offset := at - actor.global_position
 			allowed = absf(offset.y) < 1.5 and Vector2(offset.x, offset.z).length() <= SETTLE_REACH
@@ -243,36 +177,12 @@ func _goal(actor: VillageNPC, sheet: PersonSheet, due: String) -> Dictionary:
 		"work":
 			return {"at": actor.work_point}
 		"road":
-			return _road_goal(actor)
+			return _spots.road_goal(actor)
 		"hall":
 			return _seat_goal(actor, sheet)
 		"yard":
-			return _yard_goal(actor, sheet)
+			return _spots.yard_goal(actor, sheet)
 	return {}
-
-## The point of the villager's road farthest from the player among those the
-## player does not see; the farthest of all when every one is seen.
-func _road_goal(actor: VillageNPC) -> Dictionary:
-	var out_of_sight: Dictionary = {}
-	var in_sight: Dictionary = {}
-	var farthest_hidden := -1.0
-	var farthest_seen := -1.0
-	for index in actor.route.size():
-		var ground := _ground(actor.route[index].x, actor.route[index].z, 40.0, -10.0)
-		if ground.is_empty():
-			continue
-		var at: Vector3 = ground.position
-		if _crowded(actor, at, ROAD_GAP):
-			continue
-		var distance := at.distance_to(player.global_position)
-		if unseen(at, actor):
-			if distance > farthest_hidden:
-				farthest_hidden = distance
-				out_of_sight = {"at": at, "index": index}
-		elif distance > farthest_seen:
-			farthest_seen = distance
-			in_sight = {"at": at, "index": index}
-	return out_of_sight if not out_of_sight.is_empty() else in_sight
 
 ## The villager's seat of the hall, when nobody sits on it.
 func _seat_goal(actor: VillageNPC, sheet: PersonSheet) -> Dictionary:
@@ -284,27 +194,7 @@ func _seat_goal(actor: VillageNPC, sheet: PersonSheet) -> Dictionary:
 		return {}
 	for seat: Dictionary in interactions.seats:
 		if str(seat.get("name", "")) == sheet.hall_seat:
-			return {"at": TavernInteractions.vector(seat.position), "seat": seat}
-	return {}
-
-## The villager's spot of the yard, or the nearest place round it where a
-## body can stand.
-func _yard_goal(actor: VillageNPC, sheet: PersonSheet) -> Dictionary:
-	if not sheet.has_yard_spot():
-		return {}
-	var tries: Array[Vector2] = [sheet.yard_spot]
-	for radius: float in YARD_RINGS:
-		for index in range(8):
-			var angle := TAU * float(index) / 8.0
-			tries.append(sheet.yard_spot + Vector2(cos(angle), sin(angle)) * radius)
-	for spot: Vector2 in tries:
-		var ground := _ground(spot.x, spot.y, YARD_LEVEL + 1.9, YARD_LEVEL - 1.0)
-		if ground.is_empty():
-			continue
-		var normal: Vector3 = ground.normal
-		var feet: Vector3 = ground.position
-		if normal.y >= 0.7 and absf(feet.y - YARD_LEVEL) <= YARD_STEP and _fits(actor, feet):
-			return {"at": feet}
+			return {"at": Values.vec3(seat.position), "seat": seat}
 	return {}
 
 ## Takes the villager out of the place they are in and puts them into `due`.
@@ -330,15 +220,11 @@ func _move(actor: VillageNPC, due: String, goal: Dictionary) -> void:
 			actor.global_position = at
 			actor.rotation.y = actor.work_yaw
 			# The hall's paths are found anew from here.
-			actor._hall_target = -1
-			actor._blocked = 0.0
-			actor._wait = 0.0
+			actor.rounds.begin_at(actor.rounds.route_point)
 		"road":
 			var index: int = goal["index"]
 			actor.global_position = at + Vector3.UP * 0.03
-			actor._point = index
-			actor._blocked = 0.0
-			actor._wait = 0.0
+			actor.rounds.begin_at(index)
 		"hall":
 			var seat: Dictionary = goal["seat"]
 			_sit(actor, seat)
@@ -351,8 +237,8 @@ func _move(actor: VillageNPC, due: String, goal: Dictionary) -> void:
 ## Seats the villager: on the seat's place on the floor, turned as the seat
 ## is, without collision, in a sitting pose of the seat's height, with a mug.
 func _sit(actor: VillageNPC, seat: Dictionary) -> void:
-	var facing := TavernInteractions.vector(seat.facing)
-	actor.global_position = TavernInteractions.vector(seat.position)
+	var facing := Values.vec3(seat.facing)
+	actor.global_position = Values.vec3(seat.position)
 	actor.rotation.y = atan2(-facing.x, -facing.z)
 	actor.seated = true
 	var solid := _solid(actor)
@@ -360,7 +246,7 @@ func _sit(actor: VillageNPC, seat: Dictionary) -> void:
 		solid.disabled = true
 	var entry: Dictionary = {"seat": seat, "mug": null, "hold": Callable()}
 	if actor.skeleton != null:
-		actor.sit(float(seat.height))
+		actor.poses.sit(Values.real(seat.height))
 		var mug := NpcProps.mug(0.7)
 		actor.add_child(mug)
 		var hold := _hold_mug.bind(actor, mug)
@@ -377,7 +263,7 @@ func _unseat(actor: VillageNPC) -> void:
 	var seat: Dictionary = entry["seat"]
 	_seated.erase(actor)
 	_taken.erase(str(seat.get("name", "")))
-	actor.stand()
+	actor.poses.stand()
 	var hold: Callable = entry["hold"]
 	if hold.is_valid() and actor.posed.is_connected(hold):
 		actor.posed.disconnect(hold)
@@ -394,7 +280,7 @@ func _unseat(actor: VillageNPC) -> void:
 func _hold_mug(actor: VillageNPC, mug: Node3D) -> void:
 	if not is_instance_valid(actor) or not is_instance_valid(mug):
 		return
-	var at := actor.hand_position(actor._right_hand) + actor.global_basis * Vector3(-0.085, -0.078, 0.0)
+	var at := actor.hand_position(actor.right_hand) + actor.global_basis * Vector3(-0.085, -0.078, 0.0)
 	mug.global_transform = Transform3D(actor.global_basis, at)
 
 ## Two who stand in the yard turn to each other; one alone looks away from
@@ -433,45 +319,6 @@ func _keep_jug() -> void:
 		jug.rotation.y = keeper.work_yaw
 	if jug != null:
 		jug.visible = away
-
-## The camera the player looks through now; null when there is none.
-func _eye() -> Camera3D:
-	if is_instance_valid(camera) and camera.is_inside_tree() and camera.current:
-		return camera
-	return get_viewport().get_camera_3d()
-
-func _space() -> PhysicsDirectSpaceState3D:
-	return population.get_world_3d().direct_space_state
-
-## The ground under (x, z) between two heights, through the people.
-func _ground(x: float, z: float, top: float, bottom: float) -> Dictionary:
-	var query := PhysicsRayQueryParameters3D.create(Vector3(x, top, z), Vector3(x, bottom, z), PhysicsLayers.GROUND)
-	var passed: Array[RID] = [player.get_rid()]
-	for actor in population.actors:
-		if is_instance_valid(actor):
-			passed.append(actor.get_rid())
-	query.exclude = passed
-	return _space().intersect_ray(query)
-
-## Whether the villager's body can stand with its feet at `feet`: nothing
-## solid is in its way and nobody stands there.
-func _fits(actor: VillageNPC, feet: Vector3) -> bool:
-	_fit.transform = Transform3D(Basis.IDENTITY, feet + Vector3.UP * (BODY_CENTRE + BODY_GAP))
-	var passed: Array[RID] = [actor.get_rid()]
-	_fit.exclude = passed
-	if not _space().intersect_shape(_fit, 1).is_empty():
-		return false
-	return not _crowded(actor, feet, ELBOW)
-
-## Whether the player or another villager who is in the valley stands within
-## `reach` of `at`.
-func _crowded(actor: VillageNPC, at: Vector3, reach: float) -> bool:
-	if player.global_position.distance_to(at) < reach:
-		return true
-	for other in population.actors:
-		if other != actor and is_instance_valid(other) and other.visible and other.global_position.distance_to(at) < reach:
-			return true
-	return false
 
 func _solid(actor: VillageNPC) -> CollisionShape3D:
 	for child in actor.get_children():

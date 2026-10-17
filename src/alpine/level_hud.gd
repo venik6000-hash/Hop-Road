@@ -5,11 +5,11 @@ extends RefCounted
 ## for its first seconds (ValleyLoop). The help names the player's own
 ## bindings (InputActions.hint) in the language of the game, and is written
 ## anew when the language changes (Canvas).
-## The wind seas of the lake (the weather's own names are WeatherSystem.NAMES).
+## The wind seas of the lake (the weather's own names are WeatherTable.title).
 const WEATHER_NAMES := {"calm": "Штиль", "breeze": "Бриз", "choppy": "Свежий ветер", "storm": "Шторм"}
 ## The actions of the game, a line for each part of it.
 const PLAYER_HELP := ["ХМЕЛЬНАЯ ТРОПА   ·   Альпийская долина   ·   {help} — скрыть",
-	"{move} — ходьба   ·   {sprint} — бег   ·   {look} — обзор   ·   {interact} — двери / сесть / лестница / позвать / поговорить   ·   {pause} — курсор",
+	"{move} — ходьба   ·   {sprint} — бег   ·   {look} — обзор   ·   {interact} — двери / сесть / лестница / позвать / поговорить   ·   {pause} — пауза",
 	"{swim_up} / {swim_down} — всплыть / нырнуть   ·   {screenshot} — снимок   ·   {settings} — настройки   ·   {toggle_hand} — рука",
 	"Пивоварня: {interact} — взять / поставить / к станку / книга   ·   у станка {look} — работа, {choice} — другое дело, {interact} — отойти   ·   доска заказов: {interact} — взять заказ, {choice} — другой",
 	"{place_camp} — костёр   ·   {drink_beer} — пиво   ·   {camp_refill} — налить у костра   ·   {eat_potato} — есть   ·   {camp_secondary} — поделиться / потушить / попрощаться   ·   {guide_outing} — любимое место спутника   ·   {fishing_rod} — удочка   ·   {fish_use} — улов   ·   {fish_journal} — журнал улова"]
@@ -119,12 +119,12 @@ static func style_label(label: Label) -> void:
 ## The weather, the lake's sea and the hour, translated.
 static func status_text(water: WaterSystem, sky_system: SkySystem, weather: WeatherSystem = null) -> String:
 	var ocean := water.ocean
-	var minutes := int(round(sky_system.time_of_day * 60.0)) % (24 * 60)
+	var minutes := roundi(sky_system.time_of_day * 60.0) % (24 * 60)
 	var parts := PackedStringArray()
 	if weather != null:
-		var sky := TranslationServer.translate(WeatherSystem.NAMES[weather.kind])
-		parts.append(TranslationServer.translate("%s (сама)") % sky if weather.auto else sky)
-	parts.append(TranslationServer.translate(WEATHER_NAMES[ocean.preset]))
+		var sky := TranslationServer.translate(WeatherTable.title(weather.kind))
+		parts.append(str(TranslationServer.translate("%s (сама)") % sky if weather.auto else sky))
+	parts.append(TranslationServer.translate(StringName(str(WEATHER_NAMES[ocean.preset]))))
 	parts.append(TranslationServer.translate("волна %.1f м") % ocean.significant_height())
 	parts.append("%02d:%02d" % [minutes / 60, minutes % 60])
 	return "   ·   ".join(parts)

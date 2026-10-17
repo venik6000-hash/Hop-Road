@@ -71,22 +71,24 @@ static func body_parent(skeleton: Skeleton3D, bone: int) -> int:
 ## are. The caller frees the returned RID.
 static func make(compiled: Dictionary, parent_body: RigidBody3D, body: RigidBody3D,
 		parent_frame: Basis, head: Vector3) -> RID:
-	var a := Transform3D(parent_frame.orthonormalized() * (compiled.a as Basis), head)
+	var frame_a: Basis = compiled.a
+	var a := Transform3D(parent_frame.orthonormalized() * frame_a, head)
 	var local_a := parent_body.global_transform.affine_inverse() * a
 	local_a.basis = local_a.basis.orthonormalized()
-	var local_b := Transform3D(compiled.b as Basis, Vector3.ZERO)
+	var frame_b: Basis = compiled.b
+	var local_b := Transform3D(frame_b, Vector3.ZERO)
 	var server := PhysicsServer3D
 	var joint := server.joint_create()
 	if compiled.hinge:
 		server.joint_make_hinge(joint, parent_body.get_rid(), local_a, body.get_rid(), local_b)
 		server.hinge_joint_set_flag(joint, PhysicsServer3D.HINGE_JOINT_FLAG_USE_LIMIT, true)
 		# Jolt's hinge angle is the table's bend with its sign turned.
-		server.hinge_joint_set_param(joint, PhysicsServer3D.HINGE_JOINT_LIMIT_LOWER, -float(compiled.high))
-		server.hinge_joint_set_param(joint, PhysicsServer3D.HINGE_JOINT_LIMIT_UPPER, -float(compiled.low))
+		server.hinge_joint_set_param(joint, PhysicsServer3D.HINGE_JOINT_LIMIT_LOWER, -Values.real(compiled.high))
+		server.hinge_joint_set_param(joint, PhysicsServer3D.HINGE_JOINT_LIMIT_UPPER, -Values.real(compiled.low))
 	else:
 		server.joint_make_cone_twist(joint, parent_body.get_rid(), local_a, body.get_rid(), local_b)
-		server.cone_twist_joint_set_param(joint, PhysicsServer3D.CONE_TWIST_JOINT_SWING_SPAN, float(compiled.swing))
-		server.cone_twist_joint_set_param(joint, PhysicsServer3D.CONE_TWIST_JOINT_TWIST_SPAN, float(compiled.twist))
+		server.cone_twist_joint_set_param(joint, PhysicsServer3D.CONE_TWIST_JOINT_SWING_SPAN, Values.real(compiled.swing))
+		server.cone_twist_joint_set_param(joint, PhysicsServer3D.CONE_TWIST_JOINT_TWIST_SPAN, Values.real(compiled.twist))
 	server.joint_disable_collisions_between_bodies(joint, true)
 	return joint
 
@@ -101,12 +103,12 @@ static func make_body(bone: String, frame: Transform3D, tip: Vector3) -> RigidBo
 	body.collision_layer = PhysicsLayers.RAGDOLL
 	body.collision_mask = PhysicsLayers.mask_of(PhysicsLayers.RAGDOLL)
 	body.continuous_cd = true
-	body.mass = float(row.mass)
+	body.mass = Values.real(row.mass)
 	body.can_sleep = false
 	# The springs of NpcStumble carry the weight, as the muscles do.
 	body.gravity_scale = 0.0
 	body.transform = Transform3D(frame.basis.orthonormalized(), frame.origin)
-	var radius := float(row.radius)
+	var radius := Values.real(row.radius)
 	var along := body.transform.affine_inverse() * tip
 	if along.length() < 0.01:
 		along = Vector3.UP * 0.01

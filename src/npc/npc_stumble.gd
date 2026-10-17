@@ -69,6 +69,11 @@ static func spring(velocity: Vector3, error: Vector3, stiffness: float, delta: f
 func running() -> bool:
 	return not bodies.is_empty()
 
+## Where the pose under this modifier has `bone`, world space: the body of the
+## bone is pulled to it.
+func target_of(bone: String) -> Transform3D:
+	return _targets[bone]
+
 ## Makes the bodies where the bones stand and pushes them at `push`, m/s.
 ## False when the ragdoll budget is spent (`distance`: metres to the player)
 ## or the skeleton lacks a bone.
@@ -92,20 +97,21 @@ func start(push: Vector3, distance: float) -> bool:
 	for bone: String in _indices:
 		var frame := _world(skeleton, _indices[bone])
 		var row: Dictionary = RagdollJoints.BONES[bone]
-		var tip: Vector3 = frame.origin + frame.basis.y * float(row.get("length", 0.0))
+		var tip: Vector3 = frame.origin + frame.basis.y * Values.real(row.get("length", 0.0))
 		for end: String in row.get("to", []):
 			if skeleton.find_bone(end) >= 0:
 				tip = _world_origin(skeleton, skeleton.find_bone(end))
 				break
 		var body := RagdollJoints.make_body(bone, frame, tip)
 		add_child(body)
-		body.linear_velocity = push * float(KICK.get(bone, 0.0))
+		body.linear_velocity = push * Values.real(KICK.get(bone, 0.0))
 		bodies[bone] = body
 		_targets[bone] = body.global_transform
 		var parent := RagdollJoints.body_parent(skeleton, _indices[bone])
 		if parent >= 0 and limits.has(bone):
 			var above := _world(skeleton, skeleton.get_bone_parent(_indices[bone]))
-			_joints.append(RagdollJoints.make(RagdollJoints.compile(limits[bone]),
+			var limit: JointLimits.Joint = limits[bone]
+			_joints.append(RagdollJoints.make(RagdollJoints.compile(limit),
 				bodies[skeleton.get_bone_name(parent)], body, above.basis, frame.origin))
 	age = 0.0
 	active = true

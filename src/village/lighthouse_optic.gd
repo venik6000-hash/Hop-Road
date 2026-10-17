@@ -24,11 +24,11 @@ const LENS_REACH := 0.5
 const THRESHOLD := 0.4
 
 var sky_system: SkySystem
-## The rooms of the village, as boxes in world space. A beam casts no shadow
-## and the walls of a house are lit by it on both their faces, the one to
-## the room with the one to the weather: for an eye in a room the beams light
-## nothing, and are only seen in the air beyond the windows.
-var rooms: Array[AABB] = []
+## The level's rooms. A beam casts no shadow and the walls of a house are lit
+## by it on both their faces, the one to the room with the one to the
+## weather: for an eye in a room the beams light nothing, and are only seen in
+## the air beyond the windows. Null: the eye is never in a room.
+var interiors: Interiors
 ## Seconds a turn takes.
 var period := 12.0
 
@@ -42,7 +42,7 @@ var _last_light := -1.0
 ## `optic` is the table's section; the node stands in the building's frame.
 func configure(optic: Dictionary) -> void:
 	var pivot: Array = optic.pivot
-	position = Vector3(pivot[0], pivot[1], pivot[2])
+	position = Values.vec3(pivot)
 	period = optic.period
 	_turn = Node3D.new()
 	_turn.name = "Turning"
@@ -54,7 +54,7 @@ func configure(optic: Dictionary) -> void:
 func take(scene: Node3D) -> void:
 	for item: MeshInstance3D in scene.find_children("*", "MeshInstance3D", true, false):
 		var extras: Dictionary = item.get_meta("extras", {})
-		if int(extras.get("lh_turning", 0)) == 1:
+		if Values.whole(extras.get("lh_turning", 0)) == 1:
 			item.reparent(_turn, true)
 			# The optic never stands: casting a shadow, it would have the
 			# candle on the landing below draw its map again in every frame.
@@ -63,13 +63,13 @@ func take(scene: Node3D) -> void:
 func _add_beam(beam: Dictionary) -> void:
 	var d: Array = beam.direction
 	var c: Array = beam.color
-	var color := Color(c[0], c[1], c[2])
+	var color := Color(Values.real(c[0]), Values.real(c[1]), Values.real(c[2]))
 	var spread: float = beam.spread
 	var holder := Node3D.new()
 	holder.name = "Beam%d" % _beams.size()
 	_turn.add_child(holder)
 	# The beam leaves along the holder's -z.
-	holder.basis = Basis.looking_at(Vector3(d[0], d[1], d[2]).normalized(), Vector3.UP)
+	holder.basis = Basis.looking_at(Values.vec3(d).normalized(), Vector3.UP)
 	var light := SpotLight3D.new()
 	light.name = "Light"
 	light.light_color = color
@@ -80,9 +80,9 @@ func _add_beam(beam: Dictionary) -> void:
 	light.spot_angle_attenuation = 1.0
 	light.position = Vector3(0.0, 0.0, -LENS_REACH)
 	# The walls of the houses and the land, not what stands in the rooms
-	# behind the walls (see TavernSystem's layers): the beam casts no shadow.
+	# behind the walls (see LightLayers): the beam casts no shadow.
 	# The walls' own faces to the rooms are on the walls' layers: see `rooms`.
-	light.light_cull_mask = 0xFFFFF & ~(TavernSystem.LAYER | TavernSystem.SHADOW_LAYER | TavernSystem.ROOM_SUN_LAYER)
+	light.light_cull_mask = 0xFFFFF & ~(LightLayers.ROOMS | LightLayers.LAMP_CASTERS | LightLayers.ROOM_SUN)
 	holder.add_child(light)
 	_beams.append(light)
 	var cone := CylinderMesh.new()
@@ -138,12 +138,7 @@ func _process(delta: float) -> void:
 ## How much of their light the beams throw for an eye at `eye`: none in a
 ## room, all of it outdoors, and between the two over THRESHOLD in a doorway.
 func light_for(eye: Vector3) -> float:
-	# Metres the eye is inside the room it is deepest in (EyeAdaptation.indoors()).
-	var deepest := -INF
-	for box: AABB in rooms:
-		var low := eye - box.position
-		var high := box.end - eye
-		deepest = maxf(deepest, minf(minf(low.x, high.x), minf(minf(low.y, high.y), minf(low.z, high.z))))
+	var deepest := interiors.depth_of(eye) if interiors != null else -INF
 	return 1.0 - smoothstep(-THRESHOLD, 0.0, deepest)
 
 ## Lights the beams as dark as the evening is (0..1): the shafts and the

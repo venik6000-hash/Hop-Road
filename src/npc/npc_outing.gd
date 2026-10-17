@@ -98,7 +98,7 @@ func _ready() -> void:
 	_last_actor = actor.global_position
 	walked.append(actor.global_position)
 	points.append(_last_player)
-	_starting_route_point = actor._point
+	_starting_route_point = actor.rounds.route_point
 
 func drive(delta: float) -> void:
 	if unasked and actor.global_position.distance_to(camping.player.global_position) <= ARRIVED:
@@ -117,13 +117,14 @@ func drive(delta: float) -> void:
 		_record_camp_trail()
 	if mode == "follow":
 		_record_player()
+		_meet_player()
 		var nearby := camping.nearby_fire(actor.global_position, 5.0)
 		if nearby != null and camping.player.global_position.distance_to(nearby.global_position) < 4.5 and points.size() <= 2:
 			var seat := camping.companion_seat(nearby, actor)
 			if not seat.is_empty():
 				fire = nearby
 				camp_seat = seat
-				points.assign([TavernInteractions.vector(seat.position)])
+				points.assign([Values.vec3(seat.position)])
 				_camp_trail.clear()
 				_last_player = camping.player.global_position
 				mode = "to_camp"
@@ -132,7 +133,7 @@ func drive(delta: float) -> void:
 	if points.is_empty():
 		actor.play("idle")
 		if mode == "return":
-			_finish()
+			finish()
 		elif mode == "guide":
 			mode = "follow"
 			_last_player = camping.player.global_position
@@ -149,7 +150,7 @@ func drive(delta: float) -> void:
 			mode = "rest"
 			unasked = false
 			halt += 1
-			actor.sit(LOG_SEAT)
+			actor.poses.sit(LOG_SEAT)
 			_model.position.y = 0.0
 			mug.visible = true
 			camping.arrive_at_fire(self)
@@ -231,6 +232,18 @@ func _record_player() -> void:
 	points.append(at)
 	_last_player = at
 
+## The player stands nearer the companion than the trail's next footprint,
+## in plain sight: they have come back or come up beside them, and the trail
+## left behind would lead away from them. The companion makes for the player
+## (_make_for_player), unless they stand a storey above or below.
+func _meet_player() -> void:
+	if points.is_empty():
+		return
+	var at := camping.player.global_position
+	var apart := actor.global_position.distance_to(at)
+	if apart <= MEET and apart < points[0].distance_to(at) and camping.sees(actor):
+		_make_for_player()
+
 ## The trail is shut somewhere ahead: what is left of it is dropped, and the
 ## person makes straight for where the player stands now, step by safe step.
 ## A player who comes back for them is met; one out on the water, or a storey
@@ -292,7 +305,11 @@ func _safe_step(step: Vector3) -> bool:
 	if collision.get_normal().y >= 0.7:
 		return true
 	_met_person = collision.get_collider() == camping.player or collision.get_collider() is VillageNPC
-	if not _met_person and actor.step_onto(collision, step):
+	# The trail's footprints say how high the way goes: a ledge more than a step
+	# over the next one is a wall the player went round. Climbed, it may drop
+	# away deeper than a step down on every side.
+	var ceiling := points[0].y + Player.STEP_HEIGHT if not points.is_empty() else INF
+	if not _met_person and actor.step_onto(collision, step, ceiling):
 		return true
 	# A wall or a person met at a glancing angle is passed by, as
 	# move_and_slide does.
@@ -332,7 +349,7 @@ func _ground_holds(step: Vector3) -> bool:
 	# bevel of a flagstone or a cobble: a slope also rises.
 	if ground.normal.y >= 0.7:
 		return true
-	if ground.collider.name == "TerrainBody":
+	if PhysicsLayers.hit_terrain(ground):
 		return false
 	if absf(feet.y - origin.y) <= BEVEL:
 		return true
@@ -362,16 +379,16 @@ func _sync_props() -> void:
 	# Read modified hand bones before SkeletonModifier restores the animation pose.
 	if is_instance_valid(_food):
 		_food.global_transform = Transform3D(actor.global_basis,
-			actor.hand_position(actor._left_hand) + actor.global_basis * Vector3(0, 0.015, -0.035))
+			actor.hand_position(actor.left_hand) + actor.global_basis * Vector3(0, 0.015, -0.035))
 	if not is_instance_valid(mug) or not mug.visible:
 		return
 	# Own mug rests beside the hand, and is raised for shared toasts.
-	var at := actor.hand_position(actor._right_hand) + actor.global_basis * Vector3(-0.085, -0.078, 0)
+	var at := actor.hand_position(actor.right_hand) + actor.global_basis * Vector3(-0.085, -0.078, 0)
 	mug.global_transform = Transform3D(actor.global_basis, at)
 
 func toast() -> void:
 	if mode == "rest":
-		actor.gesture(NpcBody.TOAST, TOAST_SECONDS)
+		actor.poses.gesture(NpcBody.TOAST, TOAST_SECONDS)
 
 func receive_food(portion: Node3D = null) -> void:
 	if is_instance_valid(_food):
@@ -379,11 +396,11 @@ func receive_food(portion: Node3D = null) -> void:
 	_food = portion if portion != null else CampProps.potato(true)
 	actor.add_child(_food)
 	_food_time = MEAL_SECONDS
-	actor.gesture(NpcBody.MEAL, MEAL_SECONDS)
+	actor.poses.gesture(NpcBody.MEAL, MEAL_SECONDS)
 
 func leave_seat() -> void:
 	halt += 1
-	actor.stand()
+	actor.poses.stand()
 	_model.position.y = 0.0
 	mug.visible = false
 	fire = null
@@ -430,26 +447,26 @@ static func join_index(way: Array[Vector2], here: Vector2, reach: float) -> int:
 
 ## Queues the person's road up to its point nearest `to`.
 func _take_road(to: Vector2) -> void:
-	if actor.route.is_empty():
+	if actor.rounds.route.is_empty():
 		return
 	var here := Vector2(actor.position.x, actor.position.z)
 	var nearest := _road_index(here)
 	# Away from the road, retrace the safe walk before showing the ordinary route.
-	if here.distance_to(Vector2(actor.route[nearest].x, actor.route[nearest].z)) > 3.0 and not walked.is_empty():
+	if here.distance_to(Vector2(actor.rounds.route[nearest].x, actor.rounds.route[nearest].z)) > 3.0 and not walked.is_empty():
 		points.assign(walked)
 		points.reverse()
-		nearest = clampi(_starting_route_point, 0, actor.route.size() - 1)
+		nearest = clampi(_starting_route_point, 0, actor.rounds.route.size() - 1)
 	var destination := _road_index(to)
 	var stride := 1 if destination >= nearest else -1
 	for index in range(nearest, destination + stride, stride):
-		_lead_to(Vector2(actor.route[index].x, actor.route[index].z))
+		_lead_to(Vector2(actor.rounds.route[index].x, actor.rounds.route[index].z))
 
 ## The index of the road's point nearest `to`.
 func _road_index(to: Vector2) -> int:
 	var nearest := 0
 	var distance := INF
-	for index in actor.route.size():
-		var candidate := to.distance_to(Vector2(actor.route[index].x, actor.route[index].z))
+	for index in actor.rounds.route.size():
+		var candidate := to.distance_to(Vector2(actor.rounds.route[index].x, actor.rounds.route[index].z))
 		if candidate < distance:
 			distance = candidate
 			nearest = index
@@ -470,8 +487,8 @@ func dismiss() -> void:
 	if not points.is_empty() and actor.global_position.distance_to(points[0]) < 0.35:
 		points.pop_front()
 
-func _finish() -> void:
-	actor._point = clampi(_starting_route_point, 0, maxi(0, actor.route.size() - 1))
+func finish() -> void:
+	actor.rounds.route_point = clampi(_starting_route_point, 0, maxi(0, actor.rounds.route.size() - 1))
 	actor.outing = null
 	queue_free()
 
@@ -479,7 +496,7 @@ func _exit_tree() -> void:
 	if is_instance_valid(_model):
 		_model.position.y = 0.0
 	if is_instance_valid(actor):
-		actor.stand()
+		actor.poses.stand()
 		if actor.posed.is_connected(_sync_props):
 			actor.posed.disconnect(_sync_props)
 	if is_instance_valid(mug):

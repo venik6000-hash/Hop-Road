@@ -50,7 +50,7 @@ static func loop_of(work: Dictionary) -> String:
 	if WORK_LOOPS.has(work.id):
 		return str(WORK_LOOPS[work.id])
 	if work.gesture == "tilt":
-		return "grain" if BrewHouse.GRAIN_POURS.has(work.id) or str(work.id) in ["weigh_hops", "sack_kiln", "sack_bin", "line_tun"] else "pour"
+		return "grain" if BrewLook.GRAIN_POURS.has(work.id) or str(work.id) in ["weigh_hops", "sack_kiln", "sack_bin", "line_tun"] else "pour"
 	return ""
 
 ## The sound a draw work's part makes going from `before` to `after` (0..1):
@@ -67,7 +67,7 @@ static func draw_sound(work_id: String, before: float, after: float) -> String:
 func _ready() -> void:
 	for name: String in SHOTS:
 		var variations: Array[AudioStream] = []
-		for n in int(SHOTS[name]):
+		for n in Values.whole(SHOTS[name]):
 			variations.append(load("%s%s_%d.wav" % [FOLDER, name, n]))
 		_shots[name] = variations
 	for name in LOOPS:
@@ -88,7 +88,7 @@ func play(name: String, at: Vector3, loudness := 1.0) -> void:
 	var variations: Array = _shots[name]
 	voice.stream = variations[randi() % variations.size()]
 	voice.global_position = at
-	voice.volume_db = float(LEVELS[name]) + linear_to_db(clampf(loudness, 0.01, 1.0))
+	voice.volume_db = Values.real(LEVELS[name]) + linear_to_db(clampf(loudness, 0.01, 1.0))
 	voice.pitch_scale = randf_range(0.94, 1.06)
 	voice.play()
 
@@ -101,7 +101,7 @@ func hum(key: String, sound: String, at: Vector3, amount: float, pitch := 1.0) -
 		add_child(player)
 		_loops[key] = {"player": player, "sound": sound, "want": 0.0, "level": 0.0}
 	var loop: Dictionary = _loops[key]
-	loop.want = maxf(float(loop.want), clampf(amount, 0.0, 1.0))
+	loop.want = maxf(Values.real(loop.want), clampf(amount, 0.0, 1.0))
 	var player: AudioStreamPlayer3D = loop.player
 	player.global_position = at
 	player.pitch_scale = clampf(pitch, 0.5, 2.0)
@@ -110,7 +110,7 @@ func hum(key: String, sound: String, at: Vector3, amount: float, pitch := 1.0) -
 func settle(delta: float) -> void:
 	for key: String in _loops:
 		var loop: Dictionary = _loops[key]
-		var level := move_toward(float(loop.level), float(loop.want), delta / FADE)
+		var level := move_toward(Values.real(loop.level), Values.real(loop.want), delta / FADE)
 		loop.level = level
 		loop.want = 0.0
 		var player: AudioStreamPlayer3D = loop.player
@@ -118,9 +118,20 @@ func settle(delta: float) -> void:
 			if player.playing:
 				player.stop()
 			continue
-		player.volume_db = float(LEVELS[loop.sound]) + linear_to_db(level)
+		player.volume_db = Values.real(LEVELS[loop.sound]) + linear_to_db(level)
 		if not player.playing:
 			player.play(randf() * player.stream.get_length())
+
+## How loud the loop kept under `key` is now, 0..1; 0 for none.
+func level_of(key: String) -> float:
+	return Values.real(Values.table(_loops.get(key, {})).get("level", 0.0))
+
+## Whether a voice holds a one-shot of `name` (SHOTS): the last ones played.
+func has_played(name: String) -> bool:
+	for voice in _voices:
+		if voice.stream != null and voice.stream.resource_path.get_file().begins_with(name + "_"):
+			return true
+	return false
 
 func _player() -> AudioStreamPlayer3D:
 	var player := AudioStreamPlayer3D.new()

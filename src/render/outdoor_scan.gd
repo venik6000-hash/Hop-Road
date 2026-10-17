@@ -29,7 +29,7 @@ static func material(original: StandardMaterial3D, wet_shine := 1.0) -> ShaderMa
 		for pair: Array in [["albedo_map", original.albedo_texture], ["normal_map", original.normal_texture],
 				["roughness_map", original.roughness_texture]]:
 			if pair[1] != null:
-				made.set_shader_parameter(pair[0], pair[1])
+				made.set_shader_parameter(StringName(str(pair[0])), pair[1])
 		made.set_shader_parameter("cloud_weather", load("res://assets/generated/sky/cloud_weather.png"))
 		_materials[key] = made
 	return _materials[key]

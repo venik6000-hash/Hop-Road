@@ -68,7 +68,7 @@ const FIELD_PARAMS := ["near_height", "far_height", "near_control", "near_extra"
 		_selection_valid = false
 @export var collision_enabled := true
 @export var camera: Camera3D
-## The level's context (its tavern's portals); null in a tool that builds
+## The level's context (its rooms' sight, Interiors); null in a tool that builds
 ## a part of the level alone.
 var world: WorldContext
 ## Set before the terrain enters the tree.
@@ -108,19 +108,19 @@ var _selection_valid := false
 var _selection_eye := Vector3.ZERO
 var _selection_planes: Array[Plane] = []
 var _selection_origin := Vector2.ZERO
-## The revision of the tavern's portals the tiles were chosen by (-1: outdoors).
+## The revision of the rooms' sight (Interiors) the tiles were chosen by (-1: outdoors).
 var _selection_sight := -1
-var _sight: TavernPortals.Sight
+var _sight: InteriorSight.Sight
 
 func _ready() -> void:
 	meta = DataFile.read(region.terrain_dir.path_join("terrain.json"), WorldSchemas.terrain())
 	water_level = meta.water_level
-	near_origin = Vector2(meta.near.origin[0], meta.near.origin[1])
+	near_origin = Values.vec2(meta.near.origin)
 	near_cell = meta.near.cell
-	near_size = int(meta.near.size)
-	far_origin = Vector2(meta.far.origin[0], meta.far.origin[1])
+	near_size = Values.whole(meta.near.size)
+	far_origin = Values.vec2(meta.far.origin)
 	far_cell = meta.far.cell
-	far_size = int(meta.far.size)
+	far_size = Values.whole(meta.far.size)
 	near_image = _load_height(region.settled_heights, near_size)
 	var saved: Variant = TerrainBake.read_manifest(region)
 	var settled: Dictionary = saved if saved is Dictionary else {}
@@ -150,7 +150,7 @@ func course(course_name: StringName) -> Array[Dictionary]:
 func _load_minmax() -> void:
 	var data := FileAccess.get_file_as_bytes(region.terrain_dir.path_join("far_minmax.bin")).to_float32_array()
 	_minmax_cell = meta.minmax.cell
-	var size := int(meta.minmax.size)
+	var size := Values.whole(meta.minmax.size)
 	var offset := 0
 	while size >= 1:
 		_minmax.append(data.slice(offset, offset + size * size * 2))
@@ -160,7 +160,7 @@ func _load_minmax() -> void:
 	_minmax_levels.clear()
 	_minmax_cells.resize(_minmax.size())
 	_minmax_counts.resize(_minmax.size())
-	var total := int(meta.minmax.size)
+	var total := Values.whole(meta.minmax.size)
 	for level in _minmax.size():
 		_minmax_cells[level] = _minmax_cell * pow(2.0, level)
 		_minmax_counts[level] = total >> level
@@ -234,9 +234,9 @@ func _process(_delta: float) -> void:
 	material.set_shader_parameter("terrain_camera", eye)
 	var planes: Array[Plane] = view.get_frustum()
 	# An eye in the tavern's rooms sees the ground through the openings alone.
-	var portals := world.portals if world != null and camera == null else null
-	var sight: TavernPortals.Sight = portals.sight if portals != null and portals.sight.active else null
-	var revision := portals.revision if sight != null else -1
+	var interiors := world.interiors if world != null and camera == null else null
+	var sight: InteriorSight.Sight = interiors.sight if interiors != null and interiors.sight.active else null
+	var revision := interiors.revision if sight != null else -1
 	if _selection_valid and eye == _selection_eye and planes == _selection_planes \
 			and far_origin == _selection_origin and revision == _selection_sight:
 		return
@@ -320,7 +320,7 @@ func _emit(quadrant: bool, x: float, z: float, size: float, level: int) -> void:
 ## Lowest and highest ground under `rect` (world x/z) with a 2 m margin, from
 ## every 32 m cell of the min/max pyramid it touches (near field folded in).
 func height_range(rect: Rect2) -> Vector2:
-	var count := int(meta.minmax.size)
+	var count := Values.whole(meta.minmax.size)
 	var last := Vector2i.ONE * (count - 1)
 	var low := Vector2i(((rect.position - far_origin) / _minmax_cell).floor()).clamp(Vector2i.ZERO, last)
 	var high := Vector2i(((rect.end - far_origin) / _minmax_cell).floor()).clamp(Vector2i.ZERO, last)
@@ -340,7 +340,7 @@ func height_bounds(x: float, z: float, size: float) -> Vector2:
 func _bounds(x: float, z: float, size: float) -> AABB:
 	var level: int = _minmax_levels.get(size, -1)
 	if level < 0:
-		level = clampi(int(round(log(maxf(size, _minmax_cell) / _minmax_cell) / log(2.0))), 0, _minmax.size() - 1)
+		level = clampi(roundi(log(maxf(size, _minmax_cell) / _minmax_cell) / log(2.0)), 0, _minmax.size() - 1)
 		# Selection asks for a few dozen distinct sizes; do not grow without end.
 		if _minmax_levels.size() < 256:
 			_minmax_levels[size] = level

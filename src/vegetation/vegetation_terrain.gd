@@ -54,12 +54,15 @@ static func from_terrain(terrain: TerrainSystem) -> VegetationTerrain:
 	data.far_cell = terrain.far_cell
 	data.far_size = terrain.far_size
 	var masks: Dictionary = terrain.meta.masks
-	data.mask_origin = Vector2(masks.origin[0], masks.origin[1])
+	data.mask_origin = Values.vec2(masks.origin)
 	data.mask_cell = masks.cell
-	data.mask_size = int(masks.size)
-	data.control = _rgba_bytes(terrain.material.get_shader_parameter("near_control"), data.mask_size)
-	data.extra = _rgba_bytes(terrain.material.get_shader_parameter("near_extra"), data.mask_size)
-	var far_image := _rgba_image(terrain.material.get_shader_parameter("far_masks"), data.far_size)
+	data.mask_size = Values.whole(masks.size)
+	var control: Texture2D = terrain.material.get_shader_parameter("near_control")
+	var extra: Texture2D = terrain.material.get_shader_parameter("near_extra")
+	var far_masks: Texture2D = terrain.material.get_shader_parameter("far_masks")
+	data.control = _rgba_bytes(control, data.mask_size)
+	data.extra = _rgba_bytes(extra, data.mask_size)
+	var far_image := _rgba_image(far_masks, data.far_size)
 	data._summarise_far_forest(far_image)
 	far_image.clear_mipmaps()
 	data.far_masks = far_image.get_data()
@@ -85,7 +88,7 @@ static func _rgba_image(texture: Texture2D, size: int) -> Image:
 func _summarise_far_forest(image: Image) -> void:
 	if not image.has_mipmaps():
 		image.generate_mipmaps()
-	var level := int(round(log(256.0 / far_cell) / log(2.0)))
+	var level := roundi(log(256.0 / far_cell) / log(2.0))
 	far_block_count = far_size >> level
 	var offset := image.get_mipmap_offset(level)
 	var bytes := image.get_data()
@@ -148,8 +151,8 @@ func shore_distance(x: float, z: float) -> float:
 func obstacle_at(x: float, z: float) -> float:
 	if obstacles.is_empty():
 		return 0.0
-	var ix := int(floor((x - obstacle_origin.x) / obstacle_cell + 0.5))
-	var iz := int(floor((z - obstacle_origin.y) / obstacle_cell + 0.5))
+	var ix := floori((x - obstacle_origin.x) / obstacle_cell + 0.5)
+	var iz := floori((z - obstacle_origin.y) / obstacle_cell + 0.5)
 	if ix < 0 or iz < 0 or ix >= obstacle_size.x or iz >= obstacle_size.y:
 		return 0.0
 	return obstacles[iz * obstacle_size.x + ix] / 255.0

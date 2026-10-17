@@ -25,9 +25,9 @@ static func look(camp: CampSystem) -> void:
 ## A villager who has told their name greets the player who passes, once a
 ## game day, while nobody else is speaking.
 static func greet(camp: CampSystem) -> void:
-	if camp._caption_time > 0.0 or camp._telling() != null:
+	if camp.caption_time > 0.0 or camp.telling_now() != null:
 		return
-	var today := camp._today()
+	var today := camp.current_day()
 	for actor in camp.population.actors:
 		if actor.outing != null or not actor.present() or not camp.population.people.knows(actor.person_id):
 			continue
@@ -39,7 +39,7 @@ static func greet(camp: CampSystem) -> void:
 		if words.is_empty() or not bond.once("greet", today):
 			continue
 		camp.say(actor, words)
-		camp._changed()
+		camp.mark_changed()
 		return
 
 ## The innkeeper at work pours unasked for one he is close with, when they
@@ -68,9 +68,9 @@ static func treat(camp: CampSystem, outing: NpcOuting) -> bool:
 	if bond == null or bond.circle < NEAR_CIRCLE or not is_instance_valid(outing.fire) or camp.holding_food():
 		return false
 	var meal := outing.fire.meal
-	if meal.cooking or meal.portions > 0 or not bond.once("treat", camp._today()):
+	if meal.cooking or meal.portions > 0 or not bond.once("treat", camp.current_day()):
 		return false
-	camp._changed()
+	camp.mark_changed()
 	return meal.put_in_coals()
 
 ## A villager who is close and walks their road within JOIN_REACH of the burning `fire`
@@ -79,7 +79,7 @@ static func treat(camp: CampSystem, outing: NpcOuting) -> bool:
 static func join_fire(camp: CampSystem, fire: Campfire) -> bool:
 	if camp.companions.size() >= CampSystem.COMPANIONS:
 		return false
-	var today := camp._today()
+	var today := camp.current_day()
 	for actor in camp.population.actors:
 		if not actor.present() or not actor.on_road():
 			continue
@@ -91,6 +91,6 @@ static func join_fire(camp: CampSystem, fire: Campfire) -> bool:
 		camp.take_along(actor)
 		(actor.outing as NpcOuting).unasked = true
 		camp.say(actor, camp.line_of(actor, "join_fire"))
-		camp._changed()
+		camp.mark_changed()
 		return true
 	return false

@@ -5,7 +5,7 @@ extends LimbPose
 ## back with the feet kept where they stand, the trunk bends forward and
 ## turns, each hand goes to its place on the thing and lies there in its own
 ## turn, and the head looks at the work. A work (NpcBarWork, NpcWipe) sets the
-## pose for each frame; VillageNPC sets the weight of each arm from NpcBody
+## pose for each frame; NpcPoses sets the weight of each arm from NpcBody
 ## (the doers POUR and WIPE). It runs after the seat and the gestures, before
 ## the stumble and the joint limits.
 
@@ -145,18 +145,19 @@ func _process_modification() -> void:
 	# Each hand to its place, then turned as it lies there.
 	for side: String in ["L", "R"]:
 		var goal: Hand = hand(side)
-		if goal.weight * float(arms[side]) <= 0.0:
+		if goal.weight * Values.real(arms[side]) <= 0.0:
 			continue
 		var bone_hand: int = _bones["Hand_" + side]
 		if bone_hand < 0:
 			continue
 		var turn := hand_basis(side, goal.along, goal.facing)
-		var amount := goal.weight * float(arms[side])
-		var wrist := _world_origin(skeleton, bone_hand).lerp(wanted[side], amount)
+		var amount := goal.weight * Values.real(arms[side])
+		var goal_at: Vector3 = wanted[side]
+		var wrist := _world_origin(skeleton, bone_hand).lerp(goal_at, amount)
 		var sign_side := 1.0 if side == "R" else -1.0
 		var pole := goal.elbow if goal.elbow != Vector3.ZERO else right_side * sign_side * 0.7 + Vector3.DOWN * 0.6 - forward * 0.15
-		_solve_chain(skeleton, _bones["Arm_" + side], _bones["ForeArm_" + side], bone_hand, wrist, pole.normalized())
-		_forearms[side] = _world_origin(skeleton, bone_hand) - _world_origin(skeleton, _bones["ForeArm_" + side])
+		_solve_chain(skeleton, Values.whole(_bones["Arm_" + side]), Values.whole(_bones["ForeArm_" + side]), bone_hand, wrist, pole.normalized())
+		_forearms[side] = _world_origin(skeleton, Values.whole(bone_hand)) - _world_origin(skeleton, Values.whole(_bones["ForeArm_" + side]))
 		var pose := skeleton.get_bone_global_pose(bone_hand)
 		var now := (skeleton.global_basis.orthonormalized() * pose.basis.orthonormalized()).get_rotation_quaternion()
 		var placed := now.slerp(turn.get_rotation_quaternion(), amount)
@@ -187,7 +188,7 @@ func _wrist_targets(skeleton: Skeleton3D) -> Dictionary:
 ## pelvis goes down, back and round, then each spine bone turns its share
 ## about its own joint.
 func _bend_for(skeleton: Skeleton3D, wanted: Dictionary, forward: Vector3, right_side: Vector3, up: Vector3) -> float:
-	var hips := _world_origin(skeleton, _bones.Hips)
+	var hips := _world_origin(skeleton, Values.whole(_bones.Hips))
 	var joints: Array[Vector3] = []
 	for name: String in SPINE:
 		var bone: int = _bones.get(name, -1)
@@ -220,13 +221,13 @@ func _head_clear(skeleton: Skeleton3D, hips: Vector3, joints: Array[Vector3], be
 		right_side: Vector3, up: Vector3) -> bool:
 	if _bones.Head < 0:
 		return true
-	var face := _world_origin(skeleton, _bones.Head) + forward * FACE_AHEAD
+	var face := _world_origin(skeleton, Values.whole(_bones.Head)) + forward * FACE_AHEAD
 	var head := _swung(face, hips, joints, bend, forward, right_side, up)
 	if look_weight > 0.0 and head.distance_to(look) < HEAD_CLEAR:
 		return false
 	for side: String in ["L", "R"]:
 		var goal: Hand = hand(side)
-		if goal.weight * float(arms[side]) >= 0.5 and head.distance_to(goal.palm) < HEAD_CLEAR:
+		if goal.weight * Values.real(arms[side]) >= 0.5 and head.distance_to(goal.palm) < HEAD_CLEAR:
 			return false
 	return true
 
@@ -236,14 +237,15 @@ func _reaches(skeleton: Skeleton3D, wanted: Dictionary, hips: Vector3, joints: A
 		forward: Vector3, right_side: Vector3, up: Vector3) -> bool:
 	for side: String in ["L", "R"]:
 		var goal: Hand = hand(side)
-		if goal.weight * float(arms[side]) < 0.5 or _bones["Arm_" + side] < 0:
+		if goal.weight * Values.real(arms[side]) < 0.5 or _bones["Arm_" + side] < 0:
 			continue
-		var shoulder := _world_origin(skeleton, _bones["Arm_" + side])
-		var elbow := _world_origin(skeleton, _bones["ForeArm_" + side])
-		var wrist := _world_origin(skeleton, _bones["Hand_" + side])
+		var shoulder := _world_origin(skeleton, Values.whole(_bones["Arm_" + side]))
+		var elbow := _world_origin(skeleton, Values.whole(_bones["ForeArm_" + side]))
+		var wrist := _world_origin(skeleton, Values.whole(_bones["Hand_" + side]))
 		var length := shoulder.distance_to(elbow) + elbow.distance_to(wrist)
 		var moved := _swung(shoulder, hips, joints, bend, forward, right_side, up)
-		if moved.distance_to(wanted[side]) > EASY_REACH * length:
+		var goal_at: Vector3 = wanted[side]
+		if moved.distance_to(goal_at) > EASY_REACH * length:
 			return false
 	return true
 
@@ -279,9 +281,9 @@ func _lower_pelvis(skeleton: Skeleton3D, shift: Vector3, yaw: float, forward: Ve
 		if foot < 0:
 			return
 		feet[side] = skeleton.global_transform * skeleton.get_bone_global_pose(foot)
-	_set_origin(skeleton, _bones.Hips, _world_origin(skeleton, _bones.Hips) + shift)
+	_set_origin(skeleton, Values.whole(_bones.Hips), _world_origin(skeleton, Values.whole(_bones.Hips)) + shift)
 	if absf(yaw) > 0.0001:
-		_rotate_world(skeleton, _bones.Hips, Quaternion(Vector3.UP, yaw))
+		_rotate_world(skeleton, Values.whole(_bones.Hips), Quaternion(Vector3.UP, yaw))
 	for side: String in ["L", "R"]:
 		var sign_side := 1.0 if side == "R" else -1.0
 		var placed: Transform3D = feet[side]
@@ -289,7 +291,7 @@ func _lower_pelvis(skeleton: Skeleton3D, shift: Vector3, yaw: float, forward: Ve
 		# clips turn the toes out a little): a nearly straight leg of the clip
 		# gives no steady way of its own.
 		var pole := (forward + right_side * sign_side * 0.15).normalized()
-		_solve_chain(skeleton, _bones["UpLeg_" + side], _bones["Leg_" + side], _bones["Foot_" + side], placed.origin, pole)
+		_solve_chain(skeleton, Values.whole(_bones["UpLeg_" + side]), Values.whole(_bones["Leg_" + side]), Values.whole(_bones["Foot_" + side]), placed.origin, pole)
 		var foot: int = _bones["Foot_" + side]
 		var pose := skeleton.get_bone_global_pose(foot)
 		pose.basis = skeleton.global_basis.orthonormalized().inverse() * placed.basis.orthonormalized()
@@ -318,5 +320,5 @@ func _look(skeleton: Skeleton3D, amount: float) -> void:
 	var axis := turn.get_axis().normalized()
 	angle = minf(angle, LOOK_REACH) * amount
 	if _bones.Neck >= 0:
-		_rotate_world(skeleton, _bones.Neck, Quaternion(axis, angle * (1.0 - HEAD_SHARE)))
+		_rotate_world(skeleton, Values.whole(_bones.Neck), Quaternion(axis, angle * (1.0 - HEAD_SHARE)))
 	_rotate_world(skeleton, head, Quaternion(axis, angle * HEAD_SHARE))

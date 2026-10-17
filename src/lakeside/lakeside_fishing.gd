@@ -77,5 +77,5 @@ static func advance_fight(lake: LakesideSystem, delta: float, reel: bool) -> voi
 		lake.cancel_fishing()
 		lake.play("fish_flop", lake.player.position)
 		var after := "Корзина полна: рыба отпущена, запись сохранена." if full else "Улов в корзине · {fish_journal} — журнал · {fish_use} у костра — приготовить"
-		lake.notify(TranslationServer.translate("%s · %.1f см · %.2f кг") % [TranslationServer.translate(FishingState.SPECIES[fish.species].title),
+		lake.notify(TranslationServer.translate("%s · %.1f см · %.2f кг") % [TranslationServer.translate(FishingState.title(str(fish.species))),
 			fish.cm, fish.kg] + "\n" + TranslationServer.translate(after))

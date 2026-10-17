@@ -1,7 +1,8 @@
 class_name BrewIds
 extends RefCounted
 ## The names the brewing's code and data share: the sorts of beer, the stages
-## of a batch, the notes of a profile, the flaws, the wares and the sacks.
+## of a batch, the notes of a profile, the flaws, the wares, the sacks and the
+## kinds of grain.
 ## assets/brewing/*.json name them too; DataFiles checks both sides against
 ## each other, so a name that is new stands here and in the data, or nowhere.
 
@@ -31,7 +32,7 @@ const STAGE_PITCHED := &"pitched"
 const STAGE_BARREL := &"barrel"
 const STAGES: Array[StringName] = [STAGE_NEW, STAGE_MASH, STAGE_WORT, STAGE_BOIL, STAGE_COOLED, STAGE_PITCHED, STAGE_BARREL]
 
-# ---- Notes of a profile (BrewBatch.profile) -----------------------------------
+# ---- Notes of a profile (BrewTaste.profile) -----------------------------------
 
 const NOTE_HOPS := &"hops"
 const NOTE_OATS := &"oats"
@@ -112,7 +113,17 @@ const GRIST_SACKS: Array[StringName] = [SACK_PALE_MALT, SACK_CARAMEL_MALT, SACK_
 const STOCK: Array[StringName] = [WARE_HOPS, WARE_LOGS, WARE_YEAST, WARE_HONEY, WARE_LINDEN, WARE_JUNIPER, WARE_CHERRIES,
 	SACK_PALE_MALT, SACK_CARAMEL_MALT, SACK_OATS, SACK_DARK, SACK_SMOKED]
 
-# ---- Keys of a profile (BrewBatch.profile) that are numbers -------------------
+# ---- Kinds of grain (malts.json, MaltLot.kind) --------------------------------
+
+const MALT_BARLEY := &"barley"
+const MALT_PALE := &"pale"
+const MALT_CARAMEL := &"caramel"
+const MALT_DARK := &"dark"
+const MALT_SMOKED := &"smoked"
+const MALT_OATS := &"oats"
+const MALTS: Array[StringName] = [MALT_BARLEY, MALT_PALE, MALT_CARAMEL, MALT_DARK, MALT_SMOKED, MALT_OATS]
+
+# ---- Keys of a profile (BrewTaste.profile) that are numbers -------------------
 
 const PROFILE_KEYS: Array[StringName] = [&"strength", &"gravity", &"body", &"sweetness", &"bitterness", &"aroma", &"color",
 	&"clarity", &"smoke", &"foam", &"quality"]

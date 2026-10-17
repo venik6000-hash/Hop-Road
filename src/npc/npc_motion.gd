@@ -58,7 +58,7 @@ static func gait(model_path: String, speed: float, own := "") -> Dictionary:
 		tried.append(own)
 	tried.append_array(GAITS)
 	for clip in tried:
-		var drawn := float(facts(model_path, clip).get("speed", 0.0))
+		var drawn := Values.real(facts(model_path, clip).get("speed", 0.0))
 		if drawn <= 0.0:
 			continue
 		var scale := speed / drawn

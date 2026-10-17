@@ -2,7 +2,7 @@ class_name WorkHandle
 extends Node3D
 ## A thing of a village building a hand works: the pull of the smithy's
 ## bellows, the crank of its grindstone. It stands where the hand takes hold;
-## the player's E works it (TavernInteractions), as it opens a door.
+## the player's E works it (Interaction.GROUP), as it opens a door.
 
 const GROUP := &"work_handle"
 
@@ -15,6 +15,16 @@ var group := ""
 
 func _init() -> void:
 	add_to_group(GROUP)
+	add_to_group(Interaction.GROUP)
+
+## The handle as E's target nearer than `best` (Interaction.GROUP).
+func interaction(best: float, eye: TavernInteractions) -> Interaction:
+	var distance := eye.target_distance(global_position)
+	return Interaction.of(self, distance, prompt, interact) if distance < best else null
+
+## What E would do to the handle.
+func prompt() -> String:
+	return "{interact} — %s · %s" % [tr(verb), tr(title)]
 
 func interact() -> void:
 	machinery.work(group)

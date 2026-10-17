@@ -6,7 +6,7 @@
 // A sward's tone runs 0..1 (b of a clump's custom data, GrassScatter). Its
 // first half is the green of growth, from old and deep to young and sunlit;
 // its second half dries the grass on the stalk: it keeps its light and takes
-// the colour of straw. grass_tile_job.gd says where which tone grows.
+// the colour of straw. GrassSurvey says where which tone grows.
 //
 // The uniforms are each material's own: to try other colours, set them on the
 // grass's material and on the terrain's alike.
@@ -18,7 +18,7 @@ uniform vec3 sward_fresh = vec3(1.1, 1.06, 0.9);
 // goes over to it.
 uniform vec3 sward_straw = vec3(1.45, 1.1, 0.3);
 uniform float sward_driest : hint_range(0.0, 1.0) = 0.75;
-// The tone of a plain sward (GrassTileJob.PLAIN_TONE): the ground's scans are
+// The tone of a plain sward (GrassSurvey.PLAIN_TONE): the ground's scans are
 // graded to it.
 const float SWARD_PLAIN = 0.45;
 

@@ -58,7 +58,7 @@ func take(order: Dictionary, trade: BrewTrade) -> void:
 			trade.take(index)
 	order_id = str(order.id)
 	beer = str(trade.template(order_id).get("beer", ""))
-	kegs_left = int(order.kegs_left)
+	kegs_left = Values.whole(order.kegs_left)
 	step = 0
 	mark_kg = -1.0
 	ended = ""
@@ -76,9 +76,9 @@ func drop() -> void:
 func active() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	for entry: Dictionary in steps:
-		if entry.has("sorts") and not (entry.sorts as Array).has(beer):
+		if entry.has("sorts") and not Values.list(entry.sorts).has(beer):
 			continue
-		if entry.has("except") and (entry.except as Array).has(beer):
+		if entry.has("except") and Values.list(entry.except).has(beer):
 			continue
 		result.append(entry)
 	return result
@@ -117,7 +117,7 @@ func update(day: BrewDay, cellar: BrewCellar, trade: BrewTrade, book: BrewBook, 
 	while step < list.size():
 		var entry := list[step]
 		if str(entry.done[0]) == "sack" and mark_kg < 0.0:
-			mark_kg = float(day.sacks.get(str(entry.done[1]), 0.0))
+			mark_kg = Values.real(day.sacks.get(str(entry.done[1]), 0.0))
 		if not passed(entry, day, cellar, trade, book, arrived and first):
 			break
 		if first and not fresh:
@@ -140,7 +140,7 @@ func _open(trade: BrewTrade) -> bool:
 func passed(entry: Dictionary, day: BrewDay, cellar: BrewCellar, trade: BrewTrade, book: BrewBook, arrived: bool) -> bool:
 	var done: Array = entry.done
 	var what := str(done[0])
-	var number := float(done[2]) if done.size() > 2 else (float(done[1]) if done.size() > 1 and (done[1] is float or done[1] is int) else 0.0)
+	var number := Values.real(done[2]) if done.size() > 2 else (Values.real(done[1]) if done.size() > 1 and (done[1] is float or done[1] is int) else 0.0)
 	var brewing := day.batch
 	var brewed := _rank(brewing)
 	var latest := cellar.latest_batch()
@@ -163,7 +163,7 @@ func passed(entry: Dictionary, day: BrewDay, cellar: BrewCellar, trade: BrewTrad
 		"stage":
 			return brewed >= BrewIds.STAGES.find(str(done[1]))
 		"sack":
-			return float(day.sacks.get(str(done[1]), 0.0)) <= mark_kg - SACK_POURED or brewed >= 2
+			return Values.real(day.sacks.get(str(done[1]), 0.0)) <= mark_kg - SACK_POURED or brewed >= 2
 		"stirred":
 			return brewing.stir_turns >= int(number) or brewed >= 2
 		"converted":
@@ -199,13 +199,13 @@ func passed(entry: Dictionary, day: BrewDay, cellar: BrewCellar, trade: BrewTrad
 			return _cask(cellar, latest) > 0 or _scalded(cellar) > 0
 		"cherries_in_cask":
 			var number_of := _scalded(cellar)
-			return _cask(cellar, latest) > 0 or (number_of > 0 and float(cellar.casks[number_of - 1].cherries) > 0.0)
+			return _cask(cellar, latest) > 0 or (number_of > 0 and Values.real(cellar.casks[number_of - 1].cherries) > 0.0)
 		"racked":
 			var cask := _cask(cellar, latest)
 			return cask > 0 and cellar.tun_of(latest) == 0
 		"cask_bunged":
 			var cask := _cask(cellar, latest)
-			return (cask > 0 and bool(cellar.casks[cask - 1].bunged)) or full_kegs(cellar, trade, book) >= kegs_left
+			return (cask > 0 and Values.flag(cellar.casks[cask - 1].bunged)) or full_kegs(cellar, trade, book) >= kegs_left
 		"aged":
 			var cask := _cask(cellar, latest)
 			return (cask > 0 and latest.age_days >= latest.ready_days()) or full_kegs(cellar, trade, book) >= kegs_left
@@ -219,10 +219,10 @@ func passed(entry: Dictionary, day: BrewDay, cellar: BrewCellar, trade: BrewTrad
 func full_kegs(cellar: BrewCellar, trade: BrewTrade, book: BrewBook) -> int:
 	var count := 0
 	var rack := trade.rack_kegs()
-	for id: String in cellar.kegs:
-		var keg: Dictionary = cellar.kegs[id]
+	for id: String in cellar.rack.kegs:
+		var keg: Dictionary = cellar.rack.kegs[id]
 		var keg_beer: Dictionary = keg.beer
-		if not rack.has(id) or not keg.bunged or float(keg.liters) < BrewHouse.SALE_L or keg_beer.get("ruined", false):
+		if not rack.has(id) or not keg.bunged or Values.real(keg.liters) < BrewTrade.SALE_L or keg_beer.get("ruined", false):
 			continue
 		if str(book.name_beer(keg_beer).get("id", "")) == beer:
 			count += 1
@@ -235,7 +235,7 @@ static func _stock(id: String, day: BrewDay, cellar: BrewCellar, trade: BrewTrad
 		"hops":
 			return day.hops_g
 		"logs":
-			return float(trade.wood.get("log", 0))
+			return Values.real(trade.wood.get("log", 0))
 		"yeast":
 			return cellar.crock_l
 		"honey":
@@ -246,7 +246,7 @@ static func _stock(id: String, day: BrewDay, cellar: BrewCellar, trade: BrewTrad
 			return day.juniper_kg
 		"cherries":
 			return cellar.cherries_kg
-	return float(day.sacks.get(id, 0.0))
+	return Values.real(day.sacks.get(id, 0.0))
 
 ## Whether the brewing day has handed its wort to a fermenting tun.
 static func _handed(day: BrewDay, latest: BrewBatch) -> bool:
@@ -279,9 +279,6 @@ func to_dict() -> Dictionary:
 func restore(saved: Dictionary) -> void:
 	order_id = str(saved.get("order", ""))
 	beer = str(saved.get("beer", ""))
-	kegs_left = int(_number(saved.get("kegs_left"), 0.0, 0.0, 100.0))
-	step = int(_number(saved.get("step"), 0.0, 0.0, float(steps.size())))
-	mark_kg = _number(saved.get("mark_kg"), -1.0, -1.0, 1000.0)
-
-static func _number(value: Variant, fallback: float, low: float, high: float) -> float:
-	return clampf(float(value), low, high) if (value is float or value is int) and is_finite(float(value)) else fallback
+	kegs_left = int(Values.number(saved.get("kegs_left"), 0.0, 0.0, 100.0))
+	step = int(Values.number(saved.get("step"), 0.0, 0.0, float(steps.size())))
+	mark_kg = Values.number(saved.get("mark_kg"), -1.0, -1.0, 1000.0)

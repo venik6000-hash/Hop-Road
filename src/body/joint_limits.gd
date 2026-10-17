@@ -124,7 +124,7 @@ static func profiles() -> PackedStringArray:
 static func joints(profile: String) -> Array[Dictionary]:
 	_load()
 	var found: Array[Dictionary] = []
-	found.assign(_profiles.get(profile, []))
+	found.assign(Values.list(_profiles.get(profile, [])))
 	return found
 
 ## The nearest a two-bone chain of `first` and `second` brings its tip to its
@@ -187,20 +187,21 @@ static func compile(entry: Dictionary, rest: Quaternion, parent: Basis, straight
 	var twist: Vector2 = entry.twist
 	joint.twist_low = twist.x
 	joint.twist_high = twist.y
-	joint.spills = bool(entry.get("spill", false))
+	joint.spills = Values.flag(entry.get("spill", false))
 	# The rest pose is reachable by definition: a rig whose rest lies past a
 	# limit (a knee bound overstraight) gets that limit widened to its rest.
 	var length := joint.rest * Vector3.UP
 	if str(entry.kind) == "hinge":
 		joint.hinge = true
-		var bends: Vector3 = to_parent * (entry.bends as Vector3)
+		var bent: Vector3 = entry.bends
+		var bends: Vector3 = to_parent * bent
 		joint.axis = joint.straight.cross(bends).normalized()
 		var lean := clampf(length.dot(joint.axis), -1.0, 1.0)
 		var flat := length - joint.axis * lean
 		var bend := atan2(joint.straight.cross(flat).dot(joint.axis), joint.straight.dot(flat))
-		joint.low = minf(float(entry.min), bend)
-		joint.high = maxf(float(entry.max), bend)
-		joint.play = maxf(float(entry.play), absf(asin(lean)))
+		joint.low = minf(Values.real(entry.min), bend)
+		joint.high = maxf(Values.real(entry.max), bend)
+		joint.play = maxf(Values.real(entry.play), absf(asin(lean)))
 	else:
 		match str(entry.axis_from):
 			"rest":
@@ -208,8 +209,9 @@ static func compile(entry: Dictionary, rest: Quaternion, parent: Basis, straight
 			"straight":
 				joint.axis = joint.straight
 			_:
-				joint.axis = (to_parent * (entry.axis as Vector3)).normalized()
-		joint.cone = maxf(float(entry.cone), length.angle_to(joint.axis))
+				var axis: Vector3 = entry.axis
+				joint.axis = (to_parent * axis).normalized()
+		joint.cone = maxf(Values.real(entry.cone), length.angle_to(joint.axis))
 	return joint
 
 ## A table entry made into one joint per side; `frame` gives the skeleton's
@@ -220,28 +222,28 @@ static func expand(entry: Dictionary, frame: Dictionary) -> Array[Dictionary]:
 		sides = ["R", "L"]
 	var made: Array[Dictionary] = []
 	for side in sides:
-		var right := _vector(frame.right) * (-1.0 if side == "L" else 1.0)
-		var up := _vector(frame.up)
-		var forward := _vector(frame.forward)
+		var right := Values.vec3(frame.right) * (-1.0 if side == "L" else 1.0)
+		var up := Values.vec3(frame.up)
+		var forward := Values.vec3(frame.forward)
 		var twist: Array = entry.get("twist", [-180, 180])
-		var low := deg_to_rad(float(twist[0]))
-		var high := deg_to_rad(float(twist[1]))
+		var low := deg_to_rad(Values.real(twist[0]))
+		var high := deg_to_rad(Values.real(twist[1]))
 		var joint := {
 			"bone": str(entry.bone).replace("*", side),
 			"kind": str(entry.kind),
 			"twist": Vector2(-high, -low) if side == "L" else Vector2(low, high),
-			"spill": bool(entry.get("spill", false)),
+			"spill": Values.flag(entry.get("spill", false)),
 		}
 		if joint.kind == "hinge":
 			joint.bends = _body(entry.bends, right, up, forward)
-			joint.min = deg_to_rad(float(entry.min))
-			joint.max = deg_to_rad(float(entry.max))
-			joint.play = deg_to_rad(float(entry.get("play", 0.0)))
+			joint.min = deg_to_rad(Values.real(entry.min))
+			joint.max = deg_to_rad(Values.real(entry.max))
+			joint.play = deg_to_rad(Values.real(entry.get("play", 0.0)))
 		else:
 			var axis: Variant = entry.get("axis", "rest")
 			joint.axis_from = str(axis) if axis is String else "body"
 			joint.axis = _body(axis, right, up, forward) if axis is Array else Vector3.ZERO
-			joint.cone = deg_to_rad(float(entry.cone))
+			joint.cone = deg_to_rad(Values.real(entry.cone))
 		made.append(joint)
 	return made
 
@@ -275,18 +277,14 @@ static func _load() -> void:
 	if not table is Dictionary:
 		push_error("JointLimits: %s is not a table" % TABLE)
 		return
-	var listed: Dictionary = (table as Dictionary).get("profiles", {})
+	var listed: Dictionary = Values.table(table).get("profiles", {})
 	for profile: String in listed:
 		var described: Dictionary = listed[profile]
 		var expanded: Array[Dictionary] = []
 		for entry: Dictionary in described.joints:
-			expanded.append_array(expand(entry, described.frame))
+			expanded.append_array(expand(entry, Values.table(described.frame)))
 		_profiles[profile] = expanded
-
-static func _vector(values: Variant) -> Vector3:
-	var listed: Array = values
-	return Vector3(float(listed[0]), float(listed[1]), float(listed[2]))
 
 static func _body(values: Variant, right: Vector3, up: Vector3, forward: Vector3) -> Vector3:
 	var listed: Array = values
-	return right * float(listed[0]) + up * float(listed[1]) + forward * float(listed[2])
+	return right * Values.real(listed[0]) + up * Values.real(listed[1]) + forward * Values.real(listed[2])

@@ -1,3 +1,4 @@
+@tool
 class_name RegionSpawn
 extends Resource
 ## A place where the player comes into a region (RegionDef.spawns).

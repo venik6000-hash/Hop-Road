@@ -125,7 +125,7 @@ func _process(delta: float) -> void:
 	_ticking -= delta
 	if _ticking <= 0.0 and not _queue.is_empty():
 		var next: Array = _queue.pop_front()
-		_show_task(str(next[0]), int(next[1]), int(next[2]))
+		_show_task(str(next[0]), Values.whole(next[1]), Values.whole(next[2]))
 
 ## The order taken: the parchment shows its heading.
 func open(heading: String) -> void:
@@ -157,6 +157,21 @@ func tick() -> void:
 ## Whether a tick is on the parchment now.
 func ticking() -> bool:
 	return _ticking > 0.0
+
+## Whether the parchment is on the screen.
+func is_open() -> bool:
+	return _paper.visible
+
+## The words of the task on the parchment now.
+func task_text() -> String:
+	return _task.text
+
+## Whether the arrow is shown, and its words.
+func is_pointing() -> bool:
+	return _arrow.visible
+
+func arrow_text() -> String:
+	return _arrow_words.text
 
 func _show_task(text: String, index: int, total: int) -> void:
 	_box.ticked = false

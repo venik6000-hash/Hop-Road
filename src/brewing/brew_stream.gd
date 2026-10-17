@@ -20,7 +20,7 @@ var _strip := ArrayMesh.new()
 func _init() -> void:
 	top_level = true
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	layers = TavernSystem.LAYER
+	layers = LightLayers.ROOMS
 	_material.shader = SHADER
 	var points := PackedVector3Array()
 	var uvs := PackedVector2Array()

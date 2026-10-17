@@ -6,16 +6,10 @@ extends RefCounted
 ## roasted dark in the kiln. Each mistake is a flaw id (BrewIds.FLAWS) that
 ## goes with the grain into the batch.
 
-## What a kind of grain gives: colour (EBC), extract per kg when well grown,
-## smoke 0..1. Raw barley gives a part of its extract only (UNGROWN_EXTRACT).
-const KINDS := {
-	"barley": {"color": 4.0, "extract": 0.78, "smoke": 0.0},
-	"pale": {"color": 6.0, "extract": 0.78, "smoke": 0.0},
-	"caramel": {"color": 120.0, "extract": 0.72, "smoke": 0.0},
-	"dark": {"color": 600.0, "extract": 0.65, "smoke": 0.0},
-	"smoked": {"color": 8.0, "extract": 0.76, "smoke": 1.0},
-	"oats": {"color": 4.0, "extract": 0.70, "smoke": 0.0},
-}
+## What a kind of grain gives (malts.json): colour (EBC), extract per kg when
+## well grown, smoke 0..1. Raw barley gives a part of its extract only
+## (UNGROWN_EXTRACT). The kinds are BrewIds.MALTS.
+const MALTS := "res://assets/brewing/malts.json"
 ## The part of its extract a grain that never sprouted gives.
 const UNGROWN_EXTRACT := 0.3
 ## Litres of water a kg of barley needs in the steeping tub to wake whole.
@@ -57,9 +51,9 @@ const WHOLE := 0.5
 const COARSE_YIELD := 0.6
 const COARSE := 0.85
 
-## "barley", "steeped", "green", or a kind of KINDS that can be milled.
-var stage := "barley"
-var kind := "barley"
+## "barley", "steeped", "green", or a kind of malts.json that can be milled.
+var stage: String = BrewIds.MALT_BARLEY
+var kind: String = BrewIds.MALT_BARLEY
 var kg := 0.0
 var color := 4.0
 var smoke := 0.0
@@ -78,6 +72,8 @@ var peak_heat := 0.0
 ## extract the crush lets out.
 var gap := -1.0
 var crush_yield := 0.0
+
+static var _kinds: Dictionary = {}
 var flaws: Array[String] = []
 
 ## A sack of barley as it comes from the mill shop.
@@ -86,14 +82,25 @@ static func barley(of_kg: float) -> MaltLot:
 	lot.kg = of_kg
 	return lot
 
+## Kind -> {color, extract, smoke}, as MALTS holds them.
+static func kinds() -> Dictionary:
+	if _kinds.is_empty():
+		var data: Variant = DataFile.read(MALTS, BrewingSchemas.malts())
+		_kinds = data if data is Dictionary else {}
+	return _kinds
+
+## What `of_kind` gives; zeros for a kind the table lacks.
+static func grain(of_kind: String) -> Dictionary:
+	return kinds().get(of_kind, {"color": 0.0, "extract": 0.0, "smoke": 0.0})
+
 ## Bought malt or oats of `of_kind`, ready for the mill.
 static func bought(of_kind: String, of_kg: float) -> MaltLot:
 	var lot := MaltLot.new()
 	lot.stage = of_kind
 	lot.kind = of_kind
 	lot.kg = of_kg
-	lot.color = KINDS[of_kind].color
-	lot.smoke = KINDS[of_kind].smoke
+	lot.color = Values.real(grain(of_kind).color)
+	lot.smoke = Values.real(grain(of_kind).smoke)
 	lot.woken = 1.0
 	lot.growth = 1.0
 	lot.moisture = 0.0
@@ -105,7 +112,7 @@ func _flaw(id: String) -> void:
 
 ## Steeps the barley in `water_l`: the part covered wakes.
 func steep(water_l: float) -> void:
-	if stage != "barley":
+	if stage != BrewIds.MALT_BARLEY:
 		return
 	woken = clampf(water_l / (kg * STEEP_WATER), 0.0, 1.0)
 	if woken < 0.95:
@@ -147,7 +154,7 @@ func kiln(heat: float, hours: float, wood: String, damper_closed: bool, stew := 
 
 ## Whether the lot can go on the kiln: green malt to dry, pale malt to roast.
 func on_kiln() -> bool:
-	return stage == "green" or stage == "pale"
+	return stage == "green" or stage == BrewIds.MALT_PALE
 
 ## `minutes` on the kiln at `heat` °C burning `wood`; `smoke_through` (0..1) is
 ## how much of the smoke goes through the grain (a shut damper: 1); `raked`
@@ -177,19 +184,19 @@ func kiln_done() -> void:
 		kg *= 1.0 - KILN_LOSS
 		if moisture > DAMP:
 			_flaw(BrewIds.FLAW_DAMP_MALT)
-		kind = "caramel" if stew_minutes >= STEW_MINUTES else "pale"
+		kind = BrewIds.MALT_CARAMEL if stew_minutes >= STEW_MINUTES else BrewIds.MALT_PALE
 	if roast_minutes >= DARK_HOURS * 60.0:
-		kind = "dark"
+		kind = BrewIds.MALT_DARK
 	if peak_heat > BURN_HEAT:
 		_flaw(BrewIds.FLAW_BURNT)
-	color = KINDS[kind].color * (2.0 if flaws.has(BrewIds.FLAW_BURNT) else 1.0)
-	if kind == "pale" and smoke >= SMOKED and not flaws.has(BrewIds.FLAW_ACRID_SMOKE):
-		kind = "smoked"
+	color = Values.real(grain(kind).color) * (2.0 if flaws.has(BrewIds.FLAW_BURNT) else 1.0)
+	if kind == BrewIds.MALT_PALE and smoke >= SMOKED and not flaws.has(BrewIds.FLAW_ACRID_SMOKE):
+		kind = BrewIds.MALT_SMOKED
 	stage = kind
 
 ## Mills the lot with the stones `mill_gap` apart, 0 (flour) to 1 (whole).
 func mill(mill_gap: float) -> void:
-	if not KINDS.has(stage) or stage == "barley" or milled():
+	if not kinds().has(stage) or stage == BrewIds.MALT_BARLEY or milled():
 		return
 	gap = clampf(mill_gap, 0.0, 1.0)
 	if gap < FLOUR:
@@ -202,7 +209,7 @@ func mill(mill_gap: float) -> void:
 func extract() -> float:
 	if gap < 0.0:
 		return 0.0
-	var base: float = KINDS[kind].extract
+	var base := Values.real(grain(kind).extract)
 	return kg * base * lerpf(UNGROWN_EXTRACT, 1.0, modified()) * crush_yield
 
 func milled() -> bool:
@@ -233,7 +240,7 @@ func merge(other: MaltLot) -> void:
 		return
 	var share := other.kg / total
 	for key: String in ["color", "smoke", "woken", "growth", "moisture", "stew_minutes", "roast_minutes", "gap", "crush_yield"]:
-		set(key, lerpf(float(get(key)), float(other.get(key)), share))
+		set(key, lerpf(Values.real(get(key)), Values.real(other.get(key)), share))
 	floor_days = maxi(floor_days, other.floor_days)
 	unturned_days = maxi(unturned_days, other.unturned_days)
 	peak_heat = maxf(peak_heat, other.peak_heat)
@@ -253,24 +260,24 @@ func to_dict() -> Dictionary:
 static func from_dict(data: Dictionary) -> MaltLot:
 	var lot := MaltLot.new()
 	var of_kind: Variant = data.get("kind")
-	if of_kind is String and KINDS.has(of_kind):
+	if of_kind is String and kinds().has(of_kind):
 		lot.kind = of_kind
 	var of_stage: Variant = data.get("stage")
-	if of_stage is String and (KINDS.has(of_stage) or of_stage == "steeped" or of_stage == "green"):
+	if of_stage is String and (kinds().has(of_stage) or of_stage == "steeped" or of_stage == "green"):
 		lot.stage = of_stage
 	for key: String in ["kg", "color", "smoke", "woken", "growth", "moisture", "stew_minutes", "roast_minutes", "peak_heat",
 			"gap", "crush_yield"]:
 		var value: Variant = data.get(key)
-		if (value is float or value is int) and is_finite(float(value)):
-			lot.set(key, float(value))
+		if (value is float or value is int) and is_finite(Values.real(value)):
+			lot.set(key, Values.real(value))
 	for key: String in ["floor_days", "unturned_days"]:
 		var days: Variant = data.get(key)
-		if (days is float or days is int) and is_finite(float(days)):
-			lot.set(key, int(days))
+		if (days is float or days is int) and is_finite(Values.real(days)):
+			lot.set(key, Values.whole(days))
 	lot.kg = maxf(lot.kg, 0.0)
 	var listed: Variant = data.get("flaws")
 	if listed is Array:
 		for id: Variant in listed:
 			if id is String and BrewIds.FLAWS.has(id):
-				lot._flaw(id)
+				lot._flaw(str(id))
 	return lot

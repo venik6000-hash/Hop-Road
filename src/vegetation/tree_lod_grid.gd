@@ -11,7 +11,7 @@ extends RefCounted
 ## band edge are tested tree by tree. Bands are half-open, [near, far).
 ##
 ## For an eye in the tavern's rooms select() takes what that eye sees of the
-## outdoors (TavernPortals.Sight) and leaves out, cell by cell, the trees no
+## outdoors (InteriorSight.Sight) and leaves out, cell by cell, the trees no
 ## opening shows; of the bands that only cast shadows, the trees whose
 ## shadow reaches nothing seen.
 
@@ -147,7 +147,7 @@ func near(rect: Rect2, crowns: PackedVector2Array) -> PackedFloat32Array:
 
 ## Tiles per side of the window that select() covers for bands reaching `reach` m.
 static func window_tiles(reach: float) -> int:
-	return int(ceil(2.0 * reach / TILE)) + 1
+	return ceili(2.0 * reach / TILE) + 1
 
 ## World position of the window corner tile for a camera at `eye`.
 static func window_origin(eye: Vector2, reach: float) -> Vector2i:
@@ -159,7 +159,7 @@ static func window_origin(eye: Vector2, reach: float) -> Vector2i:
 ## With a `sight` (see above) `shadow_bands` tells, band by band, which only
 ## cast shadows.
 func select(eye: Vector2, bands: PackedVector2Array, buffers: Array[PackedFloat32Array], boxes: Array[AABB],
-		sight: TavernPortals.Sight = null, shadow_bands := PackedByteArray()) -> void:
+		sight: InteriorSight.Sight = null, shadow_bands := PackedByteArray()) -> void:
 	var low := PackedFloat32Array()
 	var high := PackedFloat32Array()
 	low.resize(buffers.size() * 3)
@@ -198,7 +198,7 @@ func cell_box(cell: int, x: float, z: float) -> Array[Vector3]:
 
 func _collect(eye: Vector2, bands: PackedVector2Array, reach: float, window: int, corner: Vector2i,
 		buffers: Array[PackedFloat32Array], low: PackedFloat32Array, high: PackedFloat32Array,
-		sight: TavernPortals.Sight, shadow_bands: PackedByteArray) -> void:
+		sight: InteriorSight.Sight, shadow_bands: PackedByteArray) -> void:
 	var ix0 := clampi(floori((eye.x - reach - origin.x) / CELL), 0, size.x - 1)
 	var ix1 := clampi(floori((eye.x + reach - origin.x) / CELL), 0, size.x - 1)
 	var iz0 := clampi(floori((eye.y - reach - origin.y) / CELL), 0, size.y - 1)

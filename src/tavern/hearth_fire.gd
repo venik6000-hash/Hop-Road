@@ -16,6 +16,14 @@ var haze_height := 1.6
 var haze_lift := 0.2
 var haze_strength := 1.0
 
+## The fire of a row of a table's `fires` (BuildingSchemas.fire()): flames
+## along `along` at `at`, `width` across and `height` tall.
+static func from_table(config: Dictionary) -> HearthFire:
+	var fire := HearthFire.new()
+	fire.name = str(config.name).to_pascal_case() + "Flames"
+	fire.configure(Values.vec3(config.at), Values.vec3(config.along), Values.real(config.width), Values.real(config.height))
+	return fire
+
 func configure(origin: Vector3, along: Vector3, width: float, flame_height: float) -> void:
 	position = origin
 	_last_camera_position = Vector3(INF, INF, INF)
@@ -37,7 +45,7 @@ func configure(origin: Vector3, along: Vector3, width: float, flame_height: floa
 		flame.set_instance_shader_parameter("phase", index * 11.7)
 		flame.set_instance_shader_parameter("speed", 21.0 + index * 1.1)
 		flame.position = along * width * (float(index) / 4.0 - 0.5) * 0.75 + Vector3.UP * quad.size.y * 0.5
-		flame.layers = TavernSystem.LAYER
+		flame.layers = LightLayers.ROOMS
 		flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(flame)
 		_flames.append(flame)

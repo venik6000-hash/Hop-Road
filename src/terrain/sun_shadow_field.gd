@@ -38,10 +38,10 @@ var builds := 0
 
 var _rd: RenderingDevice
 var _sampler: RID
-var _shaders := {}
-var _pipelines := {}
-var _textures := {}
-var _sets := {}
+var _shaders: Dictionary[String, RID] = {}
+var _pipelines: Dictionary[String, RID] = {}
+var _textures: Dictionary[String, RID] = {}
+var _sets: Dictionary[String, RID] = {}
 var _ready_for_frames := false
 var _built_for := Vector3.ZERO
 var _published := false
@@ -86,20 +86,22 @@ func _create_gpu_resources(near_height: RID, far_height: RID) -> void:
 			return
 		_shaders[pass_name] = _rd.shader_create_from_spirv(spirv)
 		_pipelines[pass_name] = _rd.compute_pipeline_create(_shaders[pass_name])
-	_textures.a = _make_texture(RenderingDevice.DATA_FORMAT_R32G32_SFLOAT)
-	_textures.b = _make_texture(RenderingDevice.DATA_FORMAT_R32G32_SFLOAT)
-	_textures.near = _make_texture(RenderingDevice.DATA_FORMAT_R16G16B16A16_SFLOAT)
-	_textures.far = _make_texture(RenderingDevice.DATA_FORMAT_R16G16B16A16_SFLOAT)
+	_textures["a"] = _make_texture(RenderingDevice.DATA_FORMAT_R32G32_SFLOAT)
+	_textures["b"] = _make_texture(RenderingDevice.DATA_FORMAT_R32G32_SFLOAT)
+	_textures["near"] = _make_texture(RenderingDevice.DATA_FORMAT_R16G16B16A16_SFLOAT)
+	_textures["far"] = _make_texture(RenderingDevice.DATA_FORMAT_R16G16B16A16_SFLOAT)
 	var heights := [RdUtil.sampled(0, _sampler, RenderingServer.texture_get_rd_texture(near_height)),
 		RdUtil.sampled(1, _sampler, RenderingServer.texture_get_rd_texture(far_height))]
-	for pair: Array in [["ab", _textures.a, _textures.b], ["ba", _textures.b, _textures.a]]:
-		_sets[pair[0]] = _rd.uniform_set_create(heights + [RdUtil.sampled(2, _sampler, pair[1]),
-			RdUtil.sampled(3, _sampler, _textures.far), RdUtil.image(4, pair[2])], _shaders.sweep, 0)
+	for pair: Array in [["ab", _textures["a"], _textures["b"]], ["ba", _textures["b"], _textures["a"]]]:
+		var from: RID = pair[1]
+		var to: RID = pair[2]
+		_sets[str(pair[0])] = _rd.uniform_set_create(heights + [RdUtil.sampled(2, _sampler, from),
+			RdUtil.sampled(3, _sampler, _textures["far"]), RdUtil.image(4, to)], _shaders["sweep"], 0)
 	for field: String in ["near", "far"]:
-		_sets[field] = _rd.uniform_set_create(heights + [RdUtil.sampled(2, _sampler, _textures.a),
-			RdUtil.image(3, _textures[field])], _shaders.resolve, 0)
-	near_field.texture_rd_rid = _textures.near
-	far_field.texture_rd_rid = _textures.far
+		_sets[field] = _rd.uniform_set_create(heights + [RdUtil.sampled(2, _sampler, _textures["a"]),
+			RdUtil.image(3, _textures[field])], _shaders["resolve"], 0)
+	near_field.texture_rd_rid = _textures["near"]
+	far_field.texture_rd_rid = _textures["far"]
 	_start.call_deferred()
 
 func _start() -> void:
@@ -123,14 +125,15 @@ func _dispatch(sun: Vector3, near: Vector4, far: Vector4, near_heights: Vector4,
 	var list := _rd.compute_list_begin()
 	for field: Array in [["far", far, Vector4.ZERO], ["near", near, far]]:
 		var rect: Vector4 = field[1]
-		_rd.compute_list_bind_compute_pipeline(list, _pipelines.sweep)
-		_pass(list, _sets.ba, near_heights, far_heights, rect, field[2], Vector4.ZERO, 0.0, 0.0)
+		var coarse: Vector4 = field[2]
+		_rd.compute_list_bind_compute_pipeline(list, _pipelines["sweep"])
+		_pass(list, _sets["ba"], near_heights, far_heights, rect, coarse, Vector4.ZERO, 0.0, 0.0)
 		for index in PASSES:
 			var step := rect.z * pow(2.0, index)
-			_pass(list, _sets.ab if index % 2 == 0 else _sets.ba, near_heights, far_heights, rect, field[2],
+			_pass(list, _sets["ab"] if index % 2 == 0 else _sets["ba"], near_heights, far_heights, rect, coarse,
 				Vector4(heading.x, heading.y, step, step * sun.y / maxf(flat, 1e-5)), 1.0, 1.0 / maxf(flat, 1e-5))
-		_rd.compute_list_bind_compute_pipeline(list, _pipelines.resolve)
-		_pass(list, _sets[field[0]], near_heights, far_heights, rect, field[2], Vector4.ZERO, 0.0, 0.0)
+		_rd.compute_list_bind_compute_pipeline(list, _pipelines["resolve"])
+		_pass(list, _sets[str(field[0])], near_heights, far_heights, rect, coarse, Vector4.ZERO, 0.0, 0.0)
 	_rd.compute_list_end()
 	_publish.call_deferred(near, far)
 

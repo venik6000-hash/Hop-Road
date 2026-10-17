@@ -26,8 +26,8 @@ const SEAT_REACH := 0.7
 ## the world.
 static func build(body: Node3D, bounds: AABB, floor_height: float, doors: PackedVector3Array,
 		seats: PackedVector3Array) -> Dictionary:
-	var width := int(ceil(bounds.size.x / CELL))
-	var depth := int(ceil(bounds.size.z / CELL))
+	var width := ceili(bounds.size.x / CELL)
+	var depth := ceili(bounds.size.z / CELL)
 	var origin := Vector2(bounds.position.x, bounds.position.z)
 	# 0 where something stands, far away elsewhere; then the distance to it.
 	var far := PackedFloat32Array()
@@ -43,10 +43,10 @@ static func build(body: Node3D, bounds: AABB, floor_height: float, doors: Packed
 			continue
 		var inverse := place.affine_inverse()
 		var half := box.size * 0.5
-		var x0 := clampi(int(floor((solid.position.x - origin.x) / CELL)), 0, width - 1)
-		var x1 := clampi(int(ceil((solid.end.x - origin.x) / CELL)), 0, width - 1)
-		var z0 := clampi(int(floor((solid.position.z - origin.y) / CELL)), 0, depth - 1)
-		var z1 := clampi(int(ceil((solid.end.z - origin.y) / CELL)), 0, depth - 1)
+		var x0 := clampi(floori((solid.position.x - origin.x) / CELL), 0, width - 1)
+		var x1 := clampi(ceili((solid.end.x - origin.x) / CELL), 0, width - 1)
+		var z0 := clampi(floori((solid.position.z - origin.y) / CELL), 0, depth - 1)
+		var z1 := clampi(ceili((solid.end.z - origin.y) / CELL), 0, depth - 1)
 		for z: int in range(z0, z1 + 1):
 			for x: int in range(x0, x1 + 1):
 				var local: Vector3 = inverse * Vector3(origin.x + (x + 0.5) * CELL, place.origin.y,
@@ -75,10 +75,10 @@ static func build(body: Node3D, bounds: AABB, floor_height: float, doors: Packed
 ## to nothing at `reach` from it (in plan).
 static func _tread(walked: PackedFloat32Array, far: PackedFloat32Array, width: int, depth: int, origin: Vector2,
 		points: PackedVector3Array, reach: float, most: float) -> void:
-	var cells := int(ceil(reach / CELL))
+	var cells := ceili(reach / CELL)
 	for point: Vector3 in points:
-		var cx := int(floor((point.x - origin.x) / CELL))
-		var cz := int(floor((point.z - origin.y) / CELL))
+		var cx := floori((point.x - origin.x) / CELL)
+		var cz := floori((point.z - origin.y) / CELL)
 		for z: int in range(maxi(cz - cells, 0), mini(cz + cells, depth - 1) + 1):
 			for x: int in range(maxi(cx - cells, 0), mini(cx + cells, width - 1) + 1):
 				var index := z * width + x

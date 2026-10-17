@@ -79,10 +79,10 @@ static func sheet() -> Sheet:
 		var kind := KINDS.find(str(card.species))
 		assert(kind >= 0, "grass_cards.json: unknown plant '%s'" % card.species)
 		result.cells[kind].append(result.rects.size())
-		result.rects.append(Vector4(card.rect[0], card.rect[1], card.rect[2], card.rect[3]) / side)
-		result.shapes.append(Vector4(card.size[0], card.size[1], card.hull[0], card.hull[1]))
-		result.lift.append(LIFT[kind])
-		result.flex.append(FLEX[kind])
+		result.rects.append(Vector4(Values.real(card.rect[0]), Values.real(card.rect[1]), Values.real(card.rect[2]), Values.real(card.rect[3])) / side)
+		result.shapes.append(Vector4(Values.real(card.size[0]), Values.real(card.size[1]), Values.real(card.hull[0]), Values.real(card.hull[1])))
+		result.lift.append(Values.real(LIFT[kind]))
+		result.flex.append(Values.real(FLEX[kind]))
 	assert(result.rects.size() <= MAX_CELLS, "grass_cards.json holds more cells than the shader")
 	result.rects.resize(MAX_CELLS)
 	result.shapes.resize(MAX_CELLS)
@@ -105,7 +105,7 @@ static func dress(material: ShaderMaterial) -> void:
 
 ## The clump at level of detail `detail` (an index of DETAIL).
 static func mesh(detail: int, flower := false) -> ArrayMesh:
-	return _build(DETAIL[detail], 1.0, Color(1.0 if detail == FACING else 0.0, 0.0, 1.0 if flower else 0.0))
+	return _build(Values.list(DETAIL[detail]), 1.0, Color(1.0 if detail == FACING else 0.0, 0.0, 1.0 if flower else 0.0))
 
 ## The mat's clump.
 static func mat_mesh() -> ArrayMesh:

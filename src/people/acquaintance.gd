@@ -142,8 +142,8 @@ func restore(data: Variant) -> void:
 	if saved_notes is Dictionary:
 		for key: Variant in saved_notes:
 			var noted: Variant = saved_notes[key]
-			if key is String and (noted is float or noted is int) and is_finite(float(noted)) and float(noted) == floorf(float(noted)):
-				notes[key] = int(noted)
+			if key is String and (noted is float or noted is int) and is_finite(Values.real(noted)) and Values.real(noted) == floorf(Values.real(noted)):
+				notes[key] = Values.whole(noted)
 	stories = {}
 	var saved_stories: Variant = saved.get("stories")
 	if saved_stories is Dictionary:
@@ -157,6 +157,6 @@ func restore(data: Variant) -> void:
 				stories[story_id] = {"state": kept, "beat": maxi(-1, _whole(row.get("beat"), -1))}
 
 static func _whole(value: Variant, fallback := 0) -> int:
-	if (value is float or value is int) and is_finite(float(value)):
-		return int(value)
+	if (value is float or value is int) and is_finite(Values.real(value)):
+		return Values.whole(value)
 	return fallback

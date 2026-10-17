@@ -3,15 +3,23 @@ extends Node
 ## (autoload GameFlow; docs/LOOP.md, «Состояния игры»): the start, the main
 ## menu, the loading of a level, the game and its pause. Only the flow
 ## changes the scene; GameEvents hears of each move (game_state_changed).
+## The way out of a region takes the game through the loading screen into
+## another region (travel): the level leaves whole, as on the way to the menu.
 ##
 ## The pause is the tree's (SceneTree.paused), and only the flow sets it: the
 ## level stops whole, its clock, villagers, brewery, physics and sounds. What
 ## runs in the pause has its own process_mode: the flow with its pause menu,
 ## the settings panel. The settings (F10) open over the pause menu; from the
-## game they pause it first and go back to it when they close.
+## game they pause it first and go back to it when they close. The flow also
+## owns the line that tells of a trouble with the save (SaveNotice), the
+## music (MusicService), which follows each move, and the sounds of the
+## menus (UiSounds).
 
 const PAUSE_MENU = preload("res://src/flow/pause_menu.gd")
+const SAVE_NOTICE = preload("res://src/flow/save_notice.gd")
 const MAIN_MENU = preload("res://src/flow/main_menu.gd")
+const MUSIC_SERVICE = preload("res://src/flow/music_service.gd")
+const UI_SOUNDS = preload("res://src/flow/ui_sounds.gd")
 
 const BOOT := &"boot"
 const MENU := &"menu"
@@ -23,7 +31,7 @@ const MOVES: Dictionary[StringName, Array] = {
 	BOOT: [MENU],
 	MENU: [LOADING],
 	LOADING: [PLAYING, MENU],
-	PLAYING: [PAUSED],
+	PLAYING: [PAUSED, LOADING],
 	PAUSED: [PLAYING, MENU],
 }
 const MENU_SCENE := "res://scenes/menu/main_menu.tscn"
@@ -36,7 +44,12 @@ var state := BOOT
 ## The scenes the flow changes to (tests give stand-ins).
 var menu_path := MENU_SCENE
 var loading_path := LOADING_SCENE
+## The regions the game goes between, by id (RegionDef.LIST; tests give theirs).
+var region_list := RegionDef.LIST
 var pause_menu: PAUSE_MENU
+var save_notice: SAVE_NOTICE
+var music: MUSIC_SERVICE
+var ui_sounds: UI_SOUNDS
 ## The scene the flow has changed to: the menu or the loading screen with
 ## its level.
 var scene: Node
@@ -56,16 +69,27 @@ func _ready() -> void:
 	pause_menu.leave.connect(open_menu)
 	pause_menu.quit.connect(quit_game)
 	add_child(pause_menu)
+	save_notice = SAVE_NOTICE.new()
+	save_notice.name = "SaveNotice"
+	add_child(save_notice)
+	music = MUSIC_SERVICE.new()
+	music.name = "Music"
+	add_child(music)
+	ui_sounds = UI_SOUNDS.new()
+	ui_sounds.name = "UiSounds"
+	add_child(ui_sounds)
+	GameEvents.region_exit_reached.connect(travel)
 	_adopt_main_scene.call_deferred()
 
 ## The game starts in the main menu (run/main_scene): the flow takes it for
-## its own. A tool or a test that runs a script of its own leaves the flow
-## at BOOT.
+## its own and puts the window as the player set it. A tool or a test that
+## runs a script of its own leaves the flow at BOOT and the window as it is.
 func _adopt_main_scene() -> void:
 	var menu := get_tree().current_scene as MAIN_MENU
 	if menu == null or state != BOOT:
 		return
 	print(launch_line())
+	GameSettings.apply_display()
 	_take_menu(menu)
 	scene = menu
 	_move(MENU)
@@ -86,12 +110,50 @@ func open_menu(notice := "") -> void:
 	_change_to(menu)
 	_move(MENU)
 
-## Loads the level for a game in slot `slot`: anew (`fresh`) or from its save.
+## Loads the level for a game in slot `slot`: anew (`fresh`) or from its
+## save, in the region and at the spawn the save holds.
 func play(slot: String, fresh := false) -> void:
-	if not _can(LOADING):
+	if state != MENU:
 		return
 	SaveService.open(slot, fresh)
+	_load(SaveService.region, SaveService.spawn)
+
+## Takes the player through the way out `exit` into its region, at its
+## spawn. The save holds them there first; then the level leaves whole and
+## the loading screen builds the other region. A way out to a region the
+## game has not leads nowhere.
+func travel(exit: RegionExit) -> void:
+	if state != PLAYING:
+		return
+	if not _listed(exit.to):
+		push_error("GameFlow: no region %s for the way out" % exit.to)
+		return
+	SaveService.travel(exit.to, exit.spawn)
+	var slot := SaveService.slot
+	# Saved while the level still stands; the file is let go.
+	SaveService.close()
+	_load(exit.to, exit.spawn)
+	# The old level has left the tree at once (change_scene_to_node), and its
+	# loop, which lets the file go as it leaves, with it: the slot is opened
+	# again for the level that loads. The way holds where the player is even
+	# when the save above was not written.
+	if not slot.is_empty():
+		SaveService.open(slot)
+	SaveService.travel(exit.to, exit.spawn)
+
+## The region `region_id` is in the flow's list.
+func _listed(region_id: StringName) -> bool:
+	for entry: Dictionary in RegionDef.entries(region_list):
+		if StringName(str(entry.id)) == region_id:
+			return true
+	return false
+
+## The loading screen for the region `region_id` ("" or not listed: the first
+## one), the player coming in at `spawn_id`.
+func _load(region_id: StringName, spawn_id: StringName) -> void:
 	var loader := (load(loading_path) as PackedScene).instantiate()
+	loader.set(&"region_path", RegionDef.path_of(region_id, region_list))
+	loader.set(&"spawn", spawn_id)
 	loader.connect(&"finished", _loaded.bind(loader), CONNECT_ONE_SHOT)
 	_change_to(loader)
 	_move(LOADING)
@@ -138,6 +200,8 @@ func toggle_settings() -> void:
 func resume() -> void:
 	if state != PAUSED:
 		return
+	if pause_menu.visible:
+		UI_SOUNDS.play(UI_SOUNDS.CLOSE)
 	pause_menu.hide()
 	get_tree().paused = false
 	Input.mouse_mode = _mouse_mode
@@ -150,7 +214,8 @@ func quit_game() -> void:
 
 ## The level's settings panel; null for a level without one.
 func _settings_panel() -> SettingsPanel:
-	var world := scene.get(&"world") as Node
+	var found: Variant = scene.get(&"world")
+	var world: Node = found if found is Node else null
 	return world.get_node_or_null("Settings") as SettingsPanel if world != null else null
 
 func _unhandled_input(event: InputEvent) -> void:

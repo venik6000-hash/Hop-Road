@@ -103,22 +103,22 @@ var plant_count := 0
 var wood_count := 0
 var rock_count := 0
 var reed_material: ShaderMaterial
-var _rng := RandomNumberGenerator.new()
+var rng := RandomNumberGenerator.new()
 var _floor_cache: Dictionary = {}
-var _groups: Dictionary = {}
-var _materials: Dictionary = {}
-var _shapes: Dictionary = {}
-var _boulder_groups: Dictionary = {}
+var groups: Dictionary = {}
+var materials: Dictionary = {}
+var shapes: Dictionary = {}
+var boulder_groups: Dictionary = {}
 ## Footprints of the drowned wood on the bed: {"center": Vector2, "u": Vector2, "v": Vector2, "half": Vector2}.
-var _wood_footprints: Array[Dictionary] = []
-var _solid: StaticBody3D
+var wood_footprints: Array[Dictionary] = []
+var solid: StaticBody3D
 
 func build() -> void:
-	_rng.seed = 68249
-	_solid = StaticBody3D.new()
-	_solid.name = "LakeRockFaces"
-	_solid.collision_layer = PhysicsLayers.BOULDERS
-	add_child(_solid)
+	rng.seed = 68249
+	solid = StaticBody3D.new()
+	solid.name = "LakeRockFaces"
+	solid.collision_layer = PhysicsLayers.BOULDERS
+	add_child(solid)
 	Boulders.place(self)
 	await get_tree().physics_frame
 	Wood.place(self)
@@ -139,7 +139,7 @@ func seabed_at(x: float, z: float) -> float:
 	if not _floor_cache.has(cell):
 		var bed := Ground.bed_at(self, cell.x, cell.y, true)
 		_floor_cache[cell] = bed if not is_nan(bed) else habitat.terrain.height_at(cell.x, cell.y)
-	return maxf(_floor_cache[cell], habitat.terrain.height_at(x, z))
+	return maxf(Values.real(_floor_cache[cell]), habitat.terrain.height_at(x, z))
 
 ## The box an eye over the lake may see `piece` in (seen_box()).
 func seen_bounds(piece: GeometryInstance3D) -> AABB:

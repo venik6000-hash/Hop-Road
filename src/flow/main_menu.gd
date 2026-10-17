@@ -1,12 +1,15 @@
 extends Control
 ## The main menu (scenes/menu/main_menu.tscn, the project's main scene): go
 ## on with the slot saved last, a new game, a game in a slot of the player's
-## choice, the settings and the way out. It asks GameFlow for a game through
+## choice, the settings, the authors (Credits) and the way out. The version
+## of the game stands in a corner. It asks GameFlow for a game through
 ## its signals; a new game over a save asks the player first. Buttons and
 ## headings hold keys of the table and change language by themselves; the
 ## lines about the slots are written anew (_write).
 
 const MENU_LOOK = preload("res://src/flow/menu_look.gd")
+const CREDITS = preload("res://src/flow/credits.gd")
+const UI_SOUNDS = preload("res://src/flow/ui_sounds.gd")
 
 ## A game in slot `slot` is asked for: anew (`fresh`) or from its save.
 signal play(slot: String, fresh: bool)
@@ -20,6 +23,7 @@ var continue_button: Button
 var new_button: Button
 var pick_button: Button
 var settings_button: Button
+var credits_button: Button
 var quit_button: Button
 ## The rows of the slot page, one per SLOTS.
 var slot_buttons: Array[Button] = []
@@ -29,9 +33,14 @@ var confirm_button: Button
 ## none). GameFlow sets it before the menu enters the tree.
 var notice := ""
 var settings: SettingsPanel
+## The text of the authors' page, built from the files CREDITS when it first opens.
+var credits_text: RichTextLabel
+## The version of the game (application/config/version).
+var version_label: Label
 var _main: Control
 var _slots: Control
 var _confirm: Control
+var _credits: Control
 var _notice: Label
 var _slots_title: Label
 var _question: Label
@@ -52,6 +61,7 @@ func _ready() -> void:
 	new_button = MENU_LOOK.button(rows, "Новая игра", _open_slots.bind(true))
 	pick_button = MENU_LOOK.button(rows, "Выбрать ячейку", _open_slots.bind(false))
 	settings_button = MENU_LOOK.button(rows, "Настройки", _open_settings)
+	credits_button = MENU_LOOK.button(rows, "Авторы", _open_credits)
 	quit_button = MENU_LOOK.button(rows, "Выход", quit.emit)
 	_notice = MENU_LOOK.notice(rows)
 	_slots = _page()
@@ -65,6 +75,25 @@ func _ready() -> void:
 	_question = MENU_LOOK.notice(rows)
 	confirm_button = MENU_LOOK.button(rows, "Начать заново", _confirmed)
 	MENU_LOOK.button(rows, "Назад", _show.bind(_slots))
+	_credits = _page()
+	rows = MENU_LOOK.column(_credits, "Авторы", 960.0)
+	credits_text = RichTextLabel.new()
+	credits_text.bbcode_enabled = true
+	credits_text.custom_minimum_size = Vector2(0.0, 640.0)
+	credits_text.add_theme_font_size_override("normal_font_size", 16)
+	credits_text.add_theme_font_size_override("bold_font_size", 20)
+	credits_text.focus_mode = Control.FOCUS_ALL
+	rows.add_child(credits_text)
+	MENU_LOOK.button(rows, "Назад", _show.bind(_main))
+	version_label = Label.new()
+	version_label.add_theme_font_size_override("font_size", 16)
+	version_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 0.5))
+	version_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_MINSIZE, 16)
+	version_label.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	version_label.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	add_child(version_label)
+	# The panel wires its own buttons.
+	UI_SOUNDS.wire(self)
 	settings = SettingsPanel.new()
 	settings.name = "Settings"
 	add_child(settings)
@@ -77,17 +106,37 @@ func _page() -> Control:
 	return page
 
 func _show(page: Control) -> void:
-	for each: Control in [_main, _slots, _confirm]:
+	var shown := _shown_page()
+	if shown != null and shown != page:
+		UI_SOUNDS.play(UI_SOUNDS.CLOSE if page == _main else UI_SOUNDS.OPEN)
+	for each: Control in [_main, _slots, _confirm, _credits]:
 		each.visible = each == page
+	if page == _credits and credits_text.text.is_empty():
+		credits_text.text = credits_bbcode(CREDITS.read())
 	if page == _main:
 		continue_button.disabled = SaveService.last_slot().is_empty()
 		_notice.text = notice
 		_notice.visible = not notice.is_empty()
 	_write()
-	_first_button(page).grab_focus()
+	UI_SOUNDS.focus(_first_button(page))
 
-## The lines about the slots, in the language of the game.
+func _shown_page() -> Control:
+	for each: Control in [_main, _slots, _confirm, _credits]:
+		if each.visible:
+			return each
+	return null
+
+## The entries of Credits.read as the text of the page: each folder in bold
+## over its text.
+static func credits_bbcode(entries: Array[Dictionary]) -> String:
+	var parts := PackedStringArray()
+	for entry: Dictionary in entries:
+		parts.append("[b]%s[/b]\n%s" % [str(entry.folder), str(entry.text).replace("[", "[lb]")])
+	return "\n\n".join(parts)
+
+## The lines about the slots and the version, in the language of the game.
 func _write() -> void:
+	version_label.text = tr("Версия %s") % ProjectSettings.get_setting("application/config/version", "")
 	var last := SaveService.last_slot()
 	continue_button.text = "Продолжить" if last.is_empty() else tr("Продолжить — %s") % describe(last)
 	for index: int in SLOTS.size():
@@ -131,6 +180,9 @@ func _slot_chosen(slot: String) -> void:
 func _confirmed() -> void:
 	play.emit(_asked, true)
 
+func _open_credits() -> void:
+	_show(_credits)
+
 func _open_settings() -> void:
 	settings.open()
 
@@ -153,7 +205,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if _confirm.visible:
 		_show(_slots)
-	elif _slots.visible:
+	elif _slots.visible or _credits.visible:
 		_show(_main)
 	else:
 		return

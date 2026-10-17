@@ -96,6 +96,10 @@ func begin_outing() -> void:
 	_offered = false
 	_said.clear()
 
+## The story told at the last halt of this outing; "" for none yet.
+func last_story() -> String:
+	return _halt_story
+
 ## A frame of the outing. `has_floor`: nobody else is telling a story;
 ## `can_speak`: the player is near and no caption is up. Returns the line the
 ## person says by themselves now.
@@ -188,16 +192,16 @@ func _story_line(moment: Dictionary, has_floor: bool) -> Dictionary:
 		if story.is_empty():
 			return {}
 		# A story broken off goes on from the beat the listener left at.
-		beat = maxi(0, bond.heard(story.id))
+		beat = maxi(0, bond.heard(str(story.id)))
 	var beats: Array = story.beats
 	beat = mini(beat, beats.size() - 1)
 	telling = story.id
 	_halt = moment.halt
 	_halt_story = story.id
-	bond.hear(story.id, beat)
+	bond.hear(str(story.id), beat)
 	if beat == beats.size() - 1:
 		var hook_after: String = story.hook_after
-		bond.finish(story.id, moment.day, not hook_after.is_empty())
+		bond.finish(str(story.id), Values.whole(moment.day), not hook_after.is_empty())
 		telling = ""
 	var line: Dictionary = {"text": beats[beat], "kind": "beat", "last": beat == beats.size() - 1}
 	var partner: String = story.get("with", "")
@@ -220,7 +224,7 @@ func _ready_story(moment: Dictionary) -> Dictionary:
 ## The line that says why `story` cannot begin now: "later_day" after the
 ## day's stories, "later_halt" after this halt's; "" when it can.
 func _held_back(story: Dictionary, moment: Dictionary) -> String:
-	if bond.told_on(moment.day) >= STORIES_A_DAY:
+	if bond.told_on(Values.whole(moment.day)) >= STORIES_A_DAY:
 		return "later_day"
 	if _halt == moment.halt and _halt_story != story.id:
 		return "later_halt"
@@ -244,18 +248,18 @@ func _small_talk(moment: Dictionary, asked: bool) -> Dictionary:
 		var hook_before: String = story.hook_before
 		if story.circle > bond.circle or hook_before.is_empty() or StoryRules.fits(story, moment):
 			continue
-		if bond.state(story.id).is_empty() and (asked or _hook_halt != moment.halt):
-			bond.name_story(story.id)
+		if bond.state(str(story.id)).is_empty() and (asked or _hook_halt != moment.halt):
+			bond.name_story(str(story.id))
 			_hook_halt = moment.halt
 			return {"text": story.hook_before, "kind": "hook_before"}
-		if bond.state(story.id) == Acquaintance.NAMED:
+		if bond.state(str(story.id)) == Acquaintance.NAMED:
 			turn.append(story.hook_before)
 	if _echo_halt != moment.halt:
 		for story: Dictionary in sheet.stories:
 			var told_now: bool = _halt == moment.halt and _halt_story == story.id
 			var echo: String = story.echo
-			if bond.state(story.id) == Acquaintance.TOLD and not echo.is_empty() and not told_now \
-					and StoryRules.matches(story.context, moment):
+			if bond.state(str(story.id)) == Acquaintance.TOLD and not echo.is_empty() and not told_now \
+					and StoryRules.matches(Values.table(story.context), moment):
 				_echo_halt = moment.halt
 				return {"text": story.echo, "kind": "echo"}
 	var beer := _beer_remark(moment)

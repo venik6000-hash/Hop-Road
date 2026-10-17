@@ -6,7 +6,7 @@ extends LimbPose
 ## pelvis goes down by the larger drop, each leg reaches its own ground, and
 ## the foot lies along the ground's slope. The knee bends inside its hinge of
 ## the joint table (LimbPose). It runs before the seat, the arms and the
-## stumble: VillageNPC sets its `influence`, none while the seat holds the
+## stumble: NpcPoses sets its `influence`, none while the seat holds the
 ## legs, less with distance.
 
 ## How far the pelvis goes down at most, metres.
@@ -79,9 +79,9 @@ func _process_modification() -> void:
 			var ground: Vector3 = hit.position
 			heights[side] = ground.y - floor_y
 			normals[side] = hit.normal
-	var drop := pelvis_drop(heights.L, heights.R)
+	var drop := pelvis_drop(Values.real(heights.L), Values.real(heights.R))
 	if drop > STILL:
-		_set_origin(skeleton, _bones.Hips, _world_origin(skeleton, _bones.Hips) + Vector3.DOWN * drop)
+		_set_origin(skeleton, Values.whole(_bones.Hips), _world_origin(skeleton, Values.whole(_bones.Hips)) + Vector3.DOWN * drop)
 	var forward := -actor.global_basis.z.normalized()
 	for side: String in ["L", "R"]:
 		var upper: int = _bones["UpLeg_" + side]
@@ -100,7 +100,8 @@ func _process_modification() -> void:
 			_solve_chain(skeleton, upper, middle, foot, target, pole.normalized())
 		# The clip's foot, turned to the slope as far as it stands on it.
 		var planted := 1.0 - smoothstep(SOLE, LIFTED, at.y - floor_y - maxf(height, 0.0))
-		var turn := Quaternion.IDENTITY.slerp(foot_turn(normals[side]), planted)
+		var normal: Vector3 = normals[side]
+		var turn := Quaternion.IDENTITY.slerp(foot_turn(normal), planted)
 		if not solved and turn.get_angle() < 0.002:
 			continue
 		var frame: Transform3D = frames[side]

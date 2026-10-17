@@ -63,7 +63,7 @@ static func from_dict(of_id: String, data: Variant) -> PersonSheet:
 		if values.size() == sheet.circles.size():
 			for index: int in values.size():
 				if values[index] is float or values[index] is int:
-					sheet.circles[index] = int(values[index])
+					sheet.circles[index] = Values.whole(values[index])
 	var place: Variant = saved.get("favorite_place")
 	if place is Dictionary:
 		var favorite: Dictionary = place
@@ -75,7 +75,7 @@ static func from_dict(of_id: String, data: Variant) -> PersonSheet:
 					continue
 				var pair: Array = point
 				if pair.size() == 2:
-					sheet.favorite_path.append(Vector2(float(pair[0]), float(pair[1])))
+					sheet.favorite_path.append(Values.vec2(pair))
 	sheet.day = VillagerDay.entries(saved.get("day"))
 	var cover := _text(saved.get("shelter"))
 	if VillagerDay.SHELTERS.has(cover):
@@ -85,7 +85,7 @@ static func from_dict(of_id: String, data: Variant) -> PersonSheet:
 	if spot is Array:
 		var yard: Array = spot
 		if yard.size() == 2 and _is_number(yard[0]) and _is_number(yard[1]):
-			sheet.yard_spot = Vector2(float(yard[0]), float(yard[1]))
+			sheet.yard_spot = Values.vec2(yard)
 	var said: Variant = saved.get("lines")
 	if said is Dictionary:
 		for key: Variant in said:
@@ -145,7 +145,7 @@ static func _story(entry: Variant, of_id: String) -> Dictionary:
 	return {
 		"id": _text(row.get("id")),
 		"title": _text(row.get("title")),
-		"circle": int(circle) if circle is float or circle is int else 1,
+		"circle": Values.whole(circle) if circle is float or circle is int else 1,
 		"context": context,
 		"with": partner,
 		"voices": _voices(row.get("voices"), beats.size(), of_id, partner),
@@ -172,7 +172,7 @@ static func _voices(value: Variant, beats: int, of_id: String, partner: String) 
 	return result
 
 static func _is_number(value: Variant) -> bool:
-	return (value is float or value is int) and is_finite(float(value))
+	return (value is float or value is int) and is_finite(Values.real(value))
 
 static func _text(value: Variant) -> String:
 	return value if value is String else ""

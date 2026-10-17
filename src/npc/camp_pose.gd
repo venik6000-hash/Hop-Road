@@ -21,8 +21,8 @@ func _process_modification() -> void:
 	var right := actor.global_basis.x.normalized()
 	var origin := actor.global_position
 	# The pelvis sits just above the seat's top, with the body over the seat.
-	_set_origin(skeleton, _bones.Hips, origin + Vector3.UP * (seat_height + 0.12) - forward * 0.025)
-	_rotate_world(skeleton, _bones.Spine, Quaternion(right, -0.08))
+	_set_origin(skeleton, Values.whole(_bones.Hips), origin + Vector3.UP * (seat_height + 0.12) - forward * 0.025)
+	_rotate_world(skeleton, Values.whole(_bones.Spine), Quaternion(right, -0.08))
 	for side: String in ["L", "R"]:
 		var sign_side := 1.0 if side == "R" else -1.0
 		var foot_target := origin + forward * 0.48 + right * sign_side * 0.14
@@ -31,10 +31,11 @@ func _process_modification() -> void:
 			if not ground.is_empty():
 				foot_target.y = ground.position.y
 		foot_target.y += 0.075
-		_solve_chain(skeleton, _bones["UpLeg_" + side], _bones["Leg_" + side], _bones["Foot_" + side], foot_target, Vector3.UP)
+		_solve_chain(skeleton, Values.whole(_bones["UpLeg_" + side]), Values.whole(_bones["Leg_" + side]), Values.whole(_bones["Foot_" + side]), foot_target, Vector3.UP)
 		# Preserve the standing boot orientation rather than inheriting knee rotation.
 		var foot: int = _bones["Foot_" + side]
 		if foot >= 0:
 			var foot_pose := skeleton.get_bone_global_pose(foot)
-			foot_pose.basis = (_rest["Foot_" + side] as Transform3D).basis
+			var rest: Transform3D = _rest["Foot_" + side]
+			foot_pose.basis = rest.basis
 			_set_global(skeleton, foot, foot_pose)

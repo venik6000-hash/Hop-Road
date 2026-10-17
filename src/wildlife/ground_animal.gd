@@ -60,7 +60,7 @@ func _physics_process(delta: float) -> void:
 	_decision -= delta
 	if _decision <= 0.0:
 		_decision = 0.3
-		_react()
+		react()
 	_wait = maxf(0.0, _wait - delta)
 	var offset := target - global_position
 	offset.y = 0.0
@@ -101,7 +101,15 @@ func _replan() -> void:
 	state = "idle"
 	target = habitat.ground_target(home, home_radius, kind, rng)
 
-func _react() -> void:
+## Runs to `point` at once.
+func flee_to(point: Vector3) -> void:
+	target = point
+	_wait = 0.0
+	state = "flee"
+
+## Minds the player: flees from one too near by the first clear way, or
+## stands alert; calms down once the run is over.
+func react() -> void:
 	if habitat.player == null:
 		return
 	var away := global_position - habitat.player.global_position
@@ -125,9 +133,7 @@ func _react() -> void:
 				safe = false
 				break
 		if safe:
-			target = retreat
-			_wait = 0.0
-			state = "flee"
+			flee_to(retreat)
 			return
 	state = "alert" if kind == "deer" else "idle"
 	_wait = 0.8

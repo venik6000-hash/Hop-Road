@@ -77,8 +77,8 @@ float bare_ground(vec4 control, vec4 extra, vec4 far, float slope) {
 // stand round it is, and `shade`, the crowns right over it (the canopy field
 // at CANOPY_WIDE_LEVEL and at its finest, canopy.gdshaderinc). The
 // height-aware blend lets stones through at low weights, so grass gives way
-// early. The grass's jobs scatter the plants by it (_survey() of
-// grass_tile_job.gd); the terrain shades the ground under them.
+// early. The grass's jobs scatter the plants by it (GrassSurvey.run); the
+// terrain shades the ground under them.
 float grass_cover(vec4 control, vec4 extra, vec4 far, float slope, float above, float wooded, float shade) {
 	float bare = bare_ground(control, extra, far, slope);
 	float d = 1.0 - smoothstep(0.02, 0.2, bare);
@@ -99,9 +99,8 @@ float grass_cover(vec4 control, vec4 extra, vec4 far, float slope, float above, 
 // of one colour: a rank sward is the deep green, wet ground and the crowns
 // over it (`shade`) keep the growth dark, a poor sward and dry or cold ground
 // dry the grass on the stalk, and `fine` (the macro noise's G at 17 m)
-// mottles all of it. This is _survey() of grass_tile_job.gd again, which
-// knows a little more: how far the wet soaks into a bank and what stands
-// beside.
+// mottles all of it. This is GrassSurvey.run again, which knows a little
+// more: how far the wet soaks into a bank and what stands beside.
 vec2 sward_at(float swathe, float ragged, float fine, vec4 extra, vec4 far, vec3 normal, float parched, float above,
 		float shade) {
 	float lakeside = (1.0 - smoothstep(2.0, 14.0, extra.b * 255.0 - 128.0)) * (1.0 - smoothstep(1.5, 4.0, above));

@@ -6,6 +6,7 @@ extends CanvasLayer
 ## language by themselves; the notice of a save goes with a change of language.
 
 const MENU_LOOK = preload("res://src/flow/menu_look.gd")
+const UI_SOUNDS = preload("res://src/flow/ui_sounds.gd")
 
 ## The player goes on with the game.
 signal resume
@@ -37,6 +38,7 @@ func _ready() -> void:
 	menu_button = MENU_LOOK.button(rows, "Выйти в меню", leave.emit)
 	quit_button = MENU_LOOK.button(rows, "Выйти из игры", quit.emit)
 	_notice = MENU_LOOK.notice(rows)
+	UI_SOUNDS.wire(self)
 	hide()
 
 ## Shows the menu over the stopped game; `panel` is the level's settings
@@ -46,8 +48,9 @@ func open(panel: SettingsPanel) -> void:
 	settings_button.disabled = panel == null
 	save_button.disabled = SaveService.path.is_empty()
 	_notice.text = ""
+	UI_SOUNDS.play(UI_SOUNDS.OPEN)
 	show()
-	resume_button.grab_focus()
+	UI_SOUNDS.focus(resume_button)
 
 func _save() -> void:
 	if SaveService.save():
@@ -71,4 +74,4 @@ func _settings_closed(then_resume: bool) -> void:
 		resume.emit()
 		return
 	show()
-	settings_button.grab_focus()
+	UI_SOUNDS.focus(settings_button)

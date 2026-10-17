@@ -4,14 +4,14 @@ extends RefCounted
 ## «Контекст мира»). The level makes one (level.world) and hands it to each
 ## system that needs it before the system enters the tree. A tool that builds
 ## a part of the level alone gives none: a system without one acts as in a
-## level without a tavern.
+## level without rooms.
 
 ## Told when RenderQuality names another profile.
 signal quality_changed(profile: QualityProfile)
 
-## The tavern's portals: what an eye in its rooms sees of the outdoors; null
-## without a tavern.
-var portals: TavernPortals
+## The level's rooms (Interiors): how far an eye is indoors and what it sees
+## of the outdoors from there; null in a tool without them.
+var interiors: Interiors
 ## The quality profile of the level; null until RenderQuality has named one
 ## (QualityProfile.of gives the authored one then).
 var quality: QualityProfile
@@ -32,9 +32,9 @@ func shadow_reach() -> float:
 	return quality.shadow_distance if quality != null else 0.0
 
 ## Gives the sun and the moon the reach of their shadows: the profile's
-## outdoors, TavernPortals.SHADOW_REACH at most for an eye in the rooms.
+## outdoors, InteriorSight.SHADOW_REACH at most for an eye in a room.
 func set_shadow_reach(sky: SkySystem) -> void:
-	var distance := TavernPortals.reach_for(shadow_reach(), portals != null and portals.sight.active)
+	var distance := InteriorSight.reach_for(shadow_reach(), interiors != null and interiors.sight.active)
 	for light: DirectionalLight3D in [sky.sun, sky.moon]:
 		light.directional_shadow_max_distance = distance
 	# Past the shadow map the trees' shadow is the canopy field's

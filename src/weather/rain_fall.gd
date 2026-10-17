@@ -57,7 +57,7 @@ func _ready() -> void:
 	visible = false
 
 func _process(delta: float) -> void:
-	var share := amount(weather.state.rain, weather.state.storm) if weather != null else 0.0
+	var share := amount(Values.real(weather.state.rain), Values.real(weather.state.storm)) if weather != null else 0.0
 	visible = share > 0.004
 	if not visible:
 		return

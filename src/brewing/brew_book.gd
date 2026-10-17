@@ -2,7 +2,7 @@ class_name BrewBook
 extends RefCounted
 ## The brewer's book: the valley's recipes (assets/brewing/recipes.json) and
 ## the causes of flaws (assets/brewing/flaws.json). It names the beer a batch
-## became: the recipe its profile (BrewBatch.profile) fits, else a nameless ale.
+## became: the recipe its profile (BrewTaste.profile) fits, else a nameless ale.
 ##
 ## A recipe is {id, name, taste, steps, need, none_of, ranges}: `need` are the
 ## notes the beer must have, `none_of` those it must not, `ranges` map a key
@@ -26,7 +26,7 @@ static func load_files(recipes_path := RECIPES, flaws_path := FLAWS) -> BrewBook
 		if listed is Array:
 			for recipe: Variant in listed:
 				if recipe is Dictionary:
-					book.recipes.append(_recipe(recipe))
+					book.recipes.append(_recipe(Values.table(recipe)))
 		var none: Variant = table.get("nameless")
 		book.nameless = none if none is Dictionary else {}
 		var bad: Variant = table.get("spoiled")
@@ -58,7 +58,7 @@ static func fits(recipe: Dictionary, profile: Dictionary) -> bool:
 	for key: String in ranges:
 		var span: Array = ranges[key]
 		var value: float = profile.get(key, 0.0)
-		if value < float(span[0]) or value > float(span[1]):
+		if value < Values.real(span[0]) or value > Values.real(span[1]):
 			return false
 	return true
 
@@ -104,7 +104,7 @@ func journal_lines(journal: Array[Dictionary], batch_flaws: Array[String]) -> Pa
 
 ## One step of the journal in words, translated.
 static func journal_line(entry: Dictionary) -> String:
-	var n := func(key: String) -> float: return float(entry.get(key, 0.0))
+	var n := func(key: String) -> float: return Values.real(entry.get(key, 0.0))
 	match str(entry.step):
 		"line_tun":
 			return _t("Дно чана выстлано можжевельником: %.1f кг.") % n.call("kg")
@@ -176,7 +176,7 @@ func pages(batch: BrewBatch) -> PackedStringArray:
 	if batch.stage == BrewIds.STAGE_NEW:
 		lines = PackedStringArray([tr("Варка не начата.")])
 	elif batch.fire_out:
-		head = tr("Журнал варки · сорт по книге: %s") % tr(str(name_beer(batch.profile()).get("name", "")))
+		head = tr("Журнал варки · сорт по книге: %s") % tr(str(name_beer(BrewTaste.profile(batch)).get("name", "")))
 	for first in range(0, lines.size(), PAGE_LINES):
 		result.append(head + "\n\n" + "\n".join(lines.slice(first, first + PAGE_LINES)))
 	return result

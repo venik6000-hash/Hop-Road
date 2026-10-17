@@ -52,4 +52,4 @@ static func spring(current: float, velocity: float, target: float, delta: float)
 static func spring_vector(current: Vector2, velocity: Vector2, target: Vector2, delta: float) -> Array:
 	var x := spring(current.x, velocity.x, target.x, delta)
 	var y := spring(current.y, velocity.y, target.y, delta)
-	return [Vector2(x[0], y[0]), Vector2(x[1], y[1])]
+	return [Vector2(Values.real(x[0]), Values.real(y[0])), Vector2(Values.real(x[1]), Values.real(y[1]))]

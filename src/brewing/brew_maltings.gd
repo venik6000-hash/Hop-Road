@@ -80,7 +80,7 @@ func set_control(id: String, amount: float) -> void:
 
 ## How hard the kiln's fire draws: a shut damper keeps a third of the draught.
 func draught() -> float:
-	return lerpf(BrewDay.SHUT_DRAUGHT, 1.0, float(controls.kiln_damper))
+	return lerpf(BrewDay.SHUT_DRAUGHT, 1.0, Values.real(controls.kiln_damper))
 
 ## How strong the kiln's fire burns, 0..1.
 func fire() -> float:
@@ -101,7 +101,7 @@ func advance(minutes: float) -> void:
 
 func _tick(step: float) -> void:
 	minute += step
-	steep_water_l = maxf(0.0, steep_water_l - float(controls.steep_plug) * DRAIN * step)
+	steep_water_l = maxf(0.0, steep_water_l - Values.real(controls.steep_plug) * DRAIN * step)
 	var share := beech_fuel / fuel if fuel > 0.0 else 0.0
 	var burnt := minf(fuel, BURN * draught() * step)
 	fuel -= burnt
@@ -110,7 +110,7 @@ func _tick(step: float) -> void:
 	kiln_temp = target + (kiln_temp - target) * exp(-step / KILN_LAG)
 	if kiln != null:
 		# A shut damper sends the smoke through the grain.
-		var through := 1.0 - float(controls.kiln_damper) if fuel > 0.0 else 0.0
+		var through := 1.0 - Values.real(controls.kiln_damper) if fuel > 0.0 else 0.0
 		kiln.kiln_minutes(step, kiln_temp, wood(), through, minute - raked_at <= RAKED_MINUTES)
 
 ## A new day: barley soaked overnight wakes; the heap grows a day by the times
@@ -268,7 +268,7 @@ func pour_hopper(id: String, flow: float, minutes: float) -> void:
 
 ## The quern's gap (MaltLot.mill), as its wedge sets it.
 func gap() -> float:
-	return float(controls.quern_wedge)
+	return Values.real(controls.quern_wedge)
 
 ## The runner turned `turns`: the hopper's malt ground at the wedge's gap into
 ## the meal bin.
@@ -336,7 +336,7 @@ func reading(place: String, held := "", fine := false) -> String:
 			var warm := "тёплая" if couch.unturned_days > 0 or (couch_passes < TURN_PASSES and couch.floor_days > 0) else "прохладная"
 			return tr("Ток: %.0f кг, ростки %.0f мм, куча %s") % [couch.kg, couch.growth * 8.0, tr(warm)]
 		"kiln":
-			var heat := tr("Сушилка: %s") % BrewDay.degrees(kiln_temp, fine) if held == "thermometer" else tr("Сушилка")
+			var heat := tr("Сушилка: %s") % BrewGauges.degrees(kiln_temp, fine) if held == "thermometer" else tr("Сушилка")
 			if kiln == null:
 				return tr("%s, пусто") % heat
 			var dryness := "сырой" if kiln.moisture > MaltLot.WET else ("сыроват" if kiln.moisture > MaltLot.DAMP else "сухой")
@@ -379,7 +379,7 @@ static func _lot_dict(lot: MaltLot) -> Variant:
 	return lot.to_dict() if lot != null else null
 
 static func _lot(value: Variant) -> MaltLot:
-	return MaltLot.from_dict(value) if value is Dictionary else null
+	return MaltLot.from_dict(Values.table(value)) if value is Dictionary else null
 
 ## The maltings read back from to_dict() through JSON; what is missing or
 ## wrong keeps the start's.
@@ -389,7 +389,7 @@ static func from_dict(data: Dictionary) -> BrewMaltings:
 	if saved_controls is Dictionary:
 		var control_values: Dictionary = saved_controls
 		for id: String in CONTROLS:
-			maltings.controls[id] = _number(control_values.get(id), float(CONTROLS[id]), 0.0, 1.0)
+			maltings.controls[id] = Values.number(control_values.get(id), Values.real(CONTROLS[id]), 0.0, 1.0)
 	var saved_sacks: Variant = data.get("sacks")
 	if saved_sacks is Dictionary:
 		var sack_rows: Dictionary = saved_sacks
@@ -400,28 +400,23 @@ static func from_dict(data: Dictionary) -> BrewMaltings:
 			var lots: Array[MaltLot] = []
 			for item: Variant in saved:
 				if item is Dictionary:
-					lots.append(MaltLot.from_dict(item))
+					lots.append(MaltLot.from_dict(Values.table(item)))
 			maltings.sacks[id] = lots
 	maltings.steep = _lot(data.get("steep"))
-	maltings.steep_water_l = _number(data.get("steep_water_l"), 0.0, 0.0, STEEP_L)
+	maltings.steep_water_l = Values.number(data.get("steep_water_l"), 0.0, 0.0, STEEP_L)
 	maltings.couch = _lot(data.get("couch"))
-	maltings.couch_passes = int(_number(data.get("couch_passes"), 0.0, 0.0, 1000.0))
+	maltings.couch_passes = int(Values.number(data.get("couch_passes"), 0.0, 0.0, 1000.0))
 	maltings.kiln = _lot(data.get("kiln"))
-	maltings.fuel = _number(data.get("fuel"), 0.0, 0.0, FULL_FUEL * 1.5)
-	maltings.beech_fuel = _number(data.get("beech_fuel"), 0.0, 0.0, maltings.fuel)
-	maltings.kiln_temp = _number(data.get("kiln_temp"), BrewDay.AIR_TEMP, -40.0, 400.0)
-	maltings.minute = _number(data.get("minute"), 0.0, 0.0, 1e9)
-	maltings.raked_at = _number(data.get("raked_at"), -1e6, -1e6, maltings.minute)
+	maltings.fuel = Values.number(data.get("fuel"), 0.0, 0.0, FULL_FUEL * 1.5)
+	maltings.beech_fuel = Values.number(data.get("beech_fuel"), 0.0, 0.0, maltings.fuel)
+	maltings.kiln_temp = Values.number(data.get("kiln_temp"), BrewDay.AIR_TEMP, -40.0, 400.0)
+	maltings.minute = Values.number(data.get("minute"), 0.0, 0.0, 1e9)
+	maltings.raked_at = Values.number(data.get("raked_at"), -1e6, -1e6, maltings.minute)
 	maltings.hopper = _lot(data.get("hopper"))
 	var saved_bin: Variant = data.get("bin")
 	if saved_bin is Array:
 		for item: Variant in saved_bin:
 			if item is Dictionary:
-				maltings.bin.append(MaltLot.from_dict(item))
-	maltings.quern_angle = _number(data.get("quern_angle"), 0.0, -1e9, 1e9)
+				maltings.bin.append(MaltLot.from_dict(Values.table(item)))
+	maltings.quern_angle = Values.number(data.get("quern_angle"), 0.0, -1e9, 1e9)
 	return maltings
-
-static func _number(value: Variant, fallback: float, low: float, high: float) -> float:
-	if (value is float or value is int) and is_finite(float(value)):
-		return clampf(float(value), low, high)
-	return fallback

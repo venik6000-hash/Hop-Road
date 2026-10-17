@@ -76,4 +76,4 @@ static func make(system: VegetationSystem) -> void:
 		item.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 		item.layers = VegetationSystem.VISUAL_LAYER
 		system.add_child(item)
-		system._impostor_chunks.append(item)
+		system.impostor_chunks.append(item)

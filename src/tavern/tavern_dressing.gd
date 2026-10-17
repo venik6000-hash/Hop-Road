@@ -10,16 +10,17 @@ static func dress(tavern: TavernSystem, item: MeshInstance3D, room := false) -> 
 	var extras: Dictionary = item.get_meta("extras", {})
 	for surface in item.mesh.get_surface_count():
 		var old := item.mesh.surface_get_material(surface)
-		if old != null and tavern._materials.has(old.resource_name):
-			item.set_surface_override_material(surface, tavern._materials[old.resource_name])
-	item.layers = TavernSystem.LAYER | (TavernSystem.ROOM_SUN_LAYER if room else TavernSystem.SUN_LAYER)
+		if old != null and tavern.materials.has(old.resource_name):
+			var material: Material = tavern.materials[old.resource_name]
+			item.set_surface_override_material(surface, material)
+	item.layers = LightLayers.ROOMS | (LightLayers.ROOM_SUN if room else LightLayers.SUN)
 	item.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
-	if int(extras.get("tav_shadow", 1)) == 0:
+	if Values.whole(extras.get("tav_shadow", 1)) == 0:
 		item.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	if casts_lamp_shadows(item):
-		item.layers |= TavernSystem.SHADOW_LAYER
+		item.layers |= LightLayers.LAMP_CASTERS
 	# Collision-only pieces (a ramp under the stairs...).
-	if int(extras.get("tav_invisible", 0)) == 1:
+	if Values.whole(extras.get("tav_invisible", 0)) == 1:
 		item.visible = false
 	var reach: float = extras.get("tav_reach", 0.0)
 	if reach > 0.0:
@@ -29,7 +30,7 @@ static func dress(tavern: TavernSystem, item: MeshInstance3D, room := false) -> 
 	if coat != null and coat.shader == TavernSystem.FUR:
 		grow_fur(item, coat)
 		return
-	if int(extras.get("tav_door", 0)) == 1:
+	if Values.whole(extras.get("tav_door", 0)) == 1:
 		var door := TavernDoor.new()
 		door.name = item.name
 		tavern.add_child(door)
@@ -61,7 +62,7 @@ static func grow_fur(item: MeshInstance3D, coat: ShaderMaterial) -> void:
 	for index in FUR_SHELLS:
 		shells.set_instance_transform(index, Transform3D.IDENTITY)
 		shells.set_instance_custom_data(index, Color(float(FUR_SHELLS - index) / FUR_SHELLS, 0.0, 0.0, 0.0))
-	shells.custom_aabb = item.mesh.get_aabb().grow(float(coat.get_shader_parameter("fur_length")))
+	shells.custom_aabb = item.mesh.get_aabb().grow(Values.real(coat.get_shader_parameter("fur_length")))
 	coat.set_shader_parameter("shells", float(FUR_SHELLS))
 	var hair := MultiMeshInstance3D.new()
 	hair.name = "Hair"
@@ -75,7 +76,7 @@ static func grow_fur(item: MeshInstance3D, coat: ShaderMaterial) -> void:
 	item.add_child(hair)
 
 ## Whether the tavern's lamps draw `item` into their shadow maps (see
-## TavernSystem.SHADOW_LAYER): it casts shadows at all, and none of its
+## LightLayers.LAMP_CASTERS): it casts shadows at all, and none of its
 ## materials moves by itself.
 static func casts_lamp_shadows(item: MeshInstance3D) -> bool:
 	if item.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF:

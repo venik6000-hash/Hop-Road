@@ -2,12 +2,12 @@ class_name FishingState
 extends RefCounted
 ## Habitat weighting adapted from Tidewater Bites.js (MIT; assets/external/tidewater).
 ## All persistent fish have an id: cooking, gifts and eating consume that id once.
-const SPECIES := {
-	"rudd": {"title": "Краснопёрка", "length": Vector2(16, 32), "mass": 0.32, "habitat": "shallows", "time": "day"},
-	"perch": {"title": "Окунь", "length": Vector2(18, 38), "mass": 0.65, "habitat": "pier", "time": "day"},
-	"trout": {"title": "Форель", "length": Vector2(24, 52), "mass": 1.3, "habitat": "deep", "time": "dawnDusk"},
-	"pike": {"title": "Щука", "length": Vector2(38, 78), "mass": 2.6, "habitat": "reeds", "time": "dawnDusk"},
-}
+## The fish of the lake (fish.json): title, length range (cm), mass at the
+## longest (kg), habitat (habitat()'s keys) and time (activity()).
+const SPECIES := "res://assets/lakeside/fish.json"
+## The waters a fish keeps to (habitat()) and its hours (activity()).
+const HABITATS: Array[String] = ["shallows", "pier", "reeds", "deep"]
+const TIMES: Array[String] = ["day", "dawnDusk"]
 const CAPACITY := 8
 ## The bag or the journal has changed; the valley's save keeps them
 ## (SaveService, section "fishing").
@@ -16,6 +16,20 @@ var bag: Array[Dictionary] = []
 var journal: Dictionary = {}
 var next_id := 1
 var rng := RandomNumberGenerator.new()
+
+static var _species: Dictionary = {}
+
+## Species id -> its row of SPECIES.
+static func species_table() -> Dictionary:
+	if _species.is_empty():
+		var data: Variant = DataFile.read(SPECIES, WorldSchemas.fish())
+		_species = data if data is Dictionary else {}
+	return _species
+
+## What the player calls the fish of `species`, untranslated.
+static func title(species: String) -> String:
+	var row: Dictionary = species_table().get(species, {})
+	return str(row.get("title", species))
 
 static func habitat(depth: float, shore_distance: float) -> Dictionary:
 	if depth < 0.35:
@@ -38,30 +52,32 @@ func choose(depth: float, shore_distance: float, hour: float) -> String:
 		return ""
 	var weights: Dictionary = {}
 	var total := 0.0
-	for species: String in SPECIES:
-		var fish: Dictionary = SPECIES[species]
-		var weight: float = home[fish.habitat] * activity(fish.time, hour)
+	var table := species_table()
+	for species: String in table:
+		var fish: Dictionary = table[species]
+		var weight: float = home[fish.habitat] * activity(str(fish.time), hour)
 		weights[species] = weight
 		total += weight
 	var pick := rng.randf() * total
 	for species: String in weights:
-		pick -= float(weights[species])
+		pick -= Values.real(weights[species])
 		if pick <= 0.0:
 			return species
 	return "perch"
 
 func catch_fish(species: String, hour: float) -> Dictionary:
-	if not SPECIES.has(species):
+	if not species_table().has(species):
 		return {}
-	var data: Dictionary = SPECIES[species]
-	var length := rng.randf_range(data.length.x, data.length.y)
-	var mass: float = data.mass * pow(length / data.length.y, 3.0)
+	var data: Dictionary = species_table()[species]
+	var span: Array = data.length
+	var length := rng.randf_range(Values.real(span[0]), Values.real(span[1]))
+	var mass: float = Values.real(data.mass) * pow(length / Values.real(span[1]), 3.0)
 	var fish := {"id": next_id, "species": species, "cm": snappedf(length, 0.1), "kg": snappedf(mass, 0.01), "hour": hour, "cooked": false}
 	next_id += 1
 	var record: Dictionary = journal.get(species, {"count": 0, "best_cm": 0.0, "best_kg": 0.0})
-	record.count = int(record.count) + 1
-	record.best_cm = maxf(record.best_cm, length)
-	record.best_kg = maxf(record.best_kg, mass)
+	record.count = Values.whole(record.count) + 1
+	record.best_cm = maxf(Values.real(record.best_cm), length)
+	record.best_kg = maxf(Values.real(record.best_kg), mass)
 	journal[species] = record
 	if bag.size() < CAPACITY:
 		bag.append(fish)
@@ -76,7 +92,7 @@ func first(cooked: bool) -> Dictionary:
 
 func take(id: int) -> Dictionary:
 	for i in bag.size():
-		if int(bag[i].id) == id:
+		if Values.whole(bag[i].id) == id:
 			var fish := bag[i]
 			bag.remove_at(i)
 			changed.emit()
@@ -85,7 +101,7 @@ func take(id: int) -> Dictionary:
 
 func cook(id: int) -> bool:
 	for fish in bag:
-		if int(fish.id) == id and not fish.cooked:
+		if Values.whole(fish.id) == id and not fish.cooked:
 			fish.cooked = true
 			changed.emit()
 			return true
@@ -111,26 +127,21 @@ func restore(saved_state: Variant) -> void:
 		if not value is Dictionary:
 			continue
 		var row: Dictionary = value
-		if not SPECIES.has(row.get("species", "")):
+		if not species_table().has(row.get("species", "")):
 			continue
-		var id := int(number(row.get("id"), 0, 0, 1000000000))
+		var id := int(Values.number(row.get("id"), 0, 0, 1000000000))
 		if id <= 0 or seen.has(id) or bag.size() >= CAPACITY:
 			continue
 		seen[id] = true
-		bag.append({"id": id, "species": row.species, "cm": number(row.get("cm"), 20, 1, 150),
-			"kg": number(row.get("kg"), 0.2, 0.01, 20), "hour": number(row.get("hour"), 12, 0, 24), "cooked": row.get("cooked") == true})
+		bag.append({"id": id, "species": row.species, "cm": Values.number(row.get("cm"), 20, 1, 150),
+			"kg": Values.number(row.get("kg"), 0.2, 0.01, 20), "hour": Values.number(row.get("hour"), 12, 0, 24), "cooked": row.get("cooked") == true})
 		next_id = maxi(next_id, id + 1)
 	var saved_journal: Variant = data.get("journal")
 	if saved_journal is Dictionary:
 		var saved: Dictionary = saved_journal
-		for species: String in SPECIES:
+		for species: String in species_table():
 			var entry: Variant = saved.get(species)
 			if entry is Dictionary:
 				var record: Dictionary = entry
-				journal[species] = {"count": int(number(record.get("count"), 0, 0, 1000000000)), "best_cm": number(record.get("best_cm"), 0, 0, 150), "best_kg": number(record.get("best_kg"), 0, 0, 20)}
-	next_id = maxi(next_id, int(number(data.get("next_id"), 1, 1, 1000000001)))
-
-static func number(value: Variant, fallback: float, low: float, high: float) -> float:
-	if (value is float or value is int) and is_finite(float(value)):
-		return clampf(float(value), low, high)
-	return fallback
+				journal[species] = {"count": int(Values.number(record.get("count"), 0, 0, 1000000000)), "best_cm": Values.number(record.get("best_cm"), 0, 0, 150), "best_kg": Values.number(record.get("best_kg"), 0, 0, 20)}
+	next_id = maxi(next_id, int(Values.number(data.get("next_id"), 1, 1, 1000000001)))

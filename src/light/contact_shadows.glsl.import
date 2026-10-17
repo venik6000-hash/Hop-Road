@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://ciwo7v28kflhp"
+path="res://.godot/imported/contact_shadows.glsl-7c611728255e45987bfa5388a6a139fe.res"
+
+[deps]
+
+source_file="res://src/light/contact_shadows.glsl"
+dest_files=["res://.godot/imported/contact_shadows.glsl-7c611728255e45987bfa5388a6a139fe.res"]
+
+[params]
+

@@ -747,8 +747,8 @@ void fragment() {
 	}
 	vec3 albedo = ground.albedo;
 	albedo *= mix(1.0, 0.62, wet);
-	// Thin ground holds its grass in patches (the gate of grass_tile_job.gd's
-	// _survey), and so does a poor sward: only under a patch is the ground the
+	// Thin ground holds its grass in patches (the gate of GrassSurvey.run),
+	// and so does a poor sward: only under a patch is the ground the
 	// plants' shaded feet, which are dry where the plants are.
 	float shaded = 1.0 - smoothstep(grass_shade_range.x, grass_shade_range.y, dist);
 	if (shaded > 0.0 && grass > 0.0) {

@@ -58,7 +58,7 @@ var layout := ""
 var cliff := ""
 var stone_count := 0
 
-var _shapes: Array[Dictionary] = []   # {name, mesh, size, layer, cliff, bare, hull, coarse}
+var shapes: Array[Dictionary] = []   # {name, mesh, size, layer, cliff, bare, hull, coarse}
 var _by_name := {}
 var _groups := {}                      # "shape/tile" -> {shape, transforms, customs, size}
 var _boulder_material: ShaderMaterial
@@ -67,8 +67,8 @@ var _body: StaticBody3D
 
 func _ready() -> void:
 	var start := Time.get_ticks_usec()
-	_load_shapes()
-	_make_materials()
+	load_shapes()
+	make_materials()
 	_body = StaticBody3D.new()
 	_body.name = "Solid"
 	add_child(_body)
@@ -80,7 +80,7 @@ func _ready() -> void:
 			removed += 1
 	for entry: Dictionary in LayoutStore.placed(layout, WorldSchemas.rocks()):
 		if _by_name.has(entry.shape):
-			_place_stone(_by_name[entry.shape], LayoutStore.unpack(entry.xform), entry.moss, entry.tone)
+			_place_stone(Values.whole(_by_name[entry.shape]), LayoutStore.unpack(Values.list(entry.xform)), Values.real(entry.moss), Values.real(entry.tone))
 	for face: Dictionary in faces(cliff):
 		_add_cliff_face(face)
 	_build_multimeshes()
@@ -92,7 +92,7 @@ static func faces(path: String) -> Array:
 	if path.is_empty():
 		return []
 	var data: Variant = DataFile.read(path, WorldSchemas.cliff_seat())
-	return (data as Dictionary).get("faces", []) if data is Dictionary else []
+	return Values.table(data).get("faces", []) if data is Dictionary else []
 
 ## Lays the ground the faces of the cliff file at `path` stand against into
 ## the near heightfield (row z, column x at origin + index * cell): the
@@ -100,13 +100,13 @@ static func faces(path: String) -> Array:
 ## anything is built on the heightfield or cut into it.
 static func seat(image: Image, origin: Vector2, cell: float, path: String) -> void:
 	for face: Dictionary in faces(path):
-		var corner := Vector2i(((Vector2(face.origin[0], face.origin[1]) - origin) / cell).round())
+		var corner := Vector2i(((Values.vec2(face.origin) - origin) / cell).round())
 		var heights: Array = face.heights
 		for row in heights.size():
 			var line: Array = heights[row]
 			for column in line.size():
 				if line[column] != null:
-					image.set_pixel(corner.x + column, corner.y + row, Color(float(line[column]), 0.0, 0.0))
+					image.set_pixel(corner.x + column, corner.y + row, Color(Values.real(line[column]), 0.0, 0.0))
 
 static func label_of(item: Node) -> String:
 	var extras: Dictionary = item.get_meta("extras", {})
@@ -129,7 +129,7 @@ static func stones_of(item: MeshInstance3D) -> Array[AABB]:
 		for i in points.size():
 			var key := Vector3i((points[i] * 1000.0).round())
 			if first.has(key):
-				RockField._union(parent, i, first[key])
+				RockField._union(parent, i, Values.whole(first[key]))
 			else:
 				first[key] = i
 		for t in range(0, index.size(), 3):
@@ -139,7 +139,8 @@ static func stones_of(item: MeshInstance3D) -> Array[AABB]:
 		for i in points.size():
 			var root := RockField._find(parent, i)
 			var p := xform * points[i]
-			box_of[root] = (box_of[root] as AABB).expand(p) if box_of.has(root) else AABB(p, Vector3.ZERO)
+			var grown: AABB = box_of.get(root, AABB(p, Vector3.ZERO))
+			box_of[root] = grown.expand(p)
 		for box: AABB in box_of.values():
 			boxes.append(box)
 	return boxes
@@ -163,7 +164,7 @@ func _remove(item: Node) -> void:
 
 # --- shapes and materials ------------------------------------------------------
 
-func _load_shapes() -> void:
+func load_shapes() -> void:
 	var scene := SHAPES.instantiate()
 	var coarse := {}
 	for item: MeshInstance3D in scene.find_children("*", "MeshInstance3D", true, false):
@@ -181,16 +182,16 @@ func _load_shapes() -> void:
 		if not cliff:
 			var hull := item.mesh.create_convex_shape(true, true) as ConvexPolygonShape3D
 			info.hull = hull.points
-		_by_name[shape_name] = _shapes.size()
-		_shapes.append(info)
+		_by_name[shape_name] = shapes.size()
+		shapes.append(info)
 	for shape_name: String in coarse:
-		_shapes[_by_name[shape_name]].coarse = coarse[shape_name]
+		shapes[_by_name[shape_name]].coarse = coarse[shape_name]
 	scene.free()
 
-func _make_materials() -> void:
-	var weather := load("res://assets/generated/sky/cloud_weather.png")
-	var moss := load("res://assets/generated/terrain/terrain_albedo.jpg")
-	var grain := load("res://assets/generated/terrain/terrain_normal.jpg")
+func make_materials() -> void:
+	var weather := load("res://assets/generated/sky/cloud_weather.png") as Texture2D
+	var moss := load("res://assets/generated/terrain/terrain_albedo.jpg") as TextureLayered
+	var grain := load("res://assets/generated/terrain/terrain_normal.jpg") as TextureLayered
 	_boulder_material = _material(SHADER, "boulder", BOULDER_GRADES, weather, moss, grain)
 	_cliff_material = _material(CLIFF_SHADER, "cliff", CLIFF_GRADES, weather, moss, grain)
 
@@ -225,26 +226,27 @@ func boulder_material() -> ShaderMaterial:
 
 ## One stone of shape `index` as drawn and as a collider.
 func _place_stone(index: int, xform: Transform3D, moss: float, tone: float) -> void:
-	var info: Dictionary = _shapes[index]
+	var info: Dictionary = shapes[index]
 	var size: Vector3 = info.size
-	_instance(index, xform, Color(info.layer, moss, tone, 0.0), maxf(size.x, size.z) * xform.basis.x.length())
-	MeshUtil.add_hull(_body, xform, info.hull)
+	_instance(index, xform, Color(Values.real(info.layer), moss, tone, 0.0), maxf(size.x, size.z) * xform.basis.x.length())
+	var hull: PackedVector3Array = info.hull
+	MeshUtil.add_hull(_body, xform, hull)
 	stone_count += 1
 
 func _add_cliff_face(face: Dictionary) -> void:
 	var index: int = _by_name[face.scan]
-	var info: Dictionary = _shapes[index]
-	var turn := Basis(Vector3.UP, deg_to_rad(face.yaw))
-	var face_scale := Vector3(face.scale[0], face.scale[1], face.scale[2])
-	var at := Vector3(face.at[0], face.at[1], face.at[2])
+	var info: Dictionary = shapes[index]
+	var turn := Basis(Vector3.UP, deg_to_rad(Values.real(face.yaw)))
+	var face_scale := Values.vec3(face.scale)
+	var at := Values.vec3(face.at)
 	var xform := Transform3D(turn * Basis.from_scale(face_scale), at)
 	# A face turned over is drawn as a mirrored copy of the mesh, set upright:
 	# an instance of a MultiMesh that mirrors shows its triangles from behind.
 	if face_scale.x < 0.0:
 		_instance(_mirror_of(index), Transform3D(turn * Basis.from_scale(face_scale.abs()), at),
-			Color(info.layer, 0.6, 0.5, 0.0), 1000.0)
+			Color(Values.real(info.layer), 0.6, 0.5, 0.0), 1000.0)
 	else:
-		_instance(index, xform, Color(info.layer, 0.6, 0.5, 0.0), 1000.0)
+		_instance(index, xform, Color(Values.real(info.layer), 0.6, 0.5, 0.0), 1000.0)
 	var coarse: Mesh = info.get("coarse", info.mesh)
 	var holder := CollisionShape3D.new()
 	var shape := ConcavePolygonShape3D.new()
@@ -255,7 +257,7 @@ func _add_cliff_face(face: Dictionary) -> void:
 
 ## The shape that is `index` in a mirror (x turned over), made on first use.
 func _mirror_of(index: int) -> int:
-	var info: Dictionary = _shapes[index]
+	var info: Dictionary = shapes[index]
 	if not info.has("mirror"):
 		var source: Mesh = info.mesh
 		var mesh := ArrayMesh.new()
@@ -282,8 +284,8 @@ func _mirror_of(index: int) -> int:
 		var copy := info.duplicate()
 		copy.name = info.name + "~mirror"
 		copy.mesh = mesh
-		info.mirror = _shapes.size()
-		_shapes.append(copy)
+		info.mirror = shapes.size()
+		shapes.append(copy)
 	return info.mirror
 
 func _instance(shape: int, xform: Transform3D, custom: Color, reach: float) -> void:
@@ -296,17 +298,19 @@ func _instance(shape: int, xform: Transform3D, custom: Color, reach: float) -> v
 	var customs: Array = group.customs
 	transforms.append(xform)
 	customs.append(custom)
-	group.reach = maxf(group.reach, reach)
+	group.reach = maxf(Values.real(group.reach), reach)
 
 func _build_multimeshes() -> void:
 	for key: String in _groups:
 		var group: Dictionary = _groups[key]
-		var info: Dictionary = _shapes[group.shape]
-		var multimesh := MeshUtil.custom_multimesh(info.mesh, group.transforms, group.customs)
-		# The tile's bounds, named: what hides the unseen (TavernPortals) asks
+		var info: Dictionary = shapes[group.shape]
+		var mesh: Mesh = info.mesh
+		var multimesh := MeshUtil.custom_multimesh(mesh, Values.list(group.transforms), Values.list(group.customs))
+		# The tile's bounds, named: what hides the unseen (InteriorSight) asks
 		# for them without the renderer.
-		var shape_box: AABB = (info.mesh as Mesh).get_aabb()
-		var box: AABB = (group.transforms[0] as Transform3D) * shape_box
+		var shape_box: AABB = mesh.get_aabb()
+		var first: Transform3D = group.transforms[0]
+		var box: AABB = first * shape_box
 		for xform: Transform3D in group.transforms:
 			box = box.merge(xform * shape_box)
 		multimesh.custom_aabb = box
@@ -317,5 +321,5 @@ func _build_multimeshes() -> void:
 		item.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 		# Small stones go first; a 2 m boulder stays for about 200 m.
 		if not info.cliff:
-			item.visibility_range_end = clampf(60.0 + 70.0 * group.reach, 90.0, 420.0)
+			item.visibility_range_end = clampf(Values.real(60.0 + 70.0 * group.reach), 90.0, 420.0)
 		add_child(item)

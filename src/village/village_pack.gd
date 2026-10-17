@@ -13,18 +13,6 @@ const FOREST_LEAVES: Array[String] = ["fern", "clover"]
 ## mesh back from the GPU, which can time out on Metal while the level loads.
 const HULL := "res://assets/generated/village_pack/%s_hull.tres"
 const SOLID_FOREST: Array[String] = ["stump", "log", "roots"]
-## The village's animals: kind, home, height (m), clip, radius of the circle
-## they walk (m, 0.0: they stand).
-const ANIMALS := [
-	["dog", Vector2(3.0, 6.5), 0.65, "0|standing_0", 0.0],
-	["horse", Vector2(23, -35), 1.7, "Skeleton|6 Eat", 0.0],
-	["goat", Vector2(20, -61), 0.95, "rigAction", 0.0],
-	["goat", Vector2(23, -62), 0.8, "rigAction", 0.0],
-	["duck", Vector2(-31, 10), 0.45, "walk", 2.4],
-	["duck", Vector2(-33, 12), 0.4, "walk", 2.0],
-	["goose", Vector2(38, 22), 1.0, "Wings Flapping", 20.0],
-	["goose", Vector2(41, 24), 1.0, "Wings Flapping", 22.0],
-]
 ## Side of a forest batch (m). The engine picks one mesh LOD and one
 ## visibility for a whole MultiMesh, so small cells keep the full scans to
 ## the ground round the walker.
@@ -35,7 +23,8 @@ const FOREST_WOOD_VIEW := 80.0
 const FOREST_WOOD: Array[String] = ["stump", "log", "roots", "branch"]
 var terrain: TerrainSystem
 var player: Player
-## Its yard props and the forest's wood (RegionDef.props, forest_wood).
+## Its yard props, the forest's wood and the animals (RegionDef.props,
+## forest_wood, animals).
 var region: RegionDef
 var removed_labels: Array[String] = []
 var props: Array[Node3D] = []
@@ -109,7 +98,7 @@ func _prepare_map(map: Node3D) -> void:
 func _finish_install(scatter := true) -> void:
 	# Wait for all building/tree colliders before sampling the forest floor.
 	if scatter:
-		_scatter_forest.call_deferred()
+		scatter_forest.call_deferred()
 	print("VILLAGE_PACK removed=%d props=%d" % [removed_labels.size(), props.size()])
 
 func _scene(key: String) -> PackedScene:
@@ -118,19 +107,19 @@ func _scene(key: String) -> PackedScene:
 	return _scenes[key]
 
 func _place(entry: Dictionary) -> Node3D:
-	var item := _scene(entry.asset).instantiate() as Node3D
+	var item := _scene(str(entry.asset)).instantiate() as Node3D
 	item.name = entry.name
 	item.set_meta("pack_asset", entry.asset)
 	item.set_meta("zone", entry.zone)
 	var x: float = entry.x
 	var z: float = entry.z
-	item.position = Vector3(x, terrain.height_at(x, z) + float(entry.get("lift", 0.0)), z)
-	item.rotation.y = deg_to_rad(entry.get("yaw", 0.0))
+	item.position = Vector3(x, terrain.height_at(x, z) + Values.real(entry.get("lift", 0.0)), z)
+	item.rotation.y = deg_to_rad(Values.real(entry.get("yaw", 0.0)))
 	# A prop leant by hand in the layout scene: degrees about x and z.
 	var tilt: Array = entry.get("tilt", [0.0, 0.0])
-	item.rotation.x = deg_to_rad(tilt[0])
-	item.rotation.z = deg_to_rad(tilt[1])
-	item.scale = Vector3.ONE * float(entry.size)
+	item.rotation.x = deg_to_rad(Values.real(tilt[0]))
+	item.rotation.z = deg_to_rad(Values.real(tilt[1]))
+	item.scale = Vector3.ONE * Values.real(entry.size)
 	add_child(item)
 	for mesh: MeshInstance3D in item.find_children("*", "MeshInstance3D", true, false):
 		# A basket stops mattering long before a cart does: by the prop's size.
@@ -152,13 +141,13 @@ func _place(entry: Dictionary) -> Node3D:
 			var body := StaticBody3D.new()
 			body.name = mesh.name + "_col"
 			var holder := CollisionShape3D.new()
-			holder.shape = _collision_cache.shape(entry.asset, str(item.get_path_to(mesh)), mesh.mesh)
+			holder.shape = _collision_cache.shape(str(entry.asset), str(item.get_path_to(mesh)), mesh.mesh)
 			body.add_child(holder)
 			mesh.add_child(body)
 	props.append(item)
 	return item
 
-func _scatter_forest() -> void:
+func scatter_forest() -> void:
 	await get_tree().physics_frame
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 3102026
@@ -176,7 +165,7 @@ func _scatter_forest() -> void:
 				continue
 			var ray := PhysicsRayQueryParameters3D.create(Vector3(point.x, y + 20, point.y), Vector3(point.x, y - 0.3, point.y), PhysicsLayers.GROUND)
 			var hit := get_world_3d().direct_space_state.intersect_ray(ray)
-			if hit.is_empty() or not String(hit.collider.name).begins_with("TerrainBody"):
+			if not PhysicsLayers.hit_terrain(hit):
 				continue
 			if index % 13 == 0:
 				# This slot held a piece of wood, now in the list. It still draws
@@ -190,7 +179,7 @@ func _scatter_forest() -> void:
 			_batch(asset, pose)
 	for entry: Dictionary in LayoutStore.placed(region.forest_wood, WorldSchemas.forest_wood()):
 		if entry.asset in FOREST_WOOD:
-			_batch(entry.asset, LayoutStore.unpack(entry.xform))
+			_batch(str(entry.asset), LayoutStore.unpack(Values.list(entry.xform)))
 	for batch: Dictionary in _forest_batches.values():
 		var mm := MultiMesh.new()
 		mm.transform_format = MultiMesh.TRANSFORM_3D
@@ -198,7 +187,8 @@ func _scatter_forest() -> void:
 		var poses: Array = batch.poses
 		mm.instance_count = poses.size()
 		for i: int in poses.size():
-			mm.set_instance_transform(i, poses[i])
+			var pose: Transform3D = poses[i]
+			mm.set_instance_transform(i, pose)
 		var node := MultiMeshInstance3D.new()
 		node.name = "Forest_" + batch.asset
 		node.multimesh = mm
@@ -264,7 +254,8 @@ func _batch(asset: String, pose: Transform3D) -> void:
 	poses.append(pose * batch.transform)
 	if asset in SOLID_FOREST:
 		if not _forest_shapes.has(asset):
-			_forest_shapes[asset] = _forest_hull(asset, batch.mesh)
+			var mesh: Mesh = batch.mesh
+			_forest_shapes[asset] = _forest_hull(asset, mesh)
 		var body := StaticBody3D.new()
 		body.name = "ForestSolid_" + asset + str(forest_instances)
 		var holder := CollisionShape3D.new()
@@ -276,29 +267,22 @@ func _batch(asset: String, pose: Transform3D) -> void:
 		add_child(body)
 	forest_instances += 1
 
-func populate_life(population: NpcPopulation) -> void:
-	for entry: Array in ANIMALS:
+## The region's animals in their yards (RegionDef.animals).
+func add_animals() -> void:
+	if region.animals.is_empty():
+		return
+	var data: Variant = DataFile.read(region.animals, WorldSchemas.animals())
+	var table: Dictionary = data if data is Dictionary else {}
+	var listed: Array = table.get("animals", [])
+	for entry: Dictionary in listed:
 		var animal := ACTOR.new()
-		animal.kind = entry[0]
-		animal.home = entry[1]
-		animal.height = entry[2]
-		animal.clip = entry[3]
-		animal.radius = entry[4]
+		animal.kind = str(entry.kind)
+		animal.home = Values.vec2(entry.at)
+		animal.height = Values.real(entry.height)
+		animal.clip = str(entry.clip)
+		animal.radius = Values.real(entry.radius)
 		animal.terrain = terrain
 		animal.player = player
 		animal.phase = animals.size() * 1.8
 		add_child(animal)
 		animals.append(animal)
-	# Keep the established cobbled route, with staggered starts and pauses.
-	var template: VillageNPC
-	for actor in population.actors:
-		if actor.job == "wander":
-			template = actor
-			break
-	if template != null:
-		for i in 2:
-			var actor := population.spawn(["monk", "bartender"][i], "wander",
-				["Путник", "Дровосек"][i], template.route[7 + i * 3])
-			actor.route.assign(template.route)
-			actor._wait = 3.3 + i * 2.0
-		population._place_walkers.call_deferred()

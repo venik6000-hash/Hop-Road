@@ -25,7 +25,7 @@ func _ready() -> void:
 	add_child(_rect)
 	var settings := get_node_or_null("/root/GameSettings")
 	if settings != null:
-		set_strength(settings.get(&"sharpness"))
+		set_strength(Values.real(settings.get(&"sharpness")))
 		settings.connect(&"sharpness_changed", set_strength)
 	else:
 		set_strength(0.0)

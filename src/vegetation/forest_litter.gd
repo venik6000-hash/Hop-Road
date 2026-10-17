@@ -135,7 +135,8 @@ static func shapes() -> Array[Array]:
 	for piece: String in names:
 		var kind := KINDS.find(piece.get_slice("_", 0))
 		assert(kind >= 0, "litter.glb: unknown piece '%s'" % piece)
-		var mesh := (meshes[piece] as ArrayMesh).duplicate() as ArrayMesh
+		var source: ArrayMesh = meshes[piece]
+		var mesh := source.duplicate() as ArrayMesh
 		mesh.resource_name = piece
 		# A stone is drawn with the boulders' material, which the tile gives it.
 		if kind != Kind.STONE:
@@ -282,7 +283,7 @@ func _lay_tile(key: Vector2i) -> Array[MultiMeshInstance3D]:
 	for mesh: ArrayMesh in laid:
 		var kind: int = laid[mesh].kind
 		var item := MultiMeshInstance3D.new()
-		item.multimesh = MeshUtil.custom_multimesh(mesh, laid[mesh].poses, laid[mesh].customs)
+		item.multimesh = MeshUtil.custom_multimesh(mesh, Values.list(laid[mesh].poses), Values.list(laid[mesh].customs))
 		if kind == Kind.STONE:
 			item.material_override = rocks.boulder_material()
 		item.position = origin

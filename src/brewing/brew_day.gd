@@ -2,29 +2,23 @@ class_name BrewDay
 extends RefCounted
 ## The brewing day in the brewery's vessels (docs/plans/brewing.md, section 4,
 ## from bought malt to the cooling plate): litres and °C in each vessel, the
-## fire under the copper, the taps, pumps and hand pours, and the clock in
-## game minutes. What the brewing makes of it is the batch's: this calls the
-## steps of BrewBatch as the liquid runs and counts none of its numbers again.
-## Vessels are the ids of brewery.json's `surfaces`.
+## fire under the copper, the taps and pumps, the stocks of the utensils, and
+## the clock in game minutes. What the brewing makes of it is the batch's:
+## this calls the steps of BrewBatch as the liquid runs and counts none of its
+## numbers again. What the hand pours from a utensil is BrewPouring's; what
+## the instruments read is BrewGauges'. Vessels are the ids of brewery.json's
+## `surfaces`.
 
 const COPPER := "copper_wort"
 const MASH_TUN := "mash_tun_mash"
 const UNDERBACK := "underback_wort"
 const HOP_BACK := "hop_back_wort"
 const COOLSHIP := "coolship_wort"
-## What each vessel is called.
-const TITLES := {COPPER: "Котёл", MASH_TUN: "Заторный чан", UNDERBACK: "Приёмный чан", HOP_BACK: "Хмелецедильный чан",
-	COOLSHIP: "Холодильная тарелка"}
-## Each vessel read empty: whole keys of the table, the word "empty" agrees
-## with the title.
-const EMPTY := {COPPER: "Котёл пуст", MASH_TUN: "Заторный чан пуст", UNDERBACK: "Приёмный чан пуст",
-	HOP_BACK: "Хмелецедильный чан пуст", COOLSHIP: "Холодильная тарелка пуста"}
 ## What the sacks hold when full: [kind of MaltLot, kg]; grams in the hop basket.
-const SACKS := {BrewIds.SACK_PALE_MALT: ["pale", 75.0], BrewIds.SACK_CARAMEL_MALT: ["caramel", 25.0],
-	BrewIds.SACK_OATS: ["oats", 25.0], BrewIds.SACK_DARK: ["dark", 25.0], BrewIds.SACK_SMOKED: ["smoked", 25.0]}
+const SACKS := {BrewIds.SACK_PALE_MALT: [BrewIds.MALT_PALE, 75.0], BrewIds.SACK_CARAMEL_MALT: [BrewIds.MALT_CARAMEL, 25.0],
+	BrewIds.SACK_OATS: [BrewIds.MALT_OATS, 25.0], BrewIds.SACK_DARK: [BrewIds.MALT_DARK, 25.0],
+	BrewIds.SACK_SMOKED: [BrewIds.MALT_SMOKED, 25.0]}
 const HOP_BASKET_G := 3000.0
-## Malt from the mill shop comes crushed at this gap (MaltLot.mill).
-const SHOP_GAP := 0.35
 ## Litres the water bucket and the hoist bucket hold; game minutes in which
 ## hot water in the bucket loses about two thirds of its heat over the air's.
 const WATER_BUCKET_L := 12.0
@@ -33,15 +27,6 @@ const HOIST_BUCKET_L := 50.0
 ## °C of the spring water in the trough, and of the air in the brewery.
 const SPRING_TEMP := 9.0
 const AIR_TEMP := 12.0
-## Litres of room a kg of grain takes in the mash.
-const GRAIN_BULK := 0.7
-## What a full pour gives a game minute: kg of grain from a sack, litres from
-## a bucket, grams of hops onto the scales.
-const GRAIN_POUR := 30.0
-const BUCKET_POUR := 40.0
-const HOPS_WEIGH := 600.0
-## Grams of hops a throw takes when none were weighed.
-const HANDFUL := 60.0
 ## Litres a game minute through a tap or cock opened full.
 const LIQUOR_COCK := 40.0
 const MASH_TAP := 25.0
@@ -66,26 +51,12 @@ const STIR_MINUTES := 1.0
 ## Metres the windlass lifts the bucket a turn; the height of the lift.
 const LIFT_TURN := 0.5
 const LIFT := 3.05
-## Game minutes the sand of the hourglass runs.
-const HOURGLASS := 60.0
 ## Kg a full honey pot, juniper bundle and linden bunch hold.
 const HONEY_POT_KG := 8.0
 const JUNIPER_KG := 2.5
 const LINDEN_KG := 0.5
-## Kg a game minute of the honey pot tipped full; of juniper laid in the tun
-## at a full tilt; kg of linden blossom a throw.
-const HONEY_POUR := 4.0
-const JUNIPER_LAY := 2.0
-const LINDEN_THROW := 0.25
 ## A fire below this is out: honey and linden then keep their aroma.
 const FIRE_OUT := 0.05
-## °C between the marks of the brewery's thermometer and of the precise one
-## from the market; grams of the smallest weight of the scales' old set and
-## of the full one (BrewTrade).
-const THERMO_STEP := 2.0
-const FINE_THERMO_STEP := 0.5
-const WEIGHT_STEP := 100.0
-const FINE_WEIGHT_STEP := 10.0
 ## The hand-set controls and where they start: taps, cocks, the damper, the hatch.
 const CONTROLS := {"liquor_cock": 0.0, "mash_tap": 0.0, "copper_tap": 0.0, "hop_back_tap": 0.0, "pipe_cock": 1.0,
 	"damper": 1.0, "hatch": 0.0}
@@ -156,7 +127,7 @@ var _carry := 0.0
 
 func _init() -> void:
 	for id: String in SACKS:
-		sacks[id] = float(SACKS[id][1])
+		sacks[id] = Values.real(SACKS[id][1])
 
 ## Litres each vessel of brewery.json's `surfaces` holds to the brim.
 static func capacities(table: Dictionary) -> Dictionary:
@@ -164,13 +135,13 @@ static func capacities(table: Dictionary) -> Dictionary:
 	for entry: Dictionary in table.get("surfaces", []):
 		if not entry.has("brim"):
 			continue
-		var depth := float(entry.brim) - float(entry.bottom)
+		var depth := Values.real(entry.brim) - Values.real(entry.bottom)
 		var area := 0.0
 		if entry.has("radius"):
-			area = PI * pow(float(entry.radius), 2.0)
+			area = PI * pow(Values.real(entry.radius), 2.0)
 		else:
 			var rect: Array = entry.rect
-			area = absf((float(rect[1][0]) - float(rect[0][0])) * (float(rect[1][1]) - float(rect[0][1])))
+			area = absf((Values.real(rect[1][0]) - Values.real(rect[0][0])) * (Values.real(rect[1][1]) - Values.real(rect[0][1])))
 		result[entry.id] = area * depth * 1000.0
 	return result
 
@@ -185,7 +156,7 @@ func advance(minutes: float) -> void:
 
 func _tick() -> void:
 	minute += 1.0
-	var draught := lerpf(SHUT_DRAUGHT, 1.0, float(controls.damper))
+	var draught := lerpf(SHUT_DRAUGHT, 1.0, Values.real(controls.damper))
 	fire = minf(1.0, fuel / FULL_FUEL) * draught
 	fuel = maxf(0.0, fuel - BURN * draught * signf(fuel))
 	if copper_l > 1.0:
@@ -207,40 +178,40 @@ func _tick() -> void:
 
 ## The taps over `minutes`.
 func _run(minutes: float) -> void:
-	var cock := minf(float(controls.liquor_cock) * LIQUOR_COCK * minutes, 0.0 if copper_wort else copper_l)
+	var cock := minf(Values.real(controls.liquor_cock) * LIQUOR_COCK * minutes, 0.0 if copper_wort else copper_l)
 	if cock > 0.0:
 		copper_l -= cock
-		_into_tun(cock, copper_temp)
+		into_tun(cock, copper_temp)
 	if batch.stage == BrewIds.STAGE_MASH:
-		var tap := float(controls.mash_tap)
+		var tap := Values.real(controls.mash_tap)
 		var runs := minf(tap * MASH_TAP * minutes, free_wort())
 		if tap > 0.0:
 			tap_peak = maxf(tap_peak, tap)
 		if runs > 0.0:
 			run_l += runs
 			underback_l += runs
-			_overflow("underback")
+			overflow("underback")
 		if run_l > 0.0 and free_wort() <= 0.01:
 			_lauter()
-	var knock := minf(float(controls.copper_tap) * COPPER_TAP * minutes, copper_l)
+	var knock := minf(Values.real(controls.copper_tap) * COPPER_TAP * minutes, copper_l)
 	if knock > 0.0:
 		copper_l -= knock
 		if copper_wort:
 			_knock_out()
 			hop_back_l += knock
-			_overflow("hop_back")
-	var drawn := minf(float(controls.hop_back_tap) * HOP_BACK_TAP * minutes, hop_back_l)
+			overflow("hop_back")
+	var drawn := minf(Values.real(controls.hop_back_tap) * HOP_BACK_TAP * minutes, hop_back_l)
 	if drawn > 0.0:
 		hop_back_l -= drawn
 		if hooked and lift <= 0.01:
 			bucket_l += drawn
-			_overflow("bucket")
+			overflow("bucket")
 		else:
-			_spill(drawn)
+			spill(drawn)
 
 ## Water into the mash tun: before the grain it waits there, in the mash it
 ## holds the heat, on the run-off it rinses the grain, after it runs away.
-func _into_tun(liters: float, temp: float) -> void:
+func into_tun(liters: float, temp: float) -> void:
 	match batch.stage:
 		BrewIds.STAGE_NEW:
 			tun_temp = (tun_water_l * tun_temp + liters * temp) / maxf(tun_water_l + liters, 0.001)
@@ -280,32 +251,35 @@ func _knock_out() -> void:
 		batch.boil(0.0, 0.0, false)
 	batch.draw_fire()
 
-func _spill(liters: float) -> void:
+## Wort lost on the floor; the batch is told once it can take it.
+func spill(liters: float) -> void:
 	pending_spill += liters
 	_settle()
 
-func _overflow(vessel: String) -> void:
+## What `vessel` ("underback", "hop_back", "bucket" for the hoist bucket,
+## "coolship") holds over its brim runs onto the floor.
+func overflow(vessel: String) -> void:
 	match vessel:
 		"underback":
-			var over := underback_l - float(capacity.get(UNDERBACK, INF))
+			var over := underback_l - Values.real(capacity.get(UNDERBACK, INF))
 			if over > 0.0:
 				underback_l -= over
-				_spill(over)
+				spill(over)
 		"hop_back":
-			var over := hop_back_l - float(capacity.get(HOP_BACK, INF))
+			var over := hop_back_l - Values.real(capacity.get(HOP_BACK, INF))
 			if over > 0.0:
 				hop_back_l -= over
-				_spill(over)
+				spill(over)
 		"bucket":
 			var over := bucket_l - HOIST_BUCKET_L
 			if over > 0.0:
 				bucket_l -= over
-				_spill(over)
+				spill(over)
 		"coolship":
-			var over := coolship_l - float(capacity.get(COOLSHIP, INF))
+			var over := coolship_l - Values.real(capacity.get(COOLSHIP, INF))
 			if over > 0.0:
 				coolship_l -= over
-				_spill(over)
+				spill(over)
 
 ## A tap or cock, the damper or the hatch set to `amount` (0..1).
 func set_control(id: String, amount: float) -> void:
@@ -315,11 +289,12 @@ func set_control(id: String, amount: float) -> void:
 ## `strokes` of the liquor pump: spring water into the copper, or back into
 ## the trough with the pipe's cock shut.
 func pump_liquor(strokes: int) -> void:
-	if strokes <= 0 or float(controls.pipe_cock) < 0.5:
+	if strokes <= 0 or Values.real(controls.pipe_cock) < 0.5:
 		return
-	_into_copper(minf(strokes * LIQUOR_STROKE, float(capacity.get(COPPER, INF)) - copper_l), SPRING_TEMP)
+	into_copper(minf(strokes * LIQUOR_STROKE, Values.real(capacity.get(COPPER, INF)) - copper_l), SPRING_TEMP)
 
-func _into_copper(liters: float, temp: float) -> void:
+## Water into the copper; under the wort it thins it.
+func into_copper(liters: float, temp: float) -> void:
 	if liters <= 0.0:
 		return
 	copper_temp = (copper_l * copper_temp + liters * temp) / (copper_l + liters)
@@ -346,63 +321,6 @@ func pump_wort(strokes: int) -> void:
 func stoke() -> void:
 	fuel = minf(fuel + LOG_KG, FULL_FUEL * 1.5)
 
-## Grain poured from `sack` at `flow` (0..1) for `minutes`, into the mash tun
-## when `into_tun`, else onto the floor. Returns the kg poured.
-func pour_grain(sack: String, flow: float, minutes: float, into_tun: bool) -> float:
-	if not SACKS.has(sack):
-		return 0.0
-	var kg := minf(flow * GRAIN_POUR * minutes, float(sacks[sack]))
-	if kg <= 0.0:
-		return 0.0
-	sacks[sack] = float(sacks[sack]) - kg
-	if not into_tun:
-		return kg
-	var lot := MaltLot.bought(str(SACKS[sack][0]), kg)
-	lot.mill(SHOP_GAP)
-	var lots: Array[MaltLot] = [lot]
-	pour_lots(lots)
-	return kg
-
-## Juniper branches laid from the bundle at `flow` for `minutes` on the bottom
-## of the mash tun; on a mash already in, they are lost. Returns the kg.
-func line_tun(flow: float, minutes: float) -> float:
-	var kg := minf(flow * JUNIPER_LAY * minutes, juniper_kg)
-	juniper_kg -= kg
-	if kg > 0.0 and batch.stage == BrewIds.STAGE_NEW:
-		batch.line_tun(kg)
-	return kg
-
-## Whether the wort in the copper can take honey or linden through the open
-## hatch; with the fire out the boil is over (BrewBatch.draw_fire) and they
-## keep their aroma while the wort is hot (BrewBatch.steeps).
-func _into_wort() -> bool:
-	if float(controls.hatch) < 0.5 or not copper_wort or (batch.stage != BrewIds.STAGE_BOIL and batch.stage != BrewIds.STAGE_WORT and not batch.steeps()):
-		return false
-	if batch.stage == BrewIds.STAGE_WORT:
-		batch.boil(0.0, 0.0, false)
-	if fire < FIRE_OUT:
-		batch.draw_fire()
-	return true
-
-## The honey pot tipped into the copper at `flow` for `minutes`. Onto a shut
-## hatch or into water it is lost.
-func pour_honey(flow: float, minutes: float) -> void:
-	var kg := minf(flow * HONEY_POUR * minutes, honey_kg)
-	if kg <= 0.0:
-		return
-	honey_kg -= kg
-	if _into_wort():
-		batch.add_honey(kg)
-
-## A handful of linden blossom thrown into the copper.
-func throw_linden() -> void:
-	var kg := minf(LINDEN_THROW, linden_kg)
-	if kg <= 0.0:
-		return
-	linden_kg -= kg
-	if _into_wort():
-		batch.add_linden(kg)
-
 ## Lots of grain into the mash tun: the first mash the batch in, the next
 ## are stirred into the mash. Grain that was never milled gives nothing.
 func pour_lots(lots: Array[MaltLot]) -> void:
@@ -414,51 +332,6 @@ func pour_lots(lots: Array[MaltLot]) -> void:
 	else:
 		batch.add_grain(lots)
 
-## The water bucket dipped in the trough at `flow` for `minutes`.
-func fill_bucket(flow: float, minutes: float) -> void:
-	_into_bucket(minf(WATER_BUCKET_L - water_bucket_l, flow * BUCKET_POUR * minutes), SPRING_TEMP)
-
-## The water bucket dipped through the open hatch into the copper's water.
-## Wort is not taken: the bucket is for water.
-func scoop_copper(flow: float, minutes: float) -> void:
-	if float(controls.hatch) < 0.5 or copper_wort:
-		return
-	var liters := minf(minf(WATER_BUCKET_L - water_bucket_l, flow * BUCKET_POUR * minutes), copper_l)
-	copper_l -= liters
-	_into_bucket(liters, copper_temp)
-
-func _into_bucket(liters: float, temp: float) -> void:
-	if liters <= 0.0:
-		return
-	water_bucket_temp = (water_bucket_l * water_bucket_temp + liters * temp) / (water_bucket_l + liters)
-	water_bucket_l += liters
-
-## The water bucket tipped at `flow` for `minutes` into `vessel` (MASH_TUN,
-## COPPER, or "" for elsewhere: the floor, a barrel scalded). Returns the litres.
-func pour_bucket(vessel: String, flow: float, minutes: float) -> float:
-	var liters := minf(flow * BUCKET_POUR * minutes, water_bucket_l)
-	if liters <= 0.0:
-		return 0.0
-	water_bucket_l -= liters
-	if vessel == MASH_TUN:
-		_into_tun(liters, water_bucket_temp)
-	elif vessel == COPPER:
-		_into_copper(liters, water_bucket_temp)
-	return liters
-
-## The hoist bucket tipped at `flow` for `minutes`: onto the cooling plate
-## when `onto_plate`, else onto the floor.
-func pour_hoist_bucket(flow: float, minutes: float, onto_plate: bool) -> void:
-	var liters := minf(flow * BUCKET_POUR * minutes, bucket_l)
-	if liters <= 0.0:
-		return
-	bucket_l -= liters
-	if onto_plate:
-		coolship_l += liters
-		_overflow("coolship")
-	else:
-		_spill(liters)
-
 ## The paddle `turns` round the mash tun.
 func stir_mash(turns: int) -> void:
 	if turns != 0:
@@ -467,25 +340,6 @@ func stir_mash(turns: int) -> void:
 ## The paddle round the copper.
 func stir_copper() -> void:
 	stirred_at = minute
-
-## The hop basket tipped over the scales at `flow` for `minutes`.
-func weigh_hops(flow: float, minutes: float) -> void:
-	var grams := minf(flow * HOPS_WEIGH * minutes, hops_g)
-	hops_g -= grams
-	weighed_g += grams
-
-## Hops thrown into the copper: what is on the scales, else a handful from
-## the basket. Through a shut hatch they fall on the lid. Returns the grams.
-func throw_hops() -> float:
-	var grams := weighed_g
-	if grams <= 0.0:
-		grams = minf(HANDFUL, hops_g)
-		hops_g -= grams
-	weighed_g = 0.0
-	if float(controls.hatch) < 0.5 or grams <= 0.0:
-		return 0.0
-	batch.add_hops(grams)
-	return grams
 
 ## The windlass turned `turns` (signed, up is plus): the bucket on its hook
 ## goes up or down.
@@ -503,95 +357,10 @@ func turn_hourglass() -> void:
 	hourglass_at = minute
 	hourglass_up = not hourglass_up
 
-## Game minutes of sand still to run; 0 when it has run out or was never turned.
-func sand_left() -> float:
-	return 0.0 if hourglass_at < 0.0 else maxf(0.0, HOURGLASS - (minute - hourglass_at))
-
-## What an instrument shows, for the line by the crosshair: the thermometer
-## in `vessel` ("" for the air), the dipstick in `vessel`, the hourglass, the
-## hop scales, the steelyard with the sack `vessel` on its hook. Translated.
-func reading(instrument: String, vessel := "") -> String:
-	match instrument:
-		"thermometer":
-			if vessel == "":
-				return tr("Градусник: в пивоварне %s") % degrees(AIR_TEMP, fine_thermometer)
-			if contents(vessel) == "":
-				return tr(str(EMPTY[vessel]))
-			return "%s: %s" % [tr(str(TITLES[vessel])), degrees(temperature(vessel), fine_thermometer)]
-		"dipstick":
-			return tr("%s: %.0f л") % [tr(str(TITLES[vessel])), liters(vessel)]
-		"hourglass":
-			if hourglass_at < 0.0:
-				return tr("Песочные часы на %.0f мин") % HOURGLASS
-			if sand_left() <= 0.0:
-				return tr("Песок пересыпался")
-			return tr("Песочные часы: осталось %.0f мин") % ceilf(sand_left())
-		"balance":
-			return tr("Весы: %.0f г хмеля") % snappedf(weighed_g, FINE_WEIGHT_STEP if full_weights else WEIGHT_STEP)
-		"steelyard":
-			return tr("Безмен: %.1f кг") % (load_kg(vessel) + float(BrewCarry.WEIGHTS.sack))
-	return ""
-
-## °C as a thermometer reads it: to its nearest mark, the precise one with
-## its half degrees.
-static func degrees(temp: float, fine: bool) -> String:
-	if fine:
-		return "%.1f°" % snappedf(temp, FINE_THERMO_STEP)
-	return "%.0f°" % snappedf(temp, THERMO_STEP)
-
-## Litres in a vessel; the mash tun counts the grain's room too.
-func liters(vessel: String) -> float:
-	match vessel:
-		COPPER:
-			return copper_l
-		MASH_TUN:
-			if batch.stage == BrewIds.STAGE_NEW:
-				return tun_water_l
-			if batch.stage == BrewIds.STAGE_MASH:
-				return batch.mash_l + sparge_l - run_l + batch.grain_kg * GRAIN_BULK
-			return batch.grain_kg * (GRAIN_BULK + BrewBatch.GRAIN_KEEPS)
-		UNDERBACK:
-			return underback_l
-		HOP_BACK:
-			return hop_back_l
-		COOLSHIP:
-			return coolship_l
-	return 0.0
-
-## How full a vessel is, 0..1.
-func fill(vessel: String) -> float:
-	var full := float(capacity.get(vessel, 0.0))
-	return clampf(liters(vessel) / full, 0.0, 1.0) if full > 0.0 else 0.0
-
-## °C of what a vessel holds.
-func temperature(vessel: String) -> float:
-	var wort := batch.wort_temp if batch.fire_out else batch.mash_temp
-	match vessel:
-		COPPER:
-			return batch.wort_temp if copper_wort and batch.fire_out else copper_temp
-		MASH_TUN:
-			return tun_temp if batch.stage == BrewIds.STAGE_NEW else batch.mash_temp
-		UNDERBACK:
-			return wort
-		HOP_BACK, COOLSHIP:
-			return batch.wort_temp
-	return AIR_TEMP
-
-## What a vessel holds: "water", "mash", "grain" (spent), "wort" or "".
-func contents(vessel: String) -> String:
-	if liters(vessel) <= 0.01:
-		return ""
-	match vessel:
-		COPPER:
-			return "wort" if copper_wort else "water"
-		MASH_TUN:
-			return str({BrewIds.STAGE_NEW: "water", BrewIds.STAGE_MASH: "mash"}.get(batch.stage, "grain"))
-	return "wort"
-
 ## Kg of what a carried thing holds.
 func load_kg(utensil: String) -> float:
 	if SACKS.has(utensil):
-		return float(sacks[utensil])
+		return Values.real(sacks[utensil])
 	match utensil:
 		"water_bucket":
 			return water_bucket_l
@@ -640,15 +409,15 @@ static func from_dict(data: Dictionary, vessel_capacity: Dictionary) -> BrewDay:
 	day.capacity = vessel_capacity
 	var saved: Variant = data.get("batch")
 	if saved is Dictionary:
-		day.batch = BrewBatch.from_dict(saved)
+		day.batch = BrewBatch.from_dict(Values.table(saved))
 	for key: String in SAVED:
 		if not data.has(key):
 			continue
 		var value: Variant = data[key]
 		match typeof(day.get(key)):
 			TYPE_FLOAT:
-				if (value is float or value is int) and is_finite(float(value)):
-					day.set(key, maxf(float(value), -1e6))
+				if (value is float or value is int) and is_finite(Values.real(value)):
+					day.set(key, maxf(Values.real(value), -1e6))
 			TYPE_BOOL:
 				if value is bool:
 					day.set(key, value)
@@ -658,6 +427,6 @@ static func from_dict(data: Dictionary, vessel_capacity: Dictionary) -> BrewDay:
 					var into: Dictionary = day.get(key)
 					for name: Variant in into:
 						var number: Variant = given.get(name)
-						if (number is float or number is int) and is_finite(float(number)):
-							into[name] = float(number)
+						if (number is float or number is int) and is_finite(Values.real(number)):
+							into[name] = Values.real(number)
 	return day

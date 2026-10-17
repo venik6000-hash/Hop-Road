@@ -44,7 +44,9 @@ var ghost: Node3D
 var caption: Label
 var caption_panel: PanelContainer
 var food_hint: Label
-var _caption_time := 0.0
+## What the camp says under no one's name, by id.
+var lines := LineTable.read(LineTable.CAMP, PeopleSchemas.camp_lines())
+var caption_time := 0.0
 var _bite_time := 0.0
 var _guest_clock := 0.0
 var _guest_requests: Dictionary = {}
@@ -64,9 +66,9 @@ var _unlaid_sites: Array = []
 var _camera: Camera3D
 var _camera_owner: Node
 ## Query resources are reused, but collision results are never cached.
-var _site_ground_query := PhysicsRayQueryParameters3D.new()
-var _site_roof_query := PhysicsRayQueryParameters3D.new()
-var _site_clearance_query := PhysicsShapeQueryParameters3D.new()
+var site_ground_query := PhysicsRayQueryParameters3D.new()
+var site_roof_query := PhysicsRayQueryParameters3D.new()
+var site_clearance_query := PhysicsShapeQueryParameters3D.new()
 var _preview_query := PhysicsRayQueryParameters3D.new()
 var _preview_tint := Color(-1, -1, -1, -1)
 
@@ -74,6 +76,7 @@ func _ready() -> void:
 	CAMP_HUD.build(self)
 	if interactions != null:
 		interactions.add_source(_interaction)
+		interactions.add_hold(_hold)
 	ghost = Node3D.new()
 	ghost.name = "CampPlacementPreview"
 	add_child(ghost)
@@ -87,9 +90,9 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	var active: bool = _player_camera().current and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
-	_caption_time = maxf(0.0, _caption_time - delta)
-	caption_panel.visible = active and _caption_time > 0
-	caption_panel.modulate.a = minf(1.0, _caption_time)
+	caption_time = maxf(0.0, caption_time - delta)
+	caption_panel.visible = active and caption_time > 0
+	caption_panel.modulate.a = minf(1.0, caption_time)
 	food_hint.visible = active and holding_food()
 	var hint := InputActions.hint(tr("Печёная картошка · {eat_potato} — съесть половину · {camp_secondary} — поделиться · {drink_beer} — пиво")) if holding_food() else ""
 	if food_hint.text != hint:
@@ -97,7 +100,7 @@ func _process(delta: float) -> void:
 	if placing:
 		ghost.visible = active
 		if active:
-			_update_preview()
+			update_placement()
 	else:
 		ghost.visible = false
 	if held_potato != null:
@@ -112,7 +115,7 @@ func _process(delta: float) -> void:
 		_guest_clock = 0.0
 		_check_passersby()
 	if active:
-		_keep_company(delta)
+		keep_company(delta)
 		_signs_clock += delta
 		if _signs_clock >= SIGNS_SECONDS:
 			_signs_clock = 0.0
@@ -133,7 +136,7 @@ func _input(event: InputEvent) -> void:
 		return
 	if InputActions.pressed(event, "place_camp"):
 		if interactions.climbing or not interactions.seated.is_empty():
-			say(null, "Сначала встань на тропу, чтобы выбрать место для костра.")
+			say(null, lines.text(&"stand_on_path"))
 		else:
 			placing = not placing
 		get_viewport().set_input_as_handled()
@@ -145,7 +148,8 @@ func _input(event: InputEvent) -> void:
 		if holding_food():
 			share()
 		elif interactions.selected is Campfire:
-			(interactions.selected as Campfire).set_burning(false)
+			var fire: Campfire = interactions.selected
+			fire.set_burning(false)
 		elif actor != null:
 			dismiss(actor)
 		else:
@@ -166,7 +170,7 @@ func _input(event: InputEvent) -> void:
 	elif InputActions.pressed(event, "camp_refill"):
 		if nearby_fire(player.global_position, 3.0) != null and not player.viewmodel.drinking():
 			player.viewmodel.refill()
-			say(null, "Дорожный кувшин ещё полон. Нальём по кружке.")
+			say(null, lines.text(&"jug_full"))
 			get_viewport().set_input_as_handled()
 
 func ground_at(point: Vector3, above := 2.0, below := 5.0) -> Dictionary:
@@ -175,7 +179,9 @@ func ground_at(point: Vector3, above := 2.0, below := 5.0) -> Dictionary:
 func check_site(point: Vector3, restoring := false) -> Dictionary:
 	return CAMP_SITE.check_site(self, point, restoring)
 
-func _update_preview() -> void:
+## Where the wood would go now: the ground the player looks at, checked as a
+## site (`placement`, or `placement_reason` and no position).
+func update_placement() -> void:
 	var camera := _player_camera() as Camera3D
 	_preview_query.from = camera.global_position
 	_preview_query.to = camera.global_position - camera.global_basis.z * 5.0
@@ -187,7 +193,8 @@ func _update_preview() -> void:
 		placement_reason = "Посмотри на землю в нескольких шагах от себя"
 		ghost.visible = false
 		return
-	placement = check_site(hit.position)
+	var at: Vector3 = hit.position
+	placement = check_site(at)
 	placement_reason = placement.reason
 	ghost.global_position = hit.position + Vector3.UP * 0.01
 	ghost.visible = true
@@ -201,6 +208,16 @@ func _update_preview() -> void:
 		material.emission_enabled = true
 		material.emission = tint * 0.2
 
+## What holds E here (TavernInteractions.add_hold): a fire being laid, or a
+## seat at a campfire sat on, with the mug's and the food's keys.
+func _hold() -> Interaction:
+	if placing:
+		return Interaction.of(self, 0.0, placement_text, confirm_placement)
+	if interactions.seated.get("camp", false):
+		return Interaction.of(interactions.seated, 0.0, func() -> String: return tr(TavernInteractions.STAND_HINT) + seated_text(),
+			interactions.stand)
+	return null
+
 func placement_text() -> String:
 	if placement.has("position"):
 		return "{interact} — положить дрова здесь · {place_camp} — отменить"
@@ -208,22 +225,23 @@ func placement_text() -> String:
 
 func confirm_placement() -> bool:
 	# Recheck at the moment of the action: an NPC may have walked into the spot.
-	_update_preview()
+	update_placement()
 	if not placement.has("position"):
 		return false
-	_create_fire(placement)
+	lay_fire(placement)
 	placing = false
-	_changed()
-	say(null, "Дрова уложены. Разожги костёр и выбирай полено поудобнее.")
+	mark_changed()
+	say(null, lines.text(&"wood_laid"))
 	return true
 
-func _create_fire(site: Dictionary) -> Campfire:
+## A fire of wood laid at `site` (check_site), not burning.
+func lay_fire(site: Dictionary) -> Campfire:
 	var fire := Campfire.new()
 	fire.name = "Campfire" + str(fires.size())
 	fire.position = site.position
-	fire.seats.assign(site.seats)
+	fire.seats.assign(Values.list(site.seats))
 	add_child(fire)
-	fire.burnt_out.connect(func() -> void: say(null, "Костёр прогорел. Подбрось полено из поленницы."))
+	fire.burnt_out.connect(func() -> void: say(null, lines.text(&"burnt_out")))
 	fires.append(fire)
 	return fire
 
@@ -264,7 +282,7 @@ func find_target(best: float) -> Dictionary:
 		for seat: Dictionary in fire.seats:
 			if seat_occupied(seat):
 				continue
-			distance = interactions.target_distance(TavernInteractions.vector(seat.position) + Vector3.UP * 0.5, null, true)
+			distance = interactions.target_distance(Values.vec3(seat.position) + Vector3.UP * 0.5, null, true)
 			if distance < best:
 				best = distance
 				result = {"distance": best, "target": seat}
@@ -303,27 +321,32 @@ func take_along(actor: VillageNPC) -> void:
 	actor.add_child(outing)
 	companions.append(outing)
 
+## The valley's brewery, whose logs burn here too; null in a valley without one.
+func _brewery() -> BrewHouse:
+	return get_tree().get_first_node_in_group(BrewHouse.GROUP) as BrewHouse
+
 ## Whether the player carries a log of the brewery's (BrewHouse) to burn.
 func holding_log() -> bool:
-	return interactions.brewing != null and interactions.brewing.holding_log()
+	var brewery := _brewery()
+	return brewery != null and brewery.work.carrying.holding_log()
 
 func interact_fire(fire: Campfire) -> void:
 	if holding_log():
 		if not fire.fuel.add_log():
-			say(null, "В костре и так полно дров.")
+			say(null, lines.text(&"fire_full"))
 			return
-		interactions.brewing.throw_log(fire.global_position + Vector3.UP * 0.2)
+		_brewery().work.carrying.throw_log(fire.global_position + Vector3.UP * 0.2)
 		if not fire.burning:
 			fire.set_burning(true)
-			say(null, "Полено занялось. Картошку можно положить прямо в угли.")
-		_changed()
+			say(null, lines.text(&"log_caught"))
+		mark_changed()
 		return
 	if not fire.burning:
 		if fire.fuel.empty():
-			say(null, "Нужны дрова: возьми полено из поленницы во дворе или в пивоварне.")
+			say(null, lines.text(&"need_wood"))
 			return
 		fire.set_burning(true)
-		say(null, "Огонь занялся. Картошку можно положить прямо в угли.")
+		say(null, lines.text(&"fire_caught"))
 	elif fire.meal.ready():
 		if holding_food():
 			return
@@ -333,11 +356,11 @@ func interact_fire(fire: Campfire) -> void:
 			return
 		if not fire.meal.take():
 			return
-		_take(fire.meal)
-		say(null, "Горячая картошка, щепотка соли. Можно разломить и угостить спутника.")
+		take_meal(fire.meal)
+		say(null, lines.text(&"potato_hot"))
 	elif not holding_food() and fire.meal.put_in_coals():
-		say(null, "Картошка в углях. Устройся рядом — есть время поговорить.")
-	_changed()
+		say(null, lines.text(&"potato_in_coals"))
+	mark_changed()
 
 ## The player's left hand under the potato while it shows (BrewHands.on_palm).
 func _hold_potato(delta: float) -> void:
@@ -348,7 +371,7 @@ func _hold_potato(delta: float) -> void:
 	player.hold(BodyChannels.POTATO, taken, delta)
 
 ## The baked potato of `meal` into the left hand.
-func _take(meal: CampMeal) -> void:
+func take_meal(meal: CampMeal) -> void:
 	player.hands.claim(BodyChannels.POTATO, holding_food)
 	held_meal = meal
 	if held_potato != null:
@@ -382,7 +405,7 @@ func eat() -> bool:
 	_let_potato_go()
 	player.hands.claim(BodyChannels.BITE, func() -> bool: return _bite_time > 0.0)
 	_bite_time = 0.65
-	say(null, "Под хрустящей кожурой — горячая мягкая картошка. Хороший вечер.")
+	say(null, lines.text(&"potato_eaten"))
 	return true
 
 ## Half of the potato goes to the nearest companion, else to the nearest
@@ -393,7 +416,7 @@ func share() -> bool:
 	var companion := nearest_companion(3.6)
 	var actor: VillageNPC = companion if companion != null else nearest_at_rest(3.0)
 	if actor == null:
-		say(null, "Подойди к спутнику поближе, чтобы поделиться картошкой.")
+		say(null, lines.text(&"come_closer"))
 		return false
 	if not held_meal.consume():
 		return false
@@ -412,12 +435,12 @@ func nearest_at_rest(reach: float) -> VillageNPC:
 ## warm to it — more to the food they love — and say their thanks.
 func fed(actor: VillageNPC, food: String) -> void:
 	var known := _memory(actor)
-	known["shared"] = int(known.get("shared", 0)) + 1
+	known["shared"] = Values.whole(known.get("shared", 0)) + 1
 	memories[actor.name] = known
 	var loved := population.people.sheet(actor.person_id).favorite_food == food
 	warm(actor, "food", Acquaintance.FAVORITE_FOOD if loved else -1)
 	say(actor, line_of(actor, "food_" + food))
-	_changed()
+	mark_changed()
 
 ## A cook was brought a raw catch.
 func brought_catch(actor: VillageNPC) -> void:
@@ -434,7 +457,7 @@ func say(actor: VillageNPC, words: String) -> void:
 		return
 	var said := tr(words)
 	caption.text = InputActions.hint(said if actor == null else tr(actor.title) + ":  " + said)
-	_caption_time = Storyteller.caption_seconds(said)
+	caption_time = Storyteller.caption_seconds(said)
 
 ## What the person says for `key` at the circle the player has reached with
 ## them: their own line, else the common one.
@@ -453,18 +476,18 @@ func warm(actor: VillageNPC, event: String, amount := -1) -> void:
 	var bond := population.people.bond(actor.person_id)
 	if bond == null:
 		return
-	var today := _today()
+	var today := current_day()
 	if bond.note(event, today, amount) > 0:
 		bond.settle(today)
-		_changed()
+		mark_changed()
 
 ## The player asked a companion or a villager at rest to talk (E on them).
 func talk(actor: VillageNPC) -> void:
 	var teller := teller_of(actor)
 	if teller == null:
 		return
-	var speaker := _telling()
-	_voice(actor, teller.ask(moment_of(actor), speaker == null or speaker == teller))
+	var speaker := telling_now()
+	voice_line(actor, teller.ask(moment_of(actor), speaker == null or speaker == teller))
 
 ## The villager's voice: the outing's for a companion, their own otherwise;
 ## null for a passer-by who is not one.
@@ -501,7 +524,7 @@ func reach_favorite(outing: NpcOuting) -> void:
 
 func targeted_companion() -> VillageNPC:
 	if interactions.selected is VillageNPC:
-		var actor := interactions.selected as VillageNPC
+		var actor: VillageNPC = interactions.selected
 		if actor.outing != null and actor.outing.mode != "return":
 			return actor
 	return null
@@ -563,7 +586,7 @@ func companion_seat(fire: Campfire, actor: VillageNPC) -> Dictionary:
 	var best := INF
 	var result: Dictionary = {}
 	for seat: Dictionary in fire.seats:
-		var at := TavernInteractions.vector(seat.position)
+		var at := Values.vec3(seat.position)
 		if seat_occupied(seat) or at.distance_to(player.global_position) < 0.9:
 			continue
 		var distance := at.distance_to(from)
@@ -585,7 +608,7 @@ func arrive_at_fire(outing: NpcOuting) -> void:
 	if CAMP_SIGNS.treat(self, outing) and not line_of(actor, "treat").is_empty():
 		words = line_of(actor, "treat")
 	say(actor, words)
-	_changed()
+	mark_changed()
 
 func seated_text() -> String:
 	if not interactions.seated.get("camp", false):
@@ -615,27 +638,27 @@ func _sipped() -> void:
 		speaker = nearest_companion(TALK_REACH)
 	if speaker == null:
 		speaker = CAMP_REST.nearest_visited(self)
-	if speaker != null and _voice(speaker, teller_of(speaker).sip(moment_of(speaker), true)):
+	if speaker != null and voice_line(speaker, teller_of(speaker).sip(moment_of(speaker), true)):
 		return
-	if toasted != null and _caption_time <= 0:
+	if toasted != null and caption_time <= 0:
 		say(toasted, line_of(toasted, "toast"))
 
 ## Keeps the company the player is in: counts the time walked and sat
 ## together, notices the place a companion loves, and lets each companion and
 ## each villager at rest the player has come up to speak when it is their turn.
-func _keep_company(delta: float) -> void:
-	var today := _today()
+func keep_company(delta: float) -> void:
+	var today := current_day()
 	if today != _day:
 		_day = today
 		_together.clear()
 		# A circle the day's rule held back opens with the new day.
 		for id: String in population.people.bonds:
 			if population.people.bond(id).settle(today):
-				_changed()
+				mark_changed()
 	var zone := valley.zone if valley != null else ""
 	var moved := zone != _zone
 	_zone = zone
-	var speaker := _telling()
+	var speaker := telling_now()
 	for outing in companions:
 		if not is_instance_valid(outing) or outing.mode == "return":
 			continue
@@ -646,18 +669,18 @@ func _keep_company(delta: float) -> void:
 		var near := player.global_position.distance_to(actor.global_position)
 		if outing.mode == "rest":
 			if near < TALK_REACH and interactions.seated.get("camp", false):
-				_spend(actor, "sit", delta, SIT_SECONDS)
+				spend(actor, "sit", delta, SIT_SECONDS)
 		elif near < WALK_REACH:
-			_spend(actor, "walk", delta, WALK_SECONDS)
+			spend(actor, "walk", delta, WALK_SECONDS)
 		if not outing.reached_favorite and at_favorite(actor):
 			reach_favorite(outing)
-		_voice(actor, outing.teller.advance(delta, _moment_for(outing), speaker == null or speaker == outing.teller,
-			_caption_time <= 0.0 and near <= TALK_REACH))
+		voice_line(actor, outing.teller.advance(delta, _moment_for(outing), speaker == null or speaker == outing.teller,
+			caption_time <= 0.0 and near <= TALK_REACH))
 	CAMP_REST.keep(self, delta, speaker)
 
 ## Adds `delta` to the seconds of today spent in `event` with the villager;
 ## the event counts when they come to `enough`.
-func _spend(actor: VillageNPC, event: String, delta: float, enough: float) -> void:
+func spend(actor: VillageNPC, event: String, delta: float, enough: float) -> void:
 	if not population.people.knows(actor.person_id):
 		return
 	var key := actor.person_id + ":" + event
@@ -681,7 +704,7 @@ func _moment_for(outing: NpcOuting) -> Dictionary:
 	now["listening"] = (by_fire or still) and player.global_position.distance_to(outing.actor.global_position) <= TALK_REACH
 	now["halt"] = outing.halt
 	now["company"] = CAMP_REST.company(self, outing.actor)
-	now["gift"] = bond.gift(_today()) if bond != null else ""
+	now["gift"] = bond.gift(current_day()) if bond != null else ""
 	now["can_guide"] = not favorite_path(outing.actor).is_empty() and not outing.reached_favorite and outing.mode != "guide"
 	return now
 
@@ -695,7 +718,7 @@ func at_table() -> bool:
 	return not interactions.seated.is_empty() and not camp_seat
 
 ## The storyteller who is telling a story now, null when nobody is.
-func _telling() -> Storyteller:
+func telling_now() -> Storyteller:
 	var actor := _storyteller()
 	return teller_of(actor) if actor != null else null
 
@@ -714,7 +737,7 @@ func _storyteller() -> VillageNPC:
 ## Shows a storyteller's line; false when there is none. A beat of a shared
 ## story (PersonSheet) is said by the one of the two whose it is, and the
 ## story heard to the end warms the other teller as well.
-func _voice(actor: VillageNPC, line: Dictionary) -> bool:
+func voice_line(actor: VillageNPC, line: Dictionary) -> bool:
 	if line.is_empty():
 		return false
 	var by: String = line.get("by", "")
@@ -726,7 +749,7 @@ func _voice(actor: VillageNPC, line: Dictionary) -> bool:
 		if other != null and other.present() \
 				and other.global_position.distance_to(actor.global_position) <= CAMP_REST.COMPANY_REACH:
 			voice = other
-	say(voice, line.text)
+	say(voice, str(line.text))
 	if line.kind == "beat" or line.kind == "hook_after":
 		# The story's last beat ends the telling as it is said: one who walks
 		# about their work stays for its caption, and until the hook that
@@ -744,29 +767,29 @@ func _voice(actor: VillageNPC, line: Dictionary) -> bool:
 		# has reached opens now.
 		var bond := population.people.bond(actor.person_id)
 		if bond != null:
-			bond.settle(_today())
+			bond.settle(current_day())
 		if not partner.is_empty() and population.actor_of(partner) != null:
 			warm(population.actor_of(partner), "story")
-	_changed()
+	mark_changed()
 	return true
 
-func _today() -> int:
+func current_day() -> int:
 	return valley.day if valley != null else 1
 
 ## The fires or what the player has with the villagers have changed: the
 ## valley saves them soon.
-func _changed() -> void:
+func mark_changed() -> void:
 	SaveService.save_soon()
 
 func _check_passersby() -> void:
 	var fire := nearby_fire(player.global_position, 4.0)
-	if fire == null or _caption_time > 0 or CAMP_SIGNS.join_fire(self, fire):
+	if fire == null or caption_time > 0 or CAMP_SIGNS.join_fire(self, fire):
 		return
 	for actor in population.actors:
 		var key := actor.name + _fire_key(fire)
 		if actor.present() and actor.on_road() and actor.global_position.distance_to(fire.global_position) < 4.5 and not _guest_requests.has(key):
 			_guest_requests[key] = true
-			actor._wait = 8.0
+			actor.rounds.wait_time = 8.0
 			say(actor, line_of(actor, "warm_by_fire"))
 			return
 
@@ -783,9 +806,9 @@ func fast_travel() -> void:
 		if is_instance_valid(outing):
 			dismiss(outing.actor)
 
-## The fires and the villagers' memories of them as the valley's save holds
-## them (SaveService, section "camping"): {memories, sites: [[x, y, z, fuel
-## seconds], ...]}.
+## The fires and the villagers' memories of them as the save holds them
+## (SaveService, section "camping" of the region): {memories, sites: [[x, y,
+## z, fuel seconds], ...]}.
 func to_dict() -> Dictionary:
 	var sites: Array = []
 	for fire in fires:
@@ -816,12 +839,12 @@ func restore(saved_state: Variant) -> void:
 		var values: Array = item
 		if values.size() != 3 and values.size() != 4:
 			continue
-		var point := TavernInteractions.vector(values)
+		var point := Values.vec3(values)
 		if not point.is_finite():
 			continue
 		var site := check_site(point, true)
 		if site.has("position"):
-			var fire := _create_fire(site)
+			var fire := lay_fire(site)
 			# The logs left in a fire put out wait for it to be lit again.
-			if values.size() == 4 and (values[3] is float or values[3] is int) and is_finite(float(values[3])):
-				fire.fuel.seconds = clampf(float(values[3]), 0.0, CampFuel.MAX_LOGS * CampFuel.LOG_SECONDS)
+			if values.size() == 4 and (values[3] is float or values[3] is int) and is_finite(Values.real(values[3])):
+				fire.fuel.seconds = clampf(Values.real(values[3]), 0.0, CampFuel.MAX_LOGS * CampFuel.LOG_SECONDS)

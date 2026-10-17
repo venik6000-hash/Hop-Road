@@ -101,12 +101,13 @@ var sun_shadow: SunShadowField
 var canopy: CanopyField
 ## The sky's weather map (assets/generated/sky/cloud_weather.png).
 var weather_map: Texture2D
-## The building the fog stays out of (none while its size is zero).
+## The rooms the fog stays out of, as one box (none while its size is zero):
+## the nearest building's (Interiors.fog_box), set every frame.
 var building := AABB()
-## Its rooms, as boxes in world space: seen from inside one, no lamp outdoors
-## has a halo (the fog is not in the room, and a lantern on the other side of
-## a wall would glow through it).
-var rooms: Array[AABB] = []
+## The level's rooms: seen from inside one, no lamp outdoors has a halo (the
+## fog is not in the room, and a lantern on the other side of a wall would
+## glow through it). Null: the eye is never in a room.
+var interiors: Interiors
 ## Wind over the lake, m/s (x east, y south): the mist drifts with it.
 var wind := Vector2.ZERO
 ## The significant height of the lake's waves, m: what a pixel shows is the
@@ -155,7 +156,8 @@ func prepare(delta: float, eye := Vector3.ZERO, lamps: Array = []) -> void:
 	_drift += wind * MIST_DRIFT * delta
 	_level = terrain.water_level
 	_weather_texture = weather_map.get_rid() if weather_map != null else RID()
-	_height_texture = (terrain.material.get_shader_parameter("far_height") as Texture2D).get_rid()
+	var far_height: Texture2D = terrain.material.get_shader_parameter("far_height")
+	_height_texture = far_height.get_rid()
 	var crowns := canopy.rect() if canopy != null and canopy.texture != null else Vector4.ZERO
 	_canopy_texture = canopy.texture.get_rid() if crowns.w > 0.0 else RID()
 	var sun := sky.sun_direction
@@ -185,7 +187,7 @@ func prepare(delta: float, eye := Vector3.ZERO, lamps: Array = []) -> void:
 		wood * WOOD_EXTINCTION, WOOD_TOP, WOOD_FALLOFF, WOOD_SUN,
 		crowns.x, crowns.y, crowns.z, crowns.w,
 	])
-	var outdoors := 1.0 - EyeAdaptation.indoors(eye, rooms)
+	var outdoors := 1.0 - interiors.inside(eye) if interiors != null else 1.0
 	var rows := lamp_rows(eye, lamps, outdoors) if lamp_halos and outdoors > 0.01 else PackedFloat32Array()
 	values.append_array([rows.size() / 8, 1.0 if lake_mirror else 0.0, RefractionPost.wave_reach(wave_height), 0.0])
 	values.append_array(rows)

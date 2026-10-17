@@ -22,6 +22,9 @@ const HEADROOM := 60.0
 const GLOBALS := ["rain_shelter", "rain_shelter_rect"]
 
 var terrain: TerrainSystem
+## The level's rooms: nothing outdoors is hidden from an eye in a room while
+## the map is drawn (Interiors.hold_sight). Null in a level without rooms.
+var interiors: Interiors
 ## The middle of the map (world x, z).
 var centre := Vector2.ZERO
 var capture := ShelterCapture.new()
@@ -63,8 +66,12 @@ func _ready() -> void:
 	_camera.compositor = compositor
 	_viewport.add_child(_camera)
 	_camera.current = true
+	if interiors != null:
+		interiors.hold_sight(self)
 
 func _exit_tree() -> void:
+	if interiors != null:
+		interiors.release_sight(self)
 	for global_name: String in GLOBALS:
 		RenderingServer.global_shader_parameter_set(global_name, Vector4.ZERO if global_name.ends_with("_rect") else null)
 
@@ -88,6 +95,8 @@ func _process(_delta: float) -> void:
 	_viewport.queue_free()
 	_viewport = null
 	set_process(false)
+	if interiors != null:
+		interiors.release_sight(self)
 
 ## The camera over tile `index`, looking straight down with x to its right
 ## and z down its picture.

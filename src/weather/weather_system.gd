@@ -5,7 +5,7 @@ extends Node
 ## After Bauer, "Creating the Atmospheric World of Red Dead Redemption 2"
 ## (SIGGRAPH 2019): a few weather and time-of-day parameters place the clouds
 ## and the fog, and one weather turns into the next without a cut. A kind of
-## weather is a preset of that state. What draws reads the state, never the
+## weather is a preset of that state (WeatherTable). What draws reads the state, never the
 ## kind: SkySystem (cloud cover and type, cirrus, lightning inside the clouds,
 ## the share of the sun that reaches the ground), AtmosphereFog (haze, the
 ## mist over the lake, rain fog under the clouds, the fog in the woods, light
@@ -18,42 +18,6 @@ signal weather_changed(kind: String)
 ## seed: int, age: seconds}.
 signal lightning_struck(strike: Dictionary)
 
-const KINDS: Array[String] = ["clear", "fair", "overcast", "mist", "rain", "storm"]
-const NAMES := {"clear": "Ясно", "fair": "Облачно", "overcast": "Пасмурно", "mist": "Туман",
-	"rain": "Дождь", "storm": "Гроза"}
-## The numbers of a state. coverage, density, cumulus: the cloud layer, as
-## SkySystem's exports. darkness: 0 white fair-weather cloud .. 1 a storm's
-## dark base. cirrus: the high ice cloud. haze: fog everywhere, thinning with
-## height. mist: the fog bank lying on the lake. rain: rain fog under the
-## clouds and drops in the air. storm: lightning. wind: the clouds' speed over
-## the authored one.
-const FIELDS: Array[String] = ["coverage", "density", "cumulus", "darkness", "cirrus", "haze", "mist", "rain",
-	"storm", "wind"]
-## "fair" is the look the level was authored with: nothing of the weather is
-## drawn in it. `lake` names the wind sea that goes with a kind (OceanFFT).
-const PRESETS := {
-	"clear": {"coverage": 0.16, "density": 0.9, "cumulus": 0.15, "darkness": 0.0, "cirrus": 0.7, "haze": 0.0,
-		"mist": 0.0, "rain": 0.0, "storm": 0.0, "wind": 0.7, "lake": "calm"},
-	"fair": {"coverage": 0.42, "density": 1.0, "cumulus": 0.1, "darkness": 0.0, "cirrus": 0.0, "haze": 0.0,
-		"mist": 0.0, "rain": 0.0, "storm": 0.0, "wind": 1.0, "lake": "breeze"},
-	"overcast": {"coverage": 0.9, "density": 1.3, "cumulus": -0.2, "darkness": 0.15, "cirrus": 0.0, "haze": 0.35,
-		"mist": 0.1, "rain": 0.0, "storm": 0.0, "wind": 1.2, "lake": "breeze"},
-	"mist": {"coverage": 0.3, "density": 0.9, "cumulus": 0.0, "darkness": 0.0, "cirrus": 0.35, "haze": 0.45,
-		"mist": 1.0, "rain": 0.0, "storm": 0.0, "wind": 0.4, "lake": "calm"},
-	"rain": {"coverage": 0.96, "density": 1.9, "cumulus": -0.1, "darkness": 0.6, "cirrus": 0.0, "haze": 0.6,
-		"mist": 0.2, "rain": 1.0, "storm": 0.0, "wind": 1.6, "lake": "choppy"},
-	"storm": {"coverage": 1.0, "density": 2.6, "cumulus": 0.35, "darkness": 1.0, "cirrus": 0.0, "haze": 0.7,
-		"mist": 0.0, "rain": 1.0, "storm": 1.0, "wind": 2.6, "lake": "storm"},
-}
-## Where the weather may go by itself, with the odds.
-const NEXT := {
-	"clear": {"fair": 3, "mist": 1},
-	"fair": {"clear": 2, "overcast": 2},
-	"overcast": {"fair": 2, "rain": 2, "mist": 1},
-	"mist": {"clear": 1, "fair": 2},
-	"rain": {"overcast": 2, "storm": 1, "fair": 1},
-	"storm": {"rain": 2, "overcast": 1},
-}
 ## Seconds a strike's light lasts.
 const FLASH_SECONDS := 0.7
 ## Seconds for the drops left in the air to thin to 37 %.
@@ -94,8 +58,8 @@ var ocean: OceanFFT
 var fog: AtmosphereFog
 var viewer: Node3D
 var kind := "fair"
-## The state now (see FIELDS).
-var state: Dictionary = _fields(PRESETS.fair)
+## The state now (WeatherTable.FIELDS).
+var state: Dictionary = WeatherTable.state("fair")
 ## Drops still in the air, 0..1: full under rain, thinning after it.
 var droplets := 0.0
 ## How wet the open ground is, 0..1, and how full its puddles are: the
@@ -118,24 +82,24 @@ var _wet_sent := Vector4(-1.0, 0.0, 0.0, 0.0)
 func _ready() -> void:
 	_rng.randomize()
 	_dwell = _keep(kind)
-	_apply()
+	apply()
 
 func set_weather(new_kind: String, instant := false) -> void:
-	if not PRESETS.has(new_kind):
+	if not WeatherTable.rows().has(new_kind):
 		return
 	kind = new_kind
 	_from = state
 	_blend = 1.0 if instant else 0.0
 	if instant:
-		state = _fields(PRESETS[kind])
+		state = WeatherTable.state(kind)
 		droplets = state.rain
-		wetness = damp(state.rain, state.mist)
+		wetness = damp(Values.real(state.rain), Values.real(state.mist))
 		puddles = state.rain
 		strikes.clear()
 	if ocean != null:
-		ocean.set_preset(PRESETS[kind].lake, instant)
+		ocean.set_preset(str(WeatherTable.row(kind).get("lake", "breeze")), instant)
 	_dwell = _keep(kind)
-	_apply()
+	apply()
 	weather_changed.emit(kind)
 
 ## The weather `seconds` on, without the turns between: what a sleeper wakes
@@ -145,7 +109,7 @@ func skip(seconds: float) -> void:
 		return
 	var later := after(kind, _dwell, seconds, _rng)
 	if later.kind != kind:
-		set_weather(later.kind, true)
+		set_weather(str(later.kind), true)
 	_dwell = later.dwell
 
 func _keep(of_kind: String) -> float:
@@ -154,22 +118,22 @@ func _keep(of_kind: String) -> float:
 
 ## The next (`step` 1) or the previous (-1) kind of the list.
 func cycle(step: int) -> void:
-	set_weather(KINDS[posmod(KINDS.find(kind) + step, KINDS.size())])
+	set_weather(WeatherTable.KINDS[posmod(WeatherTable.KINDS.find(kind) + step, WeatherTable.KINDS.size())])
 
 func _process(delta: float) -> void:
 	if _blend < 1.0:
 		_blend = minf(_blend + delta / maxf(transition_seconds, 0.01), 1.0)
-		state = blend_states(_from, _fields(PRESETS[kind]), smoothstep(0.0, 1.0, _blend))
+		state = blend_states(_from, WeatherTable.state(kind), smoothstep(0.0, 1.0, _blend))
 	if auto:
 		_dwell -= delta
 		if _dwell <= 0.0:
 			set_weather(pick_next(kind, _rng))
-	droplets = settle_droplets(droplets, state.rain, delta)
-	wetness = soak(wetness, damp(state.rain, state.mist), delta, SOAK_SECONDS, DRY_SECONDS)
-	puddles = soak(puddles, state.rain, delta, PUDDLE_FILL_SECONDS, PUDDLE_DRY_SECONDS)
+	droplets = settle_droplets(droplets, Values.real(state.rain), delta)
+	wetness = soak(wetness, damp(Values.real(state.rain), Values.real(state.mist)), delta, SOAK_SECONDS, DRY_SECONDS)
+	puddles = soak(puddles, Values.real(state.rain), delta, PUDDLE_FILL_SECONDS, PUDDLE_DRY_SECONDS)
 	_ring_clock = fposmod(_ring_clock + delta, RING_CLOCK_WRAP)
 	_strike(delta)
-	_apply()
+	apply()
 
 ## New strikes while the storm lasts, and the light of those still shining.
 func _strike(delta: float) -> void:
@@ -184,7 +148,7 @@ func _strike(delta: float) -> void:
 	for strike: Dictionary in strikes:
 		strike.age += delta
 		if viewer != null:
-			var away: float = Vector2(strike.at.x - viewer.global_position.x, strike.at.z - viewer.global_position.z).length()
+			var away: float = Vector2(Values.real(strike.at.x - viewer.global_position.x), Values.real(strike.at.z - viewer.global_position.z)).length()
 			flash_light += strike_light(strike) / (1.0 + pow(away / 2500.0, 2.0))
 	var shining: Array[Dictionary] = []
 	for strike: Dictionary in strikes:
@@ -193,8 +157,9 @@ func _strike(delta: float) -> void:
 	strikes = shining
 	flash_light = minf(flash_light, 1.0)
 
-## Hands the state to what draws it.
-func _apply() -> void:
+## Hands the state to what draws it. A caller that changes `state`,
+## `wetness`, `puddles` or the strikes by hand calls it to show them at once.
+func apply() -> void:
 	if sky != null:
 		sky.cloud_coverage = state.coverage
 		sky.cloud_density = state.density
@@ -202,25 +167,25 @@ func _apply() -> void:
 		sky.cloud_darkness = state.darkness
 		sky.cirrus = state.cirrus
 		sky.wind_scale = state.wind
-		sky.sun_share = sun_share(state.coverage, state.density, state.darkness)
-		sky.cloud_glow = cloud_glow(state.coverage, state.density, state.darkness)
+		sky.sun_share = sun_share(Values.real(state.coverage), Values.real(state.density), Values.real(state.darkness))
+		sky.cloud_glow = cloud_glow(Values.real(state.coverage), Values.real(state.density), Values.real(state.darkness))
 		for index in sky.lightning.size():
 			sky.lightning[index] = Vector4.ZERO
 		for index in mini(strikes.size(), sky.lightning.size()):
 			var strike: Dictionary = strikes[strikes.size() - 1 - index]
 			# The sky marches the clouds in km, heights from the layer's base.
-			sky.lightning[index] = Vector4(strike.at.x * 0.001, (strike.at.y - CLOUD_BASE) * 0.001, strike.at.z * 0.001,
+			sky.lightning[index] = Vector4(Values.real(strike.at.x * 0.001), Values.real((strike.at.y - CLOUD_BASE) * 0.001), Values.real(strike.at.z * 0.001),
 				strike_light(strike))
 	if fog != null:
 		fog.haze = haze()
 		fog.mist = mist()
 		fog.rain = state.rain
-		fog.wood = wood_fog(mist(), state.rain, droplets)
+		fog.wood = wood_fog(mist(), Values.real(state.rain), droplets)
 		fog.droplets = droplets
 		fog.flash = flash_light
 		fog.gloom = gloom()
 	# The clock only runs while drops fall: dry ground sends nothing.
-	var wet := Vector4(wetness if wetness > 0.002 else 0.0, puddles if puddles > 0.002 else 0.0, state.rain,
+	var wet := Vector4(wetness if wetness > 0.002 else 0.0, puddles if puddles > 0.002 else 0.0, Values.real(state.rain),
 		_ring_clock if state.rain > 0.01 else 0.0)
 	if wet != _wet_sent:
 		_wet_sent = wet
@@ -235,9 +200,9 @@ func haze() -> float:
 func mist() -> float:
 	if sky == null:
 		return state.mist
-	var calm: float = (1.0 - smoothstep(0.55, 0.85, state.coverage)) * (1.0 - state.rain) \
-		* (1.0 - smoothstep(0.9, 1.6, state.wind))
-	return maxf(state.mist, 0.7 * calm * dawn_mist(sky.sun_direction.y, sky.time_of_day))
+	var calm: float = (1.0 - smoothstep(0.55, 0.85, Values.real(state.coverage))) * (1.0 - state.rain) \
+		* (1.0 - smoothstep(0.9, 1.6, Values.real(state.wind)))
+	return maxf(Values.real(state.mist), 0.7 * calm * dawn_mist(sky.sun_direction.y, sky.time_of_day))
 
 ## The fog a wood holds under its crowns, 0..1: all of it in a mist, most of
 ## it under rain and for as long after it as the drops hang in the air.
@@ -246,22 +211,16 @@ static func wood_fog(mist_bank: float, rain: float, drops: float) -> float:
 
 ## 0 open sky .. 1 the dark under a storm: what the clouds take of the day.
 func gloom() -> float:
-	return (1.0 - sun_share(state.coverage, state.density, state.darkness)) * state.darkness
+	return (1.0 - sun_share(Values.real(state.coverage), Values.real(state.density), Values.real(state.darkness))) * state.darkness
 
 ## The light of `strike` now, 0..1.
 static func strike_light(strike: Dictionary) -> float:
-	return flash(strike.age, strike.seed) * strike.power
-
-static func _fields(preset: Dictionary) -> Dictionary:
-	var values := {}
-	for field: String in FIELDS:
-		values[field] = float(preset[field])
-	return values
+	return flash(Values.real(strike.age), Values.whole(strike.seed)) * strike.power
 
 static func blend_states(from: Dictionary, to: Dictionary, t: float) -> Dictionary:
 	var values := {}
-	for field: String in FIELDS:
-		values[field] = lerpf(from[field], to[field], t)
+	for field: String in WeatherTable.FIELDS:
+		values[field] = lerpf(Values.real(from[field]), Values.real(to[field]), t)
 	return values
 
 ## The share of the sun's direct light that a cloud layer lets to the ground:
@@ -345,7 +304,9 @@ static func after(from: String, dwell: float, seconds: float, rng: RandomNumberG
 	return {"kind": now, "dwell": left}
 
 static func pick_next(from: String, rng: RandomNumberGenerator) -> String:
-	var odds: Dictionary = NEXT[from]
+	var odds: Dictionary = WeatherTable.row(from).get("next", {})
+	if odds.is_empty():
+		return from
 	var total := 0
 	for next: String in odds:
 		total += odds[next]

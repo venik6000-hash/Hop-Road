@@ -200,7 +200,7 @@ func _render_callback(callback_type: int, render_data: RenderData) -> void:
 		var rect: Rect2i = job[0]
 		if not rect.has_area():
 			continue
-		_run(bend, rect, 0, job[1], job[2])
+		_run(bend, rect, 0, Values.whole(job[1]), Values.whole(job[2]))
 		_run(back, rect, 1, 0, 0)
 
 func _run(uniform_set: RID, rect: Rect2i, job: int, with_air: int, with_rings: int) -> void:

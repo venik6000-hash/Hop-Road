@@ -21,7 +21,7 @@ extends Node3D
 ## footprints as the trees.
 ##
 ## For an eye in the tavern's rooms the trees no opening shows are left out
-## of the buffers, cell by cell (TavernPortals; TreeLodGrid.select), and the
+## of the buffers, cell by cell (InteriorSight; TreeLodGrid.select), and the
 ## buffers are filled again whenever what that eye sees has changed.
 
 const TreeMaterials = preload("res://src/vegetation/tree_materials.gd")
@@ -64,7 +64,7 @@ const COLLIDER_CELL := 128.0
 @export var camera: Camera3D
 ## Bodies the obstacle rays pass through besides the terrain (the player).
 var exclude: Array[RID] = []
-## The level's context (its tavern's portals); null in a tool that builds
+## The level's context (its rooms' sight, Interiors); null in a tool that builds
 ## a part of the level alone.
 var world: WorldContext
 
@@ -99,30 +99,17 @@ var select_usec := 0
 ## Refill statistics: count, total and worst time (us), uploads.
 var refill_stats := Vector4i.ZERO
 
-## Per band: selection distances, mesh LOD, shader fade range, shadow only.
-var _bands := PackedVector2Array()
-var _band_lods := PackedInt32Array()
-var _band_fades := PackedVector4Array()
-var _band_shadows := PackedByteArray()
-var _window := 0
-var _meshes: Array = []
-var _slots: Array[MultiMeshInstance3D] = []
-## What each slot's MultiMesh holds, and the scratch set the next selection
-## fills; they swap after a refill, and tiles whose rows did not change are
-## not uploaded again.
-var _shown: Array[PackedFloat32Array] = []
-var _spare: Array[PackedFloat32Array] = []
-var _boxes: Array[AABB] = []
-var _last_eye := Vector2(INF, INF)
-var _impostor_chunks: Array[MultiMeshInstance3D] = []
-var _bodies: Array[RID] = []
-var _shapes: Array[RID] = []
+## The impostor chunks (TreeImpostors), the mesh LOD slots and the trunk
+## colliders.
+var impostor_chunks: Array[MultiMeshInstance3D] = []
+var lod_slots := TreeLodSlots.new()
+var colliders := TreeColliders.new()
 ## _all_materials() for the per-frame uniforms, and the values they last got.
 var _frame_materials: Array[ShaderMaterial] = []
 var _sent_eye := Vector3.ZERO
 var _sent_wind := Vector4.ZERO
 var _sent := false
-## The TavernPortals.revision the buffers were last filled by.
+## The Interiors.revision the buffers were last filled by.
 var _portal_revision := 0
 
 func _ready() -> void:
@@ -132,17 +119,17 @@ func _ready() -> void:
 	TreeMaterials.make(self)
 	grid = TreeLodGrid.new(trees, SPECIES.size())
 	grid.measure(impostor_frames)
-	TreeLodSlots.make_bands(self)
+	lod_slots.make_bands(self)
 	TreeImpostors.make(self)
-	TreeColliders.make(self)
+	colliders.make(self)
 	_make_grass()
 	load_seconds = (Time.get_ticks_usec() - start) / 1e6
 	print("VEGETATION trees=%d detail=%d chunks=%d load=%.2fs placement=%s scan=%.0fms digest=%.0fms key=%s" % [trees.size(),
-		grid.tree_count(), _impostor_chunks.size(), load_seconds, placement_source, scan_msec, digest_msec,
+		grid.tree_count(), impostor_chunks.size(), load_seconds, placement_source, scan_msec, digest_msec,
 		placement_key.left(12)])
 
 func _exit_tree() -> void:
-	TreeColliders.free_all(self)
+	colliders.free_all()
 
 ## Per mesh LOD: fade-in start, fade-in end, fade-out start, fade-out end (m).
 func lod_ranges() -> Array[Vector4]:
@@ -206,19 +193,19 @@ func _process(_delta: float) -> void:
 		_sent_wind = wind
 	grass.follow(eye, wind)
 	var flat := Vector2(eye.x, eye.z)
-	var portals := world.portals if world != null else null
-	var revision := portals.revision if portals != null else 0
-	if flat.distance_to(_last_eye) >= REFILL_STEP or revision != _portal_revision:
+	var interiors := world.interiors if world != null else null
+	var revision := interiors.revision if interiors != null else 0
+	if flat.distance_to(lod_slots.last_eye) >= REFILL_STEP or revision != _portal_revision:
 		_portal_revision = revision
-		TreeLodSlots.refill(self, flat, portals.sight if portals != null and portals.sight.active else null)
+		lod_slots.refill(self, flat, interiors.sight if interiors != null and interiors.sight.active else null)
 
 ## Trees in each band's buffers (supersets for the faded bands).
 func band_counts() -> PackedInt32Array:
-	return TreeLodSlots.band_counts(self)
+	return lod_slots.band_counts()
 
 ## MultiMesh nodes currently drawn (tiles with trees).
 func active_slots() -> int:
-	return TreeLodSlots.active_slots(self)
+	return lod_slots.active_slots()
 
 # --- grass --------------------------------------------------------------------
 

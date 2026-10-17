@@ -1,26 +1,19 @@
 class_name VillageNPC
 extends CharacterBody3D
 ## Imported skeletal clips drive the visible model; collision drives routes.
+## The round of the route is NpcRounds's, the poses over the clip NpcPoses's,
+## the choice of lights NpcLampZone's.
 const SceneUtil = preload("res://src/common/scene_util.gd")
 const BodyPace = preload("res://src/common/body_pace.gd")
-const SPEED := 0.85
 ## The body capsule, m.
 const RADIUS := 0.23
-## The farthest a hall walk leaves the navigation grid for its last steps to
-## the place of work, metres.
-const HALL_LAST_STEP := 0.6
 const HEIGHT := 1.65
 const GRAVITY := 18.0
-## Seconds between checks of whether the actor stands inside the tavern.
-const LAMP_ZONE_SECONDS := 0.25
 ## How far behind a face that was met its top is looked for.
 const LIP := 0.06
 ## Seconds one who walks about their work stands on once a story they tell no
 ## longer holds them (stop_to_talk).
 const TALK_HOLD := 1.5
-## Seconds the one who keeps the hall wipes the bar when her round brings her
-## to it: one pass of the recorded wiping.
-const WIPE_SECONDS := 8.5
 ## The ground speed, m/s, the "walk" clip is drawn for: measured from the
 ## planted foot, 1.0 to 1.5 over the four models.
 const WALK_STRIDE := 1.1
@@ -49,18 +42,12 @@ var job := "wander"
 var title := "Житель"
 ## The villager's sheet in PeopleBook; "" for a passer-by without one.
 var person_id := ""
-var route: Array[Vector3] = []
 var animation: AnimationPlayer
 var skeleton: Skeleton3D
 var state := "working"
 var utensil: Node3D
-var _point := 0
-var _direction := 1
-var _wait := 0.0
-var _blocked := 0.0
-var _cleaning := false
-var _left_hand := -1
-var _right_hand := -1
+var left_hand := -1
+var right_hand := -1
 var outing: NpcOuting
 ## Where the villager's day has them (VillagerPresence): "" as the job says,
 ## else one of VillagerDay.PLACES.
@@ -71,30 +58,30 @@ var work_yaw := 0.0
 ## Sits on a seat of the hall (VillagerPresence): the body has no collision
 ## and is not moved.
 var seated := false
-var _hall_navigation: TavernNavigation
-var _hall_path := PackedVector3Array()
-var _hall_target := -1
-var _hall_ready := false
-var _route_probe: PhysicsShapeQueryParameters3D
-# 1 inside the tavern, 0 outside, -1 before the first check.
-var _lamp_zone := -1
-## Within reach of a lit lantern outdoors (LampShadowGuard sets it): no shadow
-## there either, or the lantern draws its shadow map again in every frame.
-var near_lit_lamp := false:
-	set(value):
-		if value != near_lit_lamp:
-			near_lit_lamp = value
-			_light_for_zone(self)
-var _lamp_zone_clock := 0.0
+## The rooms' lamps or the sun on the meshes.
+var lamp_zone: NpcLampZone
 var _pace := BodyPace.new()
 ## The clip the body plays now, by its plain name: "chop", "idle_look", "walk".
 var activity := ""
 ## The gait this villager walks by when their speed allows (NpcMotion.gait).
 var gait_own := ""
-## The model has recorded motion (NpcMotion), and what the body does with it.
 var _recorded := false
 var _acting: NpcActing
 var _gaze: NpcGaze
+## Whether the model plays recorded motion (NpcMotion).
+var recorded: bool:
+	get:
+		return _recorded
+## The clip the body plays in its occupation (NpcActing); null without
+## recorded motion.
+var acting: NpcActing:
+	get:
+		return _acting
+## Turns the head to the camera and to what is about (NpcGaze); null without
+## recorded motion.
+var gaze: NpcGaze:
+	get:
+		return _gaze
 ## Seconds since the villager came to be; the acting keeps its time by it.
 var _age := 0.0
 ## Seconds for which the villager is still telling someone a story.
@@ -103,34 +90,27 @@ var _ground_ray: PhysicsRayQueryParameters3D
 ## Who bends the legs, arms and head over the clip (docs/LIFE.md, «Части тела»).
 var body := NpcBody.new()
 ## The frame's pose is final: what the hands hold follows them. Emitted after
-## the last pose modifier, from the first sit() or gesture() on.
+## the last pose modifier, once the poses are made (NpcPoses.prepare).
 signal posed
-## The seat's hips and legs, and the arms: made when first needed.
-var _seat_pose: CampPose
-var _arm_poses: Array[NpcArmPose] = []
 ## The anatomical limits, the skeleton's last modifier (JointLimitModifier3D).
 var limits: JointLimitModifier3D
 ## The feet on the ground (NpcFooting): before the seat, the arms and the
 ## stumble.
 var footing: NpcFooting
-## The ragdoll after a bump (NpcStumble): made at the first bump.
-var _stumble: NpcStumble
-## The level's ragdolls at once (NpcPopulation sets it); without it the
-## villager never stumbles.
-var ragdolls: RagdollBudget
-## The trunk and the hands at work (NpcReach): made with the seat's pose.
-var reach: NpcReach
+## The seat, the arms, the hands at work and the stumble over the clip.
+var poses: NpcPoses
+## The round of the route, its stops and the maid's wiping at them.
+var rounds: NpcRounds
 ## The innkeeper's bar (NpcPopulation sets it): the keg, the tankard, the draw.
 var bar: NpcBarWork
 ## Wipes the top in front (the maid and the innkeeper).
 var wipe: NpcWipe
-## The maid's stops where she wipes: route point -> {yaw: the way she faces
-## there, across: how far her strip goes to either side (NpcWipe.across),
-## rest: where her other hand rests (NpcWipe.rest)}.
-var wipes: Dictionary[int, Dictionary] = {}
-## The way to face before the work at a stop begins, NAN for none.
-var _face_to := NAN
 
+
+func _init() -> void:
+	lamp_zone = NpcLampZone.new(self)
+	poses = NpcPoses.new(self)
+	rounds = NpcRounds.new(self)
 
 func _ready() -> void:
 	collision_layer = PhysicsLayers.VILLAGERS
@@ -161,8 +141,8 @@ func _ready() -> void:
 		animation.name = "AnimationPlayer"
 		model.add_child(animation)
 	if skeleton != null:
-		_left_hand = skeleton.find_bone("Hand_L")
-		_right_hand = skeleton.find_bone("Hand_R")
+		left_hand = skeleton.find_bone("Hand_L")
+		right_hand = skeleton.find_bone("Hand_R")
 	_recorded = animation != null and NpcMotion.attach(model_path, animation, skeleton)
 	if _recorded:
 		_acting = NpcActing.new(name)
@@ -183,24 +163,11 @@ func _ready() -> void:
 		skeleton.add_child(limits)
 	_setup_props()
 	# What the actor is handed later (a mug, a meal) follows the same rule.
-	child_entered_tree.connect(_light_for_zone)
-	_update_lamp_zone()
+	child_entered_tree.connect(lamp_zone.light)
+	lamp_zone.check()
 	play("idle")
 	if job == "maid":
-		_prepare_hall_navigation.call_deferred()
-
-func _prepare_hall_navigation() -> void:
-	await get_tree().physics_frame
-	_hall_navigation = TavernNavigation.new()
-	_hall_navigation.build(self)
-	_route_probe = PhysicsShapeQueryParameters3D.new()
-	var probe := CapsuleShape3D.new()
-	probe.radius = 0.25
-	probe.height = 1.6
-	_route_probe.shape = probe
-	_route_probe.collision_mask = collision_mask
-	_route_probe.exclude = [get_rid()]
-	_hall_ready = true
+		rounds.find_hall_paths.call_deferred()
 
 func _setup_props() -> void:
 	if job in ["chop", "stir"]:
@@ -213,49 +180,6 @@ func _setup_props() -> void:
 		if job == "bartender":
 			wipe.set_strip(BAR_WIPE)
 		add_child(wipe)
-
-## The tavern's lamps keep their shadow maps while nothing they light moves
-## (TavernSystem.SHADOW_LAYER); a body that could cast a shadow has every lamp
-## in whose reach it is animated drawn again in each frame. So an actor is on
-## the tavern's layer, lit by its lamps, only inside the building, and casts no
-## shadow there. Outdoors it is lit by the sun and casts the sun's shadow.
-func _update_lamp_zone() -> void:
-	var zone := int(TavernSystem.BUILDING_BOUNDS.grow(0.3).has_point(global_position + Vector3.UP * 0.9))
-	if zone == _lamp_zone:
-		return
-	_lamp_zone = zone
-	_light_for_zone(self)
-
-func _light_for_zone(root: Node) -> void:
-	if _lamp_zone < 0:
-		return
-	var items: Array[Node] = root.find_children("*", "GeometryInstance3D", true, false)
-	if root is GeometryInstance3D:
-		items.append(root)
-	for item: GeometryInstance3D in items:
-		# The setting the piece came with is the one it has in the open.
-		if not item.has_meta(&"outdoor_shadow"):
-			item.set_meta(&"outdoor_shadow", item.cast_shadow)
-		set_layers(item, (1 | TavernSystem.LAYER) if _lamp_zone == 1 else 1)
-		item.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if _lamp_zone == 1 or near_lit_lamp \
-			else item.get_meta(&"outdoor_shadow")
-
-## Puts a piece on other render layers. Godot 4.7.2 keeps a piece paired with
-## the lights in whose reach it stands while its layers change (Forward+), yet
-## counts a pair only where the light's cull mask meets the layers. A piece
-## that takes the tavern's layer under a lamp is therefore missing from the
-## engine's count of the lights that give it a soft shadow, and the engine
-## prints "geom->softshadow_count==0 - BUG!" when it leaves the lamp or is
-## hidden. So the server holds the piece hidden over the change: hidden it has
-## no pairs, and shown again it is paired by its new layers. The engine's
-## master does the same on its own (53ec17a1d).
-static func set_layers(item: GeometryInstance3D, layers: int) -> void:
-	if item.layers == layers:
-		return
-	var instance := item.get_instance()
-	RenderingServer.instance_set_visible(instance, false)
-	item.layers = layers
-	RenderingServer.instance_set_visible(instance, item.is_visible_in_tree())
 
 ## Plays a clip, or what the occupation of that name has the body do now
 ## (NpcActing.SETS). A recorded clip is taken before the model's own.
@@ -293,13 +217,14 @@ func _handwork(clip: String) -> String:
 	if wipe == null:
 		return clip
 	if HANDWORK.has(clip) and at_work() and not body.has(NpcBody.POUR):
-		if not wipe.wiping() and _make_poses() and body.blocker(NpcBody.WIPE) == &"" and wipe.start():
+		if not wipe.wiping() and poses.prepare() and body.blocker(NpcBody.WIPE) == &"" and wipe.start():
 			body.claim(NpcBody.WIPE, wipe.wiping)
 		return HANDWORK[clip]
-	_stop_wiping()
+	stop_wiping()
 	return clip
 
-func _stop_wiping() -> void:
+## Puts the rag away: the hands go back to the clip.
+func stop_wiping() -> void:
 	if wipe != null and wipe.wiping():
 		wipe.stop()
 		body.release(NpcBody.WIPE)
@@ -310,7 +235,7 @@ func stride(speed: float) -> void:
 	var gait := NpcMotion.gait(model_path, speed, gait_own) if _recorded else {}
 	if not gait.is_empty():
 		play(str(gait.clip))
-		animation.speed_scale = float(gait.scale)
+		animation.speed_scale = Values.real(gait.scale)
 		return
 	play("walk" if animation != null and animation.has_animation("walk") else "source_walk")
 	if animation != null:
@@ -322,10 +247,7 @@ func _physics_process(delta: float) -> void:
 		return
 	_age += delta
 	_telling = maxf(0.0, _telling - delta)
-	_lamp_zone_clock -= delta
-	if _lamp_zone_clock <= 0.0:
-		_lamp_zone_clock = LAMP_ZONE_SECONDS
-		_update_lamp_zone()
+	lamp_zone.tick(delta)
 	velocity.y = -0.3 if is_on_floor() else velocity.y - GRAVITY * delta
 	velocity.x = 0.0
 	velocity.z = 0.0
@@ -335,8 +257,8 @@ func _physics_process(delta: float) -> void:
 		play("idle")
 	elif job == "bartender" and at_work():
 		_update_bar()
-	elif not route.is_empty():
-		_walk_route(delta)
+	elif not rounds.route.is_empty():
+		rounds.walk(delta)
 	else:
 		play(job)
 	if body.has(NpcBody.STUMBLE):
@@ -356,9 +278,9 @@ func _physics_process(delta: float) -> void:
 				break
 
 ## A kerb, a stair, the edge of a cobble: what stands no higher than a step is
-## stepped on, if the `step` over it is free. Its top is found just behind the
-## face that was met.
-func step_onto(collision: KinematicCollision3D, step: Vector3) -> bool:
+## stepped on, if the `step` over it is free and its top is no higher than
+## `ceiling`. Its top is found just behind the face that was met.
+func step_onto(collision: KinematicCollision3D, step: Vector3, ceiling := INF) -> bool:
 	if _ground_ray == null:
 		_ground_ray = PhysicsRayQueryParameters3D.new()
 		_ground_ray.collision_mask = PhysicsLayers.GROUND
@@ -370,7 +292,7 @@ func step_onto(collision: KinematicCollision3D, step: Vector3) -> bool:
 	if top.is_empty():
 		return false
 	var rise: float = top.position.y - global_position.y + 0.03
-	if rise <= 0.03 or test_move(global_transform, Vector3.UP * rise):
+	if rise <= 0.03 or global_position.y + rise > ceiling or test_move(global_transform, Vector3.UP * rise):
 		return false
 	var elevated := global_transform
 	elevated.origin.y += rise
@@ -378,87 +300,6 @@ func step_onto(collision: KinematicCollision3D, step: Vector3) -> bool:
 		return false
 	global_position.y += rise
 	return true
-
-func _walk_route(delta: float) -> void:
-	if job == "maid" and not _hall_ready:
-		return
-	_wait = maxf(0.0, _wait - delta)
-	if _wait > 0.0:
-		# She turns to the top first, then wipes it.
-		if _cleaning and not is_nan(_face_to) and absf(angle_difference(rotation.y, _face_to)) > 0.04:
-			rotation.y = rotate_toward(rotation.y, _face_to, delta * 2.5)
-			play("idle")
-			return
-		play("wipe" if _cleaning else "idle")
-		return
-	var destination := route[_point]
-	if _hall_navigation != null:
-		if _hall_target != _point:
-			_hall_path = _hall_navigation.path(global_position, destination)
-			_hall_target = _point
-		if _hall_path.is_empty():
-			# No reachable path: wait and retry, never walk straight through furniture.
-			_hall_target = -1
-			_wait = 1.0
-			play("idle")
-			return
-		while _hall_path.size() > 1 and Vector2(global_position.x - _hall_path[0].x,
-				global_position.z - _hall_path[0].z).length() < 0.1:
-			_hall_path.remove_at(0)
-		destination = _hall_path[0]
-		# The grid keeps a wide berth of furniture; the last few steps go
-		# straight to the place of work, which may stand nearer a top.
-		if _hall_path.size() == 1 and Vector2(route[_point].x - destination.x, route[_point].z - destination.z).length() < HALL_LAST_STEP:
-			destination = route[_point]
-	var offset := destination - global_position
-	offset.y = 0.0
-	if offset.length() < (0.12 if _hall_navigation != null else 0.22) and (_hall_navigation == null or _hall_path.size() == 1):
-		_cleaning = job == "maid" and wipes.has(_point)
-		_face_to = float(wipes[_point].yaw) if _cleaning else NAN
-		if _cleaning:
-			wipe.set_strip(wipes[_point])
-		_wait = WIPE_SECONDS if _cleaning else 1.2 + float(_point % 3) * 0.8
-		_next_point()
-		play("idle")
-		return
-	var direction := offset.normalized()
-	rotation.y = lerp_angle(rotation.y, atan2(-direction.x, -direction.z), minf(delta * 5.0, 1.0))
-	# A moving neighbour or the player has priority. Avoid pushing them.
-	if _route_obstructed(direction, offset.length()):
-		_blocked += delta
-		play("idle")
-		if _blocked > 3.0:
-			_direction *= -1
-			_next_point()
-			_hall_target = -1
-			_blocked = 0.0
-		return
-	_blocked = 0.0
-	var speed := SPEED if _hall_navigation == null else minf(SPEED, offset.length() / maxf(delta, 0.001))
-	velocity.x = direction.x * speed
-	velocity.z = direction.z * speed
-	if _recorded:
-		stride(speed)
-	else:
-		play("source_walk" if animation.has_animation("source_walk") else "walk")
-
-func _route_obstructed(direction: Vector3, distance: float) -> bool:
-	var space := get_world_3d().direct_space_state
-	if _route_probe != null:
-		_route_probe.transform.origin = global_position + Vector3.UP * 0.85
-		_route_probe.motion = direction * minf(0.42, distance)
-		return space.cast_motion(_route_probe)[0] < 1.0
-	var ray := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 0.8,
-		global_position + Vector3.UP * 0.8 + direction * 0.65, collision_mask)
-	ray.exclude = [get_rid()]
-	return not space.intersect_ray(ray).is_empty()
-
-func _next_point() -> void:
-	var next := _point + _direction
-	if next < 0 or next >= route.size():
-		_direction *= -1
-		next = _point + _direction
-	_point = clampi(next, 0, route.size() - 1)
 
 func _update_bar() -> void:
 	match state:
@@ -475,105 +316,12 @@ func _update_bar() -> void:
 		"ready":
 			play("idle")
 
-## Sits down on what is `height` m over the feet, eased over NpcBody.FADE.
-func sit(height: float) -> void:
-	if not _make_poses():
-		return
-	_seat_pose.seat_height = height
-	body.claim(NpcBody.SEAT)
-
-## Gets up from the seat, eased as the sitting down.
-func stand() -> void:
-	body.release(NpcBody.SEAT)
-
-## Gives `doer` its parts (NpcBody.DOERS) for `seconds`. False when a doer
-## of the same or a higher layer has one of them.
-func gesture(doer: StringName, seconds: float) -> bool:
-	return _make_poses() and body.claim_for(doer, seconds)
-
-## The player ran into the villager at `push`, m/s along the ground, from
-## `from`: they stumble in an active ragdoll (NpcStumble) for
-## NpcStumble.SECONDS. False when they sit, stumble already, or the ragdoll
-## budget is spent or missing (`ragdolls`).
-func bump(push: Vector3, from: Vector3) -> bool:
-	if ragdolls == null or seated or not _make_poses() or body.blocker(NpcBody.STUMBLE) != &"":
-		return false
-	if _stumble == null:
-		_stumble = NpcStumble.new()
-		_stumble.actor = self
-		_stumble.ragdolls = ragdolls
-		skeleton.add_child(_stumble)
-		skeleton.move_child(limits, -1)
-	if not _stumble.start(push, global_position.distance_to(from)):
-		return false
-	return body.claim_for(NpcBody.STUMBLE, NpcStumble.SECONDS)
-
-## Whether the villager stumbles, or is still finding their feet.
-func stumbles() -> bool:
-	return _stumble != null and _stumble.running()
-
-## Whether the villager sits, or is still sitting down.
-func sits() -> bool:
-	return body.has(NpcBody.SEAT)
-
-func _make_poses() -> bool:
-	if skeleton == null:
-		return false
-	if _seat_pose != null:
-		return true
-	# Modifiers run in the order of the skeleton's children: hips before arms.
-	_seat_pose = CampPose.new()
-	_seat_pose.actor = self
-	_seat_pose.influence = 0.0
-	skeleton.add_child(_seat_pose)
-	for side: String in ["L", "R"]:
-		var arm := NpcArmPose.new()
-		arm.actor = self
-		arm.side = side
-		arm.part = NpcBody.LEFT_ARM if side == "L" else NpcBody.RIGHT_ARM
-		arm.seat = _seat_pose
-		arm.influence = 0.0
-		skeleton.add_child(arm)
-		_arm_poses.append(arm)
-	reach = NpcReach.new()
-	reach.actor = self
-	reach.model = NpcMotion.model_name(model_path)
-	reach.influence = 0.0
-	skeleton.add_child(reach)
-	# The limits stay last, and the hands are read once they have clamped.
-	skeleton.move_child(limits, -1)
-	limits.modification_processed.connect(posed.emit)
-	return true
-
-## Each pose modifier bends the clip as far as its doers drive its part. The
-## feet keep to the ground where no doer holds the legs, near the camera.
-func _update_poses(delta: float) -> void:
-	if _seat_pose != null:
-		body.step(delta)
-		_seat_pose.influence = body.weight(NpcBody.SEAT, NpcBody.LEGS)
-		for arm in _arm_poses:
-			arm.influence = body.total(arm.part)
-		# The work's share of each arm; the trunk bends as far as the more driven one.
-		for side: String in ["L", "R"]:
-			var part := NpcBody.LEFT_ARM if side == "L" else NpcBody.RIGHT_ARM
-			var share := 0.0
-			for doer in NpcBody.WORKERS:
-				share += body.weight(doer, part)
-			reach.arms[side] = minf(share, 1.0)
-		reach.influence = maxf(float(reach.arms.L), float(reach.arms.R))
-		if _stumble != null:
-			_stumble.follow(body.weight(NpcBody.STUMBLE, NpcBody.LEGS), body.has(NpcBody.STUMBLE))
-	if footing != null:
-		var camera := get_viewport().get_camera_3d()
-		var near := 1.0 if camera == null else NpcFooting.reach(camera.global_position.distance_to(global_position))
-		footing.influence = 0.0 if seated else (1.0 - body.total(NpcBody.LEGS)) * near
-
 func _process(delta: float) -> void:
 	if wipe != null and wipe.wiping():
 		wipe.step(delta)
 	if bar != null and bar.drawing():
 		bar.step(delta)
-	_update_poses(delta)
+	poses.update(delta)
 	if utensil != null and HELD.has(job) and _recorded:
 		_hold_utensil()
 
@@ -583,7 +331,7 @@ func _hold_utensil() -> void:
 	var held: Array = HELD[job]
 	if held.has(activity):
 		utensil.visible = true
-		utensil.global_transform = Transform3D(global_basis, hand_position(_right_hand))
+		utensil.global_transform = Transform3D(global_basis, hand_position(right_hand))
 	elif UTENSIL_REST.has(job) and at_work():
 		var rest: Transform3D = UTENSIL_REST[job]
 		utensil.visible = true
@@ -610,8 +358,8 @@ func interact(player: Player) -> bool:
 	if state == "working":
 		if bar == null or not bar.start():
 			return false
-		_stop_wiping()
-		gesture(NpcBody.POUR, NpcBarWork.LENGTH)
+		stop_wiping()
+		poses.gesture(NpcBody.POUR, NpcBarWork.LENGTH)
 		state = "pouring"
 		return true
 	if state == "ready":
@@ -628,8 +376,7 @@ func stop_to_talk(listener: Vector3, delta: float, hold := TALK_HOLD) -> void:
 	_telling = maxf(_telling, hold)
 	if job != "maid" or not at_work() or seated:
 		return
-	_wait = maxf(_wait, hold)
-	_cleaning = false
+	rounds.pause(hold)
 	var offset := listener - global_position
 	if Vector2(offset.x, offset.z).length() > 0.3:
 		rotation.y = lerp_angle(rotation.y, atan2(-offset.x, -offset.z), minf(delta * 4.0, 1.0))

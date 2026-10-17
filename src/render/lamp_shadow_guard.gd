@@ -47,7 +47,7 @@ func _process(delta: float) -> void:
 	if population != null:
 		for actor: VillageNPC in population.actors:
 			if is_instance_valid(actor):
-				actor.near_lit_lamp = _near(actor.global_position, lit)
+				actor.lamp_zone.near_lit_lamp = _near(actor.global_position, lit)
 
 static func _near(point: Vector3, lit: Array[Light3D]) -> bool:
 	for lamp: Light3D in lit:

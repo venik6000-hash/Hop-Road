@@ -43,14 +43,14 @@ static func keep(camp: CampSystem, delta: float, speaker: Storyteller) -> void:
 		if visit.frame(delta, near, seated):
 			teller.begin_outing()
 		if within and at_table:
-			camp._spend(actor, "sit", delta, CampSystem.SIT_SECONDS)
+			camp.spend(actor, "sit", delta, CampSystem.SIT_SECONDS)
 		# One who walks about their work does not walk away from their own story.
 		if near and not teller.telling.is_empty():
 			actor.stop_to_talk(camp.player.global_position, delta)
 		# A story the player walked away from is heard out to its breaking off.
 		if near or not teller.telling.is_empty():
-			camp._voice(actor, teller.advance(delta, moment(camp, actor), speaker == null or speaker == teller,
-				near and camp._caption_time <= 0.0))
+			camp.voice_line(actor, teller.advance(delta, moment(camp, actor), speaker == null or speaker == teller,
+				near and camp.caption_time <= 0.0))
 
 ## The moment as the storyteller of a villager at rest takes it (Storyteller).
 static func moment(camp: CampSystem, actor: VillageNPC) -> Dictionary:
@@ -65,7 +65,7 @@ static func moment(camp: CampSystem, actor: VillageNPC) -> Dictionary:
 	now["listening"] = visit.near and (seated or still)
 	now["halt"] = visit.halt
 	now["company"] = company(camp, actor)
-	now["gift"] = bond.gift(camp._today()) if bond != null else ""
+	now["gift"] = bond.gift(camp.current_day()) if bond != null else ""
 	now["can_guide"] = false
 	return now
 

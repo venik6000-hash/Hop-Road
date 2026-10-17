@@ -118,8 +118,8 @@ static func baked_for(saved: Variant, expected: String) -> bool:
 	if not saved is Dictionary or expected.is_empty():
 		return false
 	var manifest: Dictionary = saved
-	return manifest.get("key", "") == expected and int(manifest.get("format_version", 0)) == FORMAT_VERSION \
-		and int(manifest.get("tree_placer_version", -1)) == TreePlacer.VERSION
+	return manifest.get("key", "") == expected and Values.whole(manifest.get("format_version", 0)) == FORMAT_VERSION \
+		and Values.whole(manifest.get("tree_placer_version", -1)) == TreePlacer.VERSION
 
 ## Whether the baked package of `region` on disk is for `expected`, checksum included.
 static func is_current(region: RegionDef, expected: String) -> bool:
@@ -141,7 +141,7 @@ static func problems(saved: Variant, static_part: String, binary_sha256: String)
 		found.append("Missing vegetation manifest; run bake_placement.gd")
 		return found
 	var manifest: Dictionary = saved
-	if int(manifest.get("format_version", 0)) != FORMAT_VERSION or int(manifest.get("tree_placer_version", -1)) != TreePlacer.VERSION:
+	if Values.whole(manifest.get("format_version", 0)) != FORMAT_VERSION or Values.whole(manifest.get("tree_placer_version", -1)) != TreePlacer.VERSION:
 		found.append("Vegetation bake is of another format or placer version; run bake_placement.gd")
 	if static_part.is_empty():
 		found.append("A placer source file is missing; the content key cannot be computed")
@@ -157,7 +157,7 @@ static func problems(saved: Variant, static_part: String, binary_sha256: String)
 static func validate(region: RegionDef, manifest_path := "") -> PackedStringArray:
 	var manifest := region.placement_manifest if manifest_path.is_empty() else manifest_path
 	var found := problems(_load_manifest(manifest), static_digest(region), FileAccess.get_sha256(region.placement))
-	if found.is_empty() and _read_file(region.placement) == null:
+	if found.is_empty() and read(region.placement) == null:
 		found.append("Vegetation binary cannot be read; run bake_placement.gd")
 	return found
 
@@ -187,7 +187,7 @@ static func prepare(terrain: TerrainSystem, map: Node3D, exclude: Array[RID]) ->
 	var woodland: Dictionary = DataFile.read(region.woodland, WorldSchemas.woodland())
 	# The village's own trees: by the brook and between the yards.
 	cache.tree_list = woodland.trees
-	cache.tree_list.append_array(DataFile.read(region.village_trees, WorldSchemas.trees()))
+	cache.tree_list.append_array(Values.list(DataFile.read(region.village_trees, WorldSchemas.trees())))
 	var scanned := Time.get_ticks_usec()
 	var static_part := _static_part(region)
 	if not static_part.is_empty():
@@ -210,17 +210,14 @@ static func stored(region: RegionDef, expected: String, anew := false) -> Vegeta
 	var saved: Variant = _load_manifest(region.placement_manifest)
 	if baked_for(saved, expected):
 		var manifest: Dictionary = saved
-		var baked := _read_file(region.placement, str(manifest.get("placement_sha256", "")))
+		var baked := read(region.placement, str(manifest.get("placement_sha256", "")))
 		if baked != null:
 			return baked
-	return _read_file(runtime_path(expected))
+	return read(runtime_path(expected))
 
-## A placement file as it is, whatever key it was made for.
-static func read(path: String) -> VegetationCache:
-	return _read_file(path)
-
-## `binary_sha256`, if given, is the checksum the file must have.
-static func _read_file(path: String, binary_sha256 := "") -> VegetationCache:
+## A placement file as it is, whatever key it was made for. `binary_sha256`,
+## if given, is the checksum the file must have: null when it has another.
+static func read(path: String, binary_sha256 := "") -> VegetationCache:
 	if not FileAccess.file_exists(path):
 		return null
 	if not binary_sha256.is_empty() and FileAccess.get_sha256(path) != binary_sha256:
@@ -236,11 +233,13 @@ static func _read_file(path: String, binary_sha256 := "") -> VegetationCache:
 	return cache if cache.trees != null else null
 
 ## Writes the runtime cache of `key` (or the file at `path`). A runtime cache
-## of another key is of no use any more and is removed.
+## of another key is of no use any more and is removed. The runtime cache
+## lives under user://: any other root is refused, and only the .bin files of
+## the folder are removed.
 func write(path := "") -> Error:
 	var target := path
 	if path.is_empty():
-		if key.is_empty():
+		if key.is_empty() or not runtime_root.begins_with("user://"):
 			return ERR_INVALID_DATA
 		target = runtime_path(key)
 	var error := DirAccess.make_dir_recursive_absolute(target.get_base_dir())
@@ -255,7 +254,7 @@ func write(path := "") -> Error:
 		var folder := DirAccess.open(runtime_root)
 		if folder != null:
 			for file_name: String in folder.get_files():
-				if file_name != target.get_file():
+				if file_name != target.get_file() and file_name.ends_with(".bin"):
 					folder.remove(file_name)
 	return error
 

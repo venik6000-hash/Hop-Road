@@ -7,10 +7,10 @@ const D := preload("res://src/data/data_schema.gd")
 ## The models of the village pack (VillagePack.DIRECTORY).
 const PACK_DIRECTORY := "res://assets/models/village_pack/"
 
-## regions.json: the regions of the game (RegionDef.listed()), the first
-## one where a new game starts.
+## regions.json: the regions of the game (RegionDef.listed()) by the id
+## each one's RegionDef has, the first one where a new game starts.
 static func regions() -> Dictionary:
-	return D.object({"regions": D.list(D.file(), 1)})
+	return D.object({"regions": D.list(D.object({"id": D.id(&"region"), "region": D.file()}), 1)})
 
 ## zones.json: the named places of the valley (ValleyZones). A zone is a few
 ## shapes; the first zone of the list that holds a point names it.
@@ -31,7 +31,7 @@ static func zones() -> Dictionary:
 			"shapes": D.list(D.checked(shape, func(value: Variant) -> String:
 				var outlines := 0
 				for key: String in ["box", "circle", "path", "polygon"]:
-					outlines += int((value as Dictionary).has(key))
+					outlines += int(Values.table(value).has(key))
 				return "" if outlines == 1 else "a shape has one of box, circle, path or polygon"), 1),
 		}), 1),
 	})
@@ -69,6 +69,39 @@ static func village_plan() -> Dictionary:
 			"near": D.vector(2),
 			"radius": D.number(0.0),
 			"delta": D.vector(3),
+		})),
+	})
+
+## map_edits.json: the edits of the region's Blender map by the labels of its
+## pieces (MapEdits). `drop`: pieces taken out with their colliders, by label
+## or by the start of it. `raise`: pieces that rise with the ground under
+## `base` (x, y, z: the height of the map there). `split`: one mesh moved in
+## two parts, the part past `z` (south) by `south` and the rest by `north`;
+## what of the south part lies under `foot` (y) goes `sink` m deeper.
+## `lower`: pieces taken `by` m down. `walkways`: a body over the stones of
+## the `deck` piece, `half_width` to either side of its middle, `depth` thick,
+## its top `above` the highest stone of each row, and ramps `approach` m long
+## down to the ground at both ends.
+static func map_edits() -> Dictionary:
+	return D.object({
+		"drop": D.object({"labels": D.list(D.text()), "prefixes": D.list(D.text())}),
+		"raise": D.list(D.object({"labels": D.list(D.text(), 1), "base": D.vector(3)})),
+		"split": D.list(D.object({
+			"label": D.text(),
+			"z": D.number(),
+			"south": D.vector(3),
+			"north": D.vector(3),
+			"foot": D.number(),
+			"sink": D.number(0.0),
+		})),
+		"lower": D.list(D.object({"labels": D.list(D.text(), 1), "by": D.number()})),
+		"walkways": D.list(D.object({
+			"deck": D.text(),
+			"name": D.text(),
+			"half_width": D.number(0.01),
+			"approach": D.number(0.0),
+			"depth": D.number(0.01),
+			"above": D.number(0.0),
 		})),
 	})
 
@@ -262,4 +295,114 @@ static func map_manifest() -> Dictionary:
 		"sun_forward": D.vector(3),
 		"smoke": D.list(D.vector(3)),
 		"collections": D.table(D.whole(0)),
+	})
+
+## weathers.json: each kind of weather (WeatherTable.KINDS) with its name,
+## its state, the wind sea of the lake and where it may go by itself.
+static func weathers() -> Dictionary:
+	var state := {}
+	for field: String in WeatherTable.FIELDS:
+		state[field] = D.number()
+	var kind := D.object({
+		"name": D.text(),
+		"lake": D.choice(OceanFFT.PRESETS.keys()),
+		"state": D.object(state),
+		"next": D.table(D.whole(1), &"", &"weather"),
+	})
+	return D.checked(D.table(kind, &"weather"), func(value: Variant) -> String:
+		for id: String in Values.table(value):
+			var row: Variant = Values.table(value)[id]
+			if row is Dictionary and Values.table(Values.table(row).get("next", {})).has(id):
+				return "the weather '%s' goes to itself" % id
+		return "")
+
+## fish.json: the fish of the lake (FishingState).
+static func fish() -> Dictionary:
+	return D.table(D.object({
+		"title": D.text(),
+		"length": D.vector(2, 1.0),
+		"mass": D.number(0.0),
+		"habitat": D.choice(FishingState.HABITATS),
+		"time": D.choice(FishingState.TIMES),
+	}), &"fish")
+
+## flora.json: the village's ground plants and what grows where (FloraTable).
+static func flora() -> Dictionary:
+	var model := D.checked(D.text(), func(value: Variant) -> String:
+		var path := FloraTable.model_path(str(value))
+		return "" if DataCheck.file_there(path) else "the file %s does not exist" % path)
+	return D.object({
+		"plants": D.table(D.object({
+			"model": model,
+			"tris": D.whole(1),
+			"least": D.optional(D.whole(0)),
+			"scale": D.vector(2, 0.0),
+			"sway": D.number(0.0),
+			"shadow": D.optional(D.flag()),
+			"view": D.optional(D.number(0.0)),
+		}), &"plant"),
+		"mixes": D.table(D.table(D.number(0.0), &"", &"plant")),
+	})
+
+## The region's brook (RegionDef.brook; VillageBrook): the centre line of the
+## brook and of the street's rill downstream, each point x, z and the half
+## width of the water there.
+static func brook() -> Dictionary:
+	return D.object({"brook": D.list(D.vector(3), 2), "rill": D.list(D.vector(3), 2)})
+
+## The region's falls (RegionDef.falls; WaterfallSystem): the stream above
+## the upper fall (its surface on the centre line, half its width, the speed
+## of the flow, the depth of the bed cut for it), the upper fall, the stream
+## on the shelf below it and the lower fall. A fall leaves where its stream
+## ends; `floor` is the surface it falls into.
+static func falls() -> Dictionary:
+	var fall := D.object({
+		"speed": D.number(0.0),
+		"width": D.number(0.0),
+		"spread": D.number(0.0),
+		"depth": D.number(0.0),
+		"approach": D.number(0.0),
+		"floor": D.number(),
+		"mist": D.number(0.0),
+	})
+	return D.object({
+		"head": D.list(D.object({"at": D.vector(3), "half": D.number(0.0), "speed": D.number(0.0), "depth": D.number(0.0)}), 2),
+		"upper": fall,
+		"stream": D.list(D.object({"at": D.vector(3), "half": D.number(0.0), "speed": D.number(0.0)}), 2),
+		"lower": fall,
+	})
+
+## The region's village animals (RegionDef.animals; VillagePack): the kind
+## (a model of the village pack), the middle of the yard (x, z), the height
+## (m), the clip and the radius of the circle it walks (m; 0: it stands).
+static func animals() -> Dictionary:
+	return D.object({"animals": D.list(D.object({
+		"kind": D.stem(PACK_DIRECTORY, "/scene.gltf"),
+		"at": D.vector(2),
+		"height": D.number(0.0),
+		"clip": D.text(),
+		"radius": D.number(0.0),
+	}))})
+
+## The region's wild animals (RegionDef.wildlife; WildlifeSystem): herds on
+## the ground round a middle (x, z), flocks of birds and butterflies over one,
+## the box of open water the fish schools keep to (x0, z0, x1, z1) and where
+## the birdsong sounds (x, z). A region without the box or the birdsong has
+## neither.
+static func wildlife() -> Dictionary:
+	return D.object({
+		"herds": D.list(D.object({
+			"kind": D.choice(["deer", "fox", "chicken"]),
+			"at": D.vector(2),
+			"radius": D.number(0.0),
+			"count": D.whole(1),
+		})),
+		"flocks": D.list(D.object({
+			"kind": D.choice(["bird", "butterfly"]),
+			"species": D.optional(D.choice(["bird", "raven", "seagull"])),
+			"at": D.vector(2),
+			"count": D.whole(1),
+		})),
+		"fish_water": D.optional(D.vector(4)),
+		"birdsong": D.optional(D.vector(2)),
 	})

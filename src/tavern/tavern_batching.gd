@@ -61,7 +61,8 @@ static func apply(root: Node3D, parent: Node3D, surface_shader: Shader, interior
 		if needs_copy:
 			mesh = mesh.duplicate() as Mesh
 			for surface in mesh.get_surface_count():
-				mesh.surface_set_material(surface, key[1][surface])
+				var material: Material = key[1][surface]
+				mesh.surface_set_material(surface, material)
 		var bounds: AABB = (to_local * first.global_transform) * mesh.get_aabb()
 		for item: MeshInstance3D in items:
 			bounds = bounds.merge((to_local * item.global_transform) * mesh.get_aabb())

@@ -43,7 +43,9 @@ var _shaders: Array[RID] = []
 var _pipelines: Array[RID] = []
 var _sets: Array[RID] = []
 var _initial := PackedByteArray()
-var _generation := 0
+## Goes up with each refill and sip: the GPU's statistics of an older one
+## are left aside (accept_stats).
+var refill_generation := 0
 var _accumulator := 0.0
 var _force_sum := Vector3.ZERO
 var _force_time := 0.0
@@ -114,7 +116,7 @@ func _ready() -> void:
 	RenderingServer.call_on_render_thread(_create)
 
 func refill(level: float) -> void:
-	_generation += 1
+	refill_generation += 1
 	fraction = clampf(level, 0.0, 1.0)
 	escaped = 0
 	_consume = 0
@@ -131,7 +133,7 @@ func consume(level: float) -> void:
 	# A sip brings beer to the rim and stirs the head.
 	head = maxf(head, 0.45)
 	# Invalidate an in-flight statistics response from before the sip.
-	_generation += 1
+	refill_generation += 1
 	amount_changed.emit(fraction)
 
 func set_simulation_active(value: bool) -> void:
@@ -175,7 +177,7 @@ func _process(delta: float) -> void:
 	var drink_count := _consume
 	_consume = 0
 	RenderingServer.call_on_render_thread(_dispatch.bind(steps, acceleration,
-		drink_count, _generation, reset, read_stats, 1.0 if mouth else 0.0))
+		drink_count, refill_generation, reset, read_stats, 1.0 if mouth else 0.0))
 
 func _uniform(kind: int, binding: int, rid: RID) -> RDUniform:
 	return RdUtil.uniform(kind, binding, [rid])
@@ -291,13 +293,14 @@ func _dispatch(steps: int, acceleration: Vector3, consume_count: int, generation
 	if read_stats: _rd.buffer_get_data_async(_statistics, _receive_stats)
 
 func _receive_stats(bytes: PackedByteArray) -> void:
-	_accept_stats.call_deferred(bytes)
+	accept_stats.call_deferred(bytes)
 
-func _accept_stats(bytes: PackedByteArray) -> void:
+## The GPU's statistics of the fluid, as its read-back gives them.
+func accept_stats(bytes: PackedByteArray) -> void:
 	_read_pending = false
 	if not _alive or bytes.size() < 16: return
 	var values := bytes.to_float32_array()
-	if roundi(values[2]) != _generation: return
+	if roundi(values[2]) != refill_generation: return
 	fraction = clampf(values[0] / capacity, 0.0, 1.0)
 	escaped = roundi(values[1])
 	# Only GPU-confirmed emptiness may suspend the fluid: spilled drops can

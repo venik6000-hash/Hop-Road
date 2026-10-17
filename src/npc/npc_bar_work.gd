@@ -111,7 +111,7 @@ func _ready() -> void:
 	# The bar stands in the tavern: its pieces take the tavern's lamps, not
 	# the sky's light, and throw no lamp shadows, as the villagers inside.
 	for item: GeometryInstance3D in find_children("*", "GeometryInstance3D", true, false):
-		VillageNPC.set_layers(item, 1 | TavernSystem.LAYER)
+		LightLayers.set_layers(item, 1 | LightLayers.ROOMS)
 		item.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_place_props()
 	_measure_top.call_deferred()
@@ -125,7 +125,8 @@ func _measure_top() -> void:
 	var ray := PhysicsRayQueryParameters3D.create(over, over + Vector3.DOWN * 1.6, PhysicsLayers.WORLD)
 	var hit := space.intersect_ray(ray)
 	if not hit.is_empty():
-		_top = (global_transform.affine_inverse() * (hit.position as Vector3)).y
+		var top: Vector3 = hit.position
+		_top = (global_transform.affine_inverse() * top).y
 	_place_props()
 
 ## The counter's top over the floor, metres, in the node's space.
@@ -211,7 +212,7 @@ func step(delta: float) -> void:
 	if clock < 0.0:
 		return
 	clock += delta
-	var reach := actor.reach
+	var reach := actor.poses.reach
 	if reach == null:
 		return
 	if lever != null:
@@ -239,7 +240,7 @@ func _follow_forearm(delta: float) -> void:
 	if clock < T_TAKE:
 		_heading = handle_yaw(SHELF + Vector3.UP * _top, 0.0)
 		return
-	var fore := global_basis.orthonormalized().inverse() * actor.reach.forearm("L")
+	var fore := global_basis.orthonormalized().inverse() * actor.poses.reach.forearm("L")
 	if Vector2(fore.x, fore.z).length() < 0.02:
 		return
 	var turn := angle_difference(_heading, atan2(fore.x, fore.z))
@@ -357,15 +358,15 @@ func _pose_body(reach: NpcReach) -> void:
 		reach.look = tankard.global_position + Vector3.UP * 0.12
 
 func _drop_hands() -> void:
-	if actor == null or actor.reach == null:
+	if actor == null or actor.poses.reach == null:
 		return
-	actor.reach.left.weight = 0.0
-	actor.reach.right.weight = 0.0
-	actor.reach.look_weight = 0.0
-	actor.reach.drop = 0.0
-	actor.reach.lean = 0.0
-	actor.reach.twist = 0.0
-	actor.reach.turn = 0.0
+	actor.poses.reach.left.weight = 0.0
+	actor.poses.reach.right.weight = 0.0
+	actor.poses.reach.look_weight = 0.0
+	actor.poses.reach.drop = 0.0
+	actor.poses.reach.lean = 0.0
+	actor.poses.reach.twist = 0.0
+	actor.poses.reach.turn = 0.0
 
 ## 0 before `from`, 1 after `to`, eased between.
 static func _ease(t: float, from: float, to: float) -> float:

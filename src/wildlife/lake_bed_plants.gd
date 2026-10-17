@@ -17,23 +17,23 @@ static func place(lake: LakeBed, kind: String) -> void:
 	for attempt: int in config.patches * 12:
 		if centers.size() >= config.patches or (kind == "reed" and candidates.is_empty()):
 			break
-		var center: Vector3 = candidates.pop_at(lake._rng.randi_range(0, candidates.size() - 1)) if kind == "reed" else Ground.random_point(lake)
+		var center: Vector3 = candidates.pop_at(lake.rng.randi_range(0, candidates.size() - 1)) if kind == "reed" else Ground.random_point(lake)
 		var depth := Ground.depth(lake, center)
 		if depth < config.depth.x or depth > config.depth.y or Ground.slope(lake, center) > config.slope:
 			continue
-		if not Ground.free_of_others(center, centers, config.radius.x * (1.2 if kind == "reed" else 2.0)):
+		if not Ground.free_of_others(center, centers, Values.real(config.radius.x * (1.2 if kind == "reed" else 2.0))):
 			continue
 		centers.append(center)
-		_grow(lake, kind, center, lake._rng.randf_range(config.radius.x, config.radius.y))
+		_grow(lake, kind, center, lake.rng.randf_range(Values.real(config.radius.x), Values.real(config.radius.y)))
 	if kind == "reed":
 		# After every other stand, and the lake's random numbers go on from
 		# where those left them: what the lake places stays where it was.
-		var state := lake._rng.state
+		var state := lake.rng.state
 		for stand: Vector3 in LakeBed.MARSH_STANDS:
 			var center := Vector3(stand.x, 0.0, stand.y)
 			centers.append(center)
 			_grow(lake, kind, center, stand.z)
-		lake._rng.state = state
+		lake.rng.state = state
 	if kind == "eelgrass":
 		lake.meadow_centers = centers
 	elif kind == "reed":
@@ -47,9 +47,9 @@ static func _grow(lake: LakeBed, kind: String, center: Vector3, radius: float) -
 	var cells := int(radius * 2.0 / spacing)
 	for i in cells:
 		for j in cells:
-			var offset := Vector3((i + lake._rng.randf()) * spacing - radius, 0, (j + lake._rng.randf()) * spacing - radius)
+			var offset := Vector3((i + lake.rng.randf()) * spacing - radius, 0, (j + lake.rng.randf()) * spacing - radius)
 			var falloff := offset.length() / radius
-			if falloff > 1.0 or lake._rng.randf() < falloff * falloff * 0.9:
+			if falloff > 1.0 or lake.rng.randf() < falloff * falloff * 0.9:
 				continue
 			var point := center + offset
 			var depth_here := Ground.depth(lake, point)
@@ -62,14 +62,14 @@ static func _grow(lake: LakeBed, kind: String, center: Vector3, radius: float) -
 			if normal.y < 0.55:
 				continue
 			var position := Vector3(point.x, ground, point.z)
-			var size: float = lake._rng.randf_range(config.size.x, config.size.y)
+			var size: float = lake.rng.randf_range(Values.real(config.size.x), Values.real(config.size.y))
 			if kind != "reed":
 				# Submerged plants stop short of the surface.
-				size = minf(size, (lake.habitat.terrain.water_level - position.y - 0.4) / config.height)
+				size = minf(size, Values.real((lake.habitat.terrain.water_level - position.y - 0.4) / config.height))
 				if size < config.size.x * 0.6:
 					continue
-			var basis := Basis(Quaternion(Vector3.UP, normal.lerp(Vector3.UP, 0.5).normalized())) * Basis(Vector3.UP, lake._rng.randf_range(0, TAU))
-			Batches.add(lake, kind, lake._rng.randi_range(0, config.variants - 1), Transform3D(basis.scaled(Vector3.ONE * size), position - normal * 0.03))
+			var basis := Basis(Quaternion(Vector3.UP, normal.lerp(Vector3.UP, 0.5).normalized())) * Basis(Vector3.UP, lake.rng.randf_range(0, TAU))
+			Batches.add(lake, kind, lake.rng.randi_range(0, Values.whole(config.variants - 1)), Transform3D(basis.scaled(Vector3.ONE * size), position - normal * 0.03))
 			lake.plant_count += 1
 
 ## Every 3 m cell of the lake's shore where reeds could stand.
@@ -80,7 +80,7 @@ static func _shore_survey(lake: LakeBed) -> Array[Vector3]:
 	while x < LakeBed.LAKE.end.x:
 		var z := LakeBed.LAKE.position.y
 		while z < LakeBed.LAKE.end.y:
-			var point := Vector3(x + lake._rng.randf_range(-1.0, 1.0), 0, z + lake._rng.randf_range(-1.0, 1.0))
+			var point := Vector3(x + lake.rng.randf_range(-1.0, 1.0), 0, z + lake.rng.randf_range(-1.0, 1.0))
 			var depth := Ground.depth(lake, point)
 			if depth >= config.depth.x and depth <= config.depth.y and Ground.slope(lake, point) <= config.slope and reed_shore(lake, point):
 				found.append(point)
@@ -106,6 +106,6 @@ static func reed_shore(lake: LakeBed, point: Vector3) -> bool:
 		var ray := PhysicsRayQueryParameters3D.create(Vector3(sample.x, lake.habitat.terrain.water_level + 30.0, sample.z),
 			Vector3(sample.x, lake.habitat.terrain.water_level - 3.0, sample.z), PhysicsLayers.GROUND)
 		var hit := lake.get_world_3d().direct_space_state.intersect_ray(ray)
-		if not hit.is_empty() and not String(hit.collider.name).begins_with("TerrainBody") and hit.collider != lake._solid:
+		if not hit.is_empty() and not PhysicsLayers.hit_terrain(hit) and hit.collider != lake.solid:
 			return false
 	return true

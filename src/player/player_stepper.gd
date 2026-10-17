@@ -11,21 +11,21 @@ const MOTION = preload("res://src/player/player_motion.gd")
 ## перекрытия и просачивается сквозь то, что должно его держать.
 static func try_step(body: Player, wish: Vector3, delta: float) -> bool:
 	# На весу шагать нечем — кроме случая, когда шаг начат в прошлом кадре и
-	# ещё не доделан (см. _stepped).
-	if not body.is_on_floor() and not body._stepped:
-		body._stepped = false
+	# ещё не доделан (см. stepped).
+	if not body.is_on_floor() and not body.stepped:
+		body.stepped = false
 		return false
 
 	var ahead := MOTION.step_probe(wish, delta)
 	if ahead == Vector3.ZERO:
-		body._stepped = false
+		body.stepped = false
 		return false
 
 	var here := body.global_transform
 	var blocked := body.test_move(here, ahead)
 	# step_rise always rejects an unobstructed move; avoid the other probes.
 	if not blocked:
-		body._stepped = false
+		body.stepped = false
 		return false
 
 	# Замер над головой. Столкновение на подъёме — это низкая притолока, и
@@ -50,13 +50,14 @@ static func try_step(body: Player, wish: Vector3, delta: float) -> bool:
 		landing_rise = MOTION.STEP_HEIGHT + down.get_travel().y
 		var surface := surface_at(body, down.get_position(), ahead)
 		if not surface.is_empty():
-			surface_rise = (surface["position"] as Vector3).y - here.origin.y
+			var top: Vector3 = surface["position"]
+			surface_rise = top.y - here.origin.y
 			surface_normal = surface["normal"]
 
 	var lift := MOTION.step_rise(blocked, headroom, ahead_free, landing_rise,
 		surface_rise, surface_normal, body.floor_max_angle)
 	if lift <= 0.0:
-		body._stepped = false
+		body.stepped = false
 		return false
 
 	body.global_position += ahead + Vector3.UP * lift
@@ -64,7 +65,7 @@ static func try_step(body: Player, wish: Vector3, delta: float) -> bool:
 	# скорость вниз утащила бы игрока с только что занятой ступени.
 	body.velocity.y = 0.0
 	body.apply_floor_snap()
-	body._stepped = true
+	body.stepped = true
 	return true
 
 ## Спуск: притянуть игрока к полу, если пол под ногами есть.
@@ -107,9 +108,11 @@ static func floor_gap(body: Player) -> float:
 	var hit := world.direct_space_state.intersect_ray(query)
 	if hit.is_empty():
 		return -1.0
-	if MOTION.is_too_steep(hit["normal"], body.floor_max_angle):
+	var normal: Vector3 = hit["normal"]
+	if MOTION.is_too_steep(normal, body.floor_max_angle):
 		return -1.0
-	return body.global_position.y - (hit["position"] as Vector3).y
+	var ground: Vector3 = hit["position"]
+	return body.global_position.y - ground.y
 
 ## Площадка за кромкой — тем самым лучом, о котором сказано у
 ## STEP_SURFACE_AHEAD. Пустой словарь означает, что площадки там нет.

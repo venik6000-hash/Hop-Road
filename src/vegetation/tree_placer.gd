@@ -107,9 +107,9 @@ var detail_rect: Rect2
 var far_rect: Rect2
 var trees := TreeSet.new()
 ## Accepted composed trees on an 8 m grid, to keep the lattice pass clear of them.
-var _composed_grid := {}
-var _composed_bounds := Rect2()
-var _has_composed := false
+var composed_grid := {}
+var composed_bounds := Rect2()
+var has_composed := false
 var _patch_coarse := PackedFloat32Array()
 var _patch_fine := PackedFloat32Array()
 var _patch_origin := Vector2.ZERO
@@ -181,8 +181,8 @@ static func far_cell_size(thin: float) -> float:
 
 func _build_patches() -> void:
 	_patch_origin = far_rect.position - Vector2.ONE * PATCH_COARSE
-	_patch_coarse_n = int(ceil((far_rect.size.x + 2.0 * PATCH_COARSE) / PATCH_COARSE)) + 2
-	_patch_fine_n = int(ceil((far_rect.size.x + 2.0 * PATCH_COARSE) / PATCH_FINE)) + 2
+	_patch_coarse_n = ceili((far_rect.size.x + 2.0 * PATCH_COARSE) / PATCH_COARSE) + 2
+	_patch_fine_n = ceili((far_rect.size.x + 2.0 * PATCH_COARSE) / PATCH_FINE) + 2
 	_patch_coarse = _lattice(_patch_coarse_n, SALT_PATCH)
 	_patch_fine = _lattice(_patch_fine_n, SALT_PATCH + 1)
 
@@ -259,8 +259,8 @@ func choose(x: float, z: float, altitude: float, density: float, pick: int) -> V
 static func value_noise(x: float, z: float, size: float, salt: int) -> float:
 	var fx := x / size
 	var fz := z / size
-	var ix := int(floor(fx))
-	var iz := int(floor(fz))
+	var ix := floori(fx)
+	var iz := floori(fz)
 	var tx := fx - ix
 	var tz := fz - iz
 	tx = tx * tx * (3.0 - 2.0 * tx)

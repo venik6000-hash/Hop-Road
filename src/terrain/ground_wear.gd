@@ -56,7 +56,7 @@ static func bake(region: RegionDef, control: Image, origin: Vector2, cell: float
 	var plan := read(region.worn_ground)
 	# A building brings its yard in its table, in its own frame.
 	for table: Dictionary in VILLAGE_BUILDINGS.tables(region):
-		take(plan, table.get("worn", {}), VILLAGE_BUILDINGS.pose(table))
+		take(plan, Values.table(table.get("worn", {})), VILLAGE_BUILDINGS.pose(table))
 	var yards: Array = plan.yards
 	var cart: Array = plan.cart
 	var foot: Array = plan.foot
@@ -86,7 +86,7 @@ static func read(path: String) -> Dictionary:
 		take(plan, file, Transform3D.IDENTITY)
 		var patches: Array = plan.patches
 		for patch: Dictionary in file.get("patches", []):
-			patches.append(Vector4(patch.at[0], patch.at[1], patch.reach[0], patch.reach[1]))
+			patches.append(Vector4(Values.real(patch.at[0]), Values.real(patch.at[1]), Values.real(patch.reach[0]), Values.real(patch.reach[1])))
 	return plan
 
 ## Adds to `plan` what `data` names the way the plan's file does ({yards,
@@ -94,22 +94,22 @@ static func read(path: String) -> Dictionary:
 static func take(plan: Dictionary, data: Dictionary, place: Transform3D) -> void:
 	var cinder: Array = plan.cinder
 	for patch: Dictionary in data.get("cinder", []):
-		cinder.append({"outline": _points(patch.outline, place), "fade": float(patch.fade)})
+		cinder.append({"outline": _points(Values.list(patch.outline), place), "fade": Values.real(patch.fade)})
 	var yards: Array = plan.yards
 	for yard: Dictionary in data.get("yards", []):
-		yards.append(_points(yard.outline, place))
+		yards.append(_points(Values.list(yard.outline), place))
 	for route: Dictionary in data.get("routes", []):
 		var line: Array = plan[route.kind]
-		line.append(smoothed(_points(route.points, place)))
+		line.append(smoothed(_points(Values.list(route.points), place)))
 	var stands: Array = plan.stands
 	for stand: Dictionary in data.get("stands", []):
-		for at: Vector2 in _points(stand.at, place):
-			stands.append(Vector3(at.x, at.y, stand.radius))
+		for at: Vector2 in _points(Values.list(stand.at), place):
+			stands.append(Vector3(at.x, at.y, Values.real(stand.radius)))
 
 static func _points(pairs: Array, place: Transform3D) -> PackedVector2Array:
 	var points := PackedVector2Array()
 	for pair: Array in pairs:
-		var point := place * Vector3(pair[0], 0.0, pair[1])
+		var point := place * Vector3(Values.real(pair[0]), 0.0, Values.real(pair[1]))
 		points.append(Vector2(point.x, point.z))
 	return points
 
@@ -337,7 +337,7 @@ static func _bounds(plan: Dictionary, margin: float) -> Rect2:
 				first = false
 	for patch: Dictionary in plan.get("cinder", []):
 		# A patch reaches as far as its cinders run out.
-		var reach := Vector2.ONE * float(patch.fade)
+		var reach := Vector2.ONE * Values.real(patch.fade)
 		var outline: PackedVector2Array = patch.outline
 		for point in outline:
 			box = Rect2(point - reach, reach * 2.0) if first else box.expand(point - reach).expand(point + reach)

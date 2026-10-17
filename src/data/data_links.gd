@@ -55,7 +55,7 @@ func problems() -> PackedStringArray:
 		var name: String = ref[1]
 		if not defs.has(kind) and not code.has(kind):
 			result.append("%s: %s: nothing defines the kind '%s'" % [ref[3], ref[2], kind])
-		elif not (defs.has(kind) and (defs[kind] as Dictionary).has(name)) and not (code.has(kind) and (code[kind] as Dictionary).has(name)):
+		elif not (defs.has(kind) and Values.table(defs[kind]).has(name)) and not (code.has(kind) and Values.table(code[kind]).has(name)):
 			result.append("%s: %s: '%s' is not a %s" % [ref[3], ref[2], name, kind])
 	return result
 

@@ -40,7 +40,7 @@ var rod: Node3D
 var rod_tip: Node3D
 var line: MeshInstance3D
 var bobber: MeshInstance3D
-var _old_eye := 1.6
+var boarded_eye := 1.6
 var _previous_mouse_mode := Input.MOUSE_MODE_VISIBLE
 
 func _ready() -> void:
@@ -56,6 +56,7 @@ func _ready() -> void:
 	build_ui()
 	if interactions != null:
 		interactions.add_source(_boat_target)
+		interactions.add_hold(_hold)
 
 func find_mooring() -> Vector3:
 	return LAKESIDE_BOARDING.find_mooring(self)
@@ -136,6 +137,11 @@ func toggle_rod() -> void:
 ## the shore.
 func context_text() -> String:
 	return "{interact} — сойти на берег / в воду   ·   {move} — грести   ·   {fishing_rod} — удочка" if aboard else ""
+
+## What holds E here (TavernInteractions.add_hold): the boat under way, where
+## E only takes the player ashore, or the catch's journal open.
+func _hold() -> Interaction:
+	return Interaction.of(boat, 0.0, context_text, interact) if aboard or panel.visible else null
 
 ## E in the boat or over the open journal: true when it is taken here.
 func interact() -> bool:

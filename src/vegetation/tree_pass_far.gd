@@ -5,7 +5,7 @@ extends RefCounted
 # --- pass 3: the far field ----------------------------------------------------
 
 static func place_far(placer: TreePlacer) -> void:
-	var blocks := int(ceil(placer.far_rect.size.x / TreePlacer.FAR_BLOCK))
+	var blocks := ceili(placer.far_rect.size.x / TreePlacer.FAR_BLOCK)
 	var reach := placer.near_rect.grow(TreePlacer.FAR_REACH)
 	for bz in blocks:
 		for bx in blocks:

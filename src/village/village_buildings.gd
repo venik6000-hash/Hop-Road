@@ -27,13 +27,13 @@ static func table(path: String) -> Dictionary:
 ## brewing's guide points at.
 static func schema(path: String) -> Dictionary:
 	var raw: Variant = JSON.parse_string(FileAccess.get_file_as_string(path)) if FileAccess.file_exists(path) else null
-	var brewery: bool = raw is Dictionary and (raw as Dictionary).has("utensils")
+	var brewery: bool = raw is Dictionary and Values.table(raw).has("utensils")
 	return BuildingSchemas.building(&"brewery_station" if brewery else &"")
 
 ## Where a building stands in the map.
 static func pose(building: Dictionary) -> Transform3D:
 	var origin: Array = building.origin
-	return Transform3D(Basis(Vector3.UP, deg_to_rad(building.get("yaw", 0.0))), Vector3(origin[0], origin[1], origin[2]))
+	return Transform3D(Basis(Vector3.UP, deg_to_rad(Values.real(building.get("yaw", 0.0)))), Values.vec3(origin))
 
 ## How the labels begin of the Blender map's pieces the buildings of
 ## `region` stand in place of (a table's `replaces`): the old house on the
@@ -56,7 +56,7 @@ static func begins(label: String, beginnings: PackedStringArray) -> bool:
 ## under every building of `region`, as its table's `terrain` asks.
 static func settle_ground(image: Image, origin: Vector2, cell: float, region: RegionDef) -> void:
 	for building: Dictionary in tables(region):
-		shape_ground(image, origin, cell, pose(building), building.get("terrain", {}))
+		shape_ground(image, origin, cell, pose(building), Values.table(building.get("terrain", {})))
 
 ## What a table's `terrain` asks of the ground, in the building's own frame
 ## (x and z from its origin, heights from its floor):
@@ -74,10 +74,10 @@ static func shape_ground(image: Image, origin: Vector2, cell: float, place: Tran
 	var to_local := place.affine_inverse()
 	var floor_height := place.origin.y
 	for seat: Dictionary in terrain.get("seat", []):
-		var centre := Vector2(seat.at[0], seat.at[1])
+		var centre := Values.vec2(seat.at)
 		var radius: float = seat.radius
-		var reach: float = radius + float(seat.skirt)
-		var level: float = floor_height + float(seat.to)
+		var reach: float = radius + Values.real(seat.skirt)
+		var level: float = floor_height + Values.real(seat.to)
 		var span := _span(image, origin, cell, place, Rect2(centre - Vector2.ONE * reach, Vector2.ONE * reach * 2.0))
 		for iz in range(span.position.y, span.end.y + 1):
 			for ix in range(span.position.x, span.end.x + 1):
@@ -85,11 +85,11 @@ static func shape_ground(image: Image, origin: Vector2, cell: float, place: Tran
 				if blend < 1.0:
 					image.set_pixel(ix, iz, Color(lerpf(level, image.get_pixel(ix, iz).r, blend), 0.0, 0.0))
 	for ramp: Dictionary in terrain.get("ramp", []):
-		var from := Vector2(ramp.from[0], ramp.from[1])
-		var along := Vector2(ramp.to[0], ramp.to[1]) - from
+		var from := Values.vec2(ramp.from)
+		var along := Values.vec2(ramp.to) - from
 		var half: float = ramp.half
 		var shoulder: float = ramp.shoulder
-		var head: float = floor_height + float(ramp.height)
+		var head: float = floor_height + Values.real(ramp.height)
 		var end := place * Vector3(from.x + along.x, 0.0, from.y + along.y)
 		var foot := image.get_pixel(roundi((end.x - origin.x) / cell), roundi((end.z - origin.y) / cell)).r
 		var span := _span(image, origin, cell, place, Rect2(from, Vector2.ZERO).expand(from + along).grow(half + shoulder))
@@ -103,9 +103,9 @@ static func shape_ground(image: Image, origin: Vector2, cell: float, place: Tran
 				if blend < 1.0:
 					image.set_pixel(ix, iz, Color(lerpf(lerpf(head, foot, way), image.get_pixel(ix, iz).r, blend), 0.0, 0.0))
 	for flat: Dictionary in terrain.get("level", []):
-		var rect := _rect(flat.rect)
+		var rect := _rect(Values.list(flat.rect))
 		var skirt: float = flat.skirt
-		var level: float = floor_height + float(flat.to)
+		var level: float = floor_height + Values.real(flat.to)
 		var span := _span(image, origin, cell, place, rect.grow(skirt))
 		for iz in range(span.position.y, span.end.y + 1):
 			for ix in range(span.position.x, span.end.x + 1):
@@ -114,8 +114,8 @@ static func shape_ground(image: Image, origin: Vector2, cell: float, place: Tran
 				if blend < 1.0:
 					image.set_pixel(ix, iz, Color(lerpf(level, image.get_pixel(ix, iz).r, blend), 0.0, 0.0))
 	for cut: Dictionary in terrain.get("lower", []):
-		var rect := _rect(cut.rect)
-		var level: float = floor_height + float(cut.to)
+		var rect := _rect(Values.list(cut.rect))
+		var level: float = floor_height + Values.real(cut.to)
 		# The ground between two heights is a straight line: every height
 		# whose cells reach under the rectangle goes down.
 		var under := rect.grow(cell - 0.001)
@@ -127,7 +127,7 @@ static func shape_ground(image: Image, origin: Vector2, cell: float, place: Tran
 
 ## A rectangle of a table: two opposite corners (x, z).
 static func _rect(corners: Array) -> Rect2:
-	return Rect2(Vector2(corners[0][0], corners[0][1]), Vector2.ZERO).expand(Vector2(corners[1][0], corners[1][1]))
+	return Rect2(Values.vec2(corners[0]), Vector2.ZERO).expand(Values.vec2(corners[1]))
 
 ## The texels whose places may lie in `rect` of the building's frame.
 static func _span(image: Image, origin: Vector2, cell: float, place: Transform3D, rect: Rect2) -> Rect2i:

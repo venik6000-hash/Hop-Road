@@ -6,7 +6,7 @@ extends RefCounted
 
 ## A point of the lake's search rectangle (only x and z count).
 static func random_point(lake: LakeBed) -> Vector3:
-	return Vector3(lake._rng.randf_range(LakeBed.LAKE.position.x, LakeBed.LAKE.end.x), 0, lake._rng.randf_range(LakeBed.LAKE.position.y, LakeBed.LAKE.end.y))
+	return Vector3(lake.rng.randf_range(LakeBed.LAKE.position.x, LakeBed.LAKE.end.x), 0, lake.rng.randf_range(LakeBed.LAKE.position.y, LakeBed.LAKE.end.y))
 
 static func depth(lake: LakeBed, point: Vector3) -> float:
 	return lake.habitat.terrain.water_level - lake.habitat.terrain.height_at(point.x, point.z)
@@ -45,18 +45,24 @@ static func footprint(lake: LakeBed, kind: String, transform: Transform3D) -> Di
 ## Whether two footprints come closer than `margin` (separating axes).
 static func overlap(a: Dictionary, b: Dictionary, margin: float) -> bool:
 	var between: Vector2 = b.center - a.center
-	for axis: Vector2 in [a.u, a.v, b.u, b.v]:
-		var reach_a: float = a.half.x * absf(axis.dot(a.u)) + a.half.y * absf(axis.dot(a.v))
-		var reach_b: float = b.half.x * absf(axis.dot(b.u)) + b.half.y * absf(axis.dot(b.v))
+	var a_u: Vector2 = a.u
+	var a_v: Vector2 = a.v
+	var b_u: Vector2 = b.u
+	var b_v: Vector2 = b.v
+	for axis: Vector2 in [a_u, a_v, b_u, b_v]:
+		var reach_a: float = a.half.x * absf(axis.dot(a_u)) + a.half.y * absf(axis.dot(a_v))
+		var reach_b: float = b.half.x * absf(axis.dot(b_u)) + b.half.y * absf(axis.dot(b_v))
 		if absf(between.dot(axis)) > reach_a + reach_b + margin:
 			return false
 	return true
 
 static func under_wood(lake: LakeBed, point: Vector3, margin: float) -> bool:
 	var flat := Vector2(point.x, point.z)
-	for wood in lake._wood_footprints:
+	for wood in lake.wood_footprints:
 		var offset: Vector2 = flat - wood.center
-		if absf(offset.dot(wood.u)) < wood.half.x + margin and absf(offset.dot(wood.v)) < wood.half.y + margin:
+		var u: Vector2 = wood.u
+		var v: Vector2 = wood.v
+		if absf(offset.dot(u)) < wood.half.x + margin and absf(offset.dot(v)) < wood.half.y + margin:
 			return true
 	return false
 
@@ -67,10 +73,10 @@ static func bed_at(lake: LakeBed, x: float, z: float, boulders: bool) -> float:
 	var ground := lake.habitat.terrain.height_at(x, z)
 	var ray := PhysicsRayQueryParameters3D.create(Vector3(x, lake.habitat.terrain.water_level + 3.0, z), Vector3(x, ground + 0.15, z), PhysicsLayers.GROUND)
 	var hit := lake.get_world_3d().direct_space_state.intersect_ray(ray)
-	if hit.is_empty() or String(hit.collider.name).begins_with("TerrainBody"):
+	if hit.is_empty() or PhysicsLayers.hit_terrain(hit):
 		return ground
-	if hit.collider == lake._solid:
-		return maxf(ground, hit.position.y) if boulders else NAN
+	if hit.collider == lake.solid:
+		return maxf(ground, Values.real(hit.position.y)) if boulders else NAN
 	return NAN
 
 ## The resting pose of a scanned piece laid at `at`, turned by `yaw` and
@@ -86,7 +92,8 @@ static func settle(lake: LakeBed, kind: String, at: Vector3, yaw: float, size: f
 	var spin := Basis(Vector3.UP, yaw)
 	# The plane of the bed from a 3 x 3 grid over the footprint (at least a
 	# metre and a bit across, so a thin trunk still reads the slope across it).
-	var half: Vector2 = (shape.half as Vector2) * size
+	var shape_half: Vector2 = shape.half
+	var half: Vector2 = shape_half * size
 	half = half.max(Vector2(0.6, 0.6))
 	var b := 0.0
 	var c := 0.0
@@ -119,11 +126,12 @@ static func settle(lake: LakeBed, kind: String, at: Vector3, yaw: float, size: f
 	for k in feet.size():
 		gaps.append(rise - beds[k])
 	gaps.sort()
-	if gaps[int(gaps.size() * 0.75)] > (shape.clear as float) * size + slack:
+	if gaps[int(gaps.size() * 0.75)] > Values.real(shape.clear) * size + slack:
 		return null
 	var transform := Transform3D(basis, Vector3(at.x, rise - sink, at.z))
 	var top := -INF
-	for point in shape.points as PackedVector3Array:
+	var points: PackedVector3Array = shape.points
+	for point in points:
 		top = maxf(top, (transform * point).y)
 	if top > lake.habitat.terrain.water_level - LakeBed.CLEARANCE:
 		return null
@@ -134,13 +142,14 @@ static func settle(lake: LakeBed, kind: String, at: Vector3, yaw: float, size: f
 ## extents of its footprint and how far a quarter of its underside clears
 ## flat ground (all in its own space, scale 1).
 static func shape_of(lake: LakeBed, kind: String) -> Dictionary:
-	if lake._shapes.has(kind):
-		return lake._shapes[kind]
+	if lake.shapes.has(kind):
+		return lake.shapes[kind]
 	var scene: Node3D = (load(LakeBed.DIRECTORY + kind + ".glb") as PackedScene).instantiate()
 	var all := PackedVector3Array()
 	for source: MeshInstance3D in scene.find_children("*", "MeshInstance3D", true, false):
 		for surface in source.mesh.get_surface_count():
-			all.append_array(source.transform * (source.mesh.surface_get_arrays(surface)[Mesh.ARRAY_VERTEX] as PackedVector3Array))
+			var vertices: PackedVector3Array = source.mesh.surface_get_arrays(surface)[Mesh.ARRAY_VERTEX]
+			all.append_array(source.transform * vertices)
 	scene.free()
 	var box := AABB(all[0], Vector3.ZERO)
 	for v in all:
@@ -149,7 +158,8 @@ static func shape_of(lake: LakeBed, kind: String) -> Dictionary:
 	var lowest := {}
 	for v in all:
 		var key := Vector2i(floori((v.x - box.position.x) / cell), floori((v.z - box.position.z) / cell))
-		if not lowest.has(key) or v.y < (lowest[key] as Vector3).y:
+		var low: Vector3 = lowest.get(key, v)
+		if not lowest.has(key) or v.y < low.y:
 			lowest[key] = v
 	var feet := PackedVector3Array(lowest.values())
 	var heights := PackedFloat32Array()
@@ -159,6 +169,6 @@ static func shape_of(lake: LakeBed, kind: String) -> Dictionary:
 	var points := PackedVector3Array()
 	for i in range(0, all.size(), maxi(1, all.size() / 700)):
 		points.append(all[i])
-	lake._shapes[kind] = {"feet": feet, "points": points, "clear": heights[int(heights.size() * 0.75)],
+	lake.shapes[kind] = {"feet": feet, "points": points, "clear": heights[int(heights.size() * 0.75)],
 		"half": Vector2(maxf(-box.position.x, box.end.x), maxf(-box.position.z, box.end.z))}
-	return lake._shapes[kind]
+	return lake.shapes[kind]

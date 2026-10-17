@@ -37,8 +37,8 @@ static func build(tavern: TavernSystem) -> void:
 	var stones := MeshInstance3D.new()
 	stones.name = "Threshold"
 	stones.mesh = mesh()
-	stones.material_override = tavern._materials.get("tav_stone")
-	stones.layers = TavernSystem.LAYER | TavernSystem.SUN_LAYER | TavernSystem.SHADOW_LAYER
+	stones.material_override = tavern.materials.get("tav_stone")
+	stones.layers = LightLayers.ROOMS | LightLayers.SUN | LightLayers.LAMP_CASTERS
 	stones.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 	tavern.add_child(stones)
 	for course: Dictionary in COURSES:
@@ -49,21 +49,21 @@ static func build(tavern: TavernSystem) -> void:
 		shape.size = bounds.size
 		holder.shape = shape
 		holder.position = bounds.get_center()
-		tavern._body.add_child(holder)
+		tavern.body.add_child(holder)
 		tavern.bodies += 1
 
 ## The space a course fills, from the slabs' bed to its top.
 static func box(course: Dictionary) -> AABB:
 	var joints: Array = course.x
 	var z: Vector2 = course.z
-	return AABB(Vector3(joints[0], BED, z.x), Vector3(joints[-1] - joints[0], course.top - BED, z.y - z.x))
+	return AABB(Vector3(Values.real(joints[0]), Values.real(BED), z.x), Vector3(Values.real(joints[-1] - joints[0]), Values.real(course.top - BED), z.y - z.x))
 
 ## The tops a walker steps on from the porch to the flags, in order.
 static func walk() -> PackedFloat32Array:
 	var tops := PackedFloat32Array([PORCH])
 	for course: Dictionary in COURSES:
-		if not is_equal_approx(tops[tops.size() - 1], course.top):
-			tops.append(course.top)
+		if not is_equal_approx(tops[tops.size() - 1], Values.real(course.top)):
+			tops.append(Values.real(course.top))
 	tops.append(FLAGS)
 	return tops
 
@@ -79,7 +79,7 @@ static func mesh() -> ArrayMesh:
 			var tint: Color = TINTS[(count * 3 + 1) % TINTS.size()]
 			tint.a = course.open
 			var top: float = course.top - SETTLE * ((count * 7) % 3) * 0.5
-			_slab(tool, Vector3(joints[i] + JOINT, BED, z.x + JOINT), Vector3(joints[i + 1] - JOINT, top, z.y - JOINT), tint,
+			_slab(tool, Vector3(Values.real(joints[i] + JOINT), BED, z.x + JOINT), Vector3(Values.real(joints[i + 1] - JOINT), top, z.y - JOINT), tint,
 				Vector2(count * 0.37, count * 0.61))
 			count += 1
 	tool.generate_tangents()

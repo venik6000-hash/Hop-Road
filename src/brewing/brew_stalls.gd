@@ -26,23 +26,23 @@ func build(trade: BrewTrade) -> void:
 	if not points is Dictionary:
 		return
 	for entry: Dictionary in trade.stalls():
-		_place(str(entry.id), "stall", entry, points)
+		_place(str(entry.id), "stall", entry, Values.table(points))
 	if trade.data.has("order_board"):
-		_place("order_board", "order_board", trade.data.order_board, points)
+		_place("order_board", "order_board", Values.table(trade.data.order_board), Values.table(points))
 	if trade.data.has("cart"):
-		_place("cart", "cart", trade.data.cart, points)
+		_place("cart", "cart", Values.table(trade.data.cart), Values.table(points))
 
 ## Where a place of the data stands: at `at`, its front (+Z) turned to `face`.
 static func placement(entry: Dictionary) -> Transform3D:
 	var at: Array = entry.at
 	var face: Array = entry.face
-	var origin := Vector3(float(at[0]), float(at[1]), float(at[2]))
-	var yaw := atan2(float(face[0]) - origin.x, float(face[1]) - origin.z)
+	var origin := Values.vec3(at)
+	var yaw := atan2(Values.real(face[0]) - origin.x, Values.real(face[1]) - origin.z)
 	return Transform3D(Basis(Vector3.UP, yaw), origin)
 
 func _place(id: String, kind: String, entry: Dictionary, points: Dictionary) -> void:
 	var model_points: Dictionary = points.get(kind, {})
-	var node := (load(MODELS[kind]) as PackedScene).instantiate() as Node3D
+	var node := (load(str(MODELS[kind])) as PackedScene).instantiate() as Node3D
 	node.name = id.to_pascal_case()
 	node.transform = placement(entry)
 	add_child(node)
@@ -53,33 +53,31 @@ func _place(id: String, kind: String, entry: Dictionary, points: Dictionary) -> 
 		for surface in item.mesh.get_surface_count():
 			var old := item.mesh.surface_get_material(surface)
 			if old != null and materials.has(old.resource_name):
-				item.set_surface_override_material(surface, materials[old.resource_name])
-		item.layers = TavernSystem.SUN_LAYER
+				var material: Material = materials[old.resource_name]
+				item.set_surface_override_material(surface, material)
+		item.layers = LightLayers.SUN
 		item.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 	var body := StaticBody3D.new()
 	body.name = "Body"
 	node.add_child(body)
 	for box: Dictionary in model_points.get("colliders", []):
 		var shape := BoxShape3D.new()
-		shape.size = _vector(box.size)
+		shape.size = Values.vec3(box.size)
 		var collider := CollisionShape3D.new()
 		collider.shape = shape
-		collider.position = _vector(box.center)
+		collider.position = Values.vec3(box.center)
 		body.add_child(collider)
 	var looks: Array[Vector3] = []
 	for key: String in LOOKS[kind]:
 		if model_points.has(key):
-			looks.append(node.transform * _seen(_vector(model_points[key]), model_points.get("colliders", [])))
+			looks.append(node.transform * _seen(Values.vec3(model_points[key]), Values.list(model_points.get("colliders", []))))
 	places[id] = {"kind": kind, "title": str(entry.get("title", "")), "node": node, "looks": looks}
 
 ## A point inside one of the boxes is seen on the box's front face, from where
 ## the buyer stands: the eye's ray stops there.
 static func _seen(point: Vector3, boxes: Array) -> Vector3:
 	for box: Dictionary in boxes:
-		var bounds := AABB(_vector(box.center) - _vector(box.size) * 0.5, _vector(box.size))
+		var bounds := AABB(Values.vec3(box.center) - Values.vec3(box.size) * 0.5, Values.vec3(box.size))
 		if bounds.has_point(point):
 			point.z = bounds.end.z + 0.01
 	return point
-
-static func _vector(values: Array) -> Vector3:
-	return Vector3(float(values[0]), float(values[1]), float(values[2]))

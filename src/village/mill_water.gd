@@ -46,14 +46,14 @@ func build(water: Dictionary, falls: WaterfallSystem, lake_level: float) -> void
 static func course(ribbon: Dictionary) -> Array:
 	var rows := []
 	for point: Array in ribbon.points:
-		rows.append([Vector3(point[0], point[1], point[2]), float(ribbon.half), float(ribbon.speed)])
+		rows.append([Values.vec3(point), Values.real(ribbon.half), Values.real(ribbon.speed)])
 	return rows
 
 ## A table's fall as WaterfallSystem's falls are, in the building's frame.
 static func fall_of(fall: Dictionary) -> Dictionary:
 	var leaving := fall.duplicate()
 	var lip: Array = fall.lip
-	leaving.lip = Vector3(lip[0], lip[1], lip[2])
+	leaving.lip = Values.vec3(lip)
 	return leaving
 
 func _add(piece: String, mesh: ArrayMesh, material: ShaderMaterial) -> MeshInstance3D:

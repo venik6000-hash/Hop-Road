@@ -70,7 +70,7 @@ static func dawns_passed(hour: float, hours: float) -> int:
 		to_dawn = 24.0
 	if hours < to_dawn:
 		return 0
-	return 1 + int(floor((hours - to_dawn) / 24.0))
+	return 1 + floori((hours - to_dawn) / 24.0)
 
 ## The day the clock is in after it went from hour `was` to hour `now`. A step
 ## forward of up to half a day counts the dawns it passed; anything else is

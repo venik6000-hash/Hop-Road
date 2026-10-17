@@ -42,10 +42,10 @@ func release() -> void:
 		var node: Node = ref.get_ref()
 		if node == null:
 			continue
-		node.set_process_input(entry.input)
-		node.set_process_unhandled_input(entry.unhandled)
-		node.set_process_unhandled_key_input(entry.key)
-		node.set_process_shortcut_input(entry.shortcut)
+		node.set_process_input(Values.flag(entry.input))
+		node.set_process_unhandled_input(Values.flag(entry.unhandled))
+		node.set_process_unhandled_key_input(Values.flag(entry.key))
+		node.set_process_shortcut_input(Values.flag(entry.shortcut))
 	_saved.clear()
 	_prepared.clear()
 	_captured.clear()

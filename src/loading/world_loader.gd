@@ -1,11 +1,14 @@
 extends Node
 ## The loading screen: builds the level of `region` under itself by stages
 ## behind an opaque overlay (docs/LEVEL.md, «Загрузка и запуск»). GameFlow
-## opens the save's slot first and makes it the scene; a tool may add it alone,
-## and then the loop keeps nothing.
+## opens the save's slot first and makes it the scene. A tool adds it alone
+## (tools/lib/tool_level.gd): then the loop keeps nothing.
 
 ## The level stands and plays (`ok`), or the loading has failed (`error`).
 signal finished(ok: bool)
+## The level is made and has not entered the tree yet: a tool sets its
+## switches (level.world) or gives its player another script here.
+signal level_made(level: Node)
 var loaded := false
 var failed := false
 ## Why the loading failed; "" while it has not.
@@ -18,11 +21,7 @@ const InputGate = preload("res://src/loading/input_gate.gd")
 const WORLD := "res://scenes/alpine/main.tscn"
 const PACK = preload("res://src/village/village_pack.gd")
 const LEVEL = preload("res://src/alpine/level.gd")
-## Seconds of frames that keep coming which one stage may take.
-const STALL_SECONDS := 180.0
-## The most one frame adds to that: a frame held up by the graphics driver is
-## slow, not stalled.
-const STALL_STEP := 0.25
+const LoadWatch = preload("res://src/loading/load_watch.gd")
 ## A stage this long (ms) is most likely waiting for shaders to compile.
 const NOTE_AFTER := 12000
 ## Per kind of launch, the engine build whose shaders the system has compiled.
@@ -36,10 +35,18 @@ var world: Node
 var _gate: InputGate
 var _stage := "Загружаем долину…"
 ## The region to build: the one way a region comes into the game. Whoever
-## starts the loader may set it first; the first region of the game's list
-## (RegionDef.listed()) otherwise.
+## starts the loader may set it first, or name its file in `region_path`
+## (GameFlow does, and the region loads behind the overlay); the first region
+## of the game's list (RegionDef.LIST) otherwise.
 var region: RegionDef
-var _stage_idle := 0.0
+var region_path := ""
+## The spawn of the region the player comes in at (RegionSpawn.id); "" for
+## its first.
+var spawn := &""
+var _watch := LoadWatch.new()
+## The valley goes by itself once it stands (ValleyLoop). A tool that keeps
+## the hour it gives, or starts the loop itself, turns this off first.
+var starts_loop := true
 var _note := false
 
 func _ready() -> void:
@@ -68,24 +75,29 @@ func _ready() -> void:
 	# on Godot 4.7.2 while the main thread waits on the script loader lock.
 	_set_stage("Читаем сцену долины…")
 	if region == null:
-		var regions := RegionDef.listed()
-		region = regions[0] if not regions.is_empty() else null
+		var path := region_path if not region_path.is_empty() else RegionDef.path_of(&"")
+		region = load(path) as RegionDef if not path.is_empty() else null
 	var scene := load(WORLD) as PackedScene
 	if scene == null or region == null:
 		_fail("Не удалось загрузить сцену долины.")
 		return
-	_set_stage("Загружаем модели деревни…")
-	var assets_ready := await PACK.prefetch_assets(get_tree(), _prefetch_progress, region.props)
-	if failed:
-		return
-	if not assets_ready:
-		_fail("Не удалось загрузить модели деревни.")
-		return
+	# The village pack's models, for a region that has the pack.
+	if region.has_part(&"village_pack"):
+		_set_stage("Загружаем модели деревни…")
+		var assets_ready := await PACK.prefetch_assets(get_tree(), _prefetch_progress, region.props)
+		if failed:
+			return
+		if not assets_ready:
+			_fail("Не удалось загрузить модели деревни.")
+			return
+	else:
+		PACK.discard_prefetch()
 	_set_stage("Создаём мир…")
 	var level: LEVEL = scene.instantiate()
 	level.region = region
+	level.spawn_id = spawn
 	world = level
-	level.staged_loading = true
+	level_made.emit(level)
 	# Disabling the parent process_mode removes CollisionObject3Ds from physics.
 	# Pause callbacks only, so placement rays see all real obstacles throughout.
 	level.set_process(false)
@@ -96,14 +108,14 @@ func _ready() -> void:
 	_gate.lock(level, get_tree())
 	level.loading_stage.connect(_set_stage)
 	add_child(level)
-	while not failed and not level.has_meta("load_complete"):
+	while not failed and not level.built():
 		await get_tree().process_frame
 	if failed:
 		return
 	_set_stage("Оживают лес и озеро…")
 	# Deferred builders explicitly await physics frames even while player input
 	# and world processing are held. No placeholder world is revealed.
-	while not level.wildlife.ready_for_visitors or not level.village_pack.forest_ready or not level.flora.ready_for_visitors:
+	while not level.ready_for_visitors():
 		await get_tree().physics_frame
 		if failed:
 			return
@@ -113,7 +125,8 @@ func _ready() -> void:
 		return
 	_set_stage("Последние приготовления…")
 	# The saved hour and weather, before the frames that warm the first view.
-	ValleyLoop.start(level)
+	if starts_loop:
+		level.start_loop()
 	level.set_process(true)
 	level.set_physics_process(true)
 	# Draw the actual materials at the actual camera. This warms the first view,
@@ -127,7 +140,7 @@ func _ready() -> void:
 	_gate = null
 	_overlay.queue_free()
 	loaded = true
-	_mark_shaders_warm()
+	mark_shaders_warm()
 	print("WORLD_READY staged=true seconds=%.3f" % ((Time.get_ticks_msec() - _started) / 1000.0))
 	finished.emit(true)
 
@@ -142,7 +155,7 @@ func _set_stage(message: String) -> void:
 		return
 	_stage = message
 	_stage_started = Time.get_ticks_msec()
-	_stage_idle = 0.0
+	_watch.begin()
 	_message.text = _text()
 	print("WORLD_LOADING ", message)
 
@@ -151,21 +164,27 @@ func _text() -> String:
 	return tr("Хмельная тропа") + "\n\n" + tr(_stage) + ("\n\n" + tr(COLD_NOTE) if _note else "")
 
 ## The system's shader cache is one per engine build and, on macOS, one per
-## Godot process running at a time: a game started from the open editor fills
-## another than a game started alone, and each is slow exactly once.
-static func _launch_kind() -> String:
-	return "editor" if EngineDebugger.is_active() else "standalone"
+## program and per Godot process running at a time: a game started from the
+## open editor, the engine started alone and the exported game each fill
+## their own, and each is slow exactly once.
+static func launch_kind() -> String:
+	if EngineDebugger.is_active():
+		return "editor"
+	return "standalone_" + OS.get_executable_path().md5_text().left(12)
 
 static func _shaders_warm() -> bool:
 	var config := ConfigFile.new()
 	if config.load(WARM_MARKER) != OK:
 		return false
-	return str(config.get_value("shaders", _launch_kind(), "")) == str(Engine.get_version_info().hash)
+	return str(config.get_value("shaders", launch_kind(), "")) == str(Engine.get_version_info().hash)
 
-static func _mark_shaders_warm() -> void:
+## A run without a window compiles no shaders, so it marks nothing.
+static func mark_shaders_warm() -> void:
+	if DisplayServer.get_name() == "headless":
+		return
 	var config := ConfigFile.new()
 	config.load(WARM_MARKER)
-	config.set_value("shaders", _launch_kind(), str(Engine.get_version_info().hash))
+	config.set_value("shaders", launch_kind(), str(Engine.get_version_info().hash))
 	config.save(WARM_MARKER)
 
 func _fail(message: String) -> void:
@@ -188,13 +207,9 @@ func _fail(message: String) -> void:
 func _process(delta: float) -> void:
 	if loaded or failed:
 		return
-	# A new engine build has Metal compile every shader on first use, and the
-	# frame that needs them waits, for minutes at worst. That is progress the
-	# loader cannot see, so the watchdog counts the frames that do arrive: a
-	# stage fails only when they keep coming and it stands still.
-	_stage_idle += minf(delta, STALL_STEP)
+	var stalled := _watch.tick(delta)
 	if not _note and Time.get_ticks_msec() - _stage_started > NOTE_AFTER:
 		_note = true
 		_message.text = _text()
-	if _stage_idle > STALL_SECONDS:
+	if stalled:
 		_fail(tr("Этап загрузки не завершился за 3 минуты: %s") % tr(_stage))

@@ -24,7 +24,7 @@ signal stroke(point: Vector3)
 func _ready() -> void:
 	name = "Rowboat"
 	collision_layer = PhysicsLayers.WORLD
-	collision_mask = int(PhysicsLayers.exception_for(self, "mask")["mask"])
+	collision_mask = Values.whole(PhysicsLayers.exception_for(self, "mask")["mask"])
 	add_child(visual)
 	build_hull()
 	var shape := CollisionShape3D.new()

@@ -17,8 +17,8 @@ static func place_detail(placer: TreePlacer) -> void:
 	var cell := TreePlacer.DETAIL_CELL
 	var x0 := floori(placer.detail_rect.position.x / cell)
 	var z0 := floori(placer.detail_rect.position.y / cell)
-	var nx := int(ceil(placer.detail_rect.size.x / cell))
-	var nz := int(ceil(placer.detail_rect.size.y / cell))
+	var nx := ceili(placer.detail_rect.size.x / cell)
+	var nz := ceili(placer.detail_rect.size.y / cell)
 	var p_full := cell * cell / TreePlacer.AREA_PER_TREE
 	var salt_term := TreePlacer.SALT_CELL * 83492791
 	# Local copies: member and property access cost a lookup per use.
@@ -104,7 +104,7 @@ static func place_detail(placer: TreePlacer) -> void:
 			var spacing: float = TreePlacer.SPECIES_SPACING[kind] * grow
 			if _crowded(px, pz, spacing, previous, current, ix):
 				continue
-			if not placer.ground_ok(px, pz, TreePlacer.SPECIES_CROWN[kind] * grow * 0.5, 0.25):
+			if not placer.ground_ok(px, pz, Values.real(TreePlacer.SPECIES_CROWN[kind] * grow * 0.5), 0.25):
 				continue
 			if Composed.near_composed(placer, px, pz, spacing):
 				continue

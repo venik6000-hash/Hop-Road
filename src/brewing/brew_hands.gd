@@ -40,7 +40,7 @@ const PALM := 0.07
 static func on_utensil(id: String, entry: Dictionary, node: Transform3D, shoulders: Array[Vector3],
 		right: Vector3, tipping := false, working := false) -> Array[Dictionary]:
 	var foot := node.origin
-	var grip := node * (_vector(entry.grip) - _vector(entry.at))
+	var grip := node * (Values.vec3(entry.grip) - Values.vec3(entry.at))
 	var shaft := grip - foot
 	var hands: Array[Dictionary] = []
 	match str(entry.kind):
@@ -71,7 +71,7 @@ static func on_utensil(id: String, entry: Dictionary, node: Transform3D, shoulde
 			var along := shaft if shaft.length() > 0.05 else node.basis.x
 			hands.append(hand(RIGHT, grip, along, shoulders[RIGHT], right, "grip"))
 			if SHAFTS.has(id) and working:
-				var lower := grip + (foot - grip).normalized() * float(SHAFTS[id])
+				var lower := grip + (foot - grip).normalized() * Values.real(SHAFTS[id])
 				hands.append(hand(LEFT, lower, along, shoulders[LEFT], right, "grip"))
 	if tipping and str(entry.kind) in ["vessel", "raw"]:
 		hands.append(hand(LEFT, foot + Vector3.UP * UNDER, right, shoulders[LEFT], right, "hold", true))
@@ -82,16 +82,16 @@ static func on_utensil(id: String, entry: Dictionary, node: Transform3D, shoulde
 ## work wants both hands (a pump, a windlass).
 static func on_part(entry: Dictionary, pivot: Transform3D, shoulders: Array[Vector3], right: Vector3,
 		both := false) -> Array[Dictionary]:
-	var lever := _vector(entry.grip) - _vector(entry.pivot)
+	var lever := Values.vec3(entry.grip) - Values.vec3(entry.pivot)
 	var grip := pivot * lever
-	var axis := (pivot.basis * _vector(entry.axis)).normalized()
+	var axis := (pivot.basis * Values.vec3(entry.axis)).normalized()
 	var arm := pivot.basis * lever
 	var bar := axis
 	match str(entry.kind):
 		"swing":
 			if lever.length() >= LEVER:
 				bar = arm
-			elif absf(lever.normalized().dot(_vector(entry.axis).normalized())) > 0.9:
+			elif absf(lever.normalized().dot(Values.vec3(entry.axis).normalized())) > 0.9:
 				# A tap's key over its plug: its cross-piece is taken across the view.
 				bar = right
 		"slide":
@@ -135,6 +135,3 @@ static func hand(side: int, point: Vector3, along: Vector3, shoulder: Vector3, r
 		y = away - x * away.dot(x)
 	y = y.normalized()
 	return {"side": side, "at": Transform3D(Basis(x, y, x.cross(y)), point), "clip": clip}
-
-static func _vector(values: Array) -> Vector3:
-	return Vector3(values[0], values[1], values[2])

@@ -38,23 +38,23 @@ static func pace(kg: float) -> float:
 
 ## Kg of `utensil` (a brewery.json entry) with `load_kg` in it.
 static func weight(utensil: Dictionary, load_kg: float) -> float:
-	return float(WEIGHTS.get(utensil.kind, 2.0)) + load_kg
+	return Values.real(WEIGHTS.get(utensil.kind, 2.0)) + load_kg
 
 ## Where `utensil` lands when put down at `aim` on a face of `normal`:
 ## {at (Vector3), anchor (the id of the place it took, "" for none)}; {} when
 ## it cannot stand there. `anchors` are brewery.json's.
 static func place(utensil: Dictionary, aim: Vector3, normal: Vector3, anchors: Array) -> Dictionary:
-	var home := _vector(utensil.at)
+	var home := Values.vec3(utensil.at)
 	if home.distance_to(aim) <= SNAP:
 		return {"at": home, "anchor": ""}
 	var kind := snaps_to(str(utensil.id))
 	if kind != "":
 		for anchor: Dictionary in anchors:
 			# A place may be aimed at elsewhere than where the thing's origin goes.
-			var spot := _vector(anchor.get("aim", anchor.at))
+			var spot := Values.vec3(anchor.get("aim", anchor.at))
 			var rise := aim.y - spot.y
 			if anchor.kind == kind and Vector2(aim.x - spot.x, aim.z - spot.z).length() <= SNAP and rise >= -SNAP and rise <= RISE:
-				return {"at": _vector(anchor.at), "anchor": str(anchor.id), "yaw": float(anchor.get("yaw", 0.0))}
+				return {"at": Values.vec3(anchor.at), "anchor": str(anchor.id), "yaw": Values.real(anchor.get("yaw", 0.0))}
 	if normal.y < FLAT:
 		return {}
 	return {"at": aim, "anchor": ""}
@@ -70,13 +70,10 @@ static func on_ray(utensil: Dictionary, from: Vector3, toward: Vector3, reach: f
 	if kind == "":
 		return found
 	for anchor: Dictionary in anchors:
-		var spot := _vector(anchor.get("aim", anchor.at))
+		var spot := Values.vec3(anchor.get("aim", anchor.at))
 		var along := (spot - from).dot(toward)
 		var off := spot.distance_to(from + toward * along)
 		if anchor.kind == kind and along > 0.0 and along <= reach and off <= SNAP and along < best:
 			best = along
-			found = {"at": _vector(anchor.at), "anchor": str(anchor.id), "yaw": float(anchor.get("yaw", 0.0))}
+			found = {"at": Values.vec3(anchor.at), "anchor": str(anchor.id), "yaw": Values.real(anchor.get("yaw", 0.0))}
 	return found
-
-static func _vector(values: Array) -> Vector3:
-	return Vector3(values[0], values[1], values[2])

@@ -1,6 +1,6 @@
 extends RefCounted
 ## The level's compositor passes, for every camera: the contact shadows of the
-## tavern's lamps on the opaque picture; then, after the transparent things,
+## rooms' lamps on the opaque picture (Interiors.contact); then, after the transparent things,
 ## the hot air and the rain's rings, the weather's fog, the eye's light meter,
 ## and the underwater view, waterline and vignette. The level gives it the
 ## frame's inputs from its _process (update).
@@ -9,9 +9,10 @@ extends RefCounted
 ## storm preset's significant height at the largest local wave scale. An eye
 ## above it lets the lens pass skip its water block.
 const LENS_CREST_BOUND := 30.0
-const LEVEL = preload("res://src/alpine/level.gd")
+const CanopyField = preload("res://src/vegetation/canopy_field.gd")
 
 var fog: AtmosphereFog
+var _interiors: Interiors
 var refraction: RefractionPost
 var lens: LensPost
 var _sky: SkySystem
@@ -30,27 +31,21 @@ var _sun_direction := Vector3.ZERO
 var _sun_radiance := Vector3.ZERO
 var _viewer_radius := 0.0
 
-## After the tavern, the buildings and the vegetation: the fog reads their
-## rooms and the canopy.
-func _init(level: LEVEL) -> void:
-	_sky = level.sky_system
-	_weather = level.weather
-	_terrain = level.terrain
-	_water = level.water
-	var tavern: TavernSystem = level.tavern
-	var eye_adaptation: EyeAdaptation = level.eye_adaptation
-	var vegetation: VegetationSystem = level.vegetation
+## After the vegetation, whose canopy the fog reads.
+func _init(sky: SkySystem, weather: WeatherSystem, terrain: TerrainSystem, water: WaterSystem, sun_shadow: SunShadowField,
+		interiors: Interiors, eye_adaptation: EyeAdaptation, canopy: CanopyField, environment: WorldEnvironment) -> void:
+	_sky = sky
+	_weather = weather
+	_terrain = terrain
+	_water = water
 	fog = AtmosphereFog.new()
 	fog.sky = _sky
 	fog.terrain = _terrain
-	fog.sun_shadow = level.sun_shadow
-	fog.canopy = vegetation.grass.canopy
+	fog.sun_shadow = sun_shadow
+	fog.canopy = canopy
 	fog.weather_map = load("res://assets/generated/sky/cloud_weather.png")
-	var rooms := tavern.room_boxes()
-	for index in rooms.size():
-		fog.building = rooms[index] if index == 0 else fog.building.merge(rooms[index])
-	# Every room of the village: the tavern's and the buildings'.
-	fog.rooms = eye_adaptation.rooms
+	_interiors = interiors
+	fog.interiors = interiors
 	_weather.fog = fog
 	lens = LensPost.new()
 	lens.skyview = _sky.atmosphere.skyview_lut
@@ -63,8 +58,7 @@ func _init(level: LEVEL) -> void:
 	# its corners.
 	eye_adaptation.meter = LightMeter.new()
 	var compositor := Compositor.new()
-	compositor.compositor_effects = [tavern.contact_shadows, refraction, fog, eye_adaptation.meter, lens]
-	var environment: WorldEnvironment = level.get_node("WorldEnvironment")
+	compositor.compositor_effects = [interiors.contact, refraction, fog, eye_adaptation.meter, lens]
 	environment.compositor = compositor
 
 ## The inputs of this frame's passes, seen from `eye`.
@@ -73,8 +67,9 @@ func update(delta: float, eye: Vector3, tree: SceneTree) -> void:
 	var wind_heading := deg_to_rad(ocean.wind_direction_deg)
 	fog.wind = Vector2(cos(wind_heading), sin(wind_heading)) * ocean.wind_speed
 	fog.wave_height = ocean.significant_height()
+	fog.building = _interiors.fog_box(eye)
 	fog.prepare(delta, eye, tree.get_nodes_in_group(AtmosphereFog.LAMP_GROUP) if fog.active() else [])
-	var falling := RainFall.amount(_weather.state.rain, _weather.state.storm)
+	var falling := RainFall.amount(Values.real(_weather.state.rain), Values.real(_weather.state.storm))
 	# The lake lies within the rings' view where the ground dips under its level.
 	var lake_near := falling > 0.0 and _terrain.height_range(Rect2(eye.x - RefractionPost.RING_VIEW, eye.z - RefractionPost.RING_VIEW,
 		RefractionPost.RING_VIEW * 2.0, RefractionPost.RING_VIEW * 2.0)).x < _water.water_level

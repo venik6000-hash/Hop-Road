@@ -1,7 +1,7 @@
 class_name SettingsPanel
 extends CanvasLayer
-## The settings of the game: the language over three tabs of graphics,
-## sound and controls. Labels hold keys of the table (Languages): they change
+## The settings of the game: the language over four tabs of graphics,
+## screen, sound and controls. Labels hold keys of the table (Languages): they change
 ## language by themselves; the bindings and the notice are written anew.
 ## Entry: open(). The panel tells `closed` when it shuts. It needs no level,
 ## so any screen can make one and open it; the level makes one. The panel
@@ -12,6 +12,11 @@ signal closed
 
 const GAME_SETTINGS = preload("res://src/settings/game_settings.gd")
 const INPUT_ACTIONS = preload("res://src/core/input_actions.gd")
+const UI_SOUNDS = preload("res://src/flow/ui_sounds.gd")
+const WINDOW_MODE_TITLES: Dictionary[String, String] = {
+	GAME_SETTINGS.WINDOWED: "В окне",
+	GAME_SETTINGS.FULLSCREEN: "Полный экран",
+}
 const VOLUME_TITLES: Dictionary[StringName, String] = {
 	AudioBuses.MASTER: "Общая громкость",
 	AudioBuses.MUSIC: "Музыка",
@@ -30,6 +35,13 @@ var quality: OptionButton
 var hand: CheckButton
 var hand_resolution: OptionButton
 var sharpness: HSlider
+var window_mode: OptionButton
+var vsync: CheckButton
+var window_size: OptionButton
+## The sizes window_size offers, in its order.
+var window_sizes: Array[Vector2i] = []
+var ui_scale: OptionButton
+var fov: HSlider
 var volumes: Dictionary[StringName, HSlider] = {}
 ## InputActions.binding_key -> the button that shows and takes the binding.
 var bindings: Dictionary[String, Button] = {}
@@ -58,6 +70,7 @@ func open() -> void:
 		return
 	_mouse_mode = Input.mouse_mode
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	UI_SOUNDS.play(UI_SOUNDS.OPEN)
 	show()
 	tabs.get_tab_bar().grab_focus()
 
@@ -66,6 +79,7 @@ func close() -> void:
 	if not visible:
 		return
 	_stop_capture()
+	UI_SOUNDS.play(UI_SOUNDS.CLOSE)
 	hide()
 	Input.mouse_mode = _mouse_mode
 	closed.emit()
@@ -132,6 +146,7 @@ func _build() -> void:
 	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(tabs)
 	tabs.add_child(_graphics_tab())
+	tabs.add_child(_screen_tab())
 	tabs.add_child(_sound_tab())
 	tabs.add_child(_controls_tab())
 	notice = Label.new()
@@ -151,6 +166,7 @@ func _build() -> void:
 	back.pressed.connect(close)
 	buttons.add_child(back)
 	_update_notice()
+	UI_SOUNDS.wire(panel)
 
 func _tab(title: String) -> VBoxContainer:
 	var page := VBoxContainer.new()
@@ -196,6 +212,43 @@ func _graphics_tab() -> Control:
 	_label(page, "Резкость картинки")
 	sharpness = _slider(page, 0.0, 1.0, 0.05, settings.sharpness)
 	sharpness.value_changed.connect(_sharpness_changed)
+	return page
+
+func _screen_tab() -> Control:
+	var page := _tab("Экран")
+	_label(page, "Окно")
+	window_mode = OptionButton.new()
+	for mode: String in settings.WINDOW_MODES:
+		window_mode.add_item(WINDOW_MODE_TITLES[mode])
+	window_mode.select(settings.WINDOW_MODES.find(settings.window_mode))
+	window_mode.item_selected.connect(_window_mode_selected)
+	page.add_child(window_mode)
+	_label(page, "Размер окна")
+	window_size = OptionButton.new()
+	window_sizes = GAME_SETTINGS.fitting_sizes()
+	if not window_sizes.has(settings.window_size):
+		window_sizes.append(settings.window_size)
+	for size: Vector2i in window_sizes:
+		window_size.add_item("%d × %d" % [size.x, size.y])
+	window_size.select(window_sizes.find(settings.window_size))
+	window_size.disabled = settings.window_mode == settings.FULLSCREEN
+	window_size.item_selected.connect(_window_size_selected)
+	page.add_child(window_size)
+	vsync = CheckButton.new()
+	vsync.text = "Вертикальная синхронизация"
+	vsync.button_pressed = settings.vsync
+	vsync.toggled.connect(_vsync_toggled)
+	page.add_child(vsync)
+	_label(page, "Масштаб интерфейса")
+	ui_scale = OptionButton.new()
+	for scale: float in settings.UI_SCALES:
+		ui_scale.add_item("%d %%" % roundi(scale * 100.0))
+	ui_scale.select(settings.UI_SCALES.find(settings.ui_scale))
+	ui_scale.item_selected.connect(_ui_scale_selected)
+	page.add_child(ui_scale)
+	_label(page, "Поле зрения, градусов по вертикали")
+	fov = _slider(page, settings.FOV.x, settings.FOV.y, 1.0, settings.fov)
+	fov.value_changed.connect(_fov_changed)
 	return page
 
 func _sound_tab() -> Control:
@@ -351,6 +404,22 @@ func _notification(what: int) -> void:
 func _volume_changed(value: float, bus: StringName) -> void:
 	_update_notice(settings.set_volume(bus, value))
 
+func _window_mode_selected(index: int) -> void:
+	_update_notice(settings.set_window_mode(settings.WINDOW_MODES[index]))
+	window_size.disabled = settings.window_mode == settings.FULLSCREEN
+
+func _window_size_selected(index: int) -> void:
+	_update_notice(settings.set_window_size(window_sizes[index]))
+
+func _vsync_toggled(enabled: bool) -> void:
+	_update_notice(settings.set_vsync(enabled))
+
+func _ui_scale_selected(index: int) -> void:
+	_update_notice(settings.set_ui_scale(settings.UI_SCALES[index]))
+
+func _fov_changed(degrees: float) -> void:
+	_update_notice(settings.set_fov(degrees))
+
 func _sharpness_changed(strength: float) -> void:
 	_update_notice(settings.set_sharpness(strength))
 
@@ -358,7 +427,7 @@ func _hand_toggled(shown: bool) -> void:
 	_update_notice(settings.set_hand_visible(shown))
 
 func _hand_resolution_selected(index: int) -> void:
-	_update_notice(settings.set_hand_resolution(settings.HAND_RESOLUTIONS[index]))
+	_update_notice(settings.set_hand_resolution(str(settings.HAND_RESOLUTIONS[index])))
 
 func _quality_selected(index: int) -> void:
 	_update_notice(settings.set_quality(QualityProfile.IDS[index]))
@@ -371,7 +440,7 @@ func _update_notice(err: Error = OK) -> void:
 	elif settings.restart_required():
 		notice.text = "Сохранено. Текстуры и дальность деревьев изменятся после перезапуска. Прогулка начнётся у таверны."
 	else:
-		notice.text = "Картинка, тени, трава, звук и управление меняются сразу. Текстуры и деревья — после перезапуска."
+		notice.text = "Картинка, экран, тени, трава, звук и управление меняются сразу. Текстуры и деревья — после перезапуска."
 
 func _restart() -> void:
 	var err: Error = settings.save_preferences()

@@ -10,13 +10,13 @@ const FILL_LEVEL := 0.86
 const SIP := 0.13
 ## The tavern's old beer, which the shader draws by default: its absorption
 ## per simulation unit (beer_surface.gdshader), its scatter, its colour (EBC)
-## and its foam (BrewBatch.profile). How much a hazy beer scatters more.
+## and its foam (BrewTaste.profile). How much a hazy beer scatters more.
 const OLD_ABSORPTION := Vector3(0.12, 0.45, 3.0)
 const OLD_SCATTER := 0.12
 const OLD_EBC := 12.0
 const OLD_FOAM := 0.65
 const HAZE_SCATTER := 0.5
-## The beer in the mug (BrewBatch.profile), {} for the tavern's old beer.
+## The beer in the mug (BrewTaste.profile), {} for the tavern's old beer.
 var beer := {}
 ## The player's hands and mouth (Player.hands); null for a mug without a body.
 var channels: BodyChannels
@@ -28,7 +28,7 @@ var _drink_fill := 0.0
 var _swallowed := 0
 var _head := 0.0
 var _idle_time := 0.0
-var _offset := Vector2.ZERO
+var hand_offset := Vector2.ZERO
 var _offset_velocity := Vector2.ZERO
 var _tilt := 0.0
 var _tilt_velocity := 0.0
@@ -139,6 +139,17 @@ func fill() -> float:
 func drinking() -> bool:
 	return _drink_time > 0.0
 
+## Seconds into the drink (DrinkMotion), 0 when the mug is in the hand.
+func drink_seconds() -> float:
+	return _drink_time
+
+## An empty mug: the drink stops and the beer is gone.
+func drain() -> void:
+	_end_drink()
+	if fluid != null:
+		fluid.refill(0.0)
+	_fill = 0.0
+
 ## A user preference, independent of the right hand given to a doer
 ## (.visible, set by Player from its hands).
 func set_hand_visible(value: bool) -> void:
@@ -172,7 +183,7 @@ func drink() -> bool:
 	_update_crop()
 	return true
 
-## A full mug of `poured` (BrewBatch.profile; {} for the tavern's old beer).
+## A full mug of `poured` (BrewTaste.profile; {} for the tavern's old beer).
 func refill(poured: Dictionary = {}) -> void:
 	_end_drink()
 	_fill = FILL_LEVEL
@@ -186,10 +197,10 @@ func refill(poured: Dictionary = {}) -> void:
 static func beer_look(profile: Dictionary) -> Dictionary:
 	if profile.is_empty():
 		return {"absorption": OLD_ABSORPTION, "scatter": OLD_SCATTER, "head": 1.0}
-	var ebc := clampf(float(profile.get("color", OLD_EBC)), 2.0, 160.0)
-	var clarity := clampf(float(profile.get("clarity", 1.0)), 0.0, 1.0)
+	var ebc := clampf(Values.real(profile.get("color", OLD_EBC)), 2.0, 160.0)
+	var clarity := clampf(Values.real(profile.get("clarity", 1.0)), 0.0, 1.0)
 	return {"absorption": OLD_ABSORPTION * ebc / OLD_EBC, "scatter": OLD_SCATTER + HAZE_SCATTER * (1.0 - clarity),
-		"head": clampf(float(profile.get("foam", OLD_FOAM)) / OLD_FOAM, 0.4, 1.6)}
+		"head": clampf(Values.real(profile.get("foam", OLD_FOAM)) / OLD_FOAM, 0.4, 1.6)}
 
 func _show_beer() -> void:
 	if fluid == null or fluid.material == null:
@@ -262,8 +273,8 @@ func update_motion(speed_ratio: float, walk_phase: float, look_delta: Vector2,
 	var target := ViewmodelMotion.walk_offset(walk_phase, speed_ratio)
 	target += ViewmodelMotion.idle_offset(_idle_time) * (1.0 - clampf(speed_ratio, 0.0, 1.0))
 	target += ViewmodelMotion.look_lag(look_delta)
-	var moved := ViewmodelMotion.spring_vector(_offset, _offset_velocity, target, delta)
-	_offset = moved[0]
+	var moved := ViewmodelMotion.spring_vector(hand_offset, _offset_velocity, target, delta)
+	hand_offset = moved[0]
 	_offset_velocity = moved[1]
 	var tilted := ViewmodelMotion.spring(_tilt, _tilt_velocity,
 		clampf(-look_delta.x * 0.012 - local_acceleration.x * 0.006, -0.28, 0.28), delta)
@@ -301,11 +312,19 @@ func update_motion(speed_ratio: float, walk_phase: float, look_delta: Vector2,
 	var down := Basis(Vector3.RIGHT, -_head) * effective
 	fluid.advance(delta, presentation.pivot.basis.inverse() * view_basis * down / BeerFluid.UNIT)
 
+## Holds the full mug at `seconds` into a drink, swayed by `tilt` (radians),
+## and draws it: a still of one moment for checks. The next frame moves on.
+func hold_drink_pose(seconds: float, tilt: float) -> void:
+	_drink_fill = FILL_LEVEL
+	_drink_time = seconds
+	_tilt = tilt
+	_apply()
+
 func _apply() -> void:
 	if presentation == null: return
 	var rest := Transform3D(Basis.from_euler(presentation.base_rotation + Vector3(
 		_impact_pitch, _tilt * 0.30, _tilt)), presentation.base_position + Vector3(
-		_offset.x * 0.0015, -_offset.y * 0.0015 - absf(_impact_pitch) * 0.06, 0.0))
+		hand_offset.x * 0.0015, -hand_offset.y * 0.0015 - absf(_impact_pitch) * 0.06, 0.0))
 	presentation.pivot.transform = DrinkMotion.pose(_drink_time, rest, _drink_fill, _sip())
 	if _drink_time > 0.0:
 		_set_head(DrinkMotion.head_tilt(_drink_time, _drink_fill, _sip()))

@@ -37,5 +37,5 @@ static func pack(xform: Transform3D) -> Array:
 	return values
 
 static func unpack(values: Array) -> Transform3D:
-	return Transform3D(Vector3(values[0], values[1], values[2]), Vector3(values[3], values[4], values[5]),
-		Vector3(values[6], values[7], values[8]), Vector3(values[9], values[10], values[11]))
+	return Transform3D(Values.vec3(values), Vector3(Values.real(values[3]), Values.real(values[4]), Values.real(values[5])),
+		Vector3(Values.real(values[6]), Values.real(values[7]), Values.real(values[8])), Vector3(Values.real(values[9]), Values.real(values[10]), Values.real(values[11])))

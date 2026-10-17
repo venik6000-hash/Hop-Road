@@ -55,9 +55,9 @@ func configure(table: Dictionary) -> void:
 	for shaft: Dictionary in table.get("turning", []):
 		if shaft.clutch:
 			continue
-		_shafts.append({"pivot": _pivot(str(shaft.id), shaft.centre), "axis": _vector(shaft.axis).normalized(),
-			"ratio": float(shaft.ratio)})
-		_wheel_rpm = float(shaft.rpm) / float(shaft.ratio)
+		_shafts.append({"pivot": _pivot(str(shaft.id), Values.list(shaft.centre)), "axis": Values.vec3(shaft.axis).normalized(),
+			"ratio": Values.real(shaft.ratio)})
+		_wheel_rpm = Values.real(shaft.rpm) / Values.real(shaft.ratio)
 	var titles := {}
 	for station: Dictionary in table.get("stations", []):
 		titles[str(station.id)] = str(station.title)
@@ -67,9 +67,9 @@ func configure(table: Dictionary) -> void:
 			spinning[str(part.group)] = true
 	for part: Dictionary in table.get("moving", []):
 		var group := str(part.group)
-		var pivot := _pivot(str(part.id), part.pivot)
-		_parts.append({"pivot": pivot, "origin": pivot.position, "axis": _vector(part.axis).normalized(),
-			"kind": str(part.kind), "travel": float(part.travel), "group": group})
+		var pivot := _pivot(str(part.id), Values.list(part.pivot))
+		_parts.append({"pivot": pivot, "origin": pivot.position, "axis": Values.vec3(part.axis).normalized(),
+			"kind": str(part.kind), "travel": Values.real(part.travel), "group": group})
 		if not _groups.has(group):
 			_groups[group] = {"spins": spinning.has(group), "strokes": 0, "phase": 0.0, "shut": 0.0, "draught": 0.0,
 				"speed": 0.0, "angle": 0.0, "moved": false}
@@ -80,20 +80,20 @@ func configure(table: Dictionary) -> void:
 			handle.verb = "крутить" if spinning.has(group) else "качать"
 			handle.machinery = self
 			handle.group = group
-			handle.position = _vector(part.hand)
+			handle.position = Values.vec3(part.hand)
 			add_child(handle)
 	for vane: Dictionary in table.get("vanes", []):
-		_vanes.append({"pivot": _pivot(str(vane.id), vane.pivot), "built": heading(_vector(vane.lee)), "yaw": 0.0, "to": 0.0})
+		_vanes.append({"pivot": _pivot(str(vane.id), Values.list(vane.pivot)), "built": heading(Values.vec3(vane.lee)), "yaw": 0.0, "to": 0.0})
 	set_process(not _shafts.is_empty() or not _groups.is_empty() or not _vanes.is_empty())
 
 ## Takes the marked pieces of a part scene onto their pivots, where they
 ## stand; the scene is in the building's frame, as this node is (`indoors`:
 ## it is the scene of the rooms). What moves stays out of the lamps' shadow
-## maps (TavernSystem.SHADOW_LAYER). That is not enough for what never
+## maps (LightLayers.LAMP_CASTERS). That is not enough for what never
 ## stands: a lamp draws its map again in every frame in which a shadow caster
 ## it lights moves, in the map or not. So a shaft's pieces cast no shadow
 ## indoors, and outdoors, where the sun needs the wheel's, they are on
-## TavernSystem.RESTLESS_LAYER alone: the rooms' lamps do not light it, and a
+## LightLayers.RESTLESS alone: the rooms' lamps do not light it, and a
 ## lamp outdoors that casts a shadow leaves it to its twin.
 func take(scene: Node3D, indoors := false) -> void:
 	for item: MeshInstance3D in scene.find_children("*", "MeshInstance3D", true, false):
@@ -110,12 +110,12 @@ func take(scene: Node3D, indoors := false) -> void:
 		item.get_parent().remove_child(item)
 		holder.add_child(item)
 		item.transform = (transform * holder.transform).affine_inverse() * placed
-		item.layers &= ~TavernSystem.SHADOW_LAYER
+		item.layers &= ~LightLayers.LAMP_CASTERS
 		if extras.has("mill_turning"):
 			if indoors:
 				item.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			else:
-				item.layers = TavernSystem.RESTLESS_LAYER
+				item.layers = LightLayers.RESTLESS
 
 ## The hand on `group`: four strokes of what is pulled, a push to what spins.
 func work(group: String) -> void:
@@ -146,16 +146,17 @@ func set_pose(group: String, amount: float) -> void:
 
 ## How hard (0..1) the pulls of `group` blow now: the bellows' air on the fire.
 func draught(group: String) -> float:
-	return float(_groups[group].draught) if _groups.has(group) else 0.0
+	return Values.real(_groups[group].draught) if _groups.has(group) else 0.0
 
 ## The wind blows towards `downwind` (the building's frame): the vanes come
 ## round to point there. The first wind finds them there already.
 func face(downwind: Vector3) -> void:
 	for vane: Dictionary in _vanes:
-		vane.to = wrapf(heading(downwind) - float(vane.built), -PI, PI)
+		vane.to = wrapf(heading(downwind) - Values.real(vane.built), -PI, PI)
 		if not _faced:
 			vane.yaw = vane.to
-			(vane.pivot as Node3D).basis = Basis(Vector3.UP, float(vane.yaw))
+			var pivot_node: Node3D = vane.pivot
+			pivot_node.basis = Basis(Vector3.UP, Values.real(vane.yaw))
 	_faced = true
 
 ## The angle about the vertical of a direction: a turn by it takes +z there.
@@ -164,7 +165,8 @@ static func heading(direction: Vector3) -> float:
 
 ## The node the pieces marked `id` hang on, or null.
 func pivot(id: String) -> Node3D:
-	return _pivots.get(id) as Node3D
+	var found: Variant = _pivots.get(id)
+	return found if found is Node3D else null
 
 ## How far shut (0..1) a pull is at `phase` (0..1) of its stroke: it comes
 ## down over the first PULL of it and is let go over the rest.
@@ -177,14 +179,16 @@ func _process(delta: float) -> void:
 		for shaft: Dictionary in _shafts:
 			var axis: Vector3 = shaft.axis
 			var ratio: float = shaft.ratio
-			(shaft.pivot as Node3D).basis = Basis(axis, TAU * fposmod(turns * ratio, 1.0))
+			var pivot_node: Node3D = shaft.pivot
+			pivot_node.basis = Basis(axis, TAU * fposmod(turns * ratio, 1.0))
 	for vane: Dictionary in _vanes:
-		var off := angle_difference(float(vane.yaw), float(vane.to))
+		var off := angle_difference(Values.real(vane.yaw), Values.real(vane.to))
 		if off == 0.0:
 			continue
 		var step := VANE_PACE * delta
-		vane.yaw = float(vane.to) if absf(off) <= step else float(vane.yaw) + signf(off) * step
-		(vane.pivot as Node3D).basis = Basis(Vector3.UP, float(vane.yaw))
+		vane.yaw = Values.real(vane.to) if absf(off) <= step else Values.real(vane.yaw) + signf(off) * step
+		var pivot_node: Node3D = vane.pivot
+		pivot_node.basis = Basis(Vector3.UP, Values.real(vane.yaw))
 	for state: Dictionary in _groups.values():
 		_advance(state, delta)
 	for part: Dictionary in _parts:
@@ -200,7 +204,7 @@ static func _pose(part: Dictionary, state: Dictionary) -> void:
 	var shut: float = state.shut
 	match str(part.kind):
 		"spin":
-			node.basis = Basis(axis, float(state.angle))
+			node.basis = Basis(axis, Values.real(state.angle))
 		"swing":
 			node.basis = Basis(axis, travel * shut)
 		"slide":
@@ -213,7 +217,7 @@ func _advance(state: Dictionary, delta: float) -> void:
 	var blown: float = state.draught
 	state.moved = speed > 0.0 or strokes > 0
 	if state.spins:
-		state.angle = fposmod(float(state.angle) + speed * delta, TAU)
+		state.angle = fposmod(Values.real(state.angle) + speed * delta, TAU)
 		speed *= exp(-delta / RUN_DOWN)
 		state.speed = speed if speed > STANDS else 0.0
 		return
@@ -234,10 +238,7 @@ func _advance(state: Dictionary, delta: float) -> void:
 func _pivot(id: String, at: Array) -> Node3D:
 	var node := Node3D.new()
 	node.name = id.to_pascal_case()
-	node.position = _vector(at)
+	node.position = Values.vec3(at)
 	add_child(node)
 	_pivots[id] = node
 	return node
-
-static func _vector(values: Array) -> Vector3:
-	return Vector3(values[0], values[1], values[2])

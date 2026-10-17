@@ -70,7 +70,16 @@ const EXCEPTIONS: Array[Dictionary] = [
 ## The mask a body on `layer` must carry, or -1 for a value that is not one
 ## layer of MASKS.
 static func mask_of(layer: int) -> int:
-	return int(MASKS.get(layer, -1))
+	return Values.whole(MASKS.get(layer, -1))
+
+## Whether the ray hit `hit` (intersect_ray) met the terrain's body
+## (TerrainCollision). A trunk collider of a tree has no node (TreeColliders):
+## its hit holds a null collider.
+static func hit_terrain(hit: Dictionary) -> bool:
+	if not hit.get("collider") is Node:
+		return false
+	var body: Node = hit.collider
+	return body.name == &"TerrainBody"
 
 ## The 1-based layer number of a bit, as project.godot and the editor count.
 static func number_of(bit: int) -> int:
@@ -78,7 +87,7 @@ static func number_of(bit: int) -> int:
 
 ## The row of EXCEPTIONS that lets `body` break `rule`, or {}.
 static func exception_for(body: Object, rule: String) -> Dictionary:
-	var script := body.get_script() as Script
+	var script: Script = body.get_script()
 	if script == null:
 		return {}
 	for row: Dictionary in EXCEPTIONS:

@@ -47,8 +47,8 @@ static func scan(space: PhysicsDirectSpaceState3D, bounds: Rect2, ground: Vegeta
 		top := 60.0) -> ObstacleMap:
 	var map := ObstacleMap.new()
 	map.origin = (bounds.position / CELL).floor() * CELL
-	map.size = Vector2i(int(ceil((bounds.end.x - map.origin.x) / CELL)) + 1,
-		int(ceil((bounds.end.y - map.origin.y) / CELL)) + 1)
+	map.size = Vector2i(ceili((bounds.end.x - map.origin.x) / CELL) + 1,
+		ceili((bounds.end.y - map.origin.y) / CELL) + 1)
 	map.cover.resize(map.size.x * map.size.y)
 	var query := PhysicsRayQueryParameters3D.new()
 	query.exclude = exclude

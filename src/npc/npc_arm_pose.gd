@@ -43,4 +43,4 @@ func _process_modification() -> void:
 		return
 	var sign_side := 1.0 if side == "R" else -1.0
 	var elbow_pole := right * sign_side * 0.6 + Vector3.DOWN * 0.8
-	_solve_chain(skeleton, _bones["Arm_" + side], _bones["ForeArm_" + side], hand, target / sum, elbow_pole)
+	_solve_chain(skeleton, Values.whole(_bones["Arm_" + side]), Values.whole(_bones["ForeArm_" + side]), hand, target / sum, elbow_pole)

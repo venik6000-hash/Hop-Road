@@ -50,8 +50,11 @@ func _flush() -> void:
 	var bodies := _pending
 	_pending = []
 	for item: Variant in bodies:
-		if is_instance_valid(item) and (item as CollisionObject3D).is_inside_tree():
-			_check(item as CollisionObject3D)
+		if not is_instance_valid(item):
+			continue
+		var body: CollisionObject3D = item
+		if body.is_inside_tree():
+			_check(body)
 
 func _check(body: CollisionObject3D) -> PackedStringArray:
 	checked += 1
@@ -98,7 +101,7 @@ static func problems(body: CollisionObject3D) -> PackedStringArray:
 		var allowed := mask
 		var row := PhysicsLayers.exception_for(body, "mask")
 		if not row.is_empty():
-			allowed = int(row["mask"])
+			allowed = Values.whole(row["mask"])
 		if body.collision_mask != allowed:
 			out.append("mask: %d on layer %s, PhysicsLayers wants %d" % [body.collision_mask, PhysicsLayers.NAMES[layer], allowed])
 	if body is RigidBody3D:

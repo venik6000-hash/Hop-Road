@@ -51,7 +51,7 @@ static func read_masks(region: RegionDef, data: Dictionary) -> Dictionary:
 	var file := FileAccess.open_compressed(region.settled_masks, FileAccess.READ, FileAccess.COMPRESSION_ZSTD)
 	if file == null:
 		return {}
-	var size := int(layout.size)
+	var size := Values.whole(layout.size)
 	var masks := {}
 	for mask: String in ["control", "extra"]:
 		var image := _image(file, Vector2i(size, size), Image.FORMAT_RGBA8, 4)
@@ -59,13 +59,13 @@ static func read_masks(region: RegionDef, data: Dictionary) -> Dictionary:
 			return {}
 		masks[mask] = image
 	var wear: Dictionary = layout.wear
-	var wear_size := Vector2i(int(wear.size[0]), int(wear.size[1]))
+	var wear_size := Vector2i(Values.whole(wear.size[0]), Values.whole(wear.size[1]))
 	if wear_size.x > 0 and wear_size.y > 0:
 		var field := _image(file, wear_size, Image.FORMAT_RGBAH, 8)
 		if field == null:
 			return {}
 		masks.wear = field
-		masks.rect = Rect2(wear.rect[0], wear.rect[1], wear.rect[2], wear.rect[3])
+		masks.rect = Rect2(Values.real(wear.rect[0]), Values.real(wear.rect[1]), Values.real(wear.rect[2]), Values.real(wear.rect[3]))
 		if layout.cinder:
 			var cinder := _image(file, wear_size, Image.FORMAT_R8, 1)
 			if cinder == null:

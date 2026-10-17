@@ -6,7 +6,7 @@ extends Node3D
 ## at six station works, on the fishing rod (lakeside_rod.gd) and under the
 ## baked potato (CampProps), put there as BrewHouse, LakesideSystem and
 ## CampSystem put them. Keys 1-7 play the doers, 8 and 9 break the rules on purpose
-## to show the guard (Player._guard_hands) putting them right. The overlay
+## to show the guard (Player.guard_hands) putting them right. The overlay
 ## shows who has each part, the mug, the refusals and the guard's catches.
 ## docs/PLAYER.md, «Руки и рот».
 
@@ -53,15 +53,26 @@ var _lake: LakesideSystem
 ## The stand-ins' state, as their real doers keep it.
 var _carry := false
 var _station := false
-var _work := 0
+## The station work the arms do: an index of WORKS (Tab steps it).
+var station_work := 0
 var _letting_go := 0.0
 var _rod := false
 var _potato := false
 var _bite := 0.0
-var _time := 0.0
+## The bench's clock, seconds: the gestures move with it. A probe sets it
+## to draw one phase.
+var clock := 0.0
 var _said := ""
 var _catches := 0
 var _caught := ""
+
+## Seconds left of the bite of the potato, 0 when the mouth is free.
+func bite_left() -> float:
+	return _bite
+
+## Shows or hides the overlay of who has the hands (F1).
+func show_overlay(on: bool) -> void:
+	_overlay_layer.visible = on
 
 func _ready() -> void:
 	_build_world()
@@ -154,7 +165,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_2:
 			_station = _brewery_toggle(_station)
 		KEY_TAB:
-			_work = (_work + 1) % WORKS.size()
+			station_work = (station_work + 1) % WORKS.size()
 		KEY_3:
 			_throw()
 		KEY_4:
@@ -178,10 +189,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 
 func _process(delta: float) -> void:
-	_time += delta
+	clock += delta
 	_letting_go = maxf(_letting_go - delta, 0.0)
 	_lake.rod.visible = _rod
-	_lake.rod.rotation.z = sin(_time * 0.8) * 0.03
+	_lake.rod.rotation.z = sin(clock * 0.8) * 0.03
 	_potato_node.visible = _potato and not player.viewmodel.drinking()
 	_potato_node.position = POTATO_AT + Vector3.UP * sin(_bite * PI / BITE_SECONDS) * 0.10
 	_place_arms(delta)
@@ -195,21 +206,21 @@ func _process(delta: float) -> void:
 # ---- The brewer's arms ---------------------------------------------------------
 
 ## The arms on the log or at the work while the brewery's stand-in has the
-## hands, as BrewHouse._place_hands puts them (while letting go they keep
+## hands, as BrewBody._place_hands puts them (while letting go they keep
 ## their place with the fingers open); on the rod and under the potato as
 ## LakesideSystem and CampSystem put them.
 func _place_arms(delta: float) -> void:
 	var frame := player.eye_frame()
 	var arms := player.arms
 	_log.visible = _carry
-	_log.global_transform = Transform3D(frame.basis, frame * (LOG_AT + Vector3.UP * sin(_time * 3.0) * 0.01))
+	_log.global_transform = Transform3D(frame.basis, frame * (LOG_AT + Vector3.UP * sin(clock * 3.0) * 0.01))
 	var lines: Array[Vector3] = []
 	if player.hands.has(BodyChannels.BREWERY):
 		var shoulders := player.stand_arms()
 		if _letting_go <= 0.0:
 			arms.reach(_hands(frame, shoulders))
 			if _station and not _carry:
-				for point: Vector3 in work_pose(_work, _time).tool:
+				for point: Vector3 in work_pose(station_work, clock).tool:
 					lines.append(frame * point)
 		arms.pose(delta)
 	_draw_tool(lines)
@@ -233,10 +244,12 @@ func _hands(frame: Transform3D, shoulders: Array[Vector3]) -> Array[Dictionary]:
 			var out := right * (LOG_HANDS if side == BrewHands.RIGHT else -LOG_HANDS)
 			hands.append(BrewHands.hand(side, middle + out + Vector3.DOWN * LOG_RADIUS, right, shoulders[side], right, "hold", true))
 	elif _station:
-		for hold: Dictionary in work_pose(_work, _time).hands:
+		for hold: Dictionary in work_pose(station_work, clock).hands:
 			var side: int = hold.side
-			hands.append(BrewHands.hand(side, frame * (hold.at as Vector3), frame.basis * (hold.along as Vector3),
-				shoulders[side], right, str(hold.clip), bool(hold.get("under", false))))
+			var at: Vector3 = hold.at
+			var along: Vector3 = hold.along
+			hands.append(BrewHands.hand(side, frame * at, frame.basis * along,
+				shoulders[side], right, str(hold.clip), Values.flag(hold.get("under", false))))
 	return hands
 
 ## One pose of station work `work` at time `t`, in the eye's frame (x right,
@@ -333,11 +346,11 @@ func _draw_tool(points: Array[Vector3]) -> void:
 
 # ---- Stand-ins -----------------------------------------------------------------
 
-## BrewHouse._at_work: a thing held, a station worked, or the fingers still letting go.
+## BrewBody.at_work: a thing held, a station worked, or the fingers still letting go.
 func _brewery_busy() -> bool:
 	return _carry or _station or _letting_go > 0.0
 
-## Carry or station on or off, as BrewHouse._take / _enter_station do; the
+## Carry or station on or off, as BrewCarrying.take / BrewWork.enter_station do; the
 ## hands go back once the arms are gone (_brewery_done). Returns the new state.
 func _brewery_toggle(on: bool) -> bool:
 	if on:
@@ -347,19 +360,19 @@ func _brewery_toggle(on: bool) -> bool:
 		return true
 	return false
 
-## Each frame after the arms are placed, as BrewHouse._place_hands.
+## Each frame after the arms are placed, as BrewBody._place_hands.
 func _brewery_done() -> void:
 	if not _brewery_busy():
 		player.hands.release(BodyChannels.BREWERY)
 
-## BrewHouse._let_log_go and throw_log: the log flies, the fingers open for LET_GO.
+## BrewCarrying.throw_log and throw_held: the log flies, the fingers open for LET_GO.
 func _throw() -> void:
 	if not _carry:
 		_set_said("Нечего бросать: 1 — взять полено.")
 		return
 	_carry = false
 	player.arms.let_go()
-	_letting_go = BrewHouse.LET_GO
+	_letting_go = BrewBody.LET_GO
 	var flight := Node3D.new()
 	flight.top_level = true
 	CampProps.log_mesh(flight, Vector3.ZERO, LOG_LENGTH, LOG_RADIUS, PI / 2.0)
@@ -368,7 +381,7 @@ func _throw() -> void:
 	var tween := create_tween()
 	tween.tween_property(flight, "global_position", flight.global_position - player.eye_frame().basis.z * 3.0 + Vector3.DOWN * 1.2, 0.5)
 	tween.tween_callback(flight.queue_free)
-	_set_said("Бросок: пальцы разжаты %.1f с." % BrewHouse.LET_GO)
+	_set_said("Бросок: пальцы разжаты %.1f с." % BrewBody.LET_GO)
 
 func _rod_toggle() -> void:
 	if _rod:
@@ -449,7 +462,7 @@ func _overlay() -> String:
 	lines.append("Левая рука: %s" % _who(hands.holder(BodyChannels.LEFT_HAND), "свободна"))
 	lines.append("Рот: %s" % _who(hands.holder(BodyChannels.MOUTH), "свободен"))
 	lines.append("Кружка на экране: %s   Пиво: %d %%" % ["да" if player.viewmodel.visible else "нет", roundi(player.viewmodel.fill() * 100.0)])
-	lines.append("Работа на станции: %s" % WORKS[_work])
+	lines.append("Работа на станции: %s" % WORKS[station_work])
 	lines.append("")
 	lines.append("Моки: полено %s · станция %s · разжатие %s · удочка %s · картошка %s · укус %s" % [
 		_mark(_carry), _mark(_station), _mark(_letting_go > 0.0), _mark(_rod), _mark(_potato), _mark(_bite > 0.0)])

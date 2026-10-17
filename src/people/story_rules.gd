@@ -25,7 +25,7 @@ static func matches(context: Dictionary, moment: Dictionary) -> bool:
 ## Whether the story may sound at the moment: its context matches and, for a
 ## shared story, the one it is told with is in the company.
 static func fits(story: Dictionary, moment: Dictionary) -> bool:
-	if not matches(story.context, moment):
+	if not matches(Values.table(story.context), moment):
 		return false
 	var partner: String = story.get("with", "")
 	if partner.is_empty():
@@ -64,11 +64,11 @@ static func choose(stories: Array[Dictionary], bond: Acquaintance, moment: Dicti
 	var best: Dictionary = {}
 	var best_rank := -1
 	for story: Dictionary in stories:
-		if story.circle > bond.circle or bond.state(story.id) == Acquaintance.TOLD or not fits(story, moment):
+		if story.circle > bond.circle or bond.state(str(story.id)) == Acquaintance.TOLD or not fits(story, moment):
 			continue
 		var partner: String = story.get("with", "")
-		var seldom: int = rarity(story.context) + (0 if partner.is_empty() else SHARED_RARITY)
-		var rank: int = (10000 if bond.heard(story.id) >= 0 else 0) + seldom * 100 + story.circle
+		var seldom: int = rarity(Values.table(story.context)) + (0 if partner.is_empty() else SHARED_RARITY)
+		var rank: int = (10000 if bond.heard(str(story.id)) >= 0 else 0) + seldom * 100 + story.circle
 		if rank > best_rank:
 			best_rank = rank
 			best = story

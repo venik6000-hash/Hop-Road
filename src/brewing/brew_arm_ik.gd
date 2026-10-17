@@ -61,10 +61,10 @@ func _process_modification_with_delta(_delta: float) -> void:
 		return
 	for index in SIDES.size():
 		if weights[index] > 0.0:
-			placed[index] = _solve(skeleton, SIDES[index], targets[index], weights[index], POLES[index])
+			placed[index] = solve(skeleton, SIDES[index], targets[index], weights[index], POLES[index])
 
 ## Bends arm `side` to `target`; returns where the hand was put.
-func _solve(skeleton: Skeleton3D, side: String, target: Transform3D, weight: float, pole: Vector3) -> Transform3D:
+func solve(skeleton: Skeleton3D, side: String, target: Transform3D, weight: float, pole: Vector3) -> Transform3D:
 	var upper := skeleton.find_bone(UPPER % side)
 	var fore := skeleton.find_bone(FORE % side)
 	var hand := skeleton.find_bone(HAND % side)

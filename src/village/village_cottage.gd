@@ -31,7 +31,7 @@ static func entries(path: String) -> Array:
 	if path.is_empty():
 		return []
 	var data: Variant = DataFile.read(path, BuildingSchemas.cottages())
-	return (data as Dictionary).get("cottages", []) if data is Dictionary else []
+	return Values.table(data).get("cottages", []) if data is Dictionary else []
 
 ## Whether the map's chimney smoke at `origin` is the smoke of the old house
 ## this cottage stands in place of (its entry's `smoke`). After install().
@@ -39,17 +39,17 @@ func hides_smoke(origin: Array) -> bool:
 	if not spec.has("smoke"):
 		return false
 	var at: Array = table.origin
-	return Vector2(float(origin[0]) - float(at[0]), float(origin[2]) - float(at[2])).length() < float(spec.smoke)
+	return Vector2(Values.real(origin[0]) - Values.real(at[0]), Values.real(origin[2]) - Values.real(at[2])).length() < Values.real(spec.smoke)
 
 func install(map: Node3D, sky_system: SkySystem, village_plan: Dictionary) -> void:
 	sky = sky_system
 	var key: String = spec.key
-	table = DataFile.read(spec.table, BuildingSchemas.cottage())
+	table = DataFile.read(str(spec.table), BuildingSchemas.cottage())
 	var pose := LAYOUT.cottage_pose(village_plan, key)
-	var origin := Vector3(table.origin[0], table.origin[1], table.origin[2])
+	var origin := Values.vec3(table.origin)
 	var materials := MATERIALS.build(table, (pose * origin).y)
 	# Resolve the replacement before removing any source geometry.
-	var scene := (load(spec.scene) as PackedScene).instantiate() as Node3D
+	var scene := (load(str(spec.scene)) as PackedScene).instantiate() as Node3D
 	scene.transform = LAYOUT.cottage_shift(village_plan, key)
 	add_child(scene)
 	for item: MeshInstance3D in scene.find_children("*", "MeshInstance3D", true, false):
@@ -57,7 +57,8 @@ func install(map: Node3D, sky_system: SkySystem, village_plan: Dictionary) -> vo
 		for surface in item.mesh.get_surface_count():
 			var material := item.mesh.surface_get_material(surface)
 			if material != null and materials.has(material.resource_name):
-				item.set_surface_override_material(surface, materials[material.resource_name])
+				var dressed: Material = materials[material.resource_name]
+				item.set_surface_override_material(surface, dressed)
 		MATERIALS.leave_out_of_lantern_shadows(item)
 		item.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 		var extras: Dictionary = item.get_meta("extras", {})
@@ -70,16 +71,16 @@ func install(map: Node3D, sky_system: SkySystem, village_plan: Dictionary) -> vo
 			item.add_child(body)
 			collision_count += 1
 	for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
-		if RockField.label_of(item).begins_with(table.replaces_prefix):
+		if RockField.label_of(item).begins_with(str(table.replaces_prefix)):
 			item.get_parent().remove_child(item)
 			item.queue_free()
 			replaced += 1
 	if spec.has("ramp"):
-		_add_stair_ramp(spec.ramp, pose, origin)
+		_add_stair_ramp(Values.table(spec.ramp), pose, origin)
 	var light: Dictionary = spec.lantern
 	lantern = OmniLight3D.new()
 	lantern.name = light.name
-	lantern.position = pose * Vector3(table.lantern[0], table.lantern[1], table.lantern[2])
+	lantern.position = pose * Values.vec3(table.lantern)
 	lantern.light_color = LANTERN_COLOR
 	lantern.omni_range = light.range
 	_energy = light.energy
@@ -87,7 +88,7 @@ func install(map: Node3D, sky_system: SkySystem, village_plan: Dictionary) -> vo
 	lantern.shadow_enabled = true
 	# As the tavern's lanterns: swaying plants and the tavern's ivy would
 	# redraw the shadow map every frame.
-	lantern.shadow_caster_mask = 0xFFFFFFFF & ~VegetationSystem.VISUAL_LAYER & ~TavernSystem.LAYER & ~TavernSystem.SUN_LAYERS
+	lantern.shadow_caster_mask = 0xFFFFFFFF & ~VegetationSystem.VISUAL_LAYER & ~LightLayers.ROOMS & ~LightLayers.SUN_ONLY
 	FarLights.fade(lantern, "lantern")
 	lantern.add_to_group(AtmosphereFog.LAMP_GROUP)
 	add_child(lantern)
@@ -99,7 +100,7 @@ func install(map: Node3D, sky_system: SkySystem, village_plan: Dictionary) -> vo
 func _add_stair_ramp(ramp: Dictionary, pose: Transform3D, origin: Vector3) -> void:
 	var points := PackedVector3Array()
 	for point: Array in ramp.points:
-		points.append(Vector3(point[0], point[1], point[2]))
+		points.append(Values.vec3(point))
 	var hull := ConvexPolygonShape3D.new()
 	hull.points = points
 	var holder := CollisionShape3D.new()

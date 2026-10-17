@@ -10,36 +10,11 @@ extends Node3D
 ## that only the plants round the walker are drawn in full.
 
 const ImageUtil = preload("res://src/common/image_util.gd")
-const DIRECTORY := "res://assets/models/flora/"
 const SHADER := preload("res://src/village/village_foliage.gdshader")
 const TILE := 16.0
 ## How far a plant shows (m) unless it names its own `view`: about where the
 ## grass blades end, beyond which a knee-high plant is a few pixels.
 const VIEW := 42.0
-## Plant: model, variants no heavier than `tris`, scale range, sway, shadow.
-const PLANTS := {
-	"fern": {"model": "fern_02", "tris": 2400, "scale": Vector2(0.8, 1.5), "sway": 0.05},
-	"nettle": {"model": "nettle_plant", "tris": 6000, "scale": Vector2(3.5, 6.0), "sway": 0.3},
-	"periwinkle": {"model": "periwinkle_plant", "tris": 5400, "scale": Vector2(1.0, 1.5), "sway": 0.08},
-	"dandelion": {"model": "dandelion_01", "tris": 3200, "scale": Vector2(1.0, 1.6), "sway": 0.1},
-	"celandine": {"model": "celandine_01", "tris": 4400, "scale": Vector2(1.1, 1.8), "sway": 0.1},
-	"weed": {"model": "weed_plant_02", "tris": 3000, "scale": Vector2(1.2, 2.2), "sway": 0.05},
-	"tuft": {"model": "grass_medium_01", "tris": 2400, "least": 250, "scale": Vector2(1.6, 2.8), "sway": 0.25},
-	"tall_grass": {"model": "grass_medium_02", "tris": 2500, "scale": Vector2(1.3, 2.3), "sway": 0.2},
-	"sprig": {"model": "shrub_03", "tris": 2400, "scale": Vector2(1.6, 2.6), "sway": 0.12},
-	"shrub": {"model": "shrub_02", "tris": 9500, "scale": Vector2(0.75, 1.25), "sway": 0.02, "shadow": true,
-		"view": 70.0},
-}
-## What grows where, by relative odds.
-const MIXES := {
-	"wall": {"nettle": 3.0, "tall_grass": 3.0, "fern": 2.0, "tuft": 2.0, "periwinkle": 1.5, "weed": 1.0,
-		"celandine": 1.0, "sprig": 1.0, "shrub": 0.45},
-	"bank": {"fern": 3.5, "tall_grass": 3.0, "tuft": 2.0, "celandine": 1.5, "periwinkle": 1.2, "nettle": 1.0,
-		"sprig": 1.0, "shrub": 0.35},
-	"verge": {"tuft": 3.0, "dandelion": 2.5, "celandine": 2.0, "weed": 2.0, "tall_grass": 1.5, "periwinkle": 0.8},
-	"green": {"tuft": 3.0, "tall_grass": 2.5, "celandine": 1.5, "dandelion": 1.5, "periwinkle": 1.0, "fern": 0.8,
-		"sprig": 1.0, "shrub": 0.5},
-}
 ## The village green the loose plants cover (x, z).
 const GREEN := Rect2(-34.0, -90.0, 66.0, 74.0)
 
@@ -49,7 +24,10 @@ var village_plan: Dictionary
 var map: Node3D
 var plant_count := 0
 var ready_for_visitors := false
-var auto_grow := true
+
+## The plants and what grows where (FloraTable).
+var plants: Dictionary = {}
+var mixes: Dictionary = {}
 
 var _variants := {}   # plant -> [{mesh, base: Transform3D}]
 var _batches := {}    # "plant/variant/tile" -> {mesh, plant, origin, poses, tones}
@@ -59,20 +37,16 @@ var _control: Image
 var _mask_origin := Vector2.ZERO
 var _mask_cell := 1.0
 
-func _ready() -> void:
-	# After every building, stone and prop has its collider.
-	if auto_grow:
-		_grow.call_deferred()
-
-func _grow() -> void:
+func grow_plants() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	var start := Time.get_ticks_usec()
 	_load_plants()
 	var config: Dictionary = terrain.meta.masks
-	_mask_origin = Vector2(config.origin[0], config.origin[1])
+	_mask_origin = Values.vec2(config.origin)
 	_mask_cell = config.cell
-	_control = ImageUtil.rgba8(terrain.material.get_shader_parameter("near_control"))
+	var control: Texture2D = terrain.material.get_shader_parameter("near_control")
+	_control = ImageUtil.rgba8(control)
 	var paths: Array = village_plan.paths
 	_lanes = paths.duplicate()
 	_lanes.append({"points": village_plan.main_road})
@@ -92,15 +66,18 @@ func _grow() -> void:
 		(Time.get_ticks_usec() - start) / 1e6])
 
 func _load_plants() -> void:
-	for plant: String in PLANTS:
-		var spec: Dictionary = PLANTS[plant]
-		var scene := (load("%s%s/%s_1k.gltf" % [DIRECTORY, spec.model, spec.model]) as PackedScene).instantiate()
+	var table := FloraTable.read()
+	plants = table.plants
+	mixes = table.mixes
+	for plant: String in plants:
+		var spec: Dictionary = plants[plant]
+		var scene := (load(FloraTable.model_path(str(spec.model))) as PackedScene).instantiate()
 		var list := []
 		for item: MeshInstance3D in scene.find_children("*", "MeshInstance3D", true, false):
 			var faces := 0
 			for surface in item.mesh.get_surface_count():
 				faces += (item.mesh as ArrayMesh).surface_get_array_index_len(surface) / 3
-			if faces > int(spec.tris) or faces < int(spec.get("least", 0)):
+			if faces > Values.whole(spec.tris) or faces < Values.whole(spec.get("least", 0)):
 				continue
 			# Each variant stands on its own base point, whatever its place in the scan sheet.
 			var basis := item.transform.basis
@@ -170,8 +147,8 @@ func _grow_verges(rng: RandomNumberGenerator) -> void:
 	for lane: Dictionary in _lanes:
 		var points: Array = lane.points
 		for i in range(points.size() - 1):
-			var a := Vector2(points[i][0], points[i][1])
-			var b := Vector2(points[i + 1][0], points[i + 1][1])
+			var a := Values.vec2(points[i])
+			var b := Vector2(Values.real(points[i + 1][0]), Values.real(points[i + 1][1]))
 			var side := (b - a).normalized().orthogonal()
 			for k in int(a.distance_to(b) * 2.6):
 				var hand := 1.0 if rng.randf() < 0.5 else -1.0
@@ -194,18 +171,20 @@ func _plant(mix: String, at: Vector2, rng: RandomNumberGenerator, vigour: float)
 	var yaw := rng.randf() * TAU
 	var pick := rng.randi()
 	var tone := Color.from_hsv(rng.randf_range(0.2, 0.3), rng.randf_range(0.0, 0.16), rng.randf_range(0.8, 1.0))
-	var plant := _pick(MIXES[mix], roll)
+	var plant := _pick(Values.table(mixes.get(mix, {})), roll)
 	var shrub: bool = plant == "shrub"
 	if not _open(at, 0.9 if shrub else 0.25, mix == "bank"):
 		return
-	var list: Array = _variants[plant]
+	var list: Array = _variants.get(plant, [])
 	if list.is_empty():
 		return
 	var variant: Dictionary = list[pick % list.size()]
-	var spec: Dictionary = PLANTS[plant]
-	var size: float = lerpf(spec.scale.x, spec.scale.y, grow) * vigour
+	var spec: Dictionary = plants[plant]
+	var span: Array = spec.scale
+	var size := lerpf(Values.real(span[0]), Values.real(span[1]), grow) * vigour
 	var y := terrain.height_at(at.x, at.y) - 0.03
-	var pose := Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * size), Vector3(at.x, y, at.y)) * (variant.base as Transform3D)
+	var base: Transform3D = variant.base
+	var pose := Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * size), Vector3(at.x, y, at.y)) * base
 	var tile := Vector2i(floori(at.x / TILE), floori(at.y / TILE))
 	var key := "%s/%d/%s" % [plant, pick % list.size(), tile]
 	if not _batches.has(key):
@@ -220,6 +199,8 @@ func _plant(mix: String, at: Vector2, rng: RandomNumberGenerator, vigour: float)
 	plant_count += 1
 
 func _pick(odds: Dictionary, roll: float) -> String:
+	if odds.is_empty():
+		return ""
 	var total := 0.0
 	for plant: String in odds:
 		total += odds[plant]
@@ -241,17 +222,18 @@ func _open(at: Vector2, clear: float, bank: bool) -> bool:
 	if control.r > 0.35 or (control.g > 0.55 and not bank):
 		return false
 	for row: Dictionary in terrain.course(VillageBrook.BROOK):
-		if Vector2(row.at.x - at.x, row.at.z - at.y).length() < float(row.half) + 0.2 + clear * 0.5:
+		if Vector2(Values.real(row.at.x - at.x), Values.real(row.at.z - at.y)).length() < Values.real(row.half) + 0.2 + clear * 0.5:
 			return false
 	for lane: Dictionary in _lanes:
 		var points: Array = lane.points
 		for i in range(points.size() - 1):
-			var near := Geometry2D.get_closest_point_to_segment(at, Vector2(points[i][0], points[i][1]),
-				Vector2(points[i + 1][0], points[i + 1][1]))
+			var near := Geometry2D.get_closest_point_to_segment(at, Values.vec2(points[i]),
+				Vector2(Values.real(points[i + 1][0]), Values.real(points[i + 1][1])))
 			if near.distance_to(at) < 1.25 + clear:
 				return false
 	for house: Dictionary in _houses:
-		var local: Vector3 = (house.inverse as Transform3D) * Vector3(at.x, 0.0, at.y)
+		var inverse: Transform3D = house.inverse
+		var local: Vector3 = inverse * Vector3(at.x, 0.0, at.y)
 		var box: AABB = house.box
 		if local.x > box.position.x - 0.2 and local.x < box.end.x + 0.2 and local.z > box.position.z - 0.2 and local.z < box.end.z + 0.2:
 			return false
@@ -259,7 +241,7 @@ func _open(at: Vector2, clear: float, bank: bool) -> bool:
 	var y := terrain.height_at(at.x, at.y)
 	var ray := PhysicsRayQueryParameters3D.create(Vector3(at.x, y + 12.0, at.y), Vector3(at.x, y - 0.4, at.y), PhysicsLayers.GROUND)
 	var hit := get_world_3d().direct_space_state.intersect_ray(ray)
-	return not hit.is_empty() and hit.collider != null and String(hit.collider.name).begins_with("TerrainBody")
+	return PhysicsLayers.hit_terrain(hit)
 
 func _build() -> void:
 	for batch: Dictionary in _batches.values():
@@ -270,13 +252,15 @@ func _build() -> void:
 		var poses: Array = batch.poses
 		multimesh.instance_count = poses.size()
 		for i: int in poses.size():
-			multimesh.set_instance_transform(i, poses[i])
-			multimesh.set_instance_color(i, batch.tones[i])
+			var pose: Transform3D = poses[i]
+			var tone: Color = batch.tones[i]
+			multimesh.set_instance_transform(i, pose)
+			multimesh.set_instance_color(i, tone)
 		var node := MultiMeshInstance3D.new()
 		node.name = "Flora_%s" % batch.plant
 		node.multimesh = multimesh
 		node.position = batch.origin
-		var spec: Dictionary = PLANTS[batch.plant]
+		var spec: Dictionary = plants[batch.plant]
 		node.visibility_range_end = spec.get("view", VIEW)
 		node.visibility_range_end_margin = 8.0
 		node.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF

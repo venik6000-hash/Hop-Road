@@ -5,11 +5,12 @@ extends TavernSystem
 ## It is the tavern's loader on another table. The pieces are dressed the same
 ## way (materials by the names the glTF surfaces carry, layers, doors on their
 ## hinges, colliders by the `tav_*` properties), the lights and the probes
-## over the rooms are the tavern's kinds; all of it in the building's own
-## frame, at the table's origin and yaw. A fire the table gives `hours` burns
-## for that part of the day only: the forge's, the smith's candle. With the
-## lamp of a fire the table draws (`fires`) go its flames and the hot air
-## over them, the smoke of its vent and its glow from afar. What the table
+## over the rooms are InteriorLamps', the rooms an Interior of the level's;
+## all of it in the building's own frame, at the table's origin and yaw. A
+## fire the table gives `hours` burns for that part of the day only: the
+## forge's, the smith's candle. With the lamp of a fire the table draws
+## (`fires`) go its flames and the hot air over them, the smoke of its vent
+## and its glow from afar. What the table
 ## has moving (`turning`, `moving`, `vanes`) is BuildingMachinery's, and a
 ## fire the bellows blow flares with their air; its `water` is MillWater's.
 ## The brewing a table's `utensils` serve is BrewHouse's.
@@ -24,6 +25,8 @@ const WINDOW_GLOW := Color(1.0, 0.64, 0.34)
 ## a metre of stone; a wall here may be a board, and a probe that reached
 ## through it would give the wall's weather side the room's darkness.
 const PROBE_REACH := 0.12
+## The profile of the rooms (assets/light/profiles.json).
+const PROFILE := "hall"
 ## A fire under a full draught of the bellows: how much taller its flames
 ## stand, and how much brighter its lamps burn.
 const FLARE := 0.45
@@ -33,8 +36,10 @@ const FLARE_LIGHT := 0.6
 var table: Dictionary
 ## The turning light, where the table has an `optic` (the lighthouse).
 var optic: LighthouseOptic
-## What the building's pieces take up, in world space.
-var bounds := AABB()
+## The lamps and the probes of the table, and its rooms (an Interior of the
+## level's while it has rooms).
+var lamps: InteriorLamps
+var interior: Interior
 ## The falls, whose water a mill's is (the table's `water`); set before it
 ## enters the tree.
 var falls: WaterfallSystem
@@ -48,7 +53,7 @@ var brew_house: BrewHouse
 ## fires, plumes, glows (FarLights' indices)}.
 var _kept := {}
 ## The table's `fires`: {fire: HearthFire, blown (the machinery's group whose
-## air it takes), flames (its lamps' places in _flames), draught}.
+## air it takes), lamps (its lamps' names), draught}.
 var _fires: Array[Dictionary] = []
 ## The lamps that leave what never stands outdoors to a twin: {lamp, twin}.
 var _twins: Array[Dictionary] = []
@@ -58,19 +63,20 @@ func _ready() -> void:
 	var start := Time.get_ticks_usec()
 	transform = VILLAGE_BUILDINGS.pose(table)
 	add_to_group(GROUP)
-	_body = StaticBody3D.new()
-	_body.name = "Solid"
+	body = StaticBody3D.new()
+	body.name = "Solid"
 	# TavernCollision sets each shape by its piece's place in the world.
-	_body.top_level = true
-	add_child(_body)
-	_has_interior = true
-	TAVERN_MATERIALS.build(table, position.y, _materials)
+	body.top_level = true
+	add_child(body)
+	has_interior = true
+	TAVERN_MATERIALS.build(table, position.y, materials)
 	if table.has("optic"):
 		optic = LighthouseOptic.new()
 		optic.name = "Optic"
 		optic.sky_system = sky_system
+		optic.interiors = world.interiors if world != null else null
 		add_child(optic)
-		optic.configure(table.optic)
+		optic.configure(Values.table(table.optic))
 	if table.has("turning") or table.has("moving") or table.has("vanes"):
 		machinery = BuildingMachinery.new()
 		machinery.name = "Machinery"
@@ -84,7 +90,7 @@ func _ready() -> void:
 		add_child(brew_house)
 	var scenes: Dictionary = table.scenes
 	for part: String in scenes:
-		var scene := (load(scenes[part]) as PackedScene).instantiate() as Node3D
+		var scene := (load(str(scenes[part])) as PackedScene).instantiate() as Node3D
 		scene.name = part.to_pascal_case()
 		add_child(scene)
 		var room := part == "interior"
@@ -93,7 +99,7 @@ func _ready() -> void:
 			bounds = box if mesh_count == 0 else bounds.merge(box)
 			TAVERN_DRESSING.dress(self, item, room)
 			if not room and stands_outdoors(str(item.name), table):
-				item.layers &= ~LAYER
+				item.layers &= ~LightLayers.ROOMS
 		# The flames the model has stand for the pictures: the game draws its own.
 		if table.has("fires"):
 			TAVERN_DRESSING.remove_replaced_fire(scene)
@@ -106,62 +112,70 @@ func _ready() -> void:
 		_batch(scene, room)
 	var hours: Dictionary = table.get("hours", {})
 	for kept: String in hours:
-		_kept[kept] = {"from": float(hours[kept][0]), "to": float(hours[kept][1]), "lit": -1, "lamps": [], "fires": [],
+		_kept[kept] = {"from": Values.real(hours[kept][0]), "to": Values.real(hours[kept][1]), "lit": -1, "lamps": [], "fires": [],
 			"plumes": [], "glows": []}
+	lamps = InteriorLamps.new()
+	lamps.name = "Lamps"
+	lamps.sky = sky_system
+	add_child(lamps)
 	for config: Dictionary in table.get("lights", []):
-		TAVERN_LIGHTS.add_light(self, config)
-		# TavernLights gives a lamp outdoors a shadow by the tavern's own bounds.
-		var light := get_child(get_child_count() - 1) as Light3D
-		light.shadow_enabled = config.shadow or config.get("layer", "interior") == "interior"
+		var light := lamps.add_light(config)
 		if _kept.has(config.name):
-			var lamps: Array = _kept[config.name].lamps
-			lamps.append(light)
+			var kept_lamps: Array = _kept[config.name].lamps
+			kept_lamps.append(light)
 		if light.shadow_enabled and config.get("layer", "interior") == "exterior":
 			_twins.append({"lamp": light, "twin": twin_for_the_restless(light)})
 	for config: Dictionary in table.get("fires", []):
 		_add_fire(config)
+	interior = Interior.new(str(name), global_transform, bounds)
+	interior.lamps = lamps
+	lamps.interior = interior
 	for config: Dictionary in table.get("probes", []):
-		TAVERN_LIGHTS.add_probe(self, config)
-		_room_probes[-1].size = probe_size(config.extents)
+		var room := room_of_probe(config)
+		interior.rooms.append(room)
+		lamps.add_probe(room, str(config.name))
+	if world != null:
+		if not interior.rooms.is_empty():
+			world.interiors.add(interior)
+		# The lighthouse's beam reaches far past its tower: it is always drawn.
+		if optic == null and bounds.has_volume():
+			world.interiors.watch(self, bounds.grow(InteriorSight.LAMP_REACH))
 	if table.has("water") and falls != null:
 		var water := MillWater.new()
 		water.name = "Water"
 		add_child(water)
-		water.build(table.water, falls, falls.water.water_level if falls.water != null else 0.0)
+		water.build(Values.table(table.water), falls, falls.water.water_level if falls.water != null else 0.0)
+	lamps.await_probes()
 	_process(0.0)
+	lamps._process(0.0)
 	print("BUILDING %s meshes=%d materials=%d lights=%d doors=%d bodies=%d load=%.2fs" % [name, mesh_count,
-		_materials.size(), _flames.size() + _lanterns.size(), doors.size(), bodies,
+		materials.size(), lamps.flames.size() + lamps.lanterns.size(), doors.size(), bodies,
 		(Time.get_ticks_usec() - start) / 1e6])
 
 ## A fire of the table's `fires`: flames with hot air over them (HearthFire)
 ## along `along` at `at`, `width` across and `height` tall.
 func _add_fire(config: Dictionary) -> void:
-	var fire := HearthFire.new()
-	fire.name = str(config.name).to_pascal_case() + "Flames"
+	var fire := HearthFire.from_table(config)
 	add_child(fire)
-	fire.configure(_vector(config.at), _vector(config.along), config.width, config.height)
-	var lamps: Array = config.get("lamps", [])
-	var flames: Array[int] = []
-	for index in _flames.size():
-		if str((_flames[index].light as Light3D).name) in lamps:
-			flames.append(index)
-	_fires.append({"fire": fire, "blown": str(config.get("blown", "")), "flames": flames, "draught": 0.0})
+	_fires.append({"fire": fire, "blown": str(config.get("blown", "")),
+		"lamps": PackedStringArray(Values.list(config.get("lamps", []))), "draught": 0.0})
 	if _kept.has(config.name):
 		var fires: Array = _kept[config.name].fires
 		fires.append(fire)
 
-func _process(delta: float) -> void:
-	super(delta)
+func _process(_delta: float) -> void:
 	for entry: Dictionary in _fires:
 		_blow(entry)
 	for pair: Dictionary in _twins:
-		(pair.twin as Light3D).light_energy = (pair.lamp as Light3D).light_energy
+		var twin: Light3D = pair.twin
+		var lamp: Light3D = pair.lamp
+		twin.light_energy = lamp.light_energy
 	if sky_system == null:
 		return
 	var hour := sky_system.time_of_day
 	for kept: Dictionary in _kept.values():
-		var lit := burns(hour, kept.from, kept.to)
-		if int(lit) == int(kept.lit):
+		var lit := burns(hour, Values.real(kept.from), Values.real(kept.to))
+		if Values.whole(lit) == Values.whole(kept.lit):
 			continue
 		kept.lit = int(lit)
 		for lamp: Light3D in kept.lamps:
@@ -177,24 +191,23 @@ func _process(delta: float) -> void:
 func _blow(entry: Dictionary) -> void:
 	if machinery == null or entry.blown == "":
 		return
-	var draught := machinery.draught(entry.blown)
-	if draught == float(entry.draught):
+	var draught := machinery.draught(str(entry.blown))
+	if draught == Values.real(entry.draught):
 		return
 	entry.draught = draught
 	var fire: HearthFire = entry.fire
 	fire.scale = Vector3.ONE * (1.0 + FLARE * draught)
 	fire.haze_strength = 1.0 + draught
-	for index: int in entry.flames:
-		if index < _flame_energies.size():
-			_flame_energies[index] = float(_flames[index].energy) * (1.0 + FLARE_LIGHT * draught)
+	for lamp: String in entry.lamps:
+		lamps.set_strength(lamp, 1.0 + FLARE_LIGHT * draught)
 
 ## The lamp of the table named `lamp` burns at `strength` of its light: a
 ## fire stoked or let die (BrewHouse). At 0 it is out.
 func stoke(lamp: String, strength: float) -> void:
-	for index in mini(_flames.size(), _flame_energies.size()):
-		var light := _flames[index].light as Light3D
+	lamps.set_strength(lamp, strength)
+	for flame: Dictionary in lamps.flames:
+		var light: Light3D = flame.light
 		if str(light.name) == lamp:
-			_flame_energies[index] = float(_flames[index].energy) * strength
 			light.visible = strength > 0.01
 
 ## The wind blows along `wind_heading` (OceanFFT.wind_direction_deg, in
@@ -205,29 +218,34 @@ func take_wind(wind_heading: float) -> void:
 
 ## A lamp outdoors that casts a shadow would draw its map again in every
 ## frame beside a wheel that never stands or a goat that grazes
-## (TavernSystem.RESTLESS_LAYER). It leaves them out of its light; its twin,
+## (LightLayers.RESTLESS). It leaves them out of its light; its twin,
 ## the lamp once more with no shadow, lights nothing else. The twin is the
 ## lamp's child: it is lit and put out with it.
 static func twin_for_the_restless(lamp: Light3D) -> Light3D:
-	lamp.light_cull_mask &= ~TavernSystem.RESTLESS_LAYER
+	lamp.light_cull_mask &= ~LightLayers.RESTLESS
 	var twin := lamp.duplicate(0) as Light3D
 	twin.name = "OnTheRestless"
 	twin.transform = Transform3D.IDENTITY
 	twin.shadow_enabled = false
-	twin.light_cull_mask = TavernSystem.RESTLESS_LAYER
+	twin.light_cull_mask = LightLayers.RESTLESS
 	lamp.add_child(twin)
 	return twin
 
-## The box of the probe over a room of these half-extents.
-static func probe_size(extents: Array) -> Vector3:
-	return (Vector3(extents[0], extents[1], extents[2]) + Vector3.ONE * PROBE_REACH) * 2.0
+## The room under a row of the table's `probes`: its air, PROBE_REACH past it
+## on every side.
+static func room_of_probe(config: Dictionary) -> Interior.Room:
+	var half := Values.vec3(config.extents)
+	var air: Array[AABB] = [AABB(Values.vec3(config.position) - half, half * 2.0)]
+	var a: Array = config.ambient
+	return Interior.Room.new(str(config.room), air, Vector3.ONE * PROBE_REACH, air[0].position.y, LightProfile.named(PROFILE),
+		Color(Values.real(a[0]), Values.real(a[1]), Values.real(a[2])))
 
 ## Whether the shell's piece `piece` stands outside every room (the table's
 ## `outdoors`, by how the names begin). Such a piece takes no room's probe
 ## and no room's lamp: a round tower's stone lies in the corners of the box
 ## its stair's probe is.
 static func stands_outdoors(piece: String, table: Dictionary) -> bool:
-	return VILLAGE_BUILDINGS.begins(piece, PackedStringArray(table.get("outdoors", [])))
+	return VILLAGE_BUILDINGS.begins(piece, PackedStringArray(Values.list(table.get("outdoors", []))))
 
 ## Whether a fire kept from `from` to `to` (hours of the day; past midnight
 ## when `to` is the smaller) burns at `hour`.
@@ -236,48 +254,47 @@ static func burns(hour: float, from: float, to: float) -> bool:
 		return hour >= from and hour < to
 	return hour >= from or hour < to
 
-## The sun's shadow mask is the tavern's to write; it knows this building's
-## rooms by TavernSystem.room_shadow_bounds.
-func _update_sun_casters() -> void:
-	pass
-
 ## Gives `far` the building's glows; that of a fire the table's `hours` keep
 ## burns while the fire does.
 func light_from_afar(far: FarLights) -> void:
 	_far = far
 	for glow: Dictionary in glows():
-		var index := far.add_glow(glow.at, glow.color, glow.radius, glow.facing)
+		var at: Vector3 = glow.at
+		var color: Color = glow.color
+		var facing: Vector3 = glow.facing
+		var index := far.add_glow(at, color, Values.real(glow.radius), facing)
 		var fire := str(glow.get("fire", ""))
 		if _kept.has(fire):
 			var kept_glows: Array = _kept[fire].glows
 			kept_glows.append(index)
-			far.set_lit(index, int(_kept[fire].lit) != 0)
+			far.set_lit(index, Values.whole(_kept[fire].lit) != 0)
 
 ## What the building is from far away at night, in world space: its lanterns,
 ## its lit windows and its fires ({at, color, radius, facing}, see
 ## FarLights.add_glow; a fire's glow names it, `fire`).
 func glows() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
-	for glow: Dictionary in far_glows:
+	for glow: Dictionary in lamps.far_glows:
 		var facing: Vector3 = glow.facing
-		result.append({"at": to_global(glow.at), "color": glow.color, "radius": glow.radius,
+		var at: Vector3 = glow.at
+		result.append({"at": to_global(at), "color": glow.color, "radius": glow.radius,
 			"facing": global_basis * facing})
 	for window: Dictionary in table.get("windows", []):
 		var size: Array = window.size
-		result.append({"at": to_global(_vector(window.at)), "color": WINDOW_GLOW,
-			"radius": minf(0.3, 0.5 * maxf(size[0], size[1])), "facing": global_basis * _vector(window.out)})
+		result.append({"at": to_global(Values.vec3(window.at)), "color": WINDOW_GLOW,
+			"radius": minf(0.3, 0.5 * maxf(Values.real(size[0]), Values.real(size[1]))), "facing": global_basis * Values.vec3(window.out)})
 	for config: Dictionary in table.get("fires", []):
 		if config.has("far"):
 			var flame_height: float = config.height
-			result.append({"at": to_global(_vector(config.at) + Vector3.UP * flame_height * 0.5), "color": _lamp_color(config.name),
-				"radius": float(config.far.radius), "facing": global_basis * _vector(config.far.out), "fire": str(config.name)})
+			result.append({"at": to_global(Values.vec3(config.at) + Vector3.UP * flame_height * 0.5), "color": _lamp_color(str(config.name)),
+				"radius": Values.real(config.far.radius), "facing": global_basis * Values.vec3(config.far.out), "fire": str(config.name)})
 	return result
 
 ## The colour of the table's lamp `lamp`, or a candle's.
 func _lamp_color(lamp: String) -> Color:
 	for config: Dictionary in table.get("lights", []):
 		if config.name == lamp:
-			return Color(config.color[0], config.color[1], config.color[2])
+			return Color(Values.real(config.color[0]), Values.real(config.color[1]), Values.real(config.color[2]))
 	return WINDOW_GLOW
 
 ## Where smoke leaves the building (the table's `vents` of kind "smoke"), in
@@ -286,7 +303,7 @@ func smoke_vents() -> Array[Vector3]:
 	var result: Array[Vector3] = []
 	for vent: Dictionary in table.get("vents", []):
 		if vent.kind == "smoke":
-			result.append(to_global(_vector(vent.at)))
+			result.append(to_global(Values.vec3(vent.at)))
 	return result
 
 ## The plumes over smoke_vents(), in their order. The smoke of a vent that
@@ -300,8 +317,5 @@ func take_plumes(plumes: Array[CPUParticles3D]) -> void:
 		if _kept.has(fire):
 			var kept_plumes: Array = _kept[fire].plumes
 			kept_plumes.append(plumes[index])
-			plumes[index].emitting = int(_kept[fire].lit) != 0
+			plumes[index].emitting = Values.whole(_kept[fire].lit) != 0
 		index += 1
-
-static func _vector(values: Array) -> Vector3:
-	return Vector3(values[0], values[1], values[2])

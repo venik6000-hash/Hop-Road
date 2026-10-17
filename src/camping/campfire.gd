@@ -63,7 +63,7 @@ func _ready() -> void:
 	body.add_child(solid)
 	add_child(body)
 	for seat: Dictionary in seats:
-		var at := TavernInteractions.vector(seat.position) - global_position
+		var at := Values.vec3(seat.position) - global_position
 		var direction := -Vector3(at.x, 0, at.z).normalized()
 		CampProps.log_mesh(self, at + Vector3.UP * 0.15, 0.85, 0.14, atan2(direction.x, direction.z) + PI / 2.0)
 	var jug := NpcProps.jug()

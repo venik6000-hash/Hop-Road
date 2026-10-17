@@ -47,7 +47,7 @@ func _read(asset: String) -> Dictionary:
 	if not ResourceLoader.exists(path):
 		return {}
 	var bundle := load(path)
-	if int(bundle.get_meta("version", 0)) != VERSION:
+	if Values.whole(bundle.get_meta("version", 0)) != VERSION:
 		return {}
 	# Source files can be converted/omitted in PCK. The build validates them;
 	# development always checks content, including importer mesh settings.
@@ -58,7 +58,7 @@ func _read(asset: String) -> Dictionary:
 ## Shared by the export gate and tests. Export must never trust a stale bake
 ## merely because the runtime cannot inspect transformed source GLBs in PCK.
 static func bundle_is_valid(bundle: Resource, expected_key: String, mesh_paths: PackedStringArray) -> bool:
-	if bundle == null or int(bundle.get_meta("version", 0)) != VERSION or bundle.get_meta("source_key", "") != expected_key:
+	if bundle == null or Values.whole(bundle.get_meta("version", 0)) != VERSION or bundle.get_meta("source_key", "") != expected_key:
 		return false
 	var stored: Variant = bundle.get_meta("shapes", {})
 	if not stored is Dictionary:
@@ -90,6 +90,6 @@ static func validate_bakes(region: RegionDef) -> PackedStringArray:
 		for index in state.get_node_count():
 			if state.get_node_type(index) == &"MeshInstance3D":
 				mesh_paths.append(str(state.get_node_path(index)).trim_prefix("./"))
-		if not bundle_is_valid(load(path), source_key(entry.asset), mesh_paths):
+		if not bundle_is_valid(load(path), source_key(str(entry.asset)), mesh_paths):
 			errors.append("Stale or mismatched collision bake: " + path)
 	return errors

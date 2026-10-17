@@ -22,6 +22,12 @@ var dropped := 0
 func ok() -> bool:
 	return problems.is_empty()
 
+## A file the game can read at `path`: a plain file, or a resource the loader
+## finds. An exported game keeps a picture or a model only as its imported
+## copy, so the file itself is not there.
+static func file_there(path: String) -> bool:
+	return FileAccess.file_exists(path) or ResourceLoader.exists(path)
+
 func walk(schema: Dictionary, item: Variant, where: String) -> void:
 	var before := problems.size() + dropped
 	_walk_kind(schema, item, where)
@@ -49,7 +55,7 @@ func _walk_kind(schema: Dictionary, item: Variant, where: String) -> void:
 		&"text":
 			if not item is String:
 				_add(where, "expected text, got %s" % _what(item))
-			elif not bool(schema.empty) and (item as String).is_empty():
+			elif not Values.flag(schema.empty) and str(item).is_empty():
 				_add(where, "the text is empty")
 		&"number":
 			_number(schema, item, where, false)
@@ -65,21 +71,21 @@ func _walk_kind(schema: Dictionary, item: Variant, where: String) -> void:
 		&"file":
 			if not item is String:
 				_add(where, "expected a path, got %s" % _what(item))
-			elif not FileAccess.file_exists(item):
+			elif not file_there(str(item)):
 				_add(where, "the file %s does not exist" % item)
 		&"either":
 			_either(schema, item, where)
 		&"stem":
-			if not item is String or (item as String).is_empty():
+			if not item is String or str(item).is_empty():
 				_add(where, "expected a file name, got %s" % _what(item))
 			else:
 				var path: String = "%s%s%s" % [schema.directory, item, schema.suffix]
-				if not FileAccess.file_exists(path):
+				if not file_there(path):
 					_add(where, "the file %s does not exist" % path)
 		&"id":
 			_id(schema, item, where)
 		&"ref":
-			if not item is String or (item as String).is_empty():
+			if not item is String or str(item).is_empty():
 				_add(where, "expected the id of a %s, got %s" % [schema.of, _what(item)])
 			else:
 				refs.append([schema.of, item, where])
@@ -94,7 +100,7 @@ func local_problems() -> PackedStringArray:
 		result.append("... and %d more problems" % dropped)
 	for ref: Array in refs:
 		var kind: StringName = ref[0]
-		if defs.has(kind) and not (defs[kind] as Dictionary).has(ref[1]):
+		if defs.has(kind) and not Values.table(defs[kind]).has(ref[1]):
 			result.append("%s: %s is not a %s of this file" % [ref[2], ref[1], kind])
 	return result
 
@@ -106,7 +112,7 @@ func _either(schema: Dictionary, item: Variant, where: String) -> void:
 		if trial.ok():
 			for kind: StringName in trial.defs:
 				for name: String in trial.defs[kind]:
-					_define(kind, name, trial.defs[kind][name])
+					_define(kind, name, str(trial.defs[kind][name]))
 			refs.append_array(trial.refs)
 			return
 	_add(where, "%s fits none of the %d forms" % [_what(item), options.size()])
@@ -124,7 +130,7 @@ func _object(schema: Dictionary, item: Variant, where: String) -> void:
 				_add(where, "the field '%s' is missing" % key)
 			continue
 		walk(field, data[key], _join(where, key))
-	if not bool(schema.open):
+	if not Values.flag(schema.open):
 		for key: Variant in data:
 			if not fields.has(key):
 				_add(where, "the field '%s' is not in the schema" % key)
@@ -134,8 +140,8 @@ func _list(schema: Dictionary, item: Variant, where: String) -> void:
 		_add(where, "expected a list, got %s" % _what(item))
 		return
 	var data: Array = item
-	if data.size() < int(schema.min) or (int(schema.max) >= 0 and data.size() > int(schema.max)):
-		_add(where, "%d items, expected %s" % [data.size(), _span(int(schema.min), int(schema.max))])
+	if data.size() < Values.whole(schema.min) or (Values.whole(schema.max) >= 0 and data.size() > Values.whole(schema.max)):
+		_add(where, "%d items, expected %s" % [data.size(), _span(Values.whole(schema.min), Values.whole(schema.max))])
 	var each: Dictionary = schema.item
 	for index in data.size():
 		walk(each, data[index], "%s[%d]" % [where, index])
@@ -153,24 +159,24 @@ func _table(schema: Dictionary, item: Variant, where: String) -> void:
 			_add(where, "the key %s is not text" % _what(key))
 			continue
 		if key_kind != &"":
-			_define(key_kind, key, _join(where, key))
+			_define(key_kind, str(key), _join(where, str(key)))
 		if key_ref != &"":
-			refs.append([key_ref, key, _join(where, key)])
-		walk(each, data[key], _join(where, key))
+			refs.append([key_ref, key, _join(where, str(key))])
+		walk(each, data[key], _join(where, str(key)))
 
 func _vector(schema: Dictionary, item: Variant, where: String) -> void:
 	if not item is Array:
 		_add(where, "expected %d numbers, got %s" % [schema.size, _what(item)])
 		return
 	var data: Array = item
-	if data.size() != int(schema.size):
+	if data.size() != Values.whole(schema.size):
 		_add(where, "%d numbers, expected %d" % [data.size(), schema.size])
 		return
 	for index in data.size():
 		_number(schema, data[index], "%s[%d]" % [where, index], false)
 
 func _tagged(schema: Dictionary, item: Variant, where: String) -> void:
-	if not item is Array or (item as Array).is_empty() or not (item as Array)[0] is String:
+	if not item is Array or Values.list(item).is_empty() or not Values.list(item)[0] is String:
 		_add(where, "expected a list that begins with a name, got %s" % _what(item))
 		return
 	var data: Array = item
@@ -184,23 +190,23 @@ func _tagged(schema: Dictionary, item: Variant, where: String) -> void:
 		_add(where, "'%s' takes %d more items, got %d" % [tag, rest.size(), data.size() - 1])
 		return
 	for index in rest.size():
-		walk(rest[index], data[index + 1], "%s[%d]" % [where, index + 1])
+		walk(Values.table(rest[index]), data[index + 1], "%s[%d]" % [where, index + 1])
 
 func _number(schema: Dictionary, item: Variant, where: String, whole: bool) -> void:
-	if not (item is float or item is int) or not is_finite(float(item)):
+	if not (item is float or item is int) or not is_finite(Values.real(item)):
 		_add(where, "expected %s, got %s" % ["a whole number" if whole else "a number", _what(item)])
 		return
-	var number: float = float(item)
+	var number: float = Values.real(item)
 	if whole and number != floorf(number):
 		_add(where, "expected a whole number, got %s" % _what(item))
-	elif number < float(schema.low) or number > float(schema.high):
+	elif number < Values.real(schema.low) or number > Values.real(schema.high):
 		_add(where, "%s is outside %s..%s" % [_what(item), schema.low, schema.high])
 
 func _id(schema: Dictionary, item: Variant, where: String) -> void:
-	if not item is String or (item as String).is_empty():
+	if not item is String or str(item).is_empty():
 		_add(where, "expected an id, got %s" % _what(item))
 		return
-	_define(schema.of, item, where)
+	_define(StringName(str(schema.of)), str(item), where)
 
 func _define(kind: StringName, name: String, where: String) -> void:
 	if not defs.has(kind):

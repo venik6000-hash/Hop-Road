@@ -23,10 +23,9 @@ extends Node
 
 const CanopyField = preload("res://src/vegetation/canopy_field.gd")
 
-## Gain over the authored exposure, by where the eye is.
+## Gain over the authored exposure, by where the eye is. A room's gain is its
+## profile's (LightProfile.gain).
 const NIGHT_OUTDOORS := 2.6
-const ROOM_BY_DAY := 1.5
-const ROOM_BY_NIGHT := 1.6
 ## Under a storm's cloud by day, outdoors.
 const STORM_OUTDOORS := 1.3
 ## Under the closed crowns of a wood by day.
@@ -47,11 +46,6 @@ const FOLLOW := 0.45
 ## Stops the gain may stand under and over the gain of the place for what the
 ## eye sees there.
 const SEEN_STOPS := Vector2(-0.5, 1.6)
-## In a room the gain stands no further over the room's than this, by day and
-## by night: windows, candles and a hearth light their own corners and leave
-## the rest dark, and a look into a dark corner does not turn it into a lit one.
-const ROOM_DAY_OVER := 0.8
-const ROOM_NIGHT_OVER := 0.4
 ## Seconds for 63 % of the way: into the light, into the dark.
 const CLOSE_SECONDS := 0.9
 const OPEN_SECONDS := 3.0
@@ -65,9 +59,6 @@ const NIGHT_COLOUR := 0.5
 const NIGHT_COLOUR_STOPS := Vector2(0.7, 1.6)
 const CLOSED_SKY_COLOUR := 0.9
 const CLOSED_SKY_CONTRAST := 0.97
-## A doorway is this deep: the gain turns over it, half of it on each side of
-## a room's wall face.
-const DOORWAY := 1.2
 ## The eye moved further than a step can in a frame: a cut, not a walk.
 const CUT_DISTANCE := 4.0
 
@@ -75,14 +66,17 @@ var environment: Environment
 var sky: SkySystem
 ## The weather, if the level has one: a dark sky opens the exposure a little.
 var weather: WeatherSystem
-## The rooms, as boxes in world space.
-var rooms: Array[AABB] = []
+## The level's rooms (none without: the eye is then never in a room). In a
+## room the gain is the room's profile's, and stands no further over it for
+## what the eye sees than the profile lets (LightProfile.over): windows,
+## candles and a hearth light their own corners and leave the rest dark, and
+## a look into a dark corner does not turn it into a lit one. The rooms'
+## probes are captured in clear air.
+var interiors: Interiors
 ## Where the crowns close the sky, and the ground they stand on (none without
 ## either: the eye is then never in a wood).
 var canopy: CanopyField
 var terrain: TerrainSystem
-## The tavern, if the level has one: its rooms' probes are captured in clear air.
-var tavern: TavernSystem
 ## What meters the picture (none: the eye goes by the place alone).
 var meter: LightMeter
 ## The authored exposure the gains multiply, and the authored colour.
@@ -116,9 +110,12 @@ func _process(delta: float) -> void:
 	var eye := camera.global_position
 	var dark := darkness(sky.sun_direction.y)
 	seen = meter.stops() if meter != null else NAN
-	var inside := indoors(eye, rooms)
-	var wanted := seen_gain(target_gain(inside, dark, weather.gloom() if weather != null else 0.0,
-		under_crowns(eye)), seen, lerpf(SEEN_STOPS.y, lerpf(ROOM_DAY_OVER, ROOM_NIGHT_OVER, dark), inside))
+	var inside := interiors.inside(eye) if interiors != null else 0.0
+	var room := interiors.nearest_room(eye) if interiors != null else null
+	var room_gain := room.profile.gain if room != null else Vector2.ONE
+	var room_over := room.profile.over if room != null else Vector2.ONE * SEEN_STOPS.y
+	var wanted := seen_gain(target_gain(inside, room_gain, dark, weather.gloom() if weather != null else 0.0,
+		under_crowns(eye)), seen, lerpf(SEEN_STOPS.y, lerpf(room_over.x, room_over.y, dark), inside))
 	if _eye == Vector3.INF or eye.distance_to(_eye) > CUT_DISTANCE:
 		_settling = SETTLE_SECONDS
 	_eye = eye
@@ -130,7 +127,8 @@ func _process(delta: float) -> void:
 	var exposure := base_exposure * gain
 	if not is_equal_approx(environment.tonemap_exposure, exposure):
 		environment.tonemap_exposure = exposure
-	var air := haze(base_haze, inside if tavern == null or tavern.probes_captured() else 1.0)
+	var settled := interiors == null or interiors.probes_settled()
+	var air := haze(base_haze, inside if settled else 1.0, room.profile.haze if room != null and settled else 0.0)
 	if not is_equal_approx(environment.fog_height_density, air):
 		environment.fog_height_density = air
 	var look := colour(gain, dark, 1.0 - sky.sun_share, inside)
@@ -142,15 +140,6 @@ func _process(delta: float) -> void:
 ## 0 in daylight .. 1 at night, by the sun's height (its direction's y).
 static func darkness(sun_height: float) -> float:
 	return 1.0 - smoothstep(-0.1, 0.12, sun_height)
-
-## 0 outdoors .. 1 inside a room, turning over a doorway's depth.
-static func indoors(eye: Vector3, boxes: Array[AABB]) -> float:
-	var deepest := -INF
-	for box: AABB in boxes:
-		var low := eye - box.position
-		var high := box.end - eye
-		deepest = maxf(deepest, minf(minf(low.x, high.x), minf(minf(low.y, high.y), minf(low.z, high.z))))
-	return smoothstep(-DOORWAY * 0.5, DOORWAY * 0.5, deepest)
 
 ## 0 under the open sky .. 1 under the closed crowns of a wood.
 func under_crowns(eye: Vector3) -> float:
@@ -166,13 +155,14 @@ func under_crowns(eye: Vector3) -> float:
 static func wooded(cover: float, above: float) -> float:
 	return smoothstep(WOOD_COVER.x, WOOD_COVER.y, cover) * (1.0 - smoothstep(CROWN_HEIGHT.x, CROWN_HEIGHT.y, above))
 
-## `gloom` is 0 under an open sky .. 1 under a storm (WeatherSystem.gloom),
+## `room` is the gain of the room by day and by night (LightProfile.gain),
+## `gloom` 0 under an open sky .. 1 under a storm (WeatherSystem.gloom),
 ## `wood` 0 in the open .. 1 under closed crowns. A dark day in a wood is
 ## still no darker than the night.
-static func target_gain(inside: float, dark: float, gloom := 0.0, wood := 0.0) -> float:
+static func target_gain(inside: float, room: Vector2, dark: float, gloom := 0.0, wood := 0.0) -> float:
 	var day := minf(lerpf(1.0, STORM_OUTDOORS, gloom) * lerpf(1.0, WOOD_BY_DAY, wood), NIGHT_OUTDOORS)
 	var outdoors := lerpf(day, NIGHT_OUTDOORS, dark)
-	return lerpf(outdoors, lerpf(ROOM_BY_DAY, ROOM_BY_NIGHT, maxf(dark, gloom * 0.5)), inside)
+	return lerpf(outdoors, lerpf(room.x, room.y, maxf(dark, gloom * 0.5)), inside)
 
 ## The gain for a place whose own gain is `place` when the picture meters
 ## `stops` (LightMeter.stops; NAN: not metered): the eye makes up a share of
@@ -193,9 +183,10 @@ static func colour(gain: float, dark: float, closed: float, inside := 0.0) -> Ve
 	return Vector2(lerpf(1.0, NIGHT_COLOUR, dim) * lerpf(1.0, CLOSED_SKY_COLOUR, closed), lerpf(1.0, CLOSED_SKY_CONTRAST, closed))
 
 ## The valley's haze of density `authored` as the eye sees it `inside` (0
-## outdoors .. 1 in a room): none between a room's walls.
-static func haze(authored: float, inside: float) -> float:
-	return authored * (1.0 - inside)
+## outdoors .. 1 in a room) that keeps the share `kept` of it (LightProfile.haze):
+## a room of the tavern keeps none.
+static func haze(authored: float, inside: float, kept := 0.0) -> float:
+	return authored * (1.0 - inside * (1.0 - kept))
 
 ## One step of `delta` seconds from `current` toward `wanted`, in stops.
 static func adapt(current: float, wanted: float, delta: float) -> float:

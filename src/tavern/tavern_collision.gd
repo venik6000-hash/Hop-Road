@@ -13,16 +13,16 @@ static func replace_old(tavern: TavernSystem, labels: Array, drop: Array, moved:
 			if move.of == label:
 				for body in item.get_children():
 					if body is CollisionObject3D:
-						move_faces(body, move.box, move.by)
+						move_faces(body as CollisionObject3D, Values.list(move.box), Values.list(move.by))
 		# The old solid walls had no service openings. Their replacement boxes
 		# come from the furnished interior, while the old porch geometry stays.
-		var replace_wall := tavern._has_interior and label in ["Continuous mortar behind interior masonry", "Annex oak plank door"]
+		var replace_wall := tavern.has_interior and label in ["Continuous mortar behind interior masonry", "Annex oak plank door"]
 		if not drop.has(label) and not replace_wall:
 			for body in item.get_children():
 				if body is CollisionObject3D:
 					body.set_meta("tavern_source", label)
-					if tavern._has_interior and label == "Tavern structural masonry":
-							cut_service_openings(body)
+					if tavern.has_interior and label == "Tavern structural masonry":
+							cut_service_openings(body as CollisionObject3D)
 					body.reparent(item.get_parent(), true)
 		item.get_parent().remove_child(item)
 		item.queue_free()
@@ -30,7 +30,7 @@ static func replace_old(tavern: TavernSystem, labels: Array, drop: Array, moved:
 
 static func cached_shape(tavern: TavernSystem, mesh: Mesh, kind: String) -> Shape3D:
 	var key := str(mesh.get_instance_id()) + ":" + kind
-	if not tavern._shape_cache.has(key):
+	if not tavern.shape_cache.has(key):
 		var shape: Shape3D
 		match kind:
 			"mesh": shape = mesh.create_trimesh_shape()
@@ -39,8 +39,8 @@ static func cached_shape(tavern: TavernSystem, mesh: Mesh, kind: String) -> Shap
 				var box := BoxShape3D.new()
 				box.size = mesh.get_aabb().size
 				shape = box
-		tavern._shape_cache[key] = shape
-	return tavern._shape_cache[key]
+		tavern.shape_cache[key] = shape
+	return tavern.shape_cache[key]
 
 static func add_shape(tavern: TavernSystem, item: MeshInstance3D, shape: Shape3D, local := Transform3D.IDENTITY) -> void:
 	if shape == null:
@@ -51,15 +51,15 @@ static func add_shape(tavern: TavernSystem, item: MeshInstance3D, shape: Shape3D
 	holder.name = item.name
 	holder.shape = shape
 	holder.transform = item.global_transform * local
-	tavern._body.add_child(holder)
+	tavern.body.add_child(holder)
 	tavern.bodies += 1
 
 ## A piece the builder stood elsewhere than the old map did takes its part
 ## of the old collider along: the faces of `body` that lie in `box` (two
 ## corners, world space) move by `by`.
 static func move_faces(body: CollisionObject3D, box: Array, by: Array) -> void:
-	var from := AABB(Vector3(box[0], box[1], box[2]), Vector3(box[3] - box[0], box[4] - box[1], box[5] - box[2]))
-	var offset := Vector3(by[0], by[1], by[2])
+	var from := AABB(Values.vec3(box), Vector3(Values.real(box[3] - box[0]), Values.real(box[4] - box[1]), Values.real(box[5] - box[2])))
+	var offset := Values.vec3(by)
 	for holder: CollisionShape3D in body.find_children("*", "CollisionShape3D", true, false):
 		if not holder.shape is ConcavePolygonShape3D:
 			continue

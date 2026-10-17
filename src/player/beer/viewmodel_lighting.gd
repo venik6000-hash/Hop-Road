@@ -18,6 +18,14 @@ var _source_world: World3D
 var _registry_tree: SceneTree
 var _ray := PhysicsRayQueryParameters3D.new()
 
+## The room probe that lights the mug now; null outdoors.
+func room() -> ReflectionProbe:
+	return _room if is_instance_valid(_room) else null
+
+## The local lights that light the mug now, LOCAL_LIGHT_LIMIT at most.
+func local_lights() -> Array[Light3D]:
+	return _active_sources
+
 func sync(presentation: Node3D, world_camera: Camera3D, sky: SkySystem, delta: float) -> void:
 	if world_camera == null or not world_camera.is_inside_tree(): return
 	# The mug's MugPresentation, or a stand-in with the same members (tools/verify).

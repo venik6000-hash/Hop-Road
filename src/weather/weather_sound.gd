@@ -13,8 +13,8 @@ const RAIN_ROOM_DB := -27.0
 const SILENT_DB := -70.0
 
 var weather: WeatherSystem
-## The rooms, as boxes in world space: the rain is duller inside.
-var rooms: Array[AABB] = []
+## The level's rooms: the rain is duller inside (none without).
+var interiors: Interiors
 
 var _rain: AudioStreamPlayer
 var _thunder: Array[AudioStreamPlayer] = []
@@ -43,7 +43,7 @@ func _process(delta: float) -> void:
 	if weather == null:
 		return
 	var camera := get_viewport().get_camera_3d()
-	var indoors := EyeAdaptation.indoors(camera.global_position, rooms) if camera != null else 0.0
+	var indoors := interiors.inside(camera.global_position) if camera != null and interiors != null else 0.0
 	var rain: float = weather.state.rain
 	var wanted := lerpf(SILENT_DB, lerpf(RAIN_DB, RAIN_ROOM_DB, indoors), pow(rain, 0.3)) if rain > 0.01 else SILENT_DB
 	_rain.volume_db = lerpf(_rain.volume_db, wanted, minf(delta * 2.0, 1.0))
@@ -54,14 +54,15 @@ func _process(delta: float) -> void:
 	for thunder: Dictionary in _coming:
 		thunder.wait -= delta
 	while not _coming.is_empty() and _coming[0].wait <= 0.0:
-		_play(_coming.pop_front(), indoors)
+		_play(Values.table(_coming.pop_front()), indoors)
 
 func _on_strike(strike: Dictionary) -> void:
 	var camera := get_viewport().get_camera_3d()
 	if camera == null:
 		return
-	var away: float = camera.global_position.distance_to(strike.at)
-	var thunder := thunder_for(away, strike.power)
+	var at: Vector3 = strike.at
+	var away: float = camera.global_position.distance_to(at)
+	var thunder := thunder_for(away, Values.real(strike.power))
 	# Kept in the order they arrive: a near strike can overtake a far one.
 	var index := 0
 	while index < _coming.size() and _coming[index].wait <= thunder.wait:

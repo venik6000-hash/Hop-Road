@@ -9,8 +9,10 @@ static func custom_multimesh(mesh: Mesh, transforms: Array, customs: Array) -> M
 	multimesh.mesh = mesh
 	multimesh.instance_count = transforms.size()
 	for i in multimesh.instance_count:
-		multimesh.set_instance_transform(i, transforms[i])
-		multimesh.set_instance_custom_data(i, customs[i])
+		var pose: Transform3D = transforms[i]
+		var custom: Color = customs[i]
+		multimesh.set_instance_transform(i, pose)
+		multimesh.set_instance_custom_data(i, custom)
 	return multimesh
 
 ## Adds to `body` the convex hull `points` placed by `xform`.

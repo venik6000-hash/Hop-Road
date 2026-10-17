@@ -12,10 +12,13 @@ const GAME_SETTINGS := preload("res://src/settings/game_settings.gd")
 const TREE_MATERIALS := preload("res://src/vegetation/tree_materials.gd")
 const VILLAGE_BUILDINGS := preload("res://src/village/village_buildings.gd")
 
-## Entries {path, schema} of the files of `region`, then of the files that
-## are not any region's. A region without a part names no file for it.
+## Entries {path, schema} of the files of `region` and of its brewery, then of
+## the files that are not any region's. A region without a part names no file
+## for it; a region without a brewery reads none of the brewery's files.
 static func all(region: RegionDef) -> Array[Dictionary]:
 	var files := of_region(region)
+	if has_brewery(region):
+		files.append_array(of_brewery())
 	files.append({"path": RegionDef.LIST, "schema": WorldSchemas.regions()})
 	files.append({"path": TREE_MATERIALS.IMPOSTORS, "schema": WorldSchemas.impostors()})
 	files.append({"path": GrassClump.CARDS, "schema": WorldSchemas.grass_cards()})
@@ -24,17 +27,38 @@ static func all(region: RegionDef) -> Array[Dictionary]:
 	files.append({"path": JointLimits.TABLE, "schema": BodySchemas.joint_limits()})
 	for path in _files_in(NpcMotion.FOLDER, ".json"):
 		files.append({"path": path, "schema": BodySchemas.npc_motion()})
-	files.append({"path": BrewBook.RECIPES, "schema": BrewingSchemas.recipes()})
-	files.append({"path": BrewBook.FLAWS, "schema": BrewingSchemas.flaws()})
-	files.append({"path": BrewGuide.PATH, "schema": BrewingSchemas.guide()})
-	files.append({"path": BrewTrade.DATA, "schema": BrewingSchemas.trade()})
-	files.append({"path": BrewStalls.POINTS, "schema": BuildingSchemas.trade_models()})
+	files.append({"path": LineTable.CAMP, "schema": PeopleSchemas.camp_lines()})
+	files.append({"path": FishingState.SPECIES, "schema": WorldSchemas.fish()})
+	files.append({"path": WeatherTable.PATH, "schema": WorldSchemas.weathers()})
+	files.append({"path": FloraTable.PATH, "schema": WorldSchemas.flora()})
+	files.append({"path": LightProfile.FILE, "schema": BuildingSchemas.light_profiles()})
 	for id in PeopleIds.VILLAGERS:
 		files.append({"path": PeopleBook.FOLDER + String(id) + ".json", "schema": PeopleSchemas.sheet()})
 	files.append({"path": PeopleBook.FOLDER + String(PeopleIds.COMMON) + ".json", "schema": PeopleSchemas.sheet()})
 	return files
 
+## Whether one of the buildings of `region` is a brewery: its table has
+## `utensils` (VillageBuildings).
+static func has_brewery(region: RegionDef) -> bool:
+	return VILLAGE_BUILDINGS.tables(region).any(func(table: Dictionary) -> bool: return table.has("utensils"))
+
+## Entries {path, schema} of the files only the brewery reads (BrewHouse): the
+## guide points at the stations of its table, the works at its utensils.
+static func of_brewery() -> Array[Dictionary]:
+	var files: Array[Dictionary] = [
+		{"path": BrewBook.RECIPES, "schema": BrewingSchemas.recipes()},
+		{"path": BrewBook.FLAWS, "schema": BrewingSchemas.flaws()},
+		{"path": BrewGuide.PATH, "schema": BrewingSchemas.guide()},
+		{"path": BrewTrade.DATA, "schema": BrewingSchemas.trade()},
+		{"path": BrewStation.WORKS, "schema": BrewingSchemas.works()},
+		{"path": MaltLot.MALTS, "schema": BrewingSchemas.malts()},
+		{"path": LineTable.BREWERY, "schema": BrewingSchemas.lines()},
+		{"path": BrewStalls.POINTS, "schema": BuildingSchemas.trade_models()},
+	]
+	return files
+
 ## Entries {path, schema} of the files `region` names (RegionDef).
+
 static func of_region(region: RegionDef) -> Array[Dictionary]:
 	var files: Array[Dictionary] = []
 	var named := {
@@ -42,6 +66,7 @@ static func of_region(region: RegionDef) -> Array[Dictionary]:
 		region.settled_ground: WorldSchemas.settled_ground(),
 		region.zones: WorldSchemas.zones(),
 		region.map_manifest: WorldSchemas.map_manifest(),
+		region.map_edits: WorldSchemas.map_edits(),
 		region.map_context: WorldSchemas.map_context(),
 		region.village_plan: WorldSchemas.village_plan(),
 		region.props: WorldSchemas.props(),
@@ -49,7 +74,14 @@ static func of_region(region: RegionDef) -> Array[Dictionary]:
 		region.forest_wood: WorldSchemas.forest_wood(),
 		region.cottages: BuildingSchemas.cottages(),
 		region.worn_ground: BuildingSchemas.worn_ground(),
+		region.tavern_ground: BuildingSchemas.tavern_ground(),
+		region.tavern_work: BuildingSchemas.tavern_work(),
 		region.cliff: WorldSchemas.cliff_seat(),
+		region.brook: WorldSchemas.brook(),
+		region.falls: WorldSchemas.falls(),
+		region.villagers: PeopleSchemas.villagers(),
+		region.animals: WorldSchemas.animals(),
+		region.wildlife: WorldSchemas.wildlife(),
 		region.woodland: WorldSchemas.woodland(),
 		region.village_trees: WorldSchemas.trees(),
 		region.placement_manifest: WorldSchemas.placement_manifest(),
@@ -77,26 +109,31 @@ static func code_ids() -> Dictionary:
 		&"stock": BrewIds.STOCK,
 		&"sack": BrewIds.SACKS,
 		&"profile_key": BrewIds.PROFILE_KEYS,
+		&"malt": BrewIds.MALTS,
+		&"weather": WeatherTable.KINDS,
 		&"person": people,
 	}
 
 ## What is wrong with the data files of `region`: the problems of each file,
-## then the ids that point nowhere or are defined twice.
+## the ids that point nowhere or are defined twice, then the parts the region
+## names (RegionDef.part_problems).
 static func problems(region: RegionDef) -> PackedStringArray:
 	var found := PackedStringArray()
 	var links := DataLinks.new()
 	var named := code_ids()
 	for kind: StringName in named:
-		links.provide(kind, named[kind])
+		links.provide(kind, Values.list(named[kind]))
 	# The stalls of trade.json are places too; the code names the two besides.
 	links.provide(&"place", [&"brewery", &"order_board"], false)
 	for entry in all(region):
 		var path: String = entry.path
-		var check := DataFile.inspect(path, entry.schema)
+		var check := DataFile.inspect(path, Values.table(entry.schema))
 		for problem in check.problems:
 			found.append("%s: %s" % [path, problem])
 		links.add(path, check)
 	found.append_array(links.problems())
+	for problem in region.part_problems():
+		found.append("%s: %s" % [region.resource_path, problem])
 	return found
 
 static func _files_in(folder: String, extension: String) -> PackedStringArray:

@@ -39,6 +39,11 @@ var clock := -1.0
 var top := NAN
 ## The top's height found under the rag in the last frame, world.
 var surface := Vector3.ZERO
+## Where the other hand rests on the top, world, found when the wiping
+## starts.
+var rest_point: Vector3:
+	get:
+		return _rest_point
 var _ray: PhysicsRayQueryParameters3D
 var _rest_point := Vector3.ZERO
 
@@ -50,18 +55,18 @@ func _ready() -> void:
 	add_child(rag)
 	# The villager puts its pieces under its zone's lights as they come; the
 	# rag comes after the node itself.
-	actor._light_for_zone(rag)
+	actor.lamp_zone.light(rag)
 
 ## Sets the strip and the stance from `row` (keys "middle", "across", "near",
 ## "far", "rest", "drop", as the fields; a missing key takes the field's first
 ## value).
 func set_strip(row: Dictionary) -> void:
-	middle = float(row.get("middle", 0.0))
-	across = float(row.get("across", 0.25))
-	near = float(row.get("near", 0.36))
-	far = float(row.get("far", 0.46))
+	middle = Values.real(row.get("middle", 0.0))
+	across = Values.real(row.get("across", 0.25))
+	near = Values.real(row.get("near", 0.36))
+	far = Values.real(row.get("far", 0.46))
 	rest = row.get("rest", Vector3(-0.38, 0.0, -0.36))
-	drop = float(row.get("drop", 0.0))
+	drop = Values.real(row.get("drop", 0.0))
 
 ## Starts wiping the top in front of the villager. False when no top is within reach.
 func start() -> bool:
@@ -94,10 +99,10 @@ func path(t: float) -> Vector3:
 
 ## Moves the wiping on by `delta` seconds and sets the pose.
 func step(delta: float) -> void:
-	if clock < 0.0 or actor.reach == null:
+	if clock < 0.0 or actor.poses.reach == null:
 		return
 	clock += delta
-	var reach := actor.reach
+	var reach := actor.poses.reach
 	var frame := actor.global_transform
 	var turn := frame.basis.orthonormalized()
 	var local := path(clock)
@@ -156,6 +161,10 @@ func _find_top() -> float:
 	var centre := frame * Vector3(middle, 0.0, -(near + far) * 0.5)
 	var ray := PhysicsRayQueryParameters3D.create(centre + Vector3.UP * 1.25, centre + Vector3.UP * 0.55, PhysicsLayers.WORLD)
 	var hit := space.intersect_ray(ray)
-	if hit.is_empty() or (hit.normal as Vector3).y < 0.9:
+	if hit.is_empty():
 		return NAN
-	return (hit.position as Vector3).y - actor.global_position.y
+	var normal: Vector3 = hit.normal
+	if normal.y < 0.9:
+		return NAN
+	var top: Vector3 = hit.position
+	return top.y - actor.global_position.y

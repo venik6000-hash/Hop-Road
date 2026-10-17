@@ -9,7 +9,7 @@ static func sheet() -> Dictionary:
 	var hour := D.number(0.0, 24.0)
 	var circle := D.whole(1, 3)
 	var lines := D.checked(D.table(D.text()), func(value: Variant) -> String:
-		for key: String in (value as Dictionary):
+		for key: String in Values.table(value):
 			var wrong := PeopleIds.line_problem(key)
 			if not wrong.is_empty():
 				return "'%s': %s" % [key, wrong]
@@ -21,7 +21,7 @@ static func sheet() -> Dictionary:
 		"context": D.object({
 			"zone": D.optional(D.list(D.ref(&"zone"), 1)),
 			"part": D.optional(D.list(D.choice(DayClock.PARTS), 1)),
-			"weather": D.optional(D.list(D.choice(WeatherSystem.KINDS), 1)),
+			"weather": D.optional(D.list(D.choice(WeatherTable.KINDS), 1)),
 			"activity": D.optional(D.list(D.choice(PeopleIds.ACTIVITIES), 1)),
 			"gift": D.optional(D.list(D.choice(PeopleIds.GIFTS), 1)),
 			"beer": D.optional(D.list(D.ref(&"sort"), 1)),
@@ -42,7 +42,7 @@ static func sheet() -> Dictionary:
 		"circles": D.checked(D.list(D.whole(0), 4, 4), func(value: Variant) -> String:
 			var steps: Array = value
 			for index in range(1, steps.size()):
-				if float(steps[index]) <= float(steps[index - 1]):
+				if Values.real(steps[index]) <= Values.real(steps[index - 1]):
 					return "the warmth of a circle must rise"
 			return ""),
 		"favorite_food": D.any_text(),
@@ -60,3 +60,30 @@ static func sheet() -> Dictionary:
 		"idle_table": D.optional(D.list(D.text())),
 		"stories": D.list(story),
 	})
+
+## assets/camping/lines.json: what the camp says under no one's name (CampSystem).
+static func camp_lines() -> Dictionary:
+	return D.object({"lines": D.table(D.text(), &"camp_line")})
+
+## The region's villagers (RegionDef.villagers; NpcPopulation): the staff
+## at their work, the road of those who walk (its points, x, y, z), the
+## villagers who walk it from its point `from`, and the passers-by, who have
+## no sheet and go by their `title`.
+static func villagers() -> Dictionary:
+	var model := D.stem("res://assets/models/npc/", ".glb")
+	return D.checked(D.object({
+		"staff": D.list(D.object({
+			"person": D.ref(&"person"),
+			"model": model,
+			"job": D.choice(["bartender", "chop", "stir", "maid"]),
+			"at": D.vector(3),
+			"yaw": D.number(-360.0, 360.0),
+		})),
+		"road": D.list(D.vector(3)),
+		"walkers": D.list(D.object({"person": D.ref(&"person"), "model": model, "from": D.whole(0)})),
+		"passers": D.list(D.object({"model": model, "title": D.text(), "from": D.whole(0), "wait": D.number(0.0)})),
+	}), func(value: Variant) -> String:
+		var cast := Values.table(value)
+		var walking: int = Values.list(cast.walkers).size() + Values.list(cast.passers).size()
+		return "walkers and passers need a road of two points or more" \
+			if walking > 0 and Values.list(cast.road).size() < 2 else "")

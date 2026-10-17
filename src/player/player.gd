@@ -29,10 +29,13 @@ var look_held := false
 ## Who has the hands and the mouth (BodyChannels); the mug shows while it
 ## is in the right hand.
 var hands := BodyChannels.new()
+## The first-person picture (the mug and its hand) is on. It is off while
+## another camera is the eye (the overview) or a tool shoots a frame without it.
+var first_person := true
 ## The player's place in each frame's processing: after all others, so that
 ## the guard of the hands sees each doer's release of this frame.
 const GUARD_LAST := 1000
-## A breach the guard of the hands put right (_guard_hands), in words.
+## A breach the guard of the hands put right (guard_hands), in words.
 signal hands_breached(what: String)
 ## The part of a free step left by what the hands carry (BrewCarry.pace).
 var pace := 1.0
@@ -53,7 +56,7 @@ var _settings: GAME_SETTINGS
 ## кромку, и is_on_floor() там честно возвращает false — нормаль ребра круче
 ## предельного угла пола. Без этой памяти подъём обрывался бы на втором кадре и
 ## игрок скатывался обратно.
-var _stepped := false
+var stepped := false
 ## Стоял ли игрок на опоре в прошлом кадре — своим ходом, шагом или прилипанием.
 ## Спуск начинается только с земли: падать в пропасть, сорвавшись с обрыва,
 ## игрок обязан честно.
@@ -89,6 +92,8 @@ func _ready() -> void:
 	if _settings != null:
 		_settings.controls_changed.connect(_apply_look_settings)
 		_apply_look_settings()
+		_settings.fov_changed.connect(_set_fov)
+		_set_fov(_settings.fov)
 
 ## Прилипание к полу — свойство тела, и задаётся оно здесь, а не в сцене,
 ## чтобы стоять рядом с высотой шага: эти две цифры связаны и врозь не имеют
@@ -114,13 +119,24 @@ func _join_hands() -> void:
 		hands.claim(BodyChannels.MUG, viewmodel.is_inside_tree)
 
 func _show_mug() -> void:
-	viewmodel.visible = hands.mug_in_hand()
+	viewmodel.visible = _mug_shown()
+
+## The mug shows: it is in the right hand and the first-person picture is on.
+func _mug_shown() -> bool:
+	return first_person and hands.mug_in_hand()
+
+## Turns the first-person picture on or off (first_person); the mug still
+## follows the hands.
+func set_first_person(shown: bool) -> void:
+	first_person = shown
+	if viewmodel != null:
+		_show_mug()
 
 func _process(delta: float) -> void:
 	var turn := stick_look(delta)
 	if turn != Vector2.ZERO and not look_held and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		rig.apply_look(turn)
-	_guard_hands()
+	guard_hands()
 
 ## The turn of the right stick in this frame, as the mouse's motion in pixels
 ## (CameraRig.apply_look): GameSettings.pad_look_speed degrees a second at
@@ -143,11 +159,15 @@ func _apply_look_settings() -> void:
 	rig.sensitivity = _base_sensitivity * _settings.mouse_sensitivity
 	rig.invert_y = _settings.invert_y
 
+## The field of view of the eye, vertical degrees (GameSettings.fov).
+func _set_fov(degrees: float) -> void:
+	(rig.get_node("Camera3D") as Camera3D).fov = degrees
+
 ## The guard of the hands, each frame: no claim outlives its doer, and
 ## the mug is where the right hand says. A breach is put right and reported.
-func _guard_hands() -> void:
+func guard_hands() -> void:
 	hands.audit()
-	if viewmodel != null and viewmodel.visible != hands.mug_in_hand():
+	if viewmodel != null and viewmodel.visible != _mug_shown():
 		var what := "the mug was %s past the hands" % ("shown" if viewmodel.visible else "hidden")
 		push_error("BodyChannels: " + what)
 		hands_breached.emit(what)
@@ -238,7 +258,7 @@ func _physics_process(delta: float) -> void:
 	# вперёд дважды. Пловцу шагать не с чего, а прилипание к дну спорило бы
 	# с плавучестью и дёргало его вверх-вниз у самого дна.
 	if swimming:
-		_stepped = false
+		stepped = false
 		move_and_slide()
 	elif not STEPPER.try_step(self, target, delta):
 		move_and_slide()
@@ -250,7 +270,7 @@ func _physics_process(delta: float) -> void:
 	# втором кадре: прилипнув, игрок формально не «на полу» (капсула лежит на
 	# ребре, а нормаль ребра круче предельного угла), и следующий кадр отпускал
 	# бы его в свободное падение — ровно то, от чего прилипание и заведено.
-	_grounded = not swimming and (is_on_floor() or _stepped or stuck)
+	_grounded = not swimming and (is_on_floor() or stepped or stuck)
 
 	var horizontal := Vector2(velocity.x, velocity.z).length()
 	rig.apply_bob(0.0 if swimming else horizontal / RUN_SPEED, delta)
@@ -267,7 +287,7 @@ func _bump_villagers(pushed: Vector3) -> void:
 		var speed := NpcStumble.bump_speed(pushed, met.get_normal())
 		if speed >= NpcStumble.BUMP_SPEED:
 			var normal := met.get_normal()
-			villager.bump(-Vector3(normal.x, 0.0, normal.z).normalized() * speed, global_position)
+			villager.poses.bump(-Vector3(normal.x, 0.0, normal.z).normalized() * speed, global_position)
 
 func _drive_viewmodel(horizontal: float, delta: float) -> void:
 	var acceleration := (velocity - _previous_velocity) / maxf(delta, 0.0001)

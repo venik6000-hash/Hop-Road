@@ -41,7 +41,7 @@ const RAIN_ON_LEAVES := 0.35
 static func make(system: VegetationSystem) -> void:
 	var wind_noise := load("res://assets/generated/sky/cloud_weather.png")
 	for group: Array in GROUPS:
-		system.bark_materials.append(bark_material(group[0], group[1]))
+		system.bark_materials.append(bark_material(str(group[0]), str(group[1])))
 		var foliage := ShaderMaterial.new()
 		foliage.shader = FOLIAGE_SHADER
 		foliage.set_shader_parameter("albedo_texture", load(TEXTURES + str(group[2]) + "_albedo.png"))
@@ -52,7 +52,7 @@ static func make(system: VegetationSystem) -> void:
 	var scans := {}
 	for kind: int in TRUNKS:
 		if not scans.has(TRUNKS[kind]):
-			scans[TRUNKS[kind]] = bark_material(TRUNKS[kind], ".jpg")
+			scans[TRUNKS[kind]] = bark_material(str(TRUNKS[kind]), ".jpg")
 		system.trunk_materials[kind] = scans[TRUNKS[kind]]
 	set_foliage_look(system, FOLIAGE_LOOK)
 	system.impostor_material.shader = IMPOSTOR_SHADER
@@ -62,9 +62,9 @@ static func make(system: VegetationSystem) -> void:
 	var species: Array = meta.species
 	for kind: int in species.size():
 		var frame: Dictionary = species[kind]
-		system.impostor_frames.append(Vector4(frame.width_m, frame.height_m, frame.bottom_m,
-			TreePlacer.SPECIES_GROUP[kind]))
-		system.crowns.append(Vector2(frame.crown_radius_m, VegetationSystem.CROWN_SHADE[TreePlacer.SPECIES_GROUP[kind]]))
+		system.impostor_frames.append(Vector4(Values.real(frame.width_m), Values.real(frame.height_m), Values.real(frame.bottom_m),
+			Values.real(TreePlacer.SPECIES_GROUP[kind])))
+		system.crowns.append(Vector2(Values.real(frame.crown_radius_m), Values.real(VegetationSystem.CROWN_SHADE[TreePlacer.SPECIES_GROUP[kind]])))
 	system.impostor_material.set_shader_parameter("frames", system.impostor_frames)
 	system.impostor_material.set_shader_parameter("lod_range", system.impostor_range())
 	system.impostor_material.set_shader_parameter("rain_wets", RAIN_ON_LEAVES)
@@ -100,10 +100,11 @@ static func set_foliage_look(system: VegetationSystem, look: Array) -> void:
 		system.foliage_materials[group].set_shader_parameter("leaf_transmission", values[1])
 		system.foliage_materials[group].set_shader_parameter("leaf_tint", values[2])
 		system.foliage_materials[group].set_shader_parameter("leaf_ambient", values[3])
-		wrap.append(values[0])
-		transmission.append(values[1])
-		tint.append(values[2])
-		ambient.append(values[3])
+		wrap.append(Values.real(values[0]))
+		transmission.append(Values.real(values[1]))
+		var leaf_tint: Vector3 = values[2]
+		tint.append(leaf_tint)
+		ambient.append(Values.real(values[3]))
 	system.impostor_material.set_shader_parameter("leaf_wrap", wrap)
 	system.impostor_material.set_shader_parameter("leaf_transmission", transmission)
 	system.impostor_material.set_shader_parameter("leaf_tint", tint)

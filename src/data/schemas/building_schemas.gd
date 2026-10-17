@@ -3,104 +3,118 @@ extends RefCounted
 ## The schemas of the tables that stand the buildings: the village's twelve
 ## (assets/models/<name>/<name>.json, written by tools/pipeline/buildings/kit.py),
 ## the two cottages, the tavern's two, and the stalls' (assets/models/trade/trade.json).
-## docs/VILLAGE.md, «Таблица», tells what each section does.
+## docs/VILLAGE.md, «Таблица», tells what each section does. The materials
+## are MaterialSchemas', the working parts MachinerySchemas'.
 ##
 ## The fields marked "build" are written by the Blender build and read by
 ## tools/verify; the game ignores them.
 
 const D := preload("res://src/data/data_schema.gd")
-const TAVERN_MATERIALS := preload("res://src/tavern/tavern_materials.gd")
 
-## The shaders a material may name; none names `surface`.
-const SHADERS: Array[String] = ["surface", "flame", "foliage", "fur", "cloth", "glass"]
+## The kinds of a room's lamp (assets/light/profiles.json, `lamps`).
+const LAMP_KINDS: Array[String] = ["candle", "lantern", "chandelier", "stove", "hearth"]
 
-static func vec3() -> Dictionary:
-	return D.vector(3)
-
-## One material of a table (TavernMaterials.build). Which fields count
-## depends on `shader`: a surface takes the textures and the grime, a flame
-## its colour and energy, glass its pane.
-static func material() -> Dictionary:
-	return D.object({
-		"shader": D.choice(SHADERS),
-		"tint": D.vector(3),
-		"albedo": D.optional(D.file()),
-		"normal": D.optional(D.file()),
-		"orm": D.optional(D.file()),
-		"mask": D.optional(D.file()),
-		"emblem": D.optional(D.file()),
-		"desaturate": D.optional(D.number(0.0, 1.0)),
-		"albedo_gain": D.optional(D.number(0.0)),
-		"uv_scale": D.optional(D.number(0.001)),
-		"normal_strength": D.optional(D.number(0.0)),
-		"roughness": D.optional(D.number(0.0)),
-		"metallic": D.optional(D.number(0.0, 1.0)),
-		"grime": D.optional(D.number(0.0, 1.0)),
-		"moss": D.optional(D.number(0.0, 1.0)),
-		"lichen": D.optional(D.number(0.0, 1.0)),
-		"detail": D.optional(D.choice(TAVERN_MATERIALS.DETAIL_MAPS.keys())),
-		"detail_scale": D.optional(D.number(0.001)),
-		"detail_strength": D.optional(D.number(0.0)),
-		"detail_turn": D.optional(D.whole(0, 1)),
-		# flame
-		"color": D.optional(D.vector(3)),
-		"energy": D.optional(D.number(0.0)),
-		"wildness": D.optional(D.number(0.0)),
-		"dusk_only": D.optional(D.flag()),
-		"core": D.optional(D.vector(3)),
-		"emission": D.optional(D.number(0.0)),
-		"emission_color": D.optional(D.vector(3)),
-		# foliage
-		"wrap": D.optional(D.number(0.0)),
-		"transmission": D.optional(D.number(0.0)),
-		"flutter": D.optional(D.number(0.0)),
-		# glass
-		"alpha": D.optional(D.number(0.0, 1.0)),
-		"wave": D.optional(D.number(0.0)),
-		"quarry": D.optional(D.number(0.0)),
-		"pane": D.optional(D.number(0.0)),
-		# cloth
-		"cloth_wrap": D.optional(D.number(0.0)),
-		"cloth_through": D.optional(D.number(0.0)),
-		"cloth_sheen": D.optional(D.number(0.0)),
-		"stain": D.optional(D.number(0.0)),
-		"threads": D.optional(D.number(0.0)),
-		"emblem_color": D.optional(D.vector(3)),
-		"emblem_size": D.optional(D.vector(2)),
-		# fur
-		"tip": D.optional(D.vector(3)),
-		"tip_inside": D.optional(D.number(0.0)),
-		"tip_edge": D.optional(D.number(0.0)),
-		"fur_length": D.optional(D.number(0.0)),
-		"fur_lean": D.optional(D.number(0.0)),
-		"fur_droop": D.optional(D.number(0.0)),
-		"strand_cell": D.optional(D.number(0.0)),
-		"tuft_cell": D.optional(D.number(0.0)),
-		"tuft_pull": D.optional(D.number(0.0)),
-	})
-
-static func materials() -> Dictionary:
-	return D.table(material())
-
-## A light (TavernLights.make_light): `layer` says where it shines, `night`
-## whether it is a lantern lit at dusk.
+## A light (InteriorLamps.add_light). A lamp of a room names the `room` and
+## its `kind`, which gives its shadow and its size; any other light says
+## where it shines (`layer`), whether it is a lantern lit at dusk (`night`),
+## its shadow and its size.
 static func light() -> Dictionary:
-	return D.object({
+	var row := D.object({
 		"name": D.text(),
 		"position": D.vector(3),
 		"type": D.choice(["point", "spot"]),
 		"color": D.vector(3),
 		"energy": D.number(0.0),
 		"range": D.number(0.1),
-		"shadow": D.flag(),
+		"room": D.optional(D.text()),
+		"kind": D.optional(D.choice(LAMP_KINDS)),
+		"shadow": D.optional(D.flag()),
 		"flicker": D.number(0.0),
-		"night": D.number(0.0, 1.0),
-		"layer": D.choice(["exterior", "interior"]),
-		"size": D.number(0.0),
+		"night": D.optional(D.number(0.0, 1.0)),
+		"layer": D.optional(D.choice(["exterior", "interior"])),
+		"size": D.optional(D.number(0.0)),
 		"speed": D.number(0.0),
 		"sway": D.number(0.0),
 		"direction": D.optional(D.vector(3)),
 		"angle": D.optional(D.number(1.0, 179.0)),
+	})
+	var of_room: Array[String] = ["kind"]
+	var of_other: Array[String] = ["shadow", "night", "layer", "size"]
+	return D.checked(row, func(value: Variant) -> String:
+		var lamp := Values.table(value)
+		var what := "lamp of a room" if lamp.has("room") else "light"
+		for field: String in of_room + of_other:
+			var needed := of_room.has(field) == lamp.has("room")
+			if needed and not lamp.has(field):
+				return "a %s needs `%s`" % [what, field]
+			if not needed and lamp.has(field):
+				return "a %s has no `%s`" % [what, field]
+		return "")
+
+## A room of an interior (Interior.Room): its air as boxes (middle and half
+## size, in the building's frame), how far it reaches through its walls, the
+## height of its floor, its profile and its probe's ambient light.
+static func room() -> Dictionary:
+	return D.object({
+		"name": D.text(),
+		"boxes": D.list(D.vector(6), 1),
+		"wall": D.vector(3, 0.0),
+		"floor": D.number(),
+		"profile": D.ref(&"light_profile"),
+		"ambient": D.vector(3, 0.0),
+	})
+
+## An opening between two rooms or a room and the outdoors (Interior.Opening).
+## A window or a door is a rectangle on the line of its wall: the middle of
+## its sill, the way into its first room, its width, the heights of its sill,
+## of its springing and of its top over the sill's middle, the depth of its
+## reveal, and whether the day comes in through it. The stairs and a hatch
+## are a hole in a floor: its height and its corners (x0, z0, x1, z1).
+static func opening() -> Dictionary:
+	var row := D.object({
+		"name": D.text(),
+		"kind": D.choice(Interior.WALL_KINDS + Interior.FLOOR_KINDS),
+		"rooms": D.list(D.text(), 2, 2),
+		"position": D.optional(D.vector(3)),
+		"inward": D.optional(D.vector(3)),
+		"width": D.optional(D.number(0.0)),
+		"sill": D.optional(D.number()),
+		"spring": D.optional(D.number()),
+		"top": D.optional(D.number()),
+		"reveal": D.optional(D.number(0.0)),
+		"floor": D.optional(D.number()),
+		"daylight": D.optional(D.flag()),
+		"height": D.optional(D.number()),
+		"hole": D.optional(D.vector(4)),
+	})
+	var in_floors: Array[String] = ["height", "hole"]
+	var in_walls: Array[String] = ["position", "inward", "width", "sill", "top"]
+	return D.checked(row, func(value: Variant) -> String:
+		var opening_row := Values.table(value)
+		for field: String in in_floors if Interior.FLOOR_KINDS.has(str(opening_row.kind)) else in_walls:
+			if not opening_row.has(field):
+				return "a %s needs `%s`" % [opening_row.kind, field]
+		return "")
+
+## assets/light/profiles.json (LightProfile): how each kind of room takes the
+## light, and the defaults of each kind of lamp.
+static func light_profiles() -> Dictionary:
+	var day_night := D.object({"day": D.number(0.0), "night": D.number(0.0)})
+	var lamps := {}
+	for kind: String in LAMP_KINDS:
+		lamps[kind] = D.object({"shadow": D.flag(), "size": D.number(0.0)})
+	var daylight := {}
+	for field: String in ["sky", "sky_area", "overcast", "moonlit", "beam", "moon_air", "bounce", "moon_patch", "moon_bounce"]:
+		daylight[field] = D.number(0.0)
+	return D.object({
+		"profiles": D.table(D.object({
+			"exposure": D.object({
+				"day": D.number(0.0), "night": D.number(0.0), "over_day": D.number(0.0), "over_night": D.number(0.0)}),
+			"ambient": day_night,
+			"haze": D.number(0.0, 1.0),
+			"daylight": D.optional(D.object(daylight)),
+		}), &"light_profile"),
+		"lamps": D.object(lamps),
 	})
 
 ## A reflection probe over a room.
@@ -125,17 +139,28 @@ static func station(kind := &"") -> Dictionary:
 static func vent() -> Dictionary:
 	return D.object({"id": D.text(), "kind": D.choice(["smoke", "steam"]), "at": D.vector(3), "fire": D.optional(D.text())})
 
+## Flames with hot air over them (HearthFire.from_table): the middle of
+## their base, the way along the grate, its width and the flames' height.
+static func hearth() -> Dictionary:
+	return D.object(_hearth_fields())
+
+## A fire of a village building: a hearth with the lamps that flicker with it,
+## the machinery's group whose draught blows it up, and its glow from afar.
 static func fire() -> Dictionary:
-	return D.object({
+	var fields := _hearth_fields()
+	fields["lamps"] = D.list(D.text())
+	fields["blown"] = D.optional(D.text())
+	fields["far"] = D.object({"radius": D.number(0.0), "out": D.vector(3)})
+	return D.object(fields)
+
+static func _hearth_fields() -> Dictionary:
+	return {
 		"name": D.text(),
 		"at": D.vector(3),
 		"along": D.vector(3),
 		"width": D.number(0.0),
 		"height": D.number(0.0),
-		"lamps": D.list(D.text()),
-		"blown": D.optional(D.text()),
-		"far": D.object({"radius": D.number(0.0), "out": D.vector(3)}),
-	})
+	}
 
 ## What a table asks of the ground (VillageBuildings.shape_ground), and the
 ## points that record what the model stands on.
@@ -163,6 +188,37 @@ static func terrain() -> Dictionary:
 static func worn() -> Dictionary:
 	return D.object(_worn_fields())
 
+## The floors of the region's tavern the ground is taken down under
+## (RegionDef.tavern_ground; TavernGround): each floor's corner and size (x,
+## z), and how far the ground goes down (m).
+static func tavern_ground() -> Dictionary:
+	return D.object({
+		"floors": D.list(D.object({"at": D.vector(2), "size": D.vector(2, 0.0)}), 1),
+		"drop": D.number(0.0),
+	})
+
+## Where the staff of the region's tavern work (RegionDef.tavern_work;
+## NpcPopulation): the cook's board and the stew's pot, the maid's round after
+## her place at the counter, and the stops of the round where she wipes a top
+## (`stop`: 0 is her place, 1 the first point of `round`; the strip and the
+## stance as NpcWipe.set_strip reads them, `yaw` the way she faces).
+static func tavern_work() -> Dictionary:
+	return D.object({
+		"board": D.vector(3),
+		"pot": D.vector(3),
+		"round": D.list(D.vector(3), 1),
+		"wipes": D.list(D.object({
+			"stop": D.whole(0),
+			"yaw": D.number(-TAU, TAU),
+			"middle": D.number(),
+			"across": D.number(0.0),
+			"near": D.number(0.0),
+			"far": D.number(0.0),
+			"drop": D.optional(D.number(0.0)),
+			"rest": D.vector(3),
+		})),
+	})
+
 ## The region's worn ground (RegionDef.worn_ground): what worn() holds, in
 ## the map's frame, and the patches of softly worn earth round the village's
 ## yards (GroundWear.paint_patches): a middle (x, z) and the half sizes.
@@ -179,100 +235,6 @@ static func _worn_fields() -> Dictionary:
 		"cinder": D.optional(D.list(D.object({"name": D.text(), "fade": D.number(0.0), "outline": D.list(D.vector(2), 3)}))),
 	}
 
-## A part that moves by hand or on its own (BuildingMachinery).
-static func moving() -> Dictionary:
-	return D.object({
-		"id": D.text(),
-		"title": D.text(),
-		"group": D.text(),
-		"kind": D.choice(["swing", "slide", "spin"]),
-		"nodes": D.list(D.text(), 1),
-		"pivot": D.vector(3),
-		"axis": D.vector(3),
-		"travel": D.number(),
-		"grip": D.optional(D.vector(3)),
-		"hand": D.optional(D.vector(3)),
-	})
-
-## A wheel or shaft that turns with others (BuildingMachinery).
-static func turning() -> Dictionary:
-	return D.object({
-		"id": D.text(),
-		"title": D.text(),
-		"centre": D.vector(3),
-		"axis": D.vector(3),
-		"radius": D.number(0.0),
-		"ratio": D.number(),
-		"rpm": D.number(),
-		"drives": D.list(D.text()),
-		"clutch": D.flag(),
-	})
-
-static func optic() -> Dictionary:
-	return D.object({
-		"pivot": D.vector(3),
-		"axis": D.vector(3),
-		"period": D.number(0.1),
-		"prefix": D.text(),
-		"beams": D.list(D.object({
-			"direction": D.vector(3), "spread": D.number(0.0), "range": D.number(0.0), "color": D.vector(3)}), 1),
-		"lamp": D.vector(3),
-	})
-
-## The mill's water: the intake, the ribbons of the race, the falls (MillWater).
-static func water() -> Dictionary:
-	return D.object({
-		"intake": D.object({"at": D.vector(3), "stream_level": D.number()}),
-		"depth": D.number(0.0),
-		"ribbons": D.list(D.object({
-			"name": D.text(), "half": D.number(0.0), "speed": D.number(), "boarded": D.flag(), "points": D.list(D.vector(3), 2)})),
-		"falls": D.list(D.object({
-			"name": D.text(), "lip": D.vector(3), "heading": D.number(), "speed": D.number(), "dip": D.number(),
-			"width": D.number(0.0), "spread": D.number(0.0), "depth": D.number(0.0), "approach": D.number(),
-			"floor": D.number(), "sink": D.number(), "behind": D.number()})),
-		"spill": D.object({"from": D.vector(3), "to": D.vector(3)}),
-	})
-
-## A point of the brewery's hands and pipes (BrewHouse): where liquid is
-## poured, a vessel's brim and bottom, a grip.
-static func anchor() -> Dictionary:
-	return D.object({
-		"id": D.text(),
-		"kind": D.choice(["nozzle", "pour", "brim", "bottom", "bucket", "grip", "hook"]),
-		"at": D.vector(3),
-		"radius": D.optional(D.number(0.0)),
-		"into": D.optional(D.text()),
-		"rect": D.optional(D.list(D.vector(2), 2, 2)),
-		"turn": D.optional(D.number()),
-	})
-
-## What a vessel holds and how far (BrewDay.COPPER and the other ids).
-static func surface() -> Dictionary:
-	return D.object({
-		"id": D.text(),
-		"vessel": D.text(),
-		"kind": D.choice(["wort", "grain", "water", "foam", "mash"]),
-		"node": D.text(),
-		"at": D.vector(3),
-		"bottom": D.optional(D.number()),
-		"brim": D.optional(D.number()),
-		"level": D.optional(D.number()),
-		"radius": D.optional(D.number(0.0)),
-		"rect": D.optional(D.list(D.vector(2), 2, 2)),
-		"heap": D.optional(D.vector(3)),
-	})
-
-## A thing the hands take (BrewStation).
-static func utensil() -> Dictionary:
-	return D.object({
-		"id": D.text(),
-		"title": D.text(),
-		"kind": D.choice(["sack", "vessel", "tool", "raw", "log", "instrument"]),
-		"nodes": D.list(D.text(), 1),
-		"at": D.vector(3),
-		"grip": D.vector(3),
-	})
-
 ## The tables of a region's buildings (RegionDef.buildings). Every one has the common
 ## sections; the rest are what the building has.
 static func building(station_kind := &"") -> Dictionary:
@@ -282,7 +244,7 @@ static func building(station_kind := &"") -> Dictionary:
 		"scenes": D.object({"shell": D.file(), "interior": D.optional(D.file())}),
 		"origin": D.vector(3),
 		"yaw": D.number(),
-		"materials": materials(),
+		"materials": MaterialSchemas.materials(),
 		"color_range": D.number(0.0),
 		"lights": D.list(light()),
 		"probes": D.list(probe()),
@@ -301,11 +263,11 @@ static func building(station_kind := &"") -> Dictionary:
 		"worn": D.optional(worn()),
 		"replaces": D.optional(D.list(D.text(), 1)),
 		"outdoors": D.optional(D.list(D.text(), 1)),
-		"moving": D.optional(D.list(moving())),
-		"turning": D.optional(D.list(turning())),
+		"moving": D.optional(D.list(MachinerySchemas.moving())),
+		"turning": D.optional(D.list(MachinerySchemas.turning())),
 		"vanes": D.optional(D.list(D.object({"id": D.text(), "pivot": D.vector(3), "lee": D.vector(3)}))),
-		"optic": D.optional(optic()),
-		"water": D.optional(water()),
+		"optic": D.optional(MachinerySchemas.optic()),
+		"water": D.optional(MachinerySchemas.water()),
 		# build: outlines and ground measures for tools/verify.
 		"footprint": D.optional(D.list(D.vector(3), 3)),
 		"roofs": D.optional(D.list(D.list(D.vector(3), 2))),
@@ -327,9 +289,9 @@ static func building(station_kind := &"") -> Dictionary:
 			"lamp": D.text(), "title": D.text(), "kind": D.text(), "at": D.vector(3), "proposed": D.vector(2),
 			"note": D.any_text()}))),
 		"hills": D.optional(D.list(D.object({"at": D.vector(2), "tread": D.whole(0), "row": D.whole(0), "picked": D.flag()}))),
-		"anchors": D.optional(D.list(anchor())),
-		"surfaces": D.optional(D.list(surface())),
-		"utensils": D.optional(D.list(utensil())),
+		"anchors": D.optional(D.list(MachinerySchemas.anchor())),
+		"surfaces": D.optional(D.list(MachinerySchemas.surface())),
+		"utensils": D.optional(D.list(MachinerySchemas.utensil())),
 	})
 
 ## The region's cottages (RegionDef.cottages, VillageCottage). `key` is the
@@ -360,7 +322,7 @@ static func cottage() -> Dictionary:
 		"scene": D.file(),
 		"origin": D.vector(3),
 		"replaces_prefix": D.text(),
-		"materials": materials(),
+		"materials": MaterialSchemas.materials(),
 		"color_range": D.number(0.0),
 		"lantern": D.vector(3),
 		"description": D.text(),
@@ -369,16 +331,22 @@ static func cottage() -> Dictionary:
 	})
 
 ## tavern.json and tavern_interior.json: the parts of the tavern (RegionDef.tavern).
+## The interior's part holds the building's light (BuildingLight): what the
+## building takes up (`bounds`: x0, y0, z0, x1, y1, z1 in its frame), its
+## rooms, their openings and the lamps that name them.
 static func tavern_part() -> Dictionary:
 	var fields: Dictionary = {
 		"scenes": D.list(D.file(), 2, 2),
 		"replaces": D.list(D.text(), 1),
 		"drop_colliders": D.list(D.text()),
 		"moved_colliders": D.list(D.object({"box": D.vector(6), "by": D.vector(3), "of": D.text()})),
-		"materials": materials(),
+		"materials": MaterialSchemas.materials(),
 		"color_range": D.number(0.0),
 		"lights": D.list(light()),
-		"probes": D.list(probe()),
+		"bounds": D.optional(D.vector(6)),
+		"rooms": D.optional(D.list(room(), 1)),
+		"openings": D.optional(D.list(opening())),
+		"fires": D.optional(D.list(hearth())),
 		"seats": D.list(D.object({
 			"name": D.id(&"seat"),
 			"position": D.vector(3),
@@ -398,15 +366,22 @@ static func tavern_part() -> Dictionary:
 			"storeys": D.vector(4),
 			"walked": D.number(),
 		})),
-		"portal_floors": D.optional(D.list(D.object({"height": D.number(), "holes": D.list(D.vector(4))}))),
-		"portals": D.optional(D.list(D.object({
-			"name": D.text(), "position": D.vector(3), "inward": D.vector(3), "sill": D.number(), "top": D.number(),
-			"width": D.number(0.0)}))),
-		"windows": D.optional(D.list(D.object({
-			"name": D.text(), "position": D.vector(3), "inward": D.vector(3), "floor": D.number(), "reveal": D.number(),
-			"room": D.text(), "sill": D.number(), "spring": D.number(), "top": D.number(), "width": D.number(0.0)}))),
 	}
-	return D.object(fields)
+	return D.checked(D.object(fields), func(value: Variant) -> String:
+		var part := Values.table(value)
+		var rooms: Array[String] = [Interior.OUT]
+		for row: Dictionary in part.get("rooms", []):
+			rooms.append(str(row.name))
+		for lamp: Dictionary in part.lights:
+			if lamp.has("room") and not rooms.has(str(lamp.room)):
+				return "lamp %s: no room %s" % [lamp.name, lamp.room]
+		for row: Dictionary in part.get("openings", []):
+			for side: Variant in row.rooms:
+				if not rooms.has(str(side)):
+					return "opening %s: no room %s" % [row.name, side]
+		if part.has("rooms") and not part.has("bounds"):
+			return "a part with rooms needs `bounds`"
+		return "")
 
 ## assets/models/trade/trade.json: the points and boxes of the stall, the
 ## order board and the cart, and their materials.
@@ -417,6 +392,6 @@ static func trade_models() -> Dictionary:
 			"price_board": D.vector(3), "coin_slot": D.vector(3), "chest_lid": D.vector(3), "colliders": boxes}),
 		"order_board": D.object({"board": D.vector(3), "colliders": boxes}),
 		"cart": D.object({"bed": D.vector(3), "colliders": boxes}),
-		"materials": materials(),
+		"materials": MaterialSchemas.materials(),
 		"color_range": D.number(0.0),
 	})

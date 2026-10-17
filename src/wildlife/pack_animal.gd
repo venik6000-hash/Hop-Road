@@ -45,7 +45,7 @@ func _ready() -> void:
 		# An animal never stands still: beside a lamp that casts a shadow it
 		# would have the lamp draw its map again in every frame (the goats ten
 		# metres from the forge did, all day).
-		mesh.layers = TavernSystem.RESTLESS_LAYER
+		mesh.layers = LightLayers.RESTLESS
 	if not reuse:
 		_bounds_cache[kind] = {"transform": global_transform, "bounds": bounds}
 	var factor := height / maxf(bounds.size.y, 0.001)

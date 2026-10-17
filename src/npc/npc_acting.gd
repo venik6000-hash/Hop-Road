@@ -41,6 +41,18 @@ var _random := RandomNumberGenerator.new()
 func _init(seed_text := "") -> void:
 	_random.seed = hash(seed_text)
 
+## Keeps the body on `held` of `occupation`, repeated, until let_go(): a
+## tool holds a clip to look at it.
+func hold(occupation: String, held: String) -> void:
+	kind = occupation
+	clip = held
+	repeats = true
+	_until = INF
+
+## Ends a hold: the next choice picks the occupation's clip anew.
+func let_go() -> void:
+	_until = 0.0
+
 ## Whether the model has the occupation recorded: the clip it is named for,
 ## the first of its set.
 func knows(occupation: String) -> bool:
@@ -75,7 +87,7 @@ func _next(pause: bool, now: float) -> void:
 		_until = now + 1.0
 		return
 	clip = known[_random.randi() % known.size()]
-	var length := float(lengths[clip])
+	var length := Values.real(lengths[clip])
 	var loops_too: Array = set_of.loops
 	if not pause:
 		repeats = true

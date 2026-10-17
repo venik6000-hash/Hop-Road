@@ -87,7 +87,7 @@ static func set_loop(stream: AudioStreamWAV) -> void:
 	stream.loop_end = int(stream.get_length() * stream.mix_rate)
 
 func make_loop(key: String) -> AudioStreamPlayer:
-	var stream := bank[key][0] as AudioStreamWAV
+	var stream: AudioStreamWAV = bank[key][0]
 	set_loop(stream)
 	var voice := AudioStreamPlayer.new()
 	voice.stream = stream
@@ -104,7 +104,7 @@ func play_event(key: String, point: Vector3, gain := -14.0) -> void:
 		if voice.playing:
 			continue
 		var streams: Array[AudioStream] = bank[key]
-		var index: int = int(_bank_index.get(key, 0)) % streams.size()
+		var index: int = Values.whole(_bank_index.get(key, 0)) % streams.size()
 		_bank_index[key] = index + 1
 		voice.stream = streams[index]
 		voice.position = point

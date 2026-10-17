@@ -2,7 +2,7 @@ class_name LimbPose
 extends SkeletonModifier3D
 ## What the villager's pose modifiers share: two-bone chains solved in world
 ## space, since the imported rigs have different axes and scales. How far the
-## modifier bends the clip is its `influence`, set by VillageNPC from NpcBody.
+## modifier bends the clip is its `influence`, set by NpcPoses from NpcBody.
 var actor: VillageNPC
 var _bones: Dictionary = {}
 var _rest: Dictionary = {}
@@ -20,7 +20,7 @@ func _find(skeleton: Skeleton3D, labels: Array[String]) -> void:
 	for label in labels:
 		_bones[label] = skeleton.find_bone(label)
 		if _bones[label] >= 0:
-			_rest[label] = _global_rest(skeleton, _bones[label])
+			_rest[label] = _global_rest(skeleton, Values.whole(_bones[label]))
 
 ## Where a chain of two bones `first` and `second` long from `start` puts its
 ## middle joint and its tip for `target`, the joint bent towards `pole` and

@@ -39,12 +39,12 @@ func add(part: String, item: MeshInstance3D, extras: Dictionary) -> void:
 			_door = item
 			_door_rest = item.global_transform
 			var h: Array = extras.tav_hinge
-			_hinge = tavern.to_global(Vector3(h[0], h[2], -h[1]))
+			_hinge = tavern.to_global(Vector3(Values.real(h[0]), Values.real(h[2]), Values.real(-h[1])))
 		"bird":
 			_bird = item
 			_bird_rest = item.global_transform
 			var o: Array = extras.tav_out
-			_out = (tavern.global_basis * Vector3(o[0], o[2], -o[1])).normalized()
+			_out = (tavern.global_basis * Vector3(Values.real(o[0]), Values.real(o[2]), Values.real(-o[1]))).normalized()
 
 func _process(delta: float) -> void:
 	if tavern == null or tavern.sky_system == null or _door == null or _bird == null:

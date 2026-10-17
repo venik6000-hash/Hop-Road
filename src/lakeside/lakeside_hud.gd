@@ -76,18 +76,18 @@ static func update(lake: LakesideSystem) -> void:
 ## The journal page, translated: every species with its record, then the basket.
 static func journal(fishing: FishingState) -> String:
 	var text := TranslationServer.translate("РЫБЫ НАШЕГО ОЗЕРА") + "\n\n"
-	for species: String in FishingState.SPECIES:
+	for species: String in FishingState.species_table():
 		var record: Dictionary = fishing.journal.get(species, {})
-		var title := TranslationServer.translate(FishingState.SPECIES[species].title)
+		var title := TranslationServer.translate(FishingState.title(species))
 		if record.is_empty():
 			text += TranslationServer.translate("%s — ещё не встречалась") % title + "\n"
 		else:
-			var count := int(record.count)
+			var count := Values.whole(record.count)
 			text += TranslationServer.translate_plural("%s — %d улов · рекорд %.1f см", "%s — %d улова · рекорд %.1f см",
-				count) % [title, count, float(record.best_cm)] + "\n"
+				count) % [title, count, Values.real(record.best_cm)] + "\n"
 	text += "\n" + TranslationServer.translate("В КОРЗИНЕ: %d / %d") % [fishing.bag.size(), FishingState.CAPACITY] + "\n"
 	for fish in fishing.bag:
-		var title := TranslationServer.translate(FishingState.SPECIES[fish.species].title)
+		var title := TranslationServer.translate(FishingState.title(str(fish.species)))
 		var words := TranslationServer.translate("%s · %.2f кг · приготовлена") if fish.cooked else TranslationServer.translate("%s · %.2f кг")
 		text += words % [title, fish.kg] + "\n"
 	text += "\n" + TranslationServer.translate("{fish_use} — приготовить / угостить / поесть\n{fish_journal} или {pause} — закрыть")

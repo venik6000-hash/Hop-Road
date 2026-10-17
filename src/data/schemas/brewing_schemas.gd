@@ -33,7 +33,7 @@ static func trade() -> Dictionary:
 	var place := {"title": D.text(), "at": D.vector(3), "face": D.vector(2)}
 	var priced := D.checked(D.table(D.whole(0), &"", &"sort"), func(value: Variant) -> String:
 		for sort: StringName in BrewIds.SORTS:
-			if not (value as Dictionary).has(sort):
+			if not Values.table(value).has(sort):
 				return "no price for the sort '%s'" % sort
 		return "")
 	return D.object({
@@ -112,3 +112,23 @@ static func guide() -> Dictionary:
 			"except": D.optional(D.list(D.ref(&"sort"), 1)),
 		}), 1),
 	})
+
+## works.json: what the hand does at each kind of station (BrewStation).
+static func works() -> Dictionary:
+	return D.object({"stations": D.table(D.list(D.object({
+		"id": D.id(&"work"),
+		"title": D.text(),
+		"gesture": D.choice(BrewGesture.KINDS),
+		"held": D.optional(D.list(D.ref(&"utensil"), 1)),
+		"part": D.optional(D.text()),
+		"weight": D.optional(D.number(0.0)),
+		"along": D.optional(D.vector(2, 0.0, 1.0)),
+	}), 1))})
+
+## malts.json: what each kind of grain gives (MaltLot).
+static func malts() -> Dictionary:
+	return D.table(D.object({"color": D.number(0.0), "extract": D.number(0.0, 1.0), "smoke": D.number(0.0, 1.0)}), &"malt")
+
+## lines.json: what the brewery says by the crosshair, by id (BrewHouse).
+static func lines() -> Dictionary:
+	return D.object({"lines": D.table(D.text(), &"brew_line")})

@@ -37,7 +37,7 @@ static func board(lake: LakesideSystem) -> void:
 	lake.cancel_fishing()
 	lake.camping.fast_travel()
 	lake.aboard = true
-	lake._old_eye = lake.player.rig.position.y
+	lake.boarded_eye = lake.player.rig.position.y
 	lake.player.rig.position.y = 1.05
 	lake.player.set_physics_process(false)
 	lake.player.velocity = Vector3.ZERO
@@ -53,8 +53,11 @@ static func leave_boat(lake: LakesideSystem) -> bool:
 			var ray := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 2.0, at - Vector3.UP * 1.0)
 			ray.exclude = [lake.player.get_rid(), lake.boat.get_rid()]
 			var hit := lake.get_world_3d().direct_space_state.intersect_ray(ray)
-			if not hit.is_empty() and hit.normal.y > 0.7 and hit.position.y > lake.water.water_level + 0.05 and lake.interactions.can_stand(hit.position):
-				unboard(lake, hit.position + Vector3.UP * 0.03)
+			if hit.is_empty():
+				continue
+			var stand: Vector3 = hit.position
+			if hit.normal.y > 0.7 and stand.y > lake.water.water_level + 0.05 and lake.interactions.can_stand(stand):
+				unboard(lake, stand + Vector3.UP * 0.03)
 				return true
 	# Swimming is already a safe, supported mode in this game. Test the capsule first.
 	var at := lake.boat.to_global(Vector3(2.0, 0.1, 0.0))
@@ -73,7 +76,7 @@ static func unboard(lake: LakesideSystem, at: Vector3) -> void:
 	lake.aboard = false
 	lake.boat.rowing = false
 	lake.boat.throttle = 0
-	lake.player.rig.position.y = lake._old_eye
+	lake.player.rig.position.y = lake.boarded_eye
 	lake.player.global_position = at
 	lake.player.velocity = Vector3.ZERO
 	lake.player.get_node("Collision").set_deferred("disabled", false)

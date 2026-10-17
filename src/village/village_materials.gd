@@ -41,8 +41,8 @@ const FAMILIES := {
 }
 
 static func apply(map: Node3D, terrain: TerrainSystem) -> int:
-	var weather := load("res://assets/generated/sky/cloud_weather.png")
-	var moss := load("res://assets/generated/terrain/terrain_albedo.jpg")
+	var weather := load("res://assets/generated/sky/cloud_weather.png") as Texture2D
+	var moss := load("res://assets/generated/terrain/terrain_albedo.jpg") as Texture
 	var made := {}
 	var changed := 0
 	for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
@@ -62,8 +62,9 @@ static func apply(map: Node3D, terrain: TerrainSystem) -> int:
 			var shade: Color = old.get_shader_parameter("base_color")
 			var key := "%s/%s" % [kind, old.resource_name]
 			if not made.has(key):
-				made[key] = _material(KINDS[kind], shade, kind, weather, moss)
-			item.set_surface_override_material(surface, made[key])
+				made[key] = _material(Values.table(KINDS[kind]), shade, kind, weather, moss)
+			var dressed: Material = made[key]
+			item.set_surface_override_material(surface, dressed)
 			touched = true
 		if touched:
 			var box := item.global_transform * item.get_aabb()

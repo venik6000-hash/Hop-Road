@@ -22,11 +22,12 @@ func _post_import(scene: Node) -> Object:
 			# Packed maps may also be bound to AO or another texture slot. Match
 			# every Texture2D property, preserving channel selectors and factors.
 			for property: Dictionary in material.get_property_list():
-				if int(property.type) != TYPE_OBJECT:
+				if Values.whole(property.type) != TYPE_OBJECT:
 					continue
-				var texture := material.get(property.name) as Texture2D
+				var found: Variant = material.get(StringName(str(property.name)))
+				var texture: Texture2D = found if found is Texture2D else null
 				if texture != null and replacements.has(texture.resource_path):
-					material.set(property.name, replacements[texture.resource_path])
+					material.set(StringName(str(property.name)), replacements[texture.resource_path])
 	return scene
 
 func _same_import(first: String, second: String) -> bool:

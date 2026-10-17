@@ -14,7 +14,7 @@ func _post_import(scene: Node) -> Object:
 	body_count = 0
 	var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://assets/models/alpine/manifest.json"))
 	for mat_name: String in manifest.materials:
-		materials[mat_name] = make_material(mat_name, manifest.materials[mat_name])
+		materials[mat_name] = make_material(mat_name, Values.table(manifest.materials[mat_name]))
 	process_nodes(scene)
 	print("ALPINE_IMPORT meshes=%d bodies=%d" % [mesh_count, body_count])
 	return scene
@@ -24,7 +24,7 @@ func make_material(label: String, settings: Dictionary) -> ShaderMaterial:
 	mat.resource_name = label
 	mat.shader = SURFACE
 	var values: Array = settings.color
-	var color := Color(values[0], values[1], values[2], values[3]).linear_to_srgb()
+	var color := Color(Values.real(values[0]), Values.real(values[1]), Values.real(values[2]), Values.real(values[3])).linear_to_srgb()
 	mat.set_shader_parameter("base_color", color)
 	mat.set_shader_parameter("roughness_value", settings.roughness)
 	mat.set_shader_parameter("metallic_value", settings.metallic)
@@ -32,7 +32,7 @@ func make_material(label: String, settings: Dictionary) -> ShaderMaterial:
 	var foliage := "Leaves" in label
 	mat.set_shader_parameter("noise_scale", 0.0 if foliage else settings.noise)
 	var stretch: Array = settings.stretch
-	mat.set_shader_parameter("grain_stretch", Vector3(stretch[0], stretch[2], stretch[1]))
+	mat.set_shader_parameter("grain_stretch", Vector3(Values.real(stretch[0]), Values.real(stretch[2]), Values.real(stretch[1])))
 	mat.set_shader_parameter("leaf_motion", 0.025 if foliage else 0.0)
 	return mat
 
@@ -46,7 +46,8 @@ func process_nodes(node: Node) -> void:
 	for surface in item.mesh.get_surface_count():
 		var old := item.mesh.surface_get_material(surface)
 		if old != null and materials.has(old.resource_name):
-			item.mesh.surface_set_material(surface, materials[old.resource_name])
+			var material: Material = materials[old.resource_name]
+			item.mesh.surface_set_material(surface, material)
 	var extras: Dictionary = item.get_meta("extras", {})
 	var label := str(extras.get("alpine_label", item.name))
 	var collision := str(extras.get("alpine_collision", ""))

@@ -1,6 +1,11 @@
 class_name WildlifeSystem
 extends Node3D
-## Habitat placement and distance budgets for the alpine world's wildlife.
+## Habitat placement and distance budgets for the alpine world's wildlife:
+## the herds, flocks, fish waters and birdsong of the region's file
+## (RegionDef.wildlife; "" for none), and the lake's bed.
+
+## The region's file of its wild animals (WorldSchemas.wildlife).
+var wildlife := ""
 var terrain: TerrainSystem
 var player: Player
 var sky: SkySystem
@@ -10,6 +15,9 @@ var ground_animals: Array[GroundAnimal] = []
 var flyers: Array[FlyingAnimal] = []
 var schools: Array[FishSchool] = []
 var bed: LakeBed
+## The level's rooms: the lake bed's pieces are hidden from an eye in a room
+## that sees none of them (Interiors.watch_pieces). Null: never hidden.
+var interiors: Interiors
 var ready_for_visitors := false
 var auto_populate := true
 var audio: AudioStreamPlayer3D
@@ -29,33 +37,28 @@ func _ready() -> void:
 
 func populate() -> void:
 	await get_tree().physics_frame
-	# Fields beside the arrival trail and woods; hens stay around the village.
-	for zone: Vector3 in [Vector3(-22, 0, 28), Vector3(32, 0, 34), Vector3(-68, 0, 40), Vector3(68, 0, -50)]:
-		_add_ground("deer", zone, 22, 3)
-	for zone: Vector3 in [Vector3(-40, 0, 35), Vector3(46, 0, 25), Vector3(-95, 0, 30)]:
-		_add_ground("fox", zone, 18, 2)
-	for zone: Vector3 in [Vector3(20, 0, -23), Vector3(-15, 0, -32), Vector3(-5, 0, 23)]:
-		_add_ground("chicken", zone, 9, 4)
-	# Shrikes over the meadows, ravens over the woods, gulls along the lake.
-	var flocks := [
-		{"at": Vector3(0, 0, 15), "species": "bird"}, {"at": Vector3(15, 0, 50), "species": "bird"},
-		{"at": Vector3(-90, 0, 50), "species": "bird"},
-		{"at": Vector3(-70, 0, -20), "species": "raven"}, {"at": Vector3(50, 0, -65), "species": "raven"},
-		{"at": Vector3(-170, 0, -70), "species": "raven"},
-		{"at": Vector3(-110, 0, -55), "species": "seagull"}, {"at": Vector3(-55, 0, -100), "species": "seagull"},
-		{"at": Vector3(-150, 0, -40), "species": "seagull"},
-	]
+	var data: Variant = DataFile.read(wildlife, WorldSchemas.wildlife()) if not wildlife.is_empty() else {}
+	var plan: Dictionary = data if data is Dictionary else {}
+	var herds: Array = plan.get("herds", [])
+	for herd: Dictionary in herds:
+		var middle := Values.vec2(herd.at)
+		_add_ground(str(herd.kind), Vector3(middle.x, 0.0, middle.y), Values.real(herd.radius), Values.whole(herd.count))
+	var flocks: Array = plan.get("flocks", [])
 	for flock: Dictionary in flocks:
-		_add_flock("bird", flock.at, 5, flock.species)
-	for zone: Vector3 in [Vector3(-22, 0, 30), Vector3(22, 0, 22), Vector3(-60, 0, 16), Vector3(50, 0, -38)]:
-		_add_flock("butterfly", zone, 6)
+		var middle := Values.vec2(flock.at)
+		_add_flock(str(flock.kind), Vector3(middle.x, 0.0, middle.y), Values.whole(flock.count), str(flock.get("species", "bird")))
 	bed = LakeBed.new()
 	bed.name = "LakeBed"
 	bed.habitat = self
 	add_child(bed)
+	if interiors != null:
+		interiors.watch_pieces(bed, bed.seen_bounds)
 	await bed.build()
-	_add_schools()
-	_setup_audio()
+	if plan.has("fish_water"):
+		var box: Array = plan.fish_water
+		_add_schools(Vector4(Values.real(box[0]), Values.real(box[1]), Values.real(box[2]), Values.real(box[3])))
+	if plan.has("birdsong"):
+		_setup_audio(Values.vec2(plan.birdsong))
 	ready_for_visitors = true
 	print("WILDLIFE ground=%d flyers=%d schools=%d fish=%d wood=%d boulders=%d plants=%d" % [ground_animals.size(), flyers.size(), schools.size(), fish_count(), bed.wood_count, bed.rock_count, bed.plant_count])
 
@@ -98,12 +101,12 @@ func ground_safe(point: Vector3, kind: String) -> bool:
 	if player != null:
 		ray.exclude = [player.get_rid()]
 	var hit := get_world_3d().direct_space_state.intersect_ray(ray)
-	if hit.is_empty() or not String(hit.collider.name).begins_with("TerrainBody"):
+	if not PhysicsLayers.hit_terrain(hit):
 		return false
-	var shape := _clearance[kind] as CapsuleShape3D
+	var shape: CapsuleShape3D = _clearance[kind]
 	var query := PhysicsShapeQueryParameters3D.new()
 	query.shape = shape
-	query.transform = Transform3D(Basis.IDENTITY, Vector3(point.x, hit.position.y + shape.height * 0.5 + 0.12, point.z))
+	query.transform = Transform3D(Basis.IDENTITY, Vector3(point.x, Values.real(hit.position.y + shape.height * 0.5 + 0.12), point.z))
 	query.collision_mask = PhysicsLayers.GROUND | PhysicsLayers.VILLAGERS
 	if player != null:
 		query.exclude = [player.get_rid()]
@@ -142,9 +145,10 @@ func _add_flock(kind: String, zone: Vector3, count: int, species := "bird") -> v
 		add_child(flyer)
 		flyers.append(flyer)
 
-## Schools where each species lives: rudd in open water, perch over the
-## eelgrass, trout by the drowned wood, a pike at a meadow's edge.
-func _add_schools() -> void:
+## Schools where each species lives: rudd in open water within `box` (x0,
+## z0, x1, z1), perch over the eelgrass, trout by the drowned wood, a pike at
+## a meadow's edge.
+func _add_schools(box: Vector4) -> void:
 	var meadows := bed.meadow_centers.duplicate()
 	var wood := bed.wood_places.duplicate()
 	meadows.shuffle()
@@ -159,7 +163,7 @@ func _add_schools() -> void:
 	for attempt in 140:
 		if plans.size() >= 20:
 			break
-		var point := Vector3(_rng.randf_range(-175, -55), 0, _rng.randf_range(-100, -10))
+		var point := Vector3(_rng.randf_range(box.x, box.z), 0, _rng.randf_range(box.y, box.w))
 		var depth := terrain.water_level - terrain.height_at(point.x, point.z)
 		if depth < 4.0 or depth > 18.0:
 			continue
@@ -169,7 +173,8 @@ func _add_schools() -> void:
 			if terrain.height_at(point.x + cos(angle) * 10, point.z + sin(angle) * 8) > terrain.water_level - 2.7:
 				valid = false
 		for plan in plans:
-			if point.distance_to(plan.at) < 10:
+			var planned: Vector3 = plan.at
+			if point.distance_to(planned) < 10:
 				valid = false
 		if valid:
 			plans.append({"species": "fish", "at": point})
@@ -196,7 +201,8 @@ func fish_count() -> int:
 		total += school.fishes.size()
 	return total
 
-func _setup_audio() -> void:
+## The birdsong of the woods, sounding over the ground at `at` (x, z).
+func _setup_audio(at: Vector2) -> void:
 	audio = AudioStreamPlayer3D.new()
 	audio.name = "ForestBirdsong"
 	var birdsong: AudioStreamOggVorbis = load(WildlifeModel.DIRECTORY + "birds.ogg")
@@ -206,7 +212,7 @@ func _setup_audio() -> void:
 	audio.max_distance = 230.0
 	audio.volume_db = -16.0
 	audio.bus = AudioBuses.AMBIENCE
-	audio.position = Vector3(-30, terrain.height_at(-30, 30) + 7, 30)
+	audio.position = Vector3(at.x, terrain.height_at(at.x, at.y) + 7, at.y)
 	add_child(audio)
 	audio.play()
 
@@ -234,5 +240,7 @@ func _process(delta: float) -> void:
 		flyer.visible = day
 	for school in schools:
 		school.set_active(school.center.distance_squared_to(eye) < 80.0 * 80.0)
+	if audio == null:
+		return
 	var weather_loss := maxf(0, water.ocean.wind_speed - 6.0) * 0.8 if water != null else 0.0
 	audio.volume_db = -16.0 - weather_loss - (0.0 if day else 30.0) - (22.0 if eye.y < terrain.water_level else 0.0)

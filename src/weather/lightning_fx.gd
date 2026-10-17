@@ -22,8 +22,8 @@ const BOLT_BEND := 0.19
 var weather: WeatherSystem
 var terrain: TerrainSystem
 var environment: Environment
-## The rooms, as boxes in world space: the lamp does not shine in them.
-var rooms: Array[AABB] = []
+## The level's rooms: the lamp does not shine in them (none without).
+var interiors: Interiors
 
 var _lamp: DirectionalLight3D
 var _ambient := 1.0
@@ -38,8 +38,8 @@ func _ready() -> void:
 	_lamp.shadow_enabled = false
 	_lamp.light_specular = 0.3
 	_lamp.visible = false
-	# The rooms keep their own light (see TavernSystem's layers).
-	_lamp.light_cull_mask = 0xFFFFF & ~(TavernSystem.LAYER | TavernSystem.SHADOW_LAYER | TavernSystem.ROOM_SUN_LAYER)
+	# The rooms keep their own light (see LightLayers).
+	_lamp.light_cull_mask = 0xFFFFF & ~(LightLayers.ROOMS | LightLayers.LAMP_CASTERS | LightLayers.ROOM_SUN)
 	add_child(_lamp)
 	if environment != null:
 		_ambient = environment.ambient_light_energy
@@ -51,7 +51,7 @@ func _process(_delta: float) -> void:
 		return
 	var light := weather.flash_light
 	var camera := get_viewport().get_camera_3d()
-	var outdoors := 1.0 - EyeAdaptation.indoors(camera.global_position, rooms) if camera != null else 1.0
+	var outdoors := 1.0 - interiors.inside(camera.global_position) if camera != null and interiors != null else 1.0
 	_lamp.visible = light * outdoors > 0.002
 	if _lamp.visible:
 		_lamp.light_energy = FLASH_ENERGY * light * outdoors
@@ -65,9 +65,11 @@ func _process(_delta: float) -> void:
 		if not is_equal_approx(environment.ambient_light_energy, ambient):
 			environment.ambient_light_energy = ambient
 	for bolt: Dictionary in _bolts:
-		(bolt.material as ShaderMaterial).set_shader_parameter("light", WeatherSystem.strike_light(bolt.strike))
+		var material: ShaderMaterial = bolt.material
+		material.set_shader_parameter("light", WeatherSystem.strike_light(Values.table(bolt.strike)))
 	while not _bolts.is_empty() and _bolts[0].strike.age >= WeatherSystem.FLASH_SECONDS:
-		(_bolts.pop_front().instance as Node).queue_free()
+		var instance: Node = _bolts.pop_front().instance
+		instance.queue_free()
 
 func _on_strike(strike: Dictionary) -> void:
 	if not strike.ground or terrain == null:

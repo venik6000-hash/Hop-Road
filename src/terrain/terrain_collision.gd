@@ -1,7 +1,7 @@
 extends RefCounted
 ## The physics body of TerrainSystem: a 1 m HeightMapShape3D over the walkable
-## near field, in a StaticBody3D named "TerrainBody" (other systems match the
-## name).
+## near field, in a StaticBody3D named "TerrainBody" (PhysicsLayers.hit_terrain
+## matches the name).
 
 static func build(terrain: TerrainSystem) -> void:
 	# 1 m physics grid from every second near sample; walkable area only.
