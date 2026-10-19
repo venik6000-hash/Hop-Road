@@ -12,7 +12,9 @@ extends RefCounted
 ##   pace.slide(self, delta)     # in place of move_and_slide()
 ## A body that does not reach slide() answers on every tick.
 ## A step never moves the body as far as `max_step` over the ground
-## (docs/LEVEL.md, «Шаг тела»).
+## (docs/LEVEL.md, «Шаг тела»). Where the terrain has no collision under it
+## (TerrainCollision.ground_under), the body holds still: the chunk went with
+## the player far away.
 
 ## Ticks one step covers at most (15 steps a second at 60 ticks).
 const MAX_TICKS := 4
@@ -58,6 +60,8 @@ func begin(delta: float) -> float:
 ## stands on the ground, but for the check of that ground.
 func slide(body: CharacterBody3D, delta: float) -> void:
 	_wait = _ticks(body)
+	if not TerrainCollision.ground_under(body):
+		return
 	if body.velocity.x == 0.0 and body.velocity.z == 0.0 and body.is_on_floor():
 		_floor_clock -= delta
 		if _floor_clock > 0.0:

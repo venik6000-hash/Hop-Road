@@ -41,6 +41,8 @@ const CLIFF_GRADES := [Vector4(2.05, 2.05, 2.15, 0.55), Vector4(1.23, 1.23, 1.29
 ## Blender batches of blockout stones (alpine_label) that the scans replace.
 const REPLACED_BATCHES := ["Cliff talus and shoreline boulders", "Island rocky foundation",
 	"Meadow granite and mossy stones", "Village brook rock banks"]
+## The Blender map's cliff behind the falls: the scanned faces stand there.
+const CLIFF_BLOCKOUT := "Jointed waterfall cliff geology"
 var terrain: TerrainSystem
 var map: Node3D
 ## The list of placed stones (RegionDef.rocks).
@@ -73,11 +75,9 @@ func _ready() -> void:
 	_body.name = "Solid"
 	add_child(_body)
 	var removed := 0
-	for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
-		var label := RockField.label_of(item)
-		if REPLACED_BATCHES.has(label) or label == "Jointed waterfall cliff geology":
-			_remove(item)
-			removed += 1
+	for item: MeshInstance3D in MapIndex.of(map).labelled_any(REPLACED_BATCHES + [CLIFF_BLOCKOUT]):
+		_remove(item)
+		removed += 1
 	for entry: Dictionary in LayoutStore.placed(layout, WorldSchemas.rocks()):
 		if _by_name.has(entry.shape):
 			_place_stone(Values.whole(_by_name[entry.shape]), LayoutStore.unpack(Values.list(entry.xform)), Values.real(entry.moss), Values.real(entry.tone))
@@ -189,14 +189,13 @@ func load_shapes() -> void:
 	scene.free()
 
 func make_materials() -> void:
-	var weather := load("res://assets/generated/sky/cloud_weather.png") as Texture2D
-	var moss := load("res://assets/generated/terrain/terrain_albedo.jpg") as TextureLayered
-	var grain := load("res://assets/generated/terrain/terrain_normal.jpg") as TextureLayered
-	_boulder_material = _material(SHADER, "boulder", BOULDER_GRADES, weather, moss, grain)
-	_cliff_material = _material(CLIFF_SHADER, "cliff", CLIFF_GRADES, weather, moss, grain)
+	# The grain is the region's terrain's (its normal array); the moss is the
+	# global `moss_albedo` that the terrain sets.
+	var grain: TextureLayered = terrain.material.get_shader_parameter("layer_normal")
+	_boulder_material = _material(SHADER, "boulder", BOULDER_GRADES, grain)
+	_cliff_material = _material(CLIFF_SHADER, "cliff", CLIFF_GRADES, grain)
 
-func _material(shader: Shader, prefix: String, grades: Array, weather: Texture2D, moss: TextureLayered,
-		grain: TextureLayered) -> ShaderMaterial:
+func _material(shader: Shader, prefix: String, grades: Array, grain: TextureLayered) -> ShaderMaterial:
 	var material := ShaderMaterial.new()
 	material.shader = shader
 	material.set_shader_parameter("rock_albedo", load(DATA + prefix + "_albedo.jpg"))
@@ -207,9 +206,7 @@ func _material(shader: Shader, prefix: String, grades: Array, weather: Texture2D
 		padded.append(grade)
 	padded.resize(8)
 	material.set_shader_parameter("layer_grade", padded)
-	material.set_shader_parameter("moss_albedo", moss)
 	material.set_shader_parameter("grain_normal", grain)
-	material.set_shader_parameter("cloud_weather", weather)
 	# The heights the stones' feet are measured against, and the water level.
 	terrain.share_fields(material)
 	material.set_shader_parameter("water_absorption", WaterSystem.ABSORPTION)

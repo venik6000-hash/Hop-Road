@@ -14,6 +14,12 @@ var water: WaterSystem
 ## The level's context (its rooms' sight, Interiors); null in a tool that builds
 ## a part of the level alone.
 var world: WorldContext
+## Where the eyes, the lights and the geometry it sees are found: the level,
+## shared systems and content alike; the parent when none is given.
+var scope: Node
+## The environment its camera copies; the scope's "WorldEnvironment" when none
+## is given.
+var environment: WorldEnvironment
 var viewport: SubViewport
 var camera: Camera3D
 var capture := RefractionCapture.new()
@@ -25,6 +31,10 @@ var _portal_revision := -1
 var _water_seen := true
 
 func _ready() -> void:
+	if scope == null:
+		scope = get_parent()
+	if environment == null:
+		environment = scope.get_node("WorldEnvironment") as WorldEnvironment
 	viewport = SubViewport.new()
 	viewport.name = "UnderwaterRefraction"
 	viewport.size = Vector2i(640,360)
@@ -32,7 +42,7 @@ func _ready() -> void:
 	viewport.transparent_bg = true
 	viewport.use_hdr_2d = true
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	# The capture sees every lamp (see _register_geometry) and would keep a
+	# The capture sees every lamp (see register_geometry) and would keep a
 	# second shadow map for each. Under the lake only the sun's shadows show.
 	viewport.positional_shadow_atlas_size = 0
 	add_child(viewport)
@@ -40,8 +50,7 @@ func _ready() -> void:
 	camera.cull_mask = LAYER
 	camera.near = 0.05
 	camera.far = 200
-	var source := get_parent().get_node("WorldEnvironment") as WorldEnvironment
-	camera.environment = source.environment.duplicate()
+	camera.environment = environment.environment.duplicate()
 	camera.environment.background_mode = Environment.BG_COLOR
 	camera.environment.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	camera.environment.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
@@ -54,19 +63,21 @@ func _ready() -> void:
 	camera.compositor = compositor
 	viewport.add_child(camera)
 	camera.current = true
-	for main: Camera3D in get_parent().find_children("*","Camera3D",true,false):
+	for main: Camera3D in scope.find_children("*","Camera3D",true,false):
 		if main != camera: main.cull_mask &= ~LAYER
-	_register_geometry.call_deferred()
+	register_geometry.call_deferred()
 	water.material.set_shader_parameter("lake_refraction_frame", viewport.get_texture())
 	water.material.set_shader_parameter("refraction_guard", GUARD)
 
-func _register_geometry() -> void:
+## Puts the lights and the geometry of the scope that the capture draws on its
+## layer; again when the content is built again (LevelParts.rebuild).
+func register_geometry() -> void:
 	# Lights are VisualInstance3D too: the private camera must see the sun and
 	# local lights, while their light_cull_mask still limits affected geometry.
-	for light: Light3D in get_parent().find_children("*", "Light3D", true, false):
+	for light: Light3D in scope.find_children("*", "Light3D", true, false):
 		light.layers |= LAYER
 	# Only shaders that implement the refraction clip can enter this pass.
-	for node in get_parent().find_children("*","GeometryInstance3D",true,false):
+	for node in scope.find_children("*","GeometryInstance3D",true,false):
 		var geometry := node as GeometryInstance3D
 		var material := geometry.material_override as ShaderMaterial
 		var mesh_instance := geometry as MeshInstance3D

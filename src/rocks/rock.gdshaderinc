@@ -15,7 +15,7 @@ global uniform vec3 sun_direction;
 #include "res://src/sky/cloud_shadow.gdshaderinc"
 #include "res://src/vegetation/shaders/canopy.gdshaderinc"
 #include "res://src/water/underwater_light.gdshaderinc"
-// The terrain's heights (and its water_level): RockField shares them.
+// The terrain's heights: RockField shares them.
 #include "res://src/terrain/terrain_fields.gdshaderinc"
 #include "res://src/weather/wetness.gdshaderinc"
 
@@ -31,7 +31,7 @@ uniform vec4 layer_grade[8];
 // scan as graded).
 uniform vec2 rock_grey = vec2(1.0, 0.25);
 // Moss is the terrain's mossy rock scan (its layer array), laid on from above.
-uniform sampler2DArray moss_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+#include "res://src/terrain/moss.gdshaderinc"
 uniform float moss_layer = 13.0;
 uniform float moss_tile = 2.4;
 uniform vec4 moss_grade = vec4(0.92, 1.03, 0.9, 1.05);
@@ -156,7 +156,7 @@ float crust_noise(vec3 p, vec3 shares, float tile) {
 
 void fragment() {
 	// Private underwater capture camera; discard above-water fragments only there.
-	if (CAMERA_VISIBLE_LAYERS == 262144u && world_pos.y > water_level + 0.4) { discard; }
+	if (CAMERA_VISIBLE_LAYERS == 262144u && world_pos.y > lake_level + 0.4) { discard; }
 	vec3 uvw = vec3(UV, floor(rock.x + 0.5));
 	vec3 rah = texture(rock_rah, uvw).rgb;
 	vec3 albedo = greyed(grade(texture(rock_albedo, uvw).rgb, layer_grade[int(uvw.z)]));
@@ -172,7 +172,7 @@ void fragment() {
 	float rough = rah.r;
 	float ao = rah.g;
 	float dist = length(world_pos - CAMERA_POSITION_WORLD);
-	float above = world_pos.y - water_level;
+	float above = world_pos.y - lake_level;
 
 	// The grain of the stone, as near as the eye misses it in the scan.
 	if (rock_grain.x > 0.0 && dist < rock_grain.w) {
@@ -256,7 +256,7 @@ void fragment() {
 	}
 
 	sun_under = vec3(1.0);
-	float depth = water_level - world_pos.y;
+	float depth = lake_level - world_pos.y;
 	if (depth > 0.0) {
 		if (lake_film > 0.0) {
 			// Olive-brown periphyton in patches, and the pale marl of the bed

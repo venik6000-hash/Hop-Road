@@ -4,7 +4,8 @@ shader_type spatial;
 // lanterns do, by the same measure of dusk.
 render_mode unshaded, blend_add, depth_draw_never, cull_disabled, shadows_disabled, fog_disabled;
 
-global uniform vec3 sun_direction;
+// How far the lamps are lit, 0 by day .. 1 at night (SkySystem.dusk_of).
+global uniform float lamp_dusk;
 
 // Metres from the eye over which a glow comes up (x .. y).
 uniform vec2 rise = vec2(30.0, 60.0);
@@ -23,7 +24,7 @@ void vertex() {
 	vec3 to_eye = CAMERA_POSITION_WORLD - origin;
 	float distance_to_eye = length(to_eye);
 	to_eye /= max(distance_to_eye, 1e-4);
-	float dusk = 1.0 - smoothstep(-0.02, 0.18, sun_direction.y);
+	float dusk = lamp_dusk;
 	float seen = smoothstep(rise.x, rise.y, distance_to_eye);
 	float sided = dot(facing, facing) > 0.01 ? smoothstep(0.05, 0.45, dot(normalize(facing), to_eye)) : 1.0;
 	float size = max(radius, least_size * distance_to_eye / PROJECTION_MATRIX[1][1]);

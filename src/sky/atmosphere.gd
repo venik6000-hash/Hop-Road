@@ -4,7 +4,8 @@ extends Node
 ##
 ## Transmittance and multiple scattering depend only on the air itself and are
 ## rebuilt when the tunables change; the sky-view LUT follows the sun and the
-## viewer altitude whenever those inputs change (a 192x108 dispatch).
+## viewer altitude whenever those inputs change (a 192x108 dispatch); the
+## altitude in steps of VIEW_STEP_M.
 ## Transmittance and the sky view are published as the global shader
 ## parameters `atmo_transmittance` and `atmo_skyview`, so the sky, water and
 ## terrain shaders all see the same air.
@@ -19,15 +20,19 @@ const RAYLEIGH_SCATTERING := Vector3(5.802, 13.558, 33.1) * 1e-3
 const MIE_SCATTERING := 3.996e-3
 const MIE_ABSORPTION := 0.444e-3
 const OZONE_ABSORPTION := Vector3(0.650, 1.881, 0.085) * 1e-3
+## The step of the viewer's height (m) the sky view is built for: a walk up a
+## slope does not rebuild it each frame, and a metre of air is not seen in it.
+const VIEW_STEP_M := 2.0
 
 ## Multiplies Rayleigh scattering: sky blueness and sunset redness.
 @export var rayleigh_scale := 1.0
 ## Multiplies aerosol scattering: haze around the sun, milky horizon.
 @export var mie_scale := 1.0
 @export var ozone_scale := 1.0
-## Altitude of world y = 0 above sea level, km. An alpine lake sits high,
-## which thins the air above it and deepens the blue of the zenith.
-@export var ground_altitude_km := 0.75
+## Altitude of world y = 0 above sea level, km: the region's
+## (EnvironmentDef.ground_altitude_km, through SkySystem). High ground thins
+## the air above it and deepens the blue of the zenith.
+@export var ground_altitude_km := 0.0
 
 var sun_direction := Vector3(0.3, 0.6, 0.4).normalized()
 var viewer_height_m := 0.0
@@ -59,12 +64,17 @@ func tune() -> Vector4:
 func viewer_radius_km() -> float:
 	return R_GROUND + ground_altitude_km + viewer_height_m * 0.001
 
+## The viewer's radius (km) the sky view is built for: the height in steps of
+## VIEW_STEP_M.
+func view_radius_km() -> float:
+	return R_GROUND + ground_altitude_km + snappedf(viewer_height_m, VIEW_STEP_M) * 0.001
+
 func _process(_delta: float) -> void:
 	if not _ready_for_frames:
 		return
 	var current := tune()
 	var rebuild := current != _built_tune
-	var view := Vector2(sun_direction.y, viewer_radius_km())
+	var view := Vector2(sun_direction.y, view_radius_km())
 	if not rebuild and view == _built_view:
 		return
 	_built_tune = current

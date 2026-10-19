@@ -17,7 +17,7 @@ static func cast(lake: LakesideSystem) -> bool:
 		lake.phase = "idle"
 		lake.notify("Здесь не забросить: выбери открытую воду перед собой.")
 		return false
-	lake.fish_kind = lake.fishing.choose(depth, distance_to_shore(lake, lake.catch_point), lake.sky.time_of_day)
+	lake.fish_kind = lake.fishing.choose(depth, distance_to_shore(lake, lake.catch_point), GameClock.hour())
 	lake.phase = "waiting"
 	lake.wait_time = lake.fishing.rng.randf_range(5.0, 11.0)
 	lake.bobber.visible = true
@@ -73,7 +73,7 @@ static func advance_fight(lake: LakesideSystem, delta: float, reel: bool) -> voi
 		lake.notify("Рыба ушла. Снасть цела — можно попробовать снова.")
 	elif lake.progress >= 1:
 		var full := lake.fishing.bag.size() >= FishingState.CAPACITY
-		var fish := lake.fishing.catch_fish(lake.fish_kind, lake.sky.time_of_day)
+		var fish := lake.fishing.catch_fish(lake.fish_kind, GameClock.hour())
 		lake.cancel_fishing()
 		lake.play("fish_flop", lake.player.position)
 		var after := "Корзина полна: рыба отпущена, запись сохранена." if full else "Улов в корзине · {fish_journal} — журнал · {fish_use} у костра — приготовить"

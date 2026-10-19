@@ -117,9 +117,9 @@ static func style_label(label: Label) -> void:
 	label.add_theme_constant_override("shadow_offset_y", 2)
 
 ## The weather, the lake's sea and the hour, translated.
-static func status_text(water: WaterSystem, sky_system: SkySystem, weather: WeatherSystem = null) -> String:
+static func status_text(water: WaterSystem, weather: WeatherSystem = null) -> String:
 	var ocean := water.ocean
-	var minutes := roundi(sky_system.time_of_day * 60.0) % (24 * 60)
+	var minutes := floori(GameClock.hour() * 60.0) % (24 * 60)
 	var parts := PackedStringArray()
 	if weather != null:
 		var sky := TranslationServer.translate(WeatherTable.title(weather.kind))

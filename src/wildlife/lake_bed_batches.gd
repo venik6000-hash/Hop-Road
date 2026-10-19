@@ -61,8 +61,6 @@ static func _material(lake: LakeBed, kind: String, original: StandardMaterial3D)
 	if kind == "reed":
 		material.shader = REED
 		material.set_shader_parameter("plant_height", LakeBed.PLANTS[kind].height)
-		material.set_shader_parameter("wind_noise", load("res://assets/generated/sky/cloud_weather.png"))
-		material.set_shader_parameter("cloud_weather", load("res://assets/generated/sky/cloud_weather.png"))
 		lake.reed_material = material
 	else:
 		material.shader = WildlifeModel.UNDERWATER
@@ -75,7 +73,6 @@ static func _material(lake: LakeBed, kind: String, original: StandardMaterial3D)
 		else:
 			WildlifeModel.copy_scan_look(material, original)
 			material.set_shader_parameter("biofilm", 1.0)
-	material.set_shader_parameter("water_level", lake.habitat.terrain.water_level)
 	material.set_shader_parameter("water_absorption", WaterSystem.ABSORPTION)
 	material.set_shader_parameter("water_scattering", WaterSystem.SCATTERING)
 	lake.materials[key] = material

@@ -81,6 +81,20 @@ static func hit_terrain(hit: Dictionary) -> bool:
 	var body: Node = hit.collider
 	return body.name == &"TerrainBody"
 
+## Waits until the level's colliders stand under `point`: at least one physics
+## frame, then until a ray down through `point` meets GROUND, at most
+## `frames` frames. True when the ray met it; false when it never did or
+## `node` left the tree.
+static func ground_stands(node: Node3D, point: Vector3, frames := 30) -> bool:
+	var query := PhysicsRayQueryParameters3D.create(point + Vector3.UP * 40.0, point + Vector3.DOWN * 40.0, GROUND)
+	for frame in frames:
+		await node.get_tree().physics_frame
+		if not is_instance_valid(node) or not node.is_inside_tree():
+			return false
+		if not node.get_world_3d().direct_space_state.intersect_ray(query).is_empty():
+			return true
+	return false
+
 ## The 1-based layer number of a bit, as project.godot and the editor count.
 static func number_of(bit: int) -> int:
 	return int(log(float(bit)) / log(2.0) + 0.5) + 1

@@ -15,6 +15,9 @@ extends RefCounted
 ## when no stored placement carries the key. A region names its tree lists
 ## and its baked placement (RegionDef.woodland, village_trees, placement,
 ## placement_manifest).
+## The region's yard rule (RegionDef.worn_ground: `lawn`, `tree_wall`) takes
+## part in both: its lawns are cells of the obstacle grid, and its file is
+## in the static part for the trunks' clearance from walls.
 ## Where runtime rebuilds are kept: the player's cache; a test sets its own.
 static var runtime_root := "user://cache/vegetation/"
 ## Bump when the layout of the file or the way the key is made changes.
@@ -25,6 +28,8 @@ const FORMAT_VERSION := 3
 ## the name of a runtime file, never in the bytes: the same trees are the same
 ## file however often the key changes.
 const MAGIC := "VEG3"
+const GROUND_WEAR = preload("res://src/terrain/ground_wear.gd")
+const VILLAGE_LAYOUT = preload("res://src/village/village_layout.gd")
 ## The code that places trees: with the region's tree lists, the static part
 ## of the key (static_files()). LF-normalised text, so a checkout with CRLF
 ## gives the same key.
@@ -46,6 +51,12 @@ var key := ""
 ## them and hashing them took (ms).
 var fields: VegetationTerrain
 var tree_list: Array = []
+## The rectangle of the composition's backdrop forest (TreePlacer.backdrop).
+var backdrop := Rect2()
+## The metres a trunk keeps from a wall (TreePlacer.wall_clearance), and the
+## cells the yard rule laid as lawn.
+var wall_clearance := 0.0
+var lawn_cells := 0
 var scan_msec := 0.0
 var digest_msec := 0.0
 
@@ -56,10 +67,13 @@ static func text_digest(path: String) -> String:
 	return FileAccess.get_file_as_string(path).replace("\r\n", "\n").sha256_text()
 
 ## The files of the static part of the key of `region`: the code, then the
-## lists of trees the placer is given.
+## lists of trees the placer is given, then the file of the yard rule if the
+## region has one.
 static func static_files(region: RegionDef) -> PackedStringArray:
 	var files := PackedStringArray(CODE)
 	files.append_array([region.woodland, region.village_trees])
+	if not region.worn_ground.is_empty():
+		files.append(region.worn_ground)
 	return files
 
 ## The static part of the key of `region`, from the files on disk (the editor
@@ -92,11 +106,10 @@ static func world_digest(terrain_fields: VegetationTerrain, grid: ObstacleMap) -
 	context.update(var_to_bytes([terrain_fields.water_level, terrain_fields.near_origin, terrain_fields.near_cell, terrain_fields.near_size,
 		terrain_fields.far_origin, terrain_fields.far_cell, terrain_fields.far_size, terrain_fields.mask_origin, terrain_fields.mask_cell, terrain_fields.mask_size,
 		terrain_fields.far_block_count, grid.origin, grid.cell, grid.size,
-		terrain_fields.near_h.size(), terrain_fields.far_h.size(), terrain_fields.control.size(), terrain_fields.extra.size(),
+		terrain_fields.tiles != null, terrain_fields.control.size(), terrain_fields.extra.size(),
 		terrain_fields.far_masks.size(), terrain_fields.far_forest_blocks.size(), grid.cover.size()]))
-	for values: PackedFloat32Array in [terrain_fields.near_h, terrain_fields.far_h]:
-		if not values.is_empty():
-			context.update(values.to_byte_array())
+	if terrain_fields.tiles != null:
+		terrain_fields.tiles.digest_into(context)
 	for bytes: PackedByteArray in [terrain_fields.control, terrain_fields.extra, terrain_fields.far_masks, terrain_fields.far_forest_blocks, grid.cover]:
 		if not bytes.is_empty():
 			context.update(bytes)
@@ -168,13 +181,16 @@ static func runtime_path(source_key: String) -> String:
 ## the placement that needs the world), and makes the key; the trees are
 ## those of the terrain's region. `exclude` holds the
 ## bodies the obstacle rays must pass (the player, the rocks); the terrain's
-## own bodies are added here.
-static func prepare(terrain: TerrainSystem, map: Node3D, exclude: Array[RID]) -> VegetationCache:
+## own bodies are added here. The bodies under `scope` (the map if null) stand
+## in physics where their nodes stand (ObstacleMap.settle); those that move
+## are passed too.
+static func prepare(terrain: TerrainSystem, map: Node3D, exclude: Array[RID], scope: Node = null) -> VegetationCache:
 	var start := Time.get_ticks_usec()
 	var cache := VegetationCache.new()
 	cache.fields = VegetationTerrain.from_terrain(terrain)
 	var space := terrain.get_world_3d().direct_space_state
 	var skip := exclude.duplicate()
+	skip.append_array(ObstacleMap.settle(scope if scope != null else map))
 	for body: StaticBody3D in terrain.find_children("*", "StaticBody3D", true, false):
 		skip.append(body.get_rid())
 	var bounds := ObstacleMap.collider_bounds(map)
@@ -182,11 +198,18 @@ static func prepare(terrain: TerrainSystem, map: Node3D, exclude: Array[RID]) ->
 	for building: Node in terrain.get_tree().get_nodes_in_group(VillageBuilding.GROUP):
 		bounds = bounds.merge(ObstacleMap.collider_bounds(building))
 	cache.obstacles = ObstacleMap.scan(space, bounds, cache.fields, skip)
-	cache.obstacles.apply_to(cache.fields)
 	var region := terrain.region
+	var worn := GROUND_WEAR.plan_of(region)
+	var yards: Array[Dictionary] = []
+	if region.has_part(&"cottages"):
+		yards = VILLAGE_LAYOUT.yards(VILLAGE_LAYOUT.read_plan(region.village_plan), region.cottages)
+	cache.lawn_cells = cache.obstacles.lay_lawn(worn, yards)
+	cache.wall_clearance = Values.real(worn.tree_wall)
+	cache.obstacles.apply_to(cache.fields)
 	var woodland: Dictionary = DataFile.read(region.woodland, WorldSchemas.woodland())
 	# The village's own trees: by the brook and between the yards.
 	cache.tree_list = woodland.trees
+	cache.backdrop = TreePlacer.backdrop_of(woodland)
 	cache.tree_list.append_array(Values.list(DataFile.read(region.village_trees, WorldSchemas.trees())))
 	var scanned := Time.get_ticks_usec()
 	var static_part := _static_part(region)
@@ -198,7 +221,10 @@ static func prepare(terrain: TerrainSystem, map: Node3D, exclude: Array[RID]) ->
 
 ## The slow part: places every tree of the lists over the prepared terrain.
 func place() -> void:
-	trees = TreePlacer.new(fields).place_all(tree_list)
+	var placer := TreePlacer.new(fields)
+	placer.backdrop = backdrop
+	placer.wall_clearance = wall_clearance
+	trees = placer.place_all(tree_list)
 
 ## The stored placement made for `expected`: the baked package of `region`
 ## if it carries that key and checksum, else the runtime cache of that key,

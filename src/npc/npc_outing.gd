@@ -2,6 +2,7 @@ class_name NpcOuting
 extends Node
 ## Follow actual footsteps. No teleporting through the village or cliffs.
 
+const OutdoorScan = preload("res://src/render/outdoor_scan.gd")
 ## How near the way to the place the person loves they must stand to join it
 ## where they are instead of going back by the road.
 const JOIN_REACH := 4.0
@@ -51,17 +52,25 @@ const LOG_SEAT := 0.28
 const TOAST_SECONDS := 1.5
 const MEAL_SECONDS := 6.0
 
+## What the companion does: follows the player's trail, makes for a seat by
+## a fire, sits there, leads to the place they love, goes back home.
+enum Mode {FOLLOW, TO_CAMP, REST, GUIDE, RETURN}
+
 var actor: VillageNPC
 var camping: CampSystem
 ## The person's voice on this outing (CampSystem feeds it).
 var teller: Storyteller
-var mode := "follow"
+var mode := Mode.FOLLOW
+## Whether the companion is still with the player: not sent home.
+var along: bool:
+	get:
+		return mode != Mode.RETURN
 ## A number that changes with every new halt: the companion sits down by a
 ## fire or gets up, or the player walks into another zone (CampSystem).
 var halt := 0
 ## The companion and the player have been to the place the companion loves.
 var reached_favorite := false
-## The person set out for the player's fire by themselves (CAMP_SIGNS.join_fire)
+## The person set out for the player's fire by themselves (CampSigns.join_fire)
 ## and has not yet come up to the player, sat down by the fire or been asked
 ## to lead: if the way is shut, they turn back.
 var unasked := false
@@ -103,7 +112,7 @@ func _ready() -> void:
 func drive(delta: float) -> void:
 	if unasked and actor.global_position.distance_to(camping.player.global_position) <= ARRIVED:
 		unasked = false
-	if mode == "rest":
+	if mode == Mode.REST:
 		_record_camp_trail()
 		if not is_instance_valid(fire) or not fire.burning or camping.player.global_position.distance_to(fire.global_position) > 7.0:
 			leave_seat()
@@ -111,60 +120,60 @@ func drive(delta: float) -> void:
 			_face(fire.global_position, delta)
 			actor.play("idle")
 			return
-	if mode == "to_camp":
+	if mode == Mode.TO_CAMP:
 		if not is_instance_valid(fire) or not fire.burning:
 			leave_seat()
 		_record_camp_trail()
-	if mode == "follow":
+	if mode == Mode.FOLLOW:
 		_record_player()
 		_meet_player()
-		var nearby := camping.nearby_fire(actor.global_position, 5.0)
+		var nearby := camping.campfires.nearby_fire(actor.global_position, 5.0)
 		if nearby != null and camping.player.global_position.distance_to(nearby.global_position) < 4.5 and points.size() <= 2:
-			var seat := camping.companion_seat(nearby, actor)
+			var seat := camping.company.companion_seat(nearby, actor)
 			if not seat.is_empty():
 				fire = nearby
 				camp_seat = seat
 				points.assign([Values.vec3(seat.position)])
 				_camp_trail.clear()
 				_last_player = camping.player.global_position
-				mode = "to_camp"
-	if mode == "follow" and _give_way(delta):
+				mode = Mode.TO_CAMP
+	if mode == Mode.FOLLOW and _give_way(delta):
 		return
 	if points.is_empty():
 		actor.play("idle")
-		if mode == "return":
+		if mode == Mode.RETURN:
 			finish()
-		elif mode == "guide":
-			mode = "follow"
+		elif mode == Mode.GUIDE:
+			mode = Mode.FOLLOW
 			_last_player = camping.player.global_position
 			points.append(_last_player)
 			if not reached_favorite:
-				camping.reach_favorite(self)
+				camping.talk.reach_favorite(self)
 		return
 	var target := points[0]
 	var flat := target - actor.global_position
 	flat.y = 0.0
-	var tolerance := 1.8 if mode == "follow" and points.size() == 1 else 0.28
+	var tolerance := 1.8 if mode == Mode.FOLLOW and points.size() == 1 else 0.28
 	if flat.length() <= tolerance:
-		if mode == "to_camp":
-			mode = "rest"
+		if mode == Mode.TO_CAMP:
+			mode = Mode.REST
 			unasked = false
 			halt += 1
 			actor.poses.sit(LOG_SEAT)
 			_model.position.y = 0.0
 			mug.visible = true
-			camping.arrive_at_fire(self)
+			camping.talk.arrive_at_fire(self)
 		points.pop_front()
 		actor.play("idle")
 		return
-	if mode == "guide" and actor.global_position.distance_to(camping.player.global_position) > 7.0:
+	if mode == Mode.GUIDE and actor.global_position.distance_to(camping.player.global_position) > 7.0:
 		actor.play("idle")
 		return
 	var direction := flat.normalized()
 	var speed := WALK_SPEED
-	if mode == "to_camp":
+	if mode == Mode.TO_CAMP:
 		speed = clampf(flat.length() * HURRY, PACE.x, PACE.y)
-	elif mode == "follow":
+	elif mode == Mode.FOLLOW:
 		# By how far behind the player the person is: the next footprint of
 		# the trail is never more than a step away, and says nothing of it.
 		var behind := actor.global_position.distance_to(camping.player.global_position)
@@ -188,20 +197,20 @@ func drive(delta: float) -> void:
 			actor.play("idle")
 			return
 		_blocked += delta * (1.0 if round == Vector3.ZERO and not person else PATIENCE)
-		if _blocked >= 5.0 and mode != "return":
-			if mode == "guide":
+		if _blocked >= 5.0 and mode != Mode.RETURN:
+			if mode == Mode.GUIDE:
 				# The way is shut: the person stops leading and follows.
-				mode = "follow"
+				mode = Mode.FOLLOW
 				_last_player = camping.player.global_position
 				points.assign([_last_player])
-				camping.say(actor, camping.line_of(actor, "guide_lost"))
+				camping.say(actor, camping.talk.line_of(actor, "guide_lost"))
 			elif unasked:
 				# Nobody called them: they go back to their road without a word.
 				_blocked = 0.0
-				camping.turn_back(actor)
+				camping.company.turn_back(actor)
 				return
 			else:
-				camping.say(actor, camping.line_of(actor, "blocked"))
+				camping.say(actor, camping.talk.line_of(actor, "blocked"))
 				# Somebody in the way moves on; anything else that has held the
 				# person this long has shut the trail.
 				if not person:
@@ -216,7 +225,7 @@ func drive(delta: float) -> void:
 	actor.velocity.x = direction.x * speed
 	actor.velocity.z = direction.z * speed
 	actor.stride(speed)
-	if actor.global_position.distance_to(_last_actor) > 1.0 and mode != "return":
+	if actor.global_position.distance_to(_last_actor) > 1.0 and mode != Mode.RETURN:
 		walked.append(actor.global_position)
 		_last_actor = actor.global_position
 
@@ -241,7 +250,7 @@ func _meet_player() -> void:
 		return
 	var at := camping.player.global_position
 	var apart := actor.global_position.distance_to(at)
-	if apart <= MEET and apart < points[0].distance_to(at) and camping.sees(actor):
+	if apart <= MEET and apart < points[0].distance_to(at) and camping.company.sees(actor):
 		_make_for_player()
 
 ## The trail is shut somewhere ahead: what is left of it is dropped, and the
@@ -251,7 +260,7 @@ func _meet_player() -> void:
 func _make_for_player() -> bool:
 	var at := camping.player.global_position
 	var away := at - actor.global_position
-	if mode != "follow" or camping.player.water_surface > at.y + 0.1 \
+	if mode != Mode.FOLLOW or camping.player.water_surface > at.y + 0.1 \
 			or absf(away.y) > maxf(1.0, Vector2(away.x, away.z).length() * STEEP):
 		return false
 	_last_player = at
@@ -372,7 +381,7 @@ func _process(delta: float) -> void:
 	_food_time = maxf(0.0, _food_time - delta)
 	if is_instance_valid(_food):
 		_food.visible = _food_time > 0.0
-	if mode != "rest":
+	if mode != Mode.REST:
 		_sync_props()
 
 func _sync_props() -> void:
@@ -387,13 +396,15 @@ func _sync_props() -> void:
 	mug.global_transform = Transform3D(actor.global_basis, at)
 
 func toast() -> void:
-	if mode == "rest":
+	if mode == Mode.REST:
 		actor.poses.gesture(NpcBody.TOAST, TOAST_SECONDS)
 
 func receive_food(portion: Node3D = null) -> void:
 	if is_instance_valid(_food):
 		_food.queue_free()
 	_food = portion if portion != null else CampProps.potato(true)
+	# The meal is eaten by the fire, in the weather.
+	OutdoorScan.dress(_food, OutdoorScan.PROP_SHINE, false)
 	actor.add_child(_food)
 	_food_time = MEAL_SECONDS
 	actor.poses.gesture(NpcBody.MEAL, MEAL_SECONDS)
@@ -405,7 +416,7 @@ func leave_seat() -> void:
 	mug.visible = false
 	fire = null
 	camp_seat = {}
-	mode = "follow"
+	mode = Mode.FOLLOW
 	points.assign(_camp_trail)
 	_camp_trail.clear()
 	_last_player = camping.player.global_position
@@ -418,10 +429,10 @@ func leave_seat() -> void:
 func guide() -> void:
 	unasked = false
 	leave_seat()
-	var way := camping.favorite_path(actor)
+	var way := camping.company.favorite_path(actor)
 	if way.is_empty():
 		return
-	mode = "guide"
+	mode = Mode.GUIDE
 	points.clear()
 	var joined := join_index(way, Vector2(actor.global_position.x, actor.global_position.z), JOIN_REACH)
 	if joined < 0:
@@ -480,7 +491,7 @@ func _lead_to(at: Vector2) -> void:
 
 func dismiss() -> void:
 	leave_seat()
-	mode = "return"
+	mode = Mode.RETURN
 	points.assign(walked)
 	points.reverse()
 	# Return by the route actually walked rather than a straight line home.

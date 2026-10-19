@@ -64,12 +64,15 @@ const COLLIDER_CELL := 128.0
 @export var camera: Camera3D
 ## Bodies the obstacle rays pass through besides the terrain (the player).
 var exclude: Array[RID] = []
+## The node whose bodies the obstacle scan reads (ObstacleMap.settle): the
+## level; the map if null.
+var scope: Node
 ## The level's context (its rooms' sight, Interiors); null in a tool that builds
 ## a part of the level alone.
 var world: WorldContext
 
 ## Where the last mesh LOD gives way to the impostor, m: the quality
-## profile's (QualityProfile.tree_mesh_reach) as the forest is built.
+## profile's (QualityVegetation.tree_mesh_reach) as the forest is built.
 var mesh_reach := Vector2.ZERO
 var trees: TreeSet
 var obstacles: ObstacleMap
@@ -79,6 +82,8 @@ var placement_key := ""
 var placement_source := ""
 var scan_msec := 0.0
 var digest_msec := 0.0
+## The cells of the obstacle grid the yard rule laid as lawn.
+var lawn_cells := 0
 var grid: TreeLodGrid
 var grass: GrassField
 ## Per look group (TreePlacer.SPECIES_GROUP).
@@ -91,8 +96,6 @@ var impostor_material := ShaderMaterial.new()
 var impostor_frames := PackedVector4Array()
 ## Per species: the crown's radius (m at scale 1) and CROWN_SHADE.
 var crowns := PackedVector2Array()
-## Wind on the ground: x, z direction (unit), strength, gust speed (m/s).
-var wind := Vector4(0.57, 0.82, 0.5, 6.0)
 var load_seconds := 0.0
 var refill_usec := 0
 var select_usec := 0
@@ -107,14 +110,13 @@ var colliders := TreeColliders.new()
 ## _all_materials() for the per-frame uniforms, and the values they last got.
 var _frame_materials: Array[ShaderMaterial] = []
 var _sent_eye := Vector3.ZERO
-var _sent_wind := Vector4.ZERO
 var _sent := false
 ## The Interiors.revision the buffers were last filled by.
 var _portal_revision := 0
 
 func _ready() -> void:
 	var start := Time.get_ticks_usec()
-	mesh_reach = QualityProfile.of(world).tree_mesh_reach
+	mesh_reach = QualityProfile.of(world).vegetation.tree_mesh_reach
 	_load_placement()
 	TreeMaterials.make(self)
 	grid = TreeLodGrid.new(trees, SPECIES.size())
@@ -124,9 +126,9 @@ func _ready() -> void:
 	colliders.make(self)
 	_make_grass()
 	load_seconds = (Time.get_ticks_usec() - start) / 1e6
-	print("VEGETATION trees=%d detail=%d chunks=%d load=%.2fs placement=%s scan=%.0fms digest=%.0fms key=%s" % [trees.size(),
-		grid.tree_count(), impostor_chunks.size(), load_seconds, placement_source, scan_msec, digest_msec,
-		placement_key.left(12)])
+	print("VEGETATION trees=%d detail=%d chunks=%d load=%.2fs placement=%s scan=%.0fms digest=%.0fms lawn=%d key=%s" % [
+		trees.size(), grid.tree_count(), impostor_chunks.size(), load_seconds, placement_source, scan_msec, digest_msec,
+		lawn_cells, placement_key.left(12)])
 
 func _exit_tree() -> void:
 	colliders.free_all()
@@ -147,9 +149,10 @@ func impostor_range() -> Vector4:
 ## key of the placement (VegetationCache), which is read from the baked file or
 ## the runtime cache when one carries it, and placed only when none does.
 func _load_placement() -> void:
-	var prepared := VegetationCache.prepare(terrain, map, exclude)
+	var prepared := VegetationCache.prepare(terrain, map, exclude, scope)
 	placement_key = prepared.key
 	scan_msec = prepared.scan_msec
+	lawn_cells = prepared.lawn_cells
 	digest_msec = prepared.digest_msec
 	var cache := VegetationCache.stored(terrain.region, prepared.key, world != null and world.place_trees_anew)
 	if cache != null:
@@ -180,18 +183,13 @@ func _process(_delta: float) -> void:
 	# A uniform set to the value it already holds changes nothing; skip those.
 	if _frame_materials.is_empty():
 		_frame_materials = TreeMaterials.all_materials(self)
-	var eye_changed := not _sent or eye != _sent_eye
-	var wind_changed := not _sent or wind != _sent_wind
-	if eye_changed or wind_changed:
+	# The wind is the global `wind` (WeatherSystem).
+	if not _sent or eye != _sent_eye:
 		for material: ShaderMaterial in _frame_materials:
-			if eye_changed:
-				material.set_shader_parameter("lod_camera", eye)
-			if wind_changed:
-				material.set_shader_parameter("wind", wind)
+			material.set_shader_parameter("lod_camera", eye)
 		_sent = true
 		_sent_eye = eye
-		_sent_wind = wind
-	grass.follow(eye, wind)
+	grass.follow(eye)
 	var flat := Vector2(eye.x, eye.z)
 	var interiors := world.interiors if world != null else null
 	var revision := interiors.revision if interiors != null else 0

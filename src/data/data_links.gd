@@ -5,6 +5,7 @@ extends RefCounted
 ## added with the DataCheck of each, ids that the code owns with `provide`;
 ## problems() lists every `ref` that finds no `id`, every id two files define,
 ## and every kind that the code and the data both name with different ids.
+## Ids that files outside the check define (`elsewhere`) count as defined.
 
 ## Kind -> {id: where a file defines it}.
 var defs: Dictionary = {}
@@ -12,6 +13,8 @@ var defs: Dictionary = {}
 var code: Dictionary = {}
 ## [kind, id, where, file] of every ref.
 var refs: Array[Array] = []
+## Kind -> {id: true} for the ids that files outside the check define.
+var outside: Dictionary = {}
 
 var _doubles := PackedStringArray()
 var _exact: Dictionary = {}
@@ -37,6 +40,14 @@ func provide(kind: StringName, ids: Array, exact := true) -> void:
 	if exact:
 		_exact[kind] = true
 
+## Ids of `kind` that files outside the check define: the zones of the other
+## regions of the world. A ref to one points somewhere, and the check does not
+## look at the files that define them.
+func elsewhere(kind: StringName, ids: Array) -> void:
+	var known := _known(outside, kind)
+	for name: Variant in ids:
+		known[str(name)] = true
+
 func problems() -> PackedStringArray:
 	var result := _doubles.duplicate()
 	for kind: StringName in code:
@@ -53,9 +64,10 @@ func problems() -> PackedStringArray:
 	for ref: Array in refs:
 		var kind: StringName = ref[0]
 		var name: String = ref[1]
-		if not defs.has(kind) and not code.has(kind):
+		if not defs.has(kind) and not code.has(kind) and not outside.has(kind):
 			result.append("%s: %s: nothing defines the kind '%s'" % [ref[3], ref[2], kind])
-		elif not (defs.has(kind) and Values.table(defs[kind]).has(name)) and not (code.has(kind) and Values.table(code[kind]).has(name)):
+		elif not (defs.has(kind) and Values.table(defs[kind]).has(name)) and not (code.has(kind) and Values.table(code[kind]).has(name)) \
+				and not (outside.has(kind) and Values.table(outside[kind]).has(name)):
 			result.append("%s: %s: '%s' is not a %s" % [ref[3], ref[2], name, kind])
 	return result
 

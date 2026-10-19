@@ -1,5 +1,6 @@
 class_name Campfire
 extends Node3D
+const OutdoorScan = preload("res://src/render/outdoor_scan.gd")
 ## The last log has burnt: the fire is out.
 signal burnt_out
 var meal := CampMeal.new()
@@ -7,7 +8,10 @@ var fuel := CampFuel.new()
 var burning := false
 var seats: Array[Dictionary] = []
 var flames: HearthFire
-var glow: OmniLight3D
+## The fire's light, a lamp of kind `campfire` (InteriorLamps); its energy
+## follows the fuel here.
+var lamps: InteriorLamps
+var glow: Light3D
 var embers: MeshInstance3D
 var sparks: CPUParticles3D
 var smoke: CPUParticles3D
@@ -23,19 +27,17 @@ func _ready() -> void:
 	for index in range(5):
 		CampProps.log_mesh(self, Vector3(0, 0.14 + index * 0.025, (index % 2 - 0.5) * 0.15), 0.84, 0.075, index * 1.1)
 	embers = NpcProps.mesh(self, NpcProps.cylinder(0.46, 0.035), Color("30241e"), Vector3.UP * 0.035)
+	(embers.material_override as StandardMaterial3D).emission_enabled = true
 	flames = HearthFire.new()
 	flames.configure(Vector3(0, 0.15, 0), Vector3.RIGHT, 0.9, 0.8)
 	add_child(flames)
-	glow = OmniLight3D.new()
-	glow.position.y = 0.65
-	glow.light_color = Color("ffb667")
-	glow.light_energy = 4.0
-	glow.omni_range = 7.0
-	glow.omni_attenuation = 1.7
-	glow.shadow_enabled = true
-	glow.shadow_caster_mask = 0xFFFFFFFF & ~VegetationSystem.VISUAL_LAYER
-	glow.add_to_group(AtmosphereFog.LAMP_GROUP)
-	add_child(glow)
+	lamps = InteriorLamps.new()
+	lamps.name = "Lamps"
+	add_child(lamps)
+	var colour := Color("ffb667")
+	glow = lamps.add_light({"name": "Glow", "type": "point", "kind": "campfire", "layer": "exterior", "night": 0.0,
+		"fog": true, "position": [0.0, 0.65, 0.0], "color": [colour.r, colour.g, colour.b], "energy": 4.0,
+		"range": 7.0, "attenuation": 1.7})
 	sparks = _particles(true)
 	smoke = _particles(false)
 	potato = CampProps.potato()
@@ -69,6 +71,9 @@ func _ready() -> void:
 	var jug := NpcProps.jug()
 	jug.position = Vector3(-0.85, 0.015, 0.4)
 	add_child(jug)
+	# The ring of stones, the logs, the potato and the jug stand in the
+	# weather; the embers keep their glow (OutdoorScan.takes).
+	OutdoorScan.dress(self, OutdoorScan.PROP_SHINE, false)
 	set_burning(false)
 	_update_potato()
 
@@ -81,10 +86,11 @@ func set_burning(value: bool) -> void:
 	glow.visible = value
 	sparks.emitting = value
 	smoke.emitting = value
+	# The glow stays on and goes dark: a cold bed keeps the material it burns
+	# with.
 	var material := embers.material_override as StandardMaterial3D
-	material.emission_enabled = value
 	material.emission = Color("dd5422")
-	material.emission_energy_multiplier = 2.8
+	material.emission_energy_multiplier = 2.8 if value else 0.0
 	if value:
 		crackle.play()
 	else:
@@ -118,9 +124,8 @@ func _process(delta: float) -> void:
 
 func _update_potato() -> void:
 	potato.visible = meal.cooking
-	var skin := potato.get_node("Skin") as MeshInstance3D
-	var material := skin.material_override as StandardMaterial3D
-	material.albedo_color = Color("9f784d").lerp(Color("453025"), meal.cooked_seconds / CampMeal.COOK_SECONDS)
+	NpcProps.colour(potato.get_node("Skin") as MeshInstance3D,
+		Color("9f784d").lerp(Color("453025"), meal.cooked_seconds / CampMeal.COOK_SECONDS))
 	(potato.get_node("Steam") as CPUParticles3D).emitting = meal.ready()
 
 func _particles(is_sparks: bool) -> CPUParticles3D:

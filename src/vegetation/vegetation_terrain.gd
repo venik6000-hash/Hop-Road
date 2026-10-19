@@ -1,24 +1,27 @@
 class_name VegetationTerrain
 extends RefCounted
 ## CPU copy of the generated terrain fields (tools/pipeline/terrain/terrain.py)
-## that the vegetation placement reads: both heightfields, the 1 m material
-## masks of the near field and the 8 m masks of the far field.
+## that the vegetation placement reads: the terrain's heights (TerrainTiles,
+## shared with TerrainSystem), the 1 m material masks of the near field and
+## the 8 m masks of the far field.
 ##
-## Everything is kept as flat packed arrays and sampled by hand, because the
+## The masks are kept as flat packed arrays and sampled by hand, because the
 ## placement runs hundreds of thousands of lookups and Image.get_pixel() costs
 ## several times more than an array index. Sampling conventions match
 ## TerrainSystem and terrain.gdshader: sample [row z][column x] sits at
 ## origin + (x, z) * cell, bilinear between neighbouring samples, and the near
-## field fades into the far one over its outer 40 m.
+## field's masks fade out over its outer 40 m.
 
 const NEAR_FADE := 40.0
 
 var water_level := 0.72
-var near_h := PackedFloat32Array()
+## The heights: what TerrainSystem.height_at() reads.
+var tiles: TerrainTiles
+## The near field the masks cover.
 var near_origin := Vector2.ZERO
 var near_cell := 0.5
 var near_size := 0
-var far_h := PackedFloat32Array()
+## The far field the far masks cover.
 var far_origin := Vector2.ZERO
 var far_cell := 8.0
 var far_size := 0
@@ -34,8 +37,9 @@ var far_masks := PackedByteArray()
 ## Mean far forest mask per 256 m block (mip level 5 of far_masks), 0..255.
 var far_forest_blocks := PackedByteArray()
 var far_block_count := 0
-## Optional 0/255 grid of ground covered by buildings and props (ObstacleMap),
-## row-major [z][x], cell centres at obstacle_origin + (x, z) * obstacle_cell.
+## Optional grid of ground covered by buildings and props and of the yards'
+## lawns (ObstacleMap: SOLID, LAWN, 0), row-major [z][x], cell centres at
+## obstacle_origin + (x, z) * obstacle_cell.
 var obstacles := PackedByteArray()
 var obstacle_origin := Vector2.ZERO
 var obstacle_cell := 0.5
@@ -45,11 +49,10 @@ var obstacle_size := Vector2i.ZERO
 static func from_terrain(terrain: TerrainSystem) -> VegetationTerrain:
 	var data := VegetationTerrain.new()
 	data.water_level = terrain.water_level
-	data.near_h = terrain.near_image.get_data().to_float32_array()
+	data.tiles = terrain.fields()
 	data.near_origin = terrain.near_origin
 	data.near_cell = terrain.near_cell
 	data.near_size = terrain.near_size
-	data.far_h = terrain.far_image.get_data().to_float32_array()
 	data.far_origin = terrain.far_origin
 	data.far_cell = terrain.far_cell
 	data.far_size = terrain.far_size
@@ -57,21 +60,22 @@ static func from_terrain(terrain: TerrainSystem) -> VegetationTerrain:
 	data.mask_origin = Values.vec2(masks.origin)
 	data.mask_cell = masks.cell
 	data.mask_size = Values.whole(masks.size)
-	var control: Texture2D = terrain.material.get_shader_parameter("near_control")
-	var extra: Texture2D = terrain.material.get_shader_parameter("near_extra")
 	var far_masks: Texture2D = terrain.material.get_shader_parameter("far_masks")
-	data.control = _rgba_bytes(control, data.mask_size)
-	data.extra = _rgba_bytes(extra, data.mask_size)
+	data.control = _mask_bytes(terrain.near_control, data.mask_size)
+	data.extra = _mask_bytes(terrain.near_extra, data.mask_size)
 	var far_image := _rgba_image(far_masks, data.far_size)
 	data._summarise_far_forest(far_image)
 	far_image.clear_mipmaps()
 	data.far_masks = far_image.get_data()
 	return data
 
-static func _rgba_bytes(texture: Texture2D, size: int) -> PackedByteArray:
-	var image := _rgba_image(texture, size)
-	image.clear_mipmaps()
-	return image.get_data()
+## The bytes of a mask (RGBA8, no mipmaps); zeros for none.
+static func _mask_bytes(mask: Image, size: int) -> PackedByteArray:
+	if mask != null:
+		return mask.get_data()
+	var blank := PackedByteArray()
+	blank.resize(size * size * 4)
+	return blank
 
 static func _rgba_image(texture: Texture2D, size: int) -> Image:
 	if texture == null:
@@ -115,12 +119,12 @@ func far_forest_max(block: Rect2) -> float:
 
 ## Height at a world position, identical to TerrainSystem.height_at().
 func height(x: float, z: float) -> float:
-	var far := _sample_f(far_h, far_origin, far_cell, far_size, x, z)
-	var w := near_weight(x, z)
-	if w <= 0.0:
-		return far
-	return lerpf(far, _sample_f(near_h, near_origin, near_cell, near_size, x, z), w)
+	TerrainSystem.check_field(x, z, far_origin, far_cell, far_size)
+	if tiles == null:
+		return 0.0
+	return tiles.height(x, z)
 
+## How much the near field's masks count at (x, z): 1 inside, fading to 0 over its outer 40 m.
 func near_weight(x: float, z: float) -> float:
 	if near_size == 0:
 		return 0.0
@@ -147,7 +151,8 @@ func shore_distance(x: float, z: float) -> float:
 		return 1000.0
 	return extra_at(x, z, 2) * 255.0 - 128.0
 
-## 1 where a building, wall, prop or cliff covers the ground, else 0.
+## 1 where a building, wall, prop or cliff covers the ground, a quarter on a
+## yard's lawn, else 0.
 func obstacle_at(x: float, z: float) -> float:
 	if obstacles.is_empty():
 		return 0.0
@@ -178,20 +183,6 @@ static func _inside(origin: Vector2, cell: float, size: int, x: float, z: float)
 	var fx := (x - origin.x) / cell
 	var fz := (z - origin.y) / cell
 	return fx >= 0.0 and fz >= 0.0 and fx <= size - 1 and fz <= size - 1
-
-static func _sample_f(data: PackedFloat32Array, origin: Vector2, cell: float, size: int, x: float, z: float) -> float:
-	if size == 0:
-		return 0.0
-	var fx := clampf((x - origin.x) / cell, 0.0, size - 1.001)
-	var fz := clampf((z - origin.y) / cell, 0.0, size - 1.001)
-	var ix := int(fx)
-	var iz := int(fz)
-	var tx := fx - ix
-	var tz := fz - iz
-	var i := iz * size + ix
-	var top := lerpf(data[i], data[i + 1], tx)
-	var bottom := lerpf(data[i + size], data[i + size + 1], tx)
-	return lerpf(top, bottom, tz)
 
 static func _sample_b(data: PackedByteArray, origin: Vector2, cell: float, size: int, x: float, z: float, channel: int) -> float:
 	if size == 0 or data.is_empty():

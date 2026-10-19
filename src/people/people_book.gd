@@ -1,9 +1,11 @@
 class_name PeopleBook
 extends RefCounted
-## The valley's people: the sheets of the seven villagers, what has grown
-## between each of them and the player, their voices (Storyteller), and the
-## common sheet. A passer-by without a sheet of their own speaks by the common
-## one, and so does a villager where their own sheet has no line.
+## The valley's people: the sheets of the villagers, what has grown between
+## each of them and the player, their voices (Storyteller), and the common
+## sheet. Who the villagers are is the folder's: every sheet in it but the
+## common one is a villager, by the stem of its file (roster). A passer-by
+## without a sheet of their own speaks by the common one, and so does a
+## villager where their own sheet has no line.
 
 const FOLDER := "res://assets/loop/people/"
 
@@ -15,10 +17,25 @@ var common := PersonSheet.new()
 
 static func load_folder(folder := FOLDER) -> PeopleBook:
 	var book := PeopleBook.new()
-	book.common = PersonSheet.load_file(folder + String(PeopleIds.COMMON) + ".json", PeopleIds.COMMON)
-	for id: String in PeopleIds.VILLAGERS:
-		book.add(PersonSheet.load_file(folder + id + ".json", id))
+	book.common = PersonSheet.load_file(sheet_path(PeopleIds.COMMON, folder), PeopleIds.COMMON)
+	for id in roster(folder):
+		book.add(PersonSheet.load_file(sheet_path(id, folder), id))
 	return book
+
+## The ids of the villagers whose sheets lie in `folder`: the stems of its
+## *.json files but the common sheet's, in the order of their names.
+static func roster(folder := FOLDER) -> Array[StringName]:
+	var ids: Array[StringName] = []
+	var names := DirAccess.get_files_at(folder)
+	names.sort()
+	for file_name in names:
+		if file_name.get_extension() == "json" and file_name.get_basename() != String(PeopleIds.COMMON):
+			ids.append(StringName(file_name.get_basename()))
+	return ids
+
+## The file of the sheet of `id` in `folder`.
+static func sheet_path(id: StringName, folder := FOLDER) -> String:
+	return folder + String(id) + ".json"
 
 func add(page: PersonSheet) -> void:
 	sheets[page.id] = page

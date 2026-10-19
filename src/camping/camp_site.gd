@@ -31,7 +31,7 @@ static func check_site(camp: CampSystem, point: Vector3, restoring := false) -> 
 		return {"reason": "Здесь вода или слишком мокрый берег"}
 	if hit.normal.y < MAX_SLOPE:
 		return {"reason": "Найди более ровное место"}
-	for fire in camp.fires:
+	for fire in camp.campfires.fires:
 		if fire.global_position.distance_to(floor_point) < SITE_RADIUS * 2.0:
 			return {"reason": "Рядом уже есть костёр"}
 	var seats: Array[Dictionary] = []

@@ -1,7 +1,9 @@
 extends RefCounted
 ## The builders of the level's map, buildings and people (LevelParts): each
-## takes what the steps before it built (LevelSystems), adds its system to the
-## level and leaves it there for the steps after it.
+## takes what the steps before it built, adds its shared system
+## (SharedSystems) or its part of the content (CellContent) and leaves it there
+## for the steps after it. A content step puts what its part gives the shared
+## systems in the registries of WorldContext (docs/LEVEL.md, «Реестры»).
 
 const VILLAGE_LAYOUT = preload("res://src/village/village_layout.gd")
 const VILLAGE_MATERIALS = preload("res://src/village/village_materials.gd")
@@ -13,23 +15,28 @@ const STILL_SURFACE = preload("res://src/alpine/surface_still.gdshader")
 
 ## The refined tavern in place of the Blender map's blockout one; before the
 ## vegetation, which scans the colliders it keeps.
-static func tavern(s: LevelSystems) -> void:
-	s.tavern = TavernSystem.new()
-	s.tavern.name = "Tavern"
-	s.tavern.map = s.map
-	s.tavern.parts = s.region.tavern
-	s.tavern.sky_system = s.sky
-	s.tavern.terrain = s.terrain
-	s.tavern.world = s.world
-	s.add(s.tavern)
+static func tavern(s: SharedSystems, c: CellContent) -> void:
+	c.tavern = TavernSystem.new()
+	c.tavern.name = "Tavern"
+	c.tavern.transform = s.region.tavern_at
+	c.tavern.map = c.map
+	c.tavern.parts = s.region.tavern
+	c.tavern.sky_system = s.sky
+	c.tavern.terrain = s.terrain
+	c.tavern.world = s.world
+	c.add(c.tavern)
+	s.world.interaction_sources.add(c.tavern, c.tavern.furnish)
+	s.world.lamps.add(c.tavern, c.tavern.lamps_for)
 
 ## The map as the region stands it: its surfaces settled, its pieces edited
-## (MapEdits), its houses on their lots, the village's materials.
-static func map(s: LevelSystems) -> void:
-	_settle_surfaces(s.map)
-	MapEdits.apply(s.map, s.terrain)
-	VILLAGE_LAYOUT.place_houses(s.map, s.terrain, s.village_plan)
-	VILLAGE_MATERIALS.apply(s.map, s.terrain)
+## (MapEdits), its houses on their lots, the village's materials. Its pieces
+## outdoors are hidden from an eye in a room (Interiors).
+static func map(s: SharedSystems, c: CellContent) -> void:
+	_settle_surfaces(c.map_index)
+	MapEdits.apply(c.map, s.terrain)
+	VILLAGE_LAYOUT.place_houses(c.map, s.terrain, c.village_plan)
+	VILLAGE_MATERIALS.apply(c.map, s.terrain)
+	s.world.interiors.watch_pieces(c.map)
 
 ## The importer gives every surface of the map the leaves' shader, whose
 ## vertex function sways by TIME. Such a material is animated to the renderer
@@ -38,8 +45,8 @@ static func map(s: LevelSystems) -> void:
 ## the surfaces that do not sway get the same shader without the sway, and a
 ## piece that does sway goes on the plants' render layer, which the lanterns
 ## leave out of their shadow maps.
-static func _settle_surfaces(map_root: Node) -> void:
-	for item: MeshInstance3D in map_root.find_children("*", "MeshInstance3D", true, false):
+static func _settle_surfaces(index: MapIndex) -> void:
+	for item: MeshInstance3D in index.pieces():
 		for surface in item.mesh.get_surface_count():
 			var material := item.mesh.surface_get_material(surface) as ShaderMaterial
 			if material == null or material.shader == null:
@@ -51,7 +58,7 @@ static func _settle_surfaces(map_root: Node) -> void:
 				material.shader = STILL_SURFACE
 
 ## The tracks the player leaves on soft ground.
-static func tracks(s: LevelSystems) -> void:
+static func tracks(s: SharedSystems) -> void:
 	var ground_tracks := GROUND_TRACKS.new()
 	ground_tracks.name = "Tracks"
 	ground_tracks.terrain = s.terrain
@@ -60,62 +67,69 @@ static func tracks(s: LevelSystems) -> void:
 
 ## The region's cottages under the map; before the vegetation, so that their
 ## porches and wood stores are solid obstacles.
-static func cottages(s: LevelSystems) -> void:
+static func cottages(s: SharedSystems, c: CellContent) -> void:
 	for entry: Dictionary in VillageCottage.entries(s.region.cottages):
 		var cottage := VillageCottage.new()
 		cottage.name = str(entry.node)
 		cottage.spec = entry
-		s.map.add_child(cottage)
-		cottage.install(s.map, s.sky, s.village_plan)
-		s.cottages.append(cottage)
+		c.map.add_child(cottage)
+		cottage.install(c.map, s.sky, c.village_plan)
+		c.cottages.append(cottage)
+		s.world.lamps.add(cottage, cottage.lamps_for)
 
 ## The brewery behind the tavern, the lighthouse on the island and the rest;
 ## before the vegetation, whose obstacle scan must see their colliders. The
 ## ground bake shaped the ground under them (VillageBuildings.settle_ground).
-static func buildings(s: LevelSystems) -> void:
+static func buildings(s: SharedSystems, c: CellContent) -> void:
 	for table: Dictionary in VILLAGE_BUILDINGS.tables(s.region):
 		var building := VillageBuilding.new()
 		building.name = str(table.title)
 		building.table = table
 		building.sky_system = s.sky
-		building.falls = s.falls
+		building.falls = c.falls
 		building.world = s.world
-		s.add(building)
-		s.buildings.append(building)
+		c.add(building)
+		c.buildings.append(building)
+		s.world.lamps.add(building, building.lamps_for)
+		s.world.wind_vanes.add(building, building.take_wind)
 		# The brewery's trade stands about the valley.
 		if building.brew_house != null:
-			s.add(building.brew_house.make_stalls())
+			c.add(building.brew_house.make_stalls())
+			s.world.interaction_sources.add(building.brew_house, building.brew_house.attach)
 
 ## The village's props, its animals and the forest's wood, from the models
 ## the loader fetched first.
-static func village_pack(s: LevelSystems) -> void:
-	s.village_pack = VILLAGE_PACK.new()
-	s.village_pack.name = "VillagePack"
-	s.village_pack.terrain = s.terrain
-	s.village_pack.player = s.player
-	s.village_pack.region = s.region
-	s.map.add_child(s.village_pack)
-	await s.village_pack.wait_for_prefetch()
-	s.village_pack.install(s.map, false)
+static func village_pack(s: SharedSystems, c: CellContent) -> void:
+	c.village_pack = VILLAGE_PACK.new()
+	c.village_pack.name = "VillagePack"
+	c.village_pack.terrain = s.terrain
+	c.village_pack.player = s.player
+	c.village_pack.region = s.region
+	c.map.add_child(c.village_pack)
+	await c.village_pack.wait_for_prefetch()
+	c.village_pack.install(c.map, false)
+	s.world.animals.add(c.village_pack, c.village_pack)
 
 ## The plants of the village's yards and paths; they grow once the colliders
 ## stand (Level, step "placement").
-static func flora(s: LevelSystems) -> void:
-	s.flora = VillageFlora.new()
-	s.flora.name = "Flora"
-	s.flora.terrain = s.terrain
-	s.flora.map = s.map
-	s.flora.village_plan = s.village_plan
-	s.add(s.flora)
+static func flora(s: SharedSystems, c: CellContent) -> void:
+	c.flora = VillageFlora.new()
+	c.flora.name = "Flora"
+	c.flora.terrain = s.terrain
+	c.flora.map = c.map
+	c.flora.village_plan = c.village_plan
+	c.add(c.flora)
 
 ## The chimneys' smoke of the map, of the cottages and of the buildings.
-static func smoke(s: LevelSystems) -> void:
-	CHIMNEY_SMOKE.build(s.level, s.manifest, s.terrain, s.cottages, s.village_plan)
-	for building: VillageBuilding in s.buildings:
-		building.take_plumes(CHIMNEY_SMOKE.over(s.level, building.smoke_vents()))
+static func smoke(s: SharedSystems, c: CellContent) -> void:
+	CHIMNEY_SMOKE.build(c.node, c.manifest, s.terrain, c.cottages, c.village_plan)
+	for building: VillageBuilding in c.buildings:
+		building.take_plumes(CHIMNEY_SMOKE.over(c.node, building.smoke_vents()))
 
-## The people of the region at their work and on their walks.
-static func people(s: LevelSystems) -> void:
+## The people of the region at their work and on their walks. They are the
+## shared registry's: they stay while the content goes (docs/LEVEL.md,
+## «Общие системы и содержимое»).
+static func people(s: SharedSystems) -> void:
 	s.people = NpcPopulation.new()
 	s.people.name = "Population"
 	s.people.villagers = s.region.villagers
@@ -123,22 +137,21 @@ static func people(s: LevelSystems) -> void:
 	s.people.interiors = s.world.interiors
 	s.add(s.people)
 
-## What the player's E reaches (TavernInteractions): the tavern's furnishings
-## and its innkeeper, when the region has them, and the brewery's things and
-## stations.
-static func interactions(s: LevelSystems) -> void:
+## What the player's E reaches (TavernInteractions): the innkeeper, the
+## content's doors and handles (Interaction.GROUP), and what the content gives
+## (WorldContext.interaction_sources): the tavern's seats, ladder and beds, the
+## brewery's things and stations. A region without the tavern has none of
+## its furnishings.
+static func interactions(s: SharedSystems) -> void:
 	s.interactions = TavernInteractions.new()
 	s.interactions.name = "TavernInteractions"
 	s.interactions.player = s.player
-	s.interactions.tavern = s.tavern
 	s.interactions.population = s.people
+	s.interactions.givers = s.world.interaction_sources
 	s.add(s.interactions)
-	for building: VillageBuilding in s.buildings:
-		if building.brew_house != null:
-			building.brew_house.attach(s.interactions)
 
 ## The campfires the player lays, and the walks and talks with the people.
-static func camping(s: LevelSystems) -> void:
+static func camping(s: SharedSystems) -> void:
 	s.camping = CampSystem.new()
 	s.camping.name = "Camping"
 	s.camping.player = s.player
@@ -149,28 +162,15 @@ static func camping(s: LevelSystems) -> void:
 	s.add(s.camping)
 
 ## The lanterns' far glows, and the watch that keeps what lives out of their
-## shadow maps; after the tavern, the cottages and the animals.
-static func lamps(s: LevelSystems) -> void:
+## shadow maps; both take the content's lamps (WorldContext.lamps) and the
+## watch its animals (WorldContext.animals).
+static func lamps(s: SharedSystems) -> void:
 	s.far_lights = FarLights.new()
+	s.far_lights.lamps = s.world.lamps
 	s.add(s.far_lights)
 	s.lamp_guard = LampShadowGuard.new()
 	s.lamp_guard.name = "LampShadowGuard"
-	if s.tavern != null:
-		s.lamp_guard.lamps = s.tavern.light.lamps.shadowed_lanterns()
-		for glow: Dictionary in s.tavern.light.lamps.far_glows:
-			var at: Vector3 = glow.at
-			var facing: Vector3 = glow.facing
-			var color: Color = glow.color
-			s.far_lights.add_glow(s.tavern.to_global(at), color, Values.real(glow.radius), s.tavern.global_basis * facing)
-	for cottage: VillageCottage in s.cottages:
-		s.lamp_guard.lamps.append(cottage.lantern)
-		s.far_lights.add_glow(cottage.lantern.global_position, cottage.lantern.light_color, 0.2)
-	for building: VillageBuilding in s.buildings:
-		s.lamp_guard.lamps.append_array(building.lamps.shadowed_lanterns())
-		building.light_from_afar(s.far_lights)
-	s.far_lights.build()
-	for root: Node in [s.wildlife, s.village_pack]:
-		if root != null:
-			s.lamp_guard.roots.append(root)
 	s.lamp_guard.population = s.people
+	s.lamp_guard.givers = s.world.lamps
+	s.lamp_guard.animals = s.world.animals
 	s.add(s.lamp_guard)

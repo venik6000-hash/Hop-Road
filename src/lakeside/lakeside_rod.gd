@@ -1,10 +1,12 @@
 extends RefCounted
 ## The fishing rod on the player's camera, its line and the bobber.
 
+const OutdoorScan = preload("res://src/render/outdoor_scan.gd")
+
 static func build(lake: LakesideSystem) -> void:
 	lake.rod = Node3D.new()
 	lake.rod.name = "FishingRod"
-	lake.player.get_node("CameraRig/Camera3D").add_child(lake.rod)
+	lake.player.camera.add_child(lake.rod)
 	lake.rod.position = Vector3(0.30, -0.32, -0.48)
 	for i in range(8):
 		var section := NpcProps.mesh(lake.rod, NpcProps.cylinder(0.012 - i * 0.0012, 0.24), Color("9a7348"), Vector3(0, i * 0.078, -i * 0.21))
@@ -25,6 +27,9 @@ static func build(lake: LakesideSystem) -> void:
 	lake.add_child(lake.line)
 	lake.bobber = NpcProps.mesh(lake, NpcProps.cylinder(0.035, 0.14), Color("e66532"))
 	lake.bobber.visible = false
+	# The rod and the bobber stand in the weather; the line is drawn unlit.
+	OutdoorScan.dress(lake.rod, OutdoorScan.PROP_SHINE, false)
+	OutdoorScan.dress(lake.bobber, OutdoorScan.PROP_SHINE, false)
 
 static func draw_line(lake: LakesideSystem) -> void:
 	var mesh := lake.line.mesh as ImmediateMesh

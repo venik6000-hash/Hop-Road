@@ -6,7 +6,7 @@ extends CompositorEffect
 ## wood holds under its crowns, the shafts the mountains' and the clouds'
 ## shadows cut into them, and the rainbow.
 ##
-## fog_volume.glsl marches a small view-aligned grid (CELLS) once a frame and
+## fog_volume.glsl marches a small view-aligned grid (cells) once a frame and
 ## fog_apply.glsl lays it over the picture by each pixel's own depth. With no
 ## fog in the air (fair weather by day) neither runs.
 ##
@@ -22,8 +22,6 @@ const RdUtil = preload("res://src/common/rd_util.gd")
 const CanopyField = preload("res://src/vegetation/canopy_field.gd")
 const VOLUME_SHADER := "res://src/weather/fog_volume.glsl"
 const APPLY_SHADER := "res://src/weather/fog_apply.glsl"
-## Columns, rows and depth slices of the grid.
-const CELLS := Vector3i(160, 90, 48)
 ## Far edge of the first and of the last slice, m.
 const NEAR_EDGE := 2.0
 const FAR_EDGE := 24000.0
@@ -65,8 +63,6 @@ const WOOD_SUN := 0.2
 const WOOD_COVER := Vector2(0.1, 0.5)
 ## Metres a second the mist drifts with a wind of 1 m/s.
 const MIST_DRIFT := 0.35
-## Height (m) the clouds' shadow on the fog is taken at, as on the ground.
-const CLOUD_SHADOW_HEIGHT := 3300.0
 ## Share of the sun a thick cloud takes from the fog under it.
 const CLOUD_SHADOW := 0.85
 ## The rainbow's radiance against the sun's light.
@@ -99,7 +95,7 @@ var sun_shadow: SunShadowField
 ## Where the crowns close the sky: the woods that hold their own fog (none
 ## without it).
 var canopy: CanopyField
-## The sky's weather map (assets/generated/sky/cloud_weather.png).
+## The sky's weather map (SkySystem.WEATHER_MAP).
 var weather_map: Texture2D
 ## The rooms the fog stays out of, as one box (none while its size is zero):
 ## the nearest building's (Interiors.fog_box), set every frame.
@@ -113,6 +109,10 @@ var wind := Vector2.ZERO
 ## The significant height of the lake's waves, m: what a pixel shows is the
 ## lake up to their reach above its level.
 var wave_height := 0.0
+
+## Columns, rows and depth slices of the grid: the profile's
+## (QualityEffects.fog_cells), fixed when the pass is made.
+var cells: Vector3i
 
 var _rd: RenderingDevice
 var _volume_shader: RID
@@ -133,7 +133,10 @@ var _weather_texture: RID
 var _height_texture: RID
 var _canopy_texture: RID
 
-func _init() -> void:
+## `effects`: the effects of the level's quality profile (the authored ones
+## without it).
+func _init(effects: QualityEffects = null) -> void:
+	cells = (effects if effects != null else QualityProfile.named(QualityProfile.AUTHORED).effects).fog_cells
 	effect_callback_type = EFFECT_CALLBACK_TYPE_POST_TRANSPARENT
 	RenderingServer.call_on_render_thread(_create)
 
@@ -172,13 +175,14 @@ func prepare(delta: float, eye := Vector3.ZERO, lamps: Array = []) -> void:
 	var values := PackedFloat32Array([
 		sun.x, sun.y, sun.z, _level,
 		sun_light.x, sun_light.y, sun_light.z, CLOUD_SHADOW,
-		moon.x, moon.y, moon.z, CLOUD_SHADOW_HEIGHT,
+		# The clouds' shadow on the fog is taken at the layer's middle, as on the ground.
+		moon.x, moon.y, moon.z, SkySystem.cloud_layer().w,
 		moon_light.x, moon_light.y, moon_light.z, flash,
 		radiance, radiance, radiance, sky.atmosphere.viewer_radius_km(),
 		haze * HAZE_EXTINCTION, HAZE_HEIGHT, gloom, BOW_STRENGTH,
 		mist * MIST_EXTINCTION, MIST_TOP, MIST_FALLOFF, MIST_REACH,
 		rain * RAIN_EXTINCTION, WeatherSystem.CLOUD_BASE, droplets, droplets * DROP_EXTINCTION,
-		sky.cloud_coverage, sky.cloud_density, sky.cloud_cumulus_bias, sky.cloud_darkness,
+		sky.cloud_coverage, sky.cloud_density, sky.cloud_closed, sky.cloud_darkness,
 		sky.cloud_offset.x, sky.cloud_offset.y, _drift.x, _drift.y,
 		shadows.x, shadows.y, shadows.z, shadows.w,
 		terrain.far_origin.x, terrain.far_origin.y, terrain.far_cell, terrain.far_size,
@@ -189,7 +193,7 @@ func prepare(delta: float, eye := Vector3.ZERO, lamps: Array = []) -> void:
 	])
 	var outdoors := 1.0 - interiors.inside(eye) if interiors != null else 1.0
 	var rows := lamp_rows(eye, lamps, outdoors) if lamp_halos and outdoors > 0.01 else PackedFloat32Array()
-	values.append_array([rows.size() / 8, 1.0 if lake_mirror else 0.0, RefractionPost.wave_reach(wave_height), 0.0])
+	values.append_array([rows.size() / 8, 1.0 if lake_mirror else 0.0, RefractionPost.wave_reach(wave_height), SkySystem.CLOUD_MAP_FREQUENCY])
 	values.append_array(rows)
 	# The render thread adds the two matrices and two rows ahead of these.
 	values.resize(PARAM_FLOATS - 40)
@@ -277,8 +281,8 @@ func _create() -> void:
 	_bow_volume = _make_volume(RenderingDevice.DATA_FORMAT_R16_SFLOAT)
 	var flat := RDTextureFormat.new()
 	flat.format = RenderingDevice.DATA_FORMAT_R16G16B16A16_SFLOAT
-	flat.width = CELLS.x
-	flat.height = CELLS.y
+	flat.width = cells.x
+	flat.height = cells.y
 	flat.usage_bits = RenderingDevice.TEXTURE_USAGE_STORAGE_BIT | RenderingDevice.TEXTURE_USAGE_SAMPLING_BIT
 	_mirror_fog = _rd.texture_create(flat, RDTextureView.new())
 
@@ -296,9 +300,9 @@ func _make_volume(data_format: int) -> RID:
 	var format := RDTextureFormat.new()
 	format.texture_type = RenderingDevice.TEXTURE_TYPE_3D
 	format.format = data_format
-	format.width = CELLS.x
-	format.height = CELLS.y
-	format.depth = CELLS.z
+	format.width = cells.x
+	format.height = cells.y
+	format.depth = cells.z
 	format.usage_bits = RenderingDevice.TEXTURE_USAGE_STORAGE_BIT | RenderingDevice.TEXTURE_USAGE_SAMPLING_BIT
 	return _rd.texture_create(format, RDTextureView.new())
 
@@ -339,7 +343,7 @@ func _render_callback(callback_type: int, render_data: RenderData) -> void:
 		RdUtil.append_projection(values, Projection(camera))
 		# Reversed depth of a perspective view: raw = z.w / depth - z.z.
 		values.append_array([size.x, size.y, projection.w.z, projection.z.z])
-		values.append_array([NEAR_EDGE, FAR_EDGE, CELLS.z, (Engine.get_frames_drawn() % 64) / 64.0])
+		values.append_array([NEAR_EDGE, FAR_EDGE, cells.z, (Engine.get_frames_drawn() % 64) / 64.0])
 		values.append_array(frame)
 		var bytes := values.to_byte_array()
 		_rd.buffer_update(_params, 0, bytes.size(), bytes)
@@ -352,7 +356,7 @@ func _render_callback(callback_type: int, render_data: RenderData) -> void:
 		var list := _rd.compute_list_begin()
 		_rd.compute_list_bind_compute_pipeline(list, _volume_pipeline)
 		_rd.compute_list_bind_uniform_set(list, volume_set, 0)
-		_rd.compute_list_dispatch(list, ceili(CELLS.x / 8.0), ceili(CELLS.y / 8.0), 1)
+		_rd.compute_list_dispatch(list, ceili(cells.x / 8.0), ceili(cells.y / 8.0), 1)
 		_rd.compute_list_end()
 		var apply_set := UniformSetCacheRD.get_cache(_apply_shader, 0, [params,
 			RdUtil.image(1, buffers.get_color_layer(view)), RdUtil.sampled(2, _nearest, buffers.get_depth_layer(view)),

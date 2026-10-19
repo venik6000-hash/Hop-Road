@@ -24,7 +24,6 @@ const JUG_AT := Vector3(-0.11, 1.06, -0.98)
 var population: NpcPopulation
 var player: Player
 var camera: Camera3D
-var sky: SkySystem
 var weather: WeatherSystem
 var interactions: TavernInteractions
 ## While false nobody is moved: a tool that puts the villagers where it needs
@@ -103,8 +102,9 @@ func sits_near(point: Vector3, reach := 0.5) -> bool:
 func _look(forced: bool) -> void:
 	if not active or not is_instance_valid(population) or not population.is_inside_tree():
 		return
-	var hour := sky.time_of_day
+	var hour := GameClock.hour()
 	var kind: String = weather.kind
+	var in_story := _story_index()
 	for actor in population.actors:
 		if not is_instance_valid(actor) or not population.people.knows(actor.person_id):
 			continue
@@ -112,7 +112,7 @@ func _look(forced: bool) -> void:
 			# One sent home as the player lay down is where the hour has them
 			# by the morning; any other outing is left alone.
 			var outing := actor.outing as NpcOuting
-			if not forced or outing == null or outing.mode != "return":
+			if not forced or outing == null or outing.along:
 				continue
 			outing.finish()
 			_unsettled[actor] = true
@@ -128,7 +128,7 @@ func _look(forced: bool) -> void:
 		var back := _unsettled.has(actor) and due == actor.place
 		if due == actor.place and not back:
 			continue
-		if not forced and _in_a_story(actor):
+		if not forced and in_story.has(actor.person_id):
 			continue
 		var hidden := forced or actor.place == "home" or _sight.unseen(actor.global_position, actor)
 		if not hidden and not back:
@@ -145,9 +145,11 @@ func _look(forced: bool) -> void:
 			_move(actor, due, goal)
 	_keep_jug()
 
-## Whether the villager is telling a story now, or is the second voice of one
-## that another is telling: nobody leaves in the middle of it.
-func _in_a_story(actor: VillageNPC) -> bool:
+## The people in a story now, by their sheets: those who tell one, and the
+## second voices of the ones told. Nobody leaves in the middle of it. One
+## pass over the villagers serves a whole look.
+func _story_index() -> Dictionary[String, bool]:
+	var index: Dictionary[String, bool] = {}
 	var book := population.people
 	for other in population.actors:
 		if not is_instance_valid(other) or not book.knows(other.person_id):
@@ -155,17 +157,16 @@ func _in_a_story(actor: VillageNPC) -> bool:
 		var teller := book.teller(other.person_id)
 		if teller == null or teller.telling.is_empty():
 			continue
-		if other == actor:
-			return true
+		index[other.person_id] = true
 		var story := book.sheet(other.person_id).story(teller.telling)
 		var partner: String = story.get("with", "")
-		if partner == actor.person_id:
-			return true
-	return false
+		if not partner.is_empty():
+			index[partner] = true
+	return index
 
 ## The place of one whose day names none for the hour.
 func _fallback(actor: VillageNPC) -> String:
-	return "road" if actor.job == "wander" else "work"
+	return "road" if actor.duty.walks else "work"
 
 ## Where the villager would be put for `due`: {at: Vector3} with the seat
 ## ("seat") or the road's point ("index") beside it; {} when there is no
@@ -206,9 +207,9 @@ func _move(actor: VillageNPC, due: String, goal: Dictionary) -> void:
 	if actor.place == "home":
 		actor.visible = true
 		actor.process_mode = Node.PROCESS_MODE_INHERIT
-	actor.clear_bar()
-	# The knife, the spoon and the cloth stay at work.
-	if actor.job != "bartender" and actor.utensil != null:
+	actor.leave_work()
+	# The knife and the spoon stay at work.
+	if actor.utensil != null:
 		actor.utensil.visible = due == "work"
 	var at: Vector3 = goal["at"]
 	actor.velocity = Vector3.ZERO

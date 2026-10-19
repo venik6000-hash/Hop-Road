@@ -1,5 +1,5 @@
 extends RefCounted
-## The ground recipe of the valley (ground_bake.gd, RECIPES): what is laid
+## The ground recipe of the valley (RegionDef.ground_recipe): what is laid
 ## into the near heights of terrain.py and painted into its masks before the
 ## game reads them. Order matters: the cliff's seat first, the head stream's
 ## bed cut into it, the village, the tavern's floors and the buildings
@@ -19,6 +19,8 @@ const CODE := [
 	"res://src/rocks/rock_field.gd",
 	"res://src/water/waterfall_system.gd",
 	"res://src/village/village_layout.gd",
+	"res://src/alpine/map_index.gd",
+	"res://src/village/village_road.gd",
 	"res://src/tavern/tavern_ground.gd",
 	"res://src/village/village_buildings.gd",
 	"res://src/village/village_brook.gd",
@@ -32,13 +34,14 @@ static func inputs(region: RegionDef) -> PackedStringArray:
 	var files := PackedStringArray(CODE)
 	files.append(region.cliff)
 	files.append(region.village_plan)
+	files.append(region.cottages)
 	files.append_array(region.buildings)
 	files.append(region.worn_ground)
 	files.append(region.tavern_ground)
 	files.append(region.brook)
 	files.append(region.falls)
-	files.append(region.map.resource_path)
-	files.append(region.map.resource_path + ".import")
+	files.append(region.map)
+	files.append(region.map + ".import")
 	files.append(region.terrain_dir.path_join("far_height.bin"))
 	return files
 
@@ -47,7 +50,7 @@ static func inputs(region: RegionDef) -> PackedStringArray:
 static func settle(region: RegionDef, image: Image, origin: Vector2, cell: float, water_level: float) -> Dictionary:
 	RockField.seat(image, origin, cell, region.cliff)
 	WaterfallSystem.carve(image, origin, cell, WaterfallSystem.read(region.falls))
-	VillageLayout.settle_ground(image, origin, cell, VillageLayout.read_plan(region.village_plan))
+	VillageLayout.settle_ground(image, origin, cell, VillageLayout.read_plan(region.village_plan), region.cottages)
 	TavernGround.settle(image, origin, cell, TavernGround.read(region.tavern_ground))
 	VillageBuildings.settle_ground(image, origin, cell, region)
 	return VillageBrook.carve(image, origin, cell, water_level, VillageBrook.read(region.brook))
@@ -67,7 +70,7 @@ static func paint(region: RegionDef, settled: Dictionary, origin: Vector2, cell:
 			beds.append(bed)
 	VillageBrook.paint(control, extra, origin, cell, beds)
 	var heights := ground(region, settled)
-	var map := region.map.instantiate() as Node3D
+	var map := region.map_scene().instantiate() as Node3D
 	VillageLayout.paint_aprons(control, origin, cell, map, heights, VillageLayout.read_plan(region.village_plan))
 	map.free()
 	heights.free()

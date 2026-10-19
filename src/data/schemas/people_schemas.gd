@@ -75,7 +75,7 @@ static func villagers() -> Dictionary:
 		"staff": D.list(D.object({
 			"person": D.ref(&"person"),
 			"model": model,
-			"job": D.choice(["bartender", "chop", "stir", "maid"]),
+			"job": D.checked(D.text(), _job_problem),
 			"at": D.vector(3),
 			"yaw": D.number(-360.0, 360.0),
 		})),
@@ -87,3 +87,8 @@ static func villagers() -> Dictionary:
 		var walking: int = Values.list(cast.walkers).size() + Values.list(cast.passers).size()
 		return "walkers and passers need a road of two points or more" \
 			if walking > 0 and Values.list(cast.road).size() < 2 else "")
+
+## What is wrong with the job `value` of a villager: "" when a script of
+## NpcJob has it.
+static func _job_problem(value: Variant) -> String:
+	return "" if NpcJob.exists(str(value)) else "no job '%s' in %s" % [str(value), NpcJob.FOLDER]

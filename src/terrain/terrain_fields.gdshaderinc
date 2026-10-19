@@ -1,54 +1,110 @@
-// The generated terrain fields (tools/pipeline/terrain/terrain.py) and their
-// sampling, shared by the terrain and everything that stands on it (grass).
-// TerrainSystem fills these uniforms on its material; other materials copy
-// them from there with TerrainSystem.share_fields().
+// The generated terrain fields and their sampling, shared by the terrain
+// and everything that stands on it (stones, the lake's foam). TerrainSystem
+// fills these uniforms on its material; other materials copy them from there
+// with TerrainSystem.share_fields().
 //
-// Sample [row z][column x] sits at origin + (x, z) * cell; the 0.5 m near field
-// fades into the 8 m far field over its outer 40 m.
+// The ground is tiles of 0.5 m heights and 1 m masks (TerrainTiles), one
+// tile per layer of the arrays, over the 2 m mid field of the walkable land,
+// over the 8 m far field. Sample [row z][column x] of a field sits at
+// origin + (x, z) * cell. A tile fades into the mid field over 40 m toward a
+// tile no layer holds, the mid field into the far one over 40 m at the
+// land's edge. The map of the tiles is read first, outside every branch:
+// tile_spot().
 
-uniform sampler2D near_height : filter_linear, repeat_disable;
-uniform sampler2D far_height : filter_linear, repeat_disable;
+uniform sampler2DArray tile_heights : filter_linear, repeat_disable;
 // R path, G beach, B the forest the trees were planted by (the wood's floor
-// is drawn where they stand: canopy.gdshaderinc), A meadow flowers (1 m).
-uniform sampler2D near_control : filter_linear_mipmap, repeat_disable;
-// R rock outcrop, G wet, B lake SDF (0.5 = shore), A occlusion (1 m).
-uniform sampler2D near_extra : filter_linear_mipmap, repeat_disable;
+// is drawn where they stand: canopy.gdshaderinc), A meadow flowers.
+uniform sampler2DArray tile_control : filter_linear_mipmap, repeat_disable;
+// R rock outcrop, G wet, B lake SDF (0.5 = shore), A occlusion.
+uniform sampler2DArray tile_extra : filter_linear_mipmap, repeat_disable;
+// Per tile from tile (-16, -16): R the layer + 1 (0: no layer holds it),
+// G its neighbours no layer holds (TerrainTiles: bits west, east, north,
+// south, then north-west, north-east, south-west, south-east).
+uniform sampler2D tile_slots : filter_nearest, repeat_disable;
+uniform vec4 tile_rect;    // corner of tile (0, 0) x, z, tile (m), map texels per side
+uniform vec4 tile_cells;   // height cell (m), heights per side, mask cell (m), mask texels per side
+uniform sampler2D mid_height : filter_linear, repeat_disable;
+uniform vec4 mid_rect;     // origin x, origin z, cell (m), samples (0: no mid field)
+uniform sampler2D far_height : filter_linear, repeat_disable;
 // R snow, G bare rock and scree, B forest, A gully wetness (8 m).
 uniform sampler2D far_masks : filter_linear_mipmap, repeat_disable;
-uniform vec4 near_rect;   // origin x, origin z, cell (m), samples
 uniform vec4 far_rect;
-uniform vec4 mask_rect;
-uniform float water_level = 0.72;
+#include "res://src/water/lake_level.gdshaderinc"
 
 // The tones of a sward and its colours.
 #include "res://src/vegetation/shaders/sward.gdshaderinc"
 
-vec2 near_uv(vec2 xz) {
-	return ((xz - near_rect.xy) / near_rect.z + 0.5) / near_rect.w;
+const float TILE_FADE = 40.0;
+const float TILE_MAP_FIRST = -16.0;
+
+// The tile under a point: its layer, the metres into it, and how much of it
+// the ground takes (0 where no layer holds it).
+struct TileSpot {
+	float layer;
+	vec2 local;
+	float weight;
+};
+
+TileSpot tile_spot(vec2 xz) {
+	vec2 at = floor((xz - tile_rect.xy) / tile_rect.z);
+	vec2 on = at - TILE_MAP_FIRST;
+	vec4 slot = texelFetch(tile_slots, ivec2(clamp(on, vec2(0.0), vec2(tile_rect.w - 1.0))), 0);
+	bool mapped = all(greaterThanEqual(on, vec2(0.0))) && all(lessThan(on, vec2(tile_rect.w)));
+	int layer = mapped ? int(round(slot.r * 255.0)) - 1 : -1;
+	int missing = int(round(slot.g * 255.0));
+	TileSpot spot;
+	spot.local = xz - (tile_rect.xy + at * tile_rect.z);
+	vec2 l = spot.local;
+	vec2 r = vec2(tile_rect.z) - l;
+	float edge = 1e9;
+	edge = (missing & 1) != 0 ? min(edge, l.x) : edge;
+	edge = (missing & 2) != 0 ? min(edge, r.x) : edge;
+	edge = (missing & 4) != 0 ? min(edge, l.y) : edge;
+	edge = (missing & 8) != 0 ? min(edge, r.y) : edge;
+	edge = (missing & 16) != 0 ? min(edge, max(l.x, l.y)) : edge;
+	edge = (missing & 32) != 0 ? min(edge, max(r.x, l.y)) : edge;
+	edge = (missing & 64) != 0 ? min(edge, max(l.x, r.y)) : edge;
+	edge = (missing & 128) != 0 ? min(edge, max(r.x, r.y)) : edge;
+	spot.layer = float(max(layer, 0));
+	spot.weight = layer < 0 ? 0.0 : clamp(edge / TILE_FADE, 0.0, 1.0);
+	return spot;
+}
+
+vec3 tile_uv(TileSpot spot) {
+	return vec3((spot.local / tile_cells.x + 0.5) / tile_cells.y, spot.layer);
+}
+
+vec3 tile_mask_uv(TileSpot spot) {
+	return vec3((spot.local / tile_cells.z + 0.5) / tile_cells.w, spot.layer);
+}
+
+vec2 mid_uv(vec2 xz) {
+	return ((xz - mid_rect.xy) / mid_rect.z + 0.5) / mid_rect.w;
 }
 
 vec2 far_uv(vec2 xz) {
 	return ((xz - far_rect.xy) / far_rect.z + 0.5) / far_rect.w;
 }
 
-vec2 mask_uv(vec2 xz) {
-	return ((xz - mask_rect.xy) / mask_rect.z + 0.5) / mask_rect.w;
-}
-
-float near_weight(vec2 xz) {
-	vec2 local = (xz - near_rect.xy) / near_rect.z;
-	vec2 edge = min(local, vec2(near_rect.w - 1.0) - local) * near_rect.z;
-	return clamp(min(edge.x, edge.y) / 40.0, 0.0, 1.0);
+// How much of the mid field the ground takes where no tile is.
+float mid_weight(vec2 xz) {
+	vec2 local = (xz - mid_rect.xy) / mid_rect.z;
+	vec2 edge = min(local, vec2(mid_rect.w - 1.0) - local) * mid_rect.z;
+	return clamp(min(edge.x, edge.y) / TILE_FADE, 0.0, 1.0);
 }
 
 float height_at(vec2 xz) {
-	float w = near_weight(xz);
-	if (w >= 1.0) {
-		return textureLod(near_height, near_uv(xz), 0.0).r;
+	TileSpot spot = tile_spot(xz);
+	if (spot.weight >= 1.0) {
+		return textureLod(tile_heights, tile_uv(spot), 0.0).r;
 	}
 	float h = textureLod(far_height, far_uv(xz), 0.0).r;
-	if (w > 0.0) {
-		h = mix(h, textureLod(near_height, near_uv(xz), 0.0).r, w);
+	float wm = mid_weight(xz);
+	if (wm > 0.0) {
+		h = mix(h, textureLod(mid_height, mid_uv(xz), 0.0).r, wm);
+	}
+	if (spot.weight > 0.0) {
+		h = mix(h, textureLod(tile_heights, tile_uv(spot), 0.0).r, spot.weight);
 	}
 	return h;
 }
@@ -59,6 +115,17 @@ vec3 height_normal(vec2 xz, float step) {
 	float hd = height_at(xz - vec2(0.0, step));
 	float hu = height_at(xz + vec2(0.0, step));
 	return normalize(vec3(hl - hr, 2.0 * step, hd - hu));
+}
+
+// The masks of the tile at `spot`, unweighted. `dx`, `dy` are the screen
+// derivatives of the world position (x, z), taken before any branch: the
+// mask's coordinates jump at a tile's edge, so their own derivatives there
+// would pick its smallest copy.
+void near_masks(TileSpot spot, vec2 dx, vec2 dy, out vec4 control, out vec4 extra) {
+	vec2 scale = vec2(1.0 / (tile_cells.z * tile_cells.w));
+	vec3 uv = tile_mask_uv(spot);
+	control = textureGrad(tile_control, uv, dx * scale, dy * scale);
+	extra = textureGrad(tile_extra, uv, dx * scale, dy * scale);
 }
 
 // 0..1, how much of the ground is path, beach, scree or rock by the weights

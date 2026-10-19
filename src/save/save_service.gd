@@ -27,13 +27,16 @@ extends Node
 const V1_TO_V2 = preload("res://src/save/migrations/v1_to_v2.gd")
 const V2_TO_V3 = preload("res://src/save/migrations/v2_to_v3.gd")
 const V3_TO_V4 = preload("res://src/save/migrations/v3_to_v4.gd")
+const V4_TO_V5 = preload("res://src/save/migrations/v4_to_v5.gd")
+const V5_TO_V6 = preload("res://src/save/migrations/v5_to_v6.gd")
+const V6_TO_V7 = preload("res://src/save/migrations/v6_to_v7.gd")
 ## The version of the file this game writes.
-const VERSION := 4
+const VERSION := 7
 ## Steps that carry an older save over to VERSION: a save of version N goes
 ## through MIGRATIONS[N].apply(save, path it was read from), which returns it
 ## as version N + 1. Add a step with each VERSION bump; never change the file
 ## format without one.
-const MIGRATIONS: Dictionary[int, GDScript] = {1: V1_TO_V2, 2: V2_TO_V3, 3: V3_TO_V4}
+const MIGRATIONS: Dictionary[int, GDScript] = {1: V1_TO_V2, 2: V2_TO_V3, 3: V3_TO_V4, 4: V4_TO_V5, 5: V5_TO_V6, 6: V6_TO_V7}
 ## The slots: FOLDER/<slot>/FILE.
 const FOLDER := "user://saves"
 const FILE := "valley.json"
@@ -87,17 +90,6 @@ var _good_on_disk := false
 var _keep_off := false
 ## The last save was not written: the player has been told once.
 var _failing := false
-
-func _ready() -> void:
-	listen()
-
-## Saves soon on the news that should not be lost (GameEvents): an order
-## taken, given up or delivered, a new stage of the batch.
-func listen() -> void:
-	GameEvents.order_taken.connect(save_soon.unbind(1))
-	GameEvents.order_dropped.connect(save_soon.unbind(1))
-	GameEvents.order_delivered.connect(save_soon.unbind(2))
-	GameEvents.brew_stage_changed.connect(save_soon.unbind(1))
 
 func _process(delta: float) -> void:
 	if path.is_empty():
@@ -220,7 +212,8 @@ func add_section(key: String, save_section: Callable, restore_section: Callable,
 	_sections.append({"key": key, "region": region_id, "save": save_section, "restore": restore_section})
 
 ## Saves within SOON_SECONDS: something the player would not want to lose
-## has changed.
+## has changed. The system that changed it calls this; no news of GameEvents
+## does it.
 func save_soon() -> void:
 	_save_in = minf(_save_in, SOON_SECONDS)
 
@@ -401,21 +394,25 @@ static func write(file_path: String, text: String, keep_previous: bool) -> bool:
 		file.close()
 		DirAccess.remove_absolute(draft)
 		return false
+	# The draft goes from the system's cache to the disk before it is renamed.
+	file.flush()
 	file.close()
 	return place(file_path, text, keep_previous)
 
 ## Renames the draft `file_path`.tmp over `file_path` when it reads back as
 ## `text`. A full disk cuts a draft short: such a draft is deleted, and the
 ## files on disk stay as they were. With `keep_previous`, the file that was
-## there is renamed to `file_path`.bak first. False when the draft is not put
-## in place.
+## there is renamed to `file_path`.bak first; when that rename fails, the
+## draft is not put in place, so the file stays where the .bak would be. False
+## when the draft is not put in place.
 static func place(file_path: String, text: String, keep_previous: bool) -> bool:
 	var draft := file_path + ".tmp"
 	if FileAccess.get_file_as_string(draft) != text:
 		DirAccess.remove_absolute(draft)
 		return false
-	if keep_previous and FileAccess.file_exists(file_path):
-		DirAccess.rename_absolute(file_path, file_path + ".bak")
+	if keep_previous and FileAccess.file_exists(file_path) and DirAccess.rename_absolute(file_path, file_path + ".bak") != OK:
+		DirAccess.remove_absolute(draft)
+		return false
 	return DirAccess.rename_absolute(draft, file_path) == OK
 
 ## Copies a save that cannot be read to `file_path`.unreadable-<unix time>, so

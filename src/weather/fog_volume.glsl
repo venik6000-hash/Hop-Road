@@ -97,7 +97,7 @@ float mean_bank(float ya, float yb, float top, float height) {
 // The sky's cloud cover over a point of the map, from the weather map the
 // ground shaders read their cloud shadows from (src/sky/cloud_shadow.gdshaderinc).
 float cloud_cover(vec2 xz) {
-	vec4 weather = textureLod(cloud_weather, (xz * 0.001 + p.drift.xy) * 0.016, 0.0);
+	vec4 weather = textureLod(cloud_weather, (xz * 0.001 + p.drift.xy) * p.lit.w, 0.0);
 	float coverage = clamp(p.cloud.x + (weather.r - 0.5) * 0.95, 0.0, 1.0);
 	return smoothstep(0.35, 0.75, coverage * weather.b * 1.25);
 }
@@ -152,7 +152,7 @@ vec3 sky_ambient(vec3 dir) {
 	vec3 clear = mix(mean, behind, 0.65) * p.sky_light.rgb;
 	// Under a closed layer the light is the clouds' grey, less of it the
 	// darker their base.
-	float closed = smoothstep(0.62, 0.95, p.cloud.x) * clamp(p.cloud.y, 0.0, 1.0);
+	float closed = p.cloud.z;
 	float grey = dot(mean * p.sky_light.rgb, vec3(0.2126, 0.7152, 0.0722));
 	vec3 night = vec3(0.0015, 0.0028, 0.006) * (1.0 - smoothstep(-0.12, 0.02, p.sun.y));
 	return mix(clear, vec3(grey) * mix(0.9, 0.3, p.cloud.w), closed) + night;
@@ -208,7 +208,7 @@ void add_stretch(vec3 from, vec3 dir, float ta, float tb, float noise, float lev
 			// The clouds of a broken sky shade the sun in patches, as on the
 			// ground (src/sky/cloud_shadow.gdshaderinc); a closed layer has
 			// none, and its share of the sun is in p.sun_light already.
-			float broken = 1.0 - smoothstep(0.62, 0.95, p.cloud.x) * clamp(p.cloud.y, 0.0, 1.0);
+			float broken = 1.0 - p.cloud.z;
 			vec2 above = at.xz + p.sun.xz / p.sun.y * (p.moon.w - at.y);
 			sun_seen *= 1.0 - cloud_cover(above) * p.sun_light.a * broken;
 		}

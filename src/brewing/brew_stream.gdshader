@@ -35,10 +35,14 @@ void vertex() {
 	// A falling jet thins as it speeds up; a thin flow is a thread. Falling
 	// grains spread apart instead.
 	float thick = width * mix(0.35, 1.0, flow) * mix(1.0, mix(0.6, 1.6, grain), t);
+	// A jet of liquid wavers a little as it falls and spreads where it lands.
+	float fall = length(drop);
+	thick *= 1.0 + 0.6 * smoothstep(0.85, 1.0, t) * (1.0 - grain);
+	centre += side * (noise(vec2(t * fall * 6.0 - TIME * 8.0, 0.5)) - 0.5) * thick * 0.4 * t * (1.0 - grain);
 	vec3 world = centre + side * (UV.x - 0.5) * thick;
 	VERTEX = (inverse(MODEL_MATRIX) * vec4(world, 1.0)).xyz;
 	NORMAL = (inverse(MODEL_MATRIX) * vec4(normalize(eye + side * (UV.x - 0.5) * 1.6), 0.0)).xyz;
-	along = t * length(drop);
+	along = t * fall;
 }
 
 void fragment() {
@@ -61,9 +65,18 @@ void fragment() {
 		SPECULAR = 0.3;
 		ALPHA = 1.0;
 	} else {
-		ALBEDO = tint.rgb * mix(0.8, 1.1, streak);
-		ROUGHNESS = 0.08;
-		SPECULAR = 0.6;
-		ALPHA = tint.a * smoothstep(1.0, 0.6, across) * mix(0.75, 1.0, streak);
+		// A rope of glass that twists as it falls: a bright core, thin edges.
+		// A thin flow breaks into drops; the jet froths where it lands.
+		float twist = noise(vec2(UV.x * 3.0 + along * 4.0, along * 12.0 - TIME * 9.0));
+		float edge = smoothstep(1.0, 0.55 - 0.25 * twist, across);
+		if (flow < 0.35 && noise(vec2(0.5, along * 25.0 - TIME * 18.0)) > flow / 0.35 + 0.15) {
+			discard;
+		}
+		float land = smoothstep(0.85, 1.0, UV.y) * flow;
+		vec3 froth = mix(tint.rgb, vec3(0.86, 0.83, 0.76), 0.55);
+		ALBEDO = mix(tint.rgb * mix(0.75, 1.2, streak * twist + 0.3), froth, land * 0.6);
+		ROUGHNESS = mix(0.04, 0.35, land);
+		SPECULAR = 0.7;
+		ALPHA = clamp(tint.a * edge * mix(0.8, 1.0, streak) + land * 0.3, 0.0, 1.0);
 	}
 }

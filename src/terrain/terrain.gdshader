@@ -1,5 +1,5 @@
 shader_type spatial;
-// Terrain: CDLOD vertex morphing over two heightfields, 14 scanned material
+// Terrain: CDLOD vertex morphing over the tiles and the mid and far fields, 14 scanned material
 // layers blended by height, triplanar rock, the colours of the meadow's
 // sward, heightfield self-shadowing and cloud shadows in the light function,
 // the shade of the trees' crowns. See terrain_system.gd.
@@ -374,7 +374,7 @@ Layer surface(vec3 p, vec3 geo, vec3 facing, float scale, vec4 control, vec4 ext
 		float stir, float wn, float dist, float cleft, float lie, vec2 sward, vec3 yard) {
 	vec2 xz = p.xz;
 	float slope = 1.0 - geo.y;
-	float above = p.y - water_level;
+	float above = p.y - lake_level;
 	float mountain = smoothstep(350.0, 1400.0, dist);
 	float remote = mountain * (1.0 - wn);
 	// Ground: meadow grass, drier grass up high and where the sward is poor,
@@ -506,12 +506,17 @@ vec2 boot(vec2 at) {
 
 void fragment() {
 	// Private underwater capture camera; discard above-water fragments only there.
-	if (CAMERA_VISIBLE_LAYERS == 262144u && world_pos.y > water_level + 0.4) { discard; }
+	if (CAMERA_VISIBLE_LAYERS == 262144u && world_pos.y > lake_level + 0.4) { discard; }
 	vec3 p = world_pos;
 	vec2 xz = p.xz;
 	float dist = length(p - CAMERA_POSITION_WORLD);
-	float wn = near_weight(xz);
-	float fine_step = mix(far_rect.z * 1.5, near_rect.z, wn);
+	// The map of the tiles and the derivatives the masks are read with come
+	// before any branch.
+	TileSpot tile_here = tile_spot(xz);
+	vec2 xz_dx = dFdx(xz);
+	vec2 xz_dy = dFdy(xz);
+	float wn = tile_here.weight;
+	float fine_step = mix(mix(far_rect.z, mid_rect.z, mid_weight(xz)) * 1.5, tile_cells.x, wn);
 	// The far field's relief is a few cells wide: its normal is taken over as
 	// little as two pixels will bear.
 	vec3 geo = height_normal(xz, max(fine_step, dist * mix(0.0018, 0.004, wn)));
@@ -519,8 +524,11 @@ void fragment() {
 	vec4 control = vec4(0.0);
 	vec4 extra = vec4(0.0, 0.0, 1.0, 1.0);
 	if (wn > 0.0) {
-		control = texture(near_control, mask_uv(xz)) * wn;
-		extra = mix(extra, texture(near_extra, mask_uv(xz)), wn);
+		vec4 tile_control_here;
+		vec4 tile_extra_here;
+		near_masks(tile_here, xz_dx, xz_dy, tile_control_here, tile_extra_here);
+		control = tile_control_here * wn;
+		extra = mix(extra, tile_extra_here, wn);
 	}
 	vec4 far = texture(far_masks, far_uv(xz));
 	// The trees say where a wood is: the canopy field has their crowns. Far
@@ -539,7 +547,7 @@ void fragment() {
 	}
 	vec4 macro = texture(macro_noise, xz / 430.0);
 	float stir = texture(macro_noise, xz / 61.0 + 0.37).r;
-	float above = p.y - water_level;
+	float above = p.y - lake_level;
 	// The meadow's sward: how poor it is and its tone, where the near field's
 	// masks say what the ground is; beyond them it is a plain one.
 	vec2 sward = vec2(0.0, SWARD_PLAIN);
@@ -773,7 +781,7 @@ void fragment() {
 	albedo = mix(albedo, albedo * vec3(1.06, 1.0, 0.86), macro.g * 0.35);
 
 	sun_under_water = vec3(1.0);
-	float depth = water_level - p.y;
+	float depth = lake_level - p.y;
 	if (depth > 0.0) {
 		// Below the wave-washed shallows the bed of a mountain lake is marl:
 		// pale fine silt that settles over the cobbles, flattens them and

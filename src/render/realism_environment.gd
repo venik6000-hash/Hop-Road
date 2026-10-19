@@ -11,8 +11,13 @@ extends RefCounted
 ## was close to black. This much leaves the shade deep and what stands in it
 ## to be seen.
 const SKY_FILL := 0.3
+## The tonemapper and its white point: the level and every picture drawn
+## apart from it (the mug in the hand) map light the same way.
+const TONEMAP := Environment.TONE_MAPPER_ACES
+const TONEMAP_WHITE := 8.0
 
-static func build(sky: Sky) -> Environment:
+## The environment of the sky `sky` with the fog of the region's air `air`.
+static func build(sky: Sky, air: EnvironmentDef) -> Environment:
 	var environment := Environment.new()
 	environment.background_mode = Environment.BG_SKY
 	environment.sky = sky
@@ -21,9 +26,9 @@ static func build(sky: Sky) -> Environment:
 	environment.ambient_light_sky_contribution = SKY_FILL
 	environment.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 
-	environment.tonemap_mode = Environment.TONE_MAPPER_ACES
+	environment.tonemap_mode = TONEMAP
 	environment.tonemap_exposure = 0.92
-	environment.tonemap_white = 8.0
+	environment.tonemap_white = TONEMAP_WHITE
 
 	environment.ssao_enabled = true
 	environment.ssao_radius = 1.4
@@ -52,13 +57,9 @@ static func build(sky: Sky) -> Environment:
 	# them, as air does over kilometres.
 	environment.fog_enabled = true
 	environment.fog_mode = Environment.FOG_MODE_EXPONENTIAL
-	environment.fog_density = 0.00005
 	environment.fog_aerial_perspective = 1.0
 	environment.fog_sky_affect = 0.0
-	environment.fog_light_color = Color(0.62, 0.72, 0.86)
-	environment.fog_sun_scatter = 0.12
-	environment.fog_height = 380.0
-	environment.fog_height_density = 0.0001
+	air.apply_fog(environment)
 
 	environment.adjustment_enabled = true
 	environment.adjustment_saturation = 1.06

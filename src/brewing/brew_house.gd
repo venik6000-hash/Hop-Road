@@ -3,8 +3,8 @@ extends Node3D
 ## The brewing in the brewery's rooms (docs/plans/brewing.md, stages 2 and 3):
 ## the brewery's table (brewery.json) made to work. It owns the rules of the
 ## day, the cellar, the maltings and the trade (BrewDay, BrewCellar,
-## BrewMaltings, BrewTrade, BrewGuide, BrewCarry), runs them by the sky's
-## clock, keeps them in the save, and wires the parts that each do one thing:
+## BrewMaltings, BrewTrade, BrewGuide, BrewCarry), runs them by the game's
+## lived time (GameClock.advanced), keeps them in the save, and wires the parts that each do one thing:
 ##
 ## - BrewLayout: where things are (anchors, stations, utensils, surfaces).
 ## - BrewWork: what E and the mouse do (stations, carrying, the book).
@@ -19,12 +19,18 @@ extends Node3D
 
 const GROUP := &"brew_house"
 
-## Set before it enters the tree: the building's table and the building.
+## Set before it enters the tree: the building's table.
 var table: Dictionary:
 	set(value):
 		table = value
 		layout = BrewLayout.new(self, value)
-var building: VillageBuilding
+## What the brewery takes from the building it stands in (VillageBuilding),
+## all null in a house without its building: the building's node, whose
+## parent is the level; what moves in it (the taps, the cocks, the windlass);
+## and its fires (the copper's, the kiln's), set once the building has lamps.
+var site: Node3D
+var machinery: BuildingMachinery
+var fires: BuildingFires
 ## What the brewery says by the crosshair, by id.
 var lines := LineTable.read(LineTable.BREWERY, BrewingSchemas.lines())
 var day: BrewDay
@@ -42,9 +48,13 @@ var market := BrewMarket.new()
 var body := BrewBody.new()
 var look := BrewLook.new()
 var readout := BrewReadout.new()
-## The sky's hour at the last frame; below 0 before the first.
-var last_hour := -1.0
+## Game minutes lived since the last frame: the stations' work takes them.
+var _lived := 0.0
 ## The batch's stage at the last look (BrewBatch.stage).
+## How the brewery asks the save to keep it soon: a change the player would
+## not want to lose (an order, a purchase, a new stage). The game's service;
+## a test gives its own.
+var ask_save: Callable = SaveService.save_soon
 var _stage := ""
 
 func _init() -> void:
@@ -68,7 +78,14 @@ func _ready() -> void:
 	book = BrewBook.load_files()
 	look.build()
 	_stage = day.batch.stage
-	GameEvents.night_slept.connect(pass_hours)
+
+func _enter_tree() -> void:
+	if not GameClock.advanced.is_connected(live):
+		GameClock.advanced.connect(live)
+
+func _exit_tree() -> void:
+	if GameClock.advanced.is_connected(live):
+		GameClock.advanced.disconnect(live)
 
 ## The trade's stalls, board and cart for the level to stand.
 func make_stalls() -> BrewStalls:
@@ -89,16 +106,16 @@ func attach(interactions: TavernInteractions) -> void:
 	body.attach(interactions.player, eye)
 	market.attach(interactions.player, eye)
 	work.attach(interactions, eye)
-	if building != null and building.sky_system != null:
-		last_hour = building.sky_system.time_of_day
 
 ## The level the brewery stands in: carried things and the counter's keg are its.
 func level() -> Node:
-	return building.get_parent() if building != null and building.get_parent() != null else self
+	return site.get_parent() if site != null and site.get_parent() != null else self
 
 func _process(delta: float) -> void:
-	var minutes := _tick_clock()
-	tell_stage()
+	var minutes := _lived
+	_lived = 0.0
+	if note_stage():
+		ask_save.call()
 	work.update(delta, minutes)
 	look.settle()
 	body.update(delta)
@@ -106,34 +123,19 @@ func _process(delta: float) -> void:
 	market.lead()
 	readout.update(delta)
 
-## GameEvents hears when the batch comes to another stage.
-func tell_stage() -> void:
-	if day.batch.stage != _stage:
-		_stage = day.batch.stage
-		GameEvents.brew_stage_changed.emit(_stage)
+## True once when the batch comes to another stage: the save keeps it soon.
+func note_stage() -> bool:
+	if day.batch.stage == _stage:
+		return false
+	_stage = day.batch.stage
+	return true
 
-## Game minutes since the last frame go into the day and the cellar; the
-## clock turned back (a debug key) gives none.
-func _tick_clock() -> float:
-	if building == null or building.sky_system == null:
-		return 0.0
-	var minutes := 0.0
-	var hour := building.sky_system.time_of_day
-	if last_hour >= 0.0:
-		minutes = maxf(0.0, wrapf(hour - last_hour, -12.0, 12.0)) * 60.0
-		advance(minutes, last_hour)
-	last_hour = hour
-	return minutes
-
-## The night slept away goes by in the brewery too (GameEvents.night_slept):
-## the clock already stands at the morning.
-func pass_hours(hours: float) -> void:
-	if building == null or building.sky_system == null:
-		advance(hours * 60.0, fposmod(DayClock.WAKE_HOUR - hours, 24.0))
-		return
-	var now: float = building.sky_system.time_of_day
-	advance(hours * 60.0, fposmod(now - hours, 24.0))
-	last_hour = now
+## `minutes` of game time lived from game minute `from` (GameClock.advanced:
+## the running clock, a night slept) go into the day and the cellar. Time set
+## (a load, a debug key back) is not lived and gives none.
+func live(minutes: float, from: float) -> void:
+	advance(minutes, DayClock.hour_of(from))
+	_lived += minutes
 
 ## `minutes` of game time from `hour` in the brewery and the cellar, an hour
 ## at a time; each dawn on the way is a day of fermentation and ageing.

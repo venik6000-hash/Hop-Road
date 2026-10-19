@@ -27,7 +27,7 @@ const ROD := &"rod"
 const POTATO := &"potato"
 ## A sip from the mug (BeerViewmodel.drink).
 const DRINK := &"drink"
-## A bite of the potato (CampSystem.eat).
+## A bite of the potato (CampFood.eat).
 const BITE := &"bite"
 
 const DOERS := {

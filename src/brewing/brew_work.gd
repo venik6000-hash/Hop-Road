@@ -6,7 +6,9 @@ extends Node
 ## BrewCarrying), a station worked by the mouse's gestures (BrewStation), the
 ## hourglass turned, and the brewer's book opened on the desk
 ## (BrewBookPanel). While a station is worked or the book is open, the
-## brewery holds E (TavernInteractions.add_hold).
+## brewery holds E (TavernInteractions.add_hold), owns the player's mode
+## (Player.STATION, Player.MENU) and has its context of the input on top
+## (InputActions.STATION, InputActions.BOOK).
 
 ## How near its stand the player must be to work a station, m; how near the
 ## building's origin to have anything of it in reach.
@@ -68,17 +70,17 @@ func _input(event: InputEvent) -> void:
 		# The book takes the walk to turn its pages.
 		if event.is_echo():
 			return
-		if InputActions.pressed(event, "move_left"):
+		if InputActions.takes(event, &"move_left"):
 			book_panel.turn(-1)
-		elif InputActions.pressed(event, "move_right"):
+		elif InputActions.takes(event, &"move_right"):
 			book_panel.turn(1)
-		elif InputActions.pressed(event, "pause"):
+		elif InputActions.takes(event, &"pause"):
 			interact_busy()
 		elif not event is InputEventMouseMotion:
 			return
 		get_viewport().set_input_as_handled()
 		return
-	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+	if not InputActions.in_play():
 		return
 	var turn := _choice(event)
 	if station == null:
@@ -98,9 +100,9 @@ func _input(event: InputEvent) -> void:
 static func _choice(event: InputEvent) -> int:
 	if event.is_echo():
 		return 0
-	if InputActions.pressed(event, "choice_next"):
+	if InputActions.takes(event, &"choice_next"):
 		return 1
-	if InputActions.pressed(event, "choice_previous"):
+	if InputActions.takes(event, &"choice_previous"):
 		return -1
 	return 0
 
@@ -111,7 +113,7 @@ func update(delta: float, minutes: float) -> void:
 	if _player != null:
 		_player.look_held = station != null
 	if station != null:
-		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		if InputActions.live(&"look_left"):
 			motion += _player.stick_gesture(delta)
 		var work := station.work()
 		var before := [station.gesture.count, station.gesture.amount, station.gesture.turns]
@@ -134,16 +136,17 @@ func busy_text() -> String:
 		return "{move_left} / {move_right} — листать   ·   {interact} — закрыть книгу"
 	var work := station.work()
 	var title := tr(str(work.title))
-	var text := "%s   ·   %s" % [title.left(1).to_upper() + title.substr(1), tr(str(GESTURE_HINTS.get(work.gesture, "")))]
+	var words := [title.left(1).to_upper() + title.substr(1), tr(str(GESTURE_HINTS.get(work.gesture, "")))]
 	if station.works.size() > 1:
-		text += tr("   ·   {choice} — другое дело")
-	return text + tr("   ·   {interact} — отойти")
+		return tr("%s   ·   %s   ·   {choice} — другое дело   ·   {interact} — отойти") % words
+	return tr("%s   ·   %s   ·   {interact} — отойти") % words
 
 ## E while busy: steps away from the station, shuts the book.
 func interact_busy() -> void:
 	if book_panel != null and book_panel.visible:
 		book_panel.visible = false
-		_player.movement_locked = false
+		_player.leave(book_panel)
+		InputActions.pop(book_panel)
 	elif station != null:
 		leave_station()
 
@@ -268,8 +271,10 @@ func interact(target: Target) -> void:
 			if _hands_free():
 				enter_station(target.id)
 		"book":
+			if not _player.enter(Player.MENU, book_panel):
+				return
 			book_panel.open(func() -> PackedStringArray: return house.book.pages(house.book_batch()))
-			_player.movement_locked = true
+			InputActions.push(InputActions.BOOK, book_panel)
 		"take":
 			if _hands_free():
 				carrying.take(target.id)
@@ -299,19 +304,21 @@ func _hands_free() -> bool:
 ## Station `id` worked with what the hand holds, when it has a work for it.
 func enter_station(id: String) -> void:
 	var mode := BrewStation.open(id, house.carry.held, house.day, house.cellar, house.maltings)
-	if mode == null:
+	if mode == null or not _player.enter(Player.STATION, self):
 		return
 	_player.hands.claim(BodyChannels.BREWERY, house.body.at_work)
 	station = mode
 	station_id = id
 	motion = Vector2.ZERO
-	_player.movement_locked = true
+	InputActions.push(InputActions.STATION, self)
 	_player.velocity = Vector3.ZERO
 	house.body.approach()
 
 ## Steps away from the station: the body back on its stand.
 func leave_station() -> void:
 	house.body.leave(station_id)
+	_player.leave(self)
+	InputActions.pop(self, InputActions.STATION)
 	station = null
 	station_id = ""
 

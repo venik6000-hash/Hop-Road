@@ -3,6 +3,11 @@ extends CompositorEffect
 ## The GPU side of RainShelter (shelter_capture.glsl): turns each view its
 ## camera draws from above into heights of the map, and opens the map once
 ## every view is in.
+##
+## The views go into a raw map, which the opening reads into the one the
+## shaders see. When the map moves (shift()), the raw map keeps what the two
+## places share and only the views of the rest are taken again: the opening
+## then gives what drawing the whole map at its new place would.
 
 const RdUtil = preload("res://src/common/rd_util.gd")
 const SHADER := "res://src/weather/shelter_capture.glsl"
@@ -21,7 +26,10 @@ var _shader: RID
 var _pipeline: RID
 var _nearest: RID
 var _map: RID
+var _raw: RID
 var _scratch: RID
+## A map of nothing, the bytes a moved raw map starts from.
+var _empty := PackedByteArray()
 var _origin := Vector2.ZERO
 var _cell := 1.0
 var _cells := 0
@@ -40,7 +48,7 @@ func configure(origin: Vector2, cell: float, cells: int) -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE and _rd != null:
 		texture.texture_rd_rid = RID()
-		RdUtil.free_rids(_rd, [_shader, _nearest, _map, _scratch])
+		RdUtil.free_rids(_rd, [_shader, _nearest, _map, _raw, _scratch])
 
 func _create() -> void:
 	_rd = RenderingServer.get_rendering_device()
@@ -54,6 +62,7 @@ func _create() -> void:
 	_pipeline = _rd.compute_pipeline_create(_shader)
 	_nearest = _rd.sampler_create(RDSamplerState.new())
 	_map = _make_map()
+	_raw = _make_map()
 	_scratch = _make_map()
 
 func _make_map() -> RID:
@@ -62,11 +71,14 @@ func _make_map() -> RID:
 	format.width = _cells
 	format.height = _cells
 	format.usage_bits = RenderingDevice.TEXTURE_USAGE_STORAGE_BIT | RenderingDevice.TEXTURE_USAGE_SAMPLING_BIT \
-		| RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT | RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT
-	var empty := PackedFloat32Array()
-	empty.resize(_cells * _cells)
-	empty.fill(NOTHING)
-	return _rd.texture_create(format, RDTextureView.new(), [empty.to_byte_array()])
+		| RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT | RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT \
+		| RenderingDevice.TEXTURE_USAGE_CAN_COPY_TO_BIT
+	if _empty.is_empty():
+		var nothing := PackedFloat32Array()
+		nothing.resize(_cells * _cells)
+		nothing.fill(NOTHING)
+		_empty = nothing.to_byte_array()
+	return _rd.texture_create(format, RDTextureView.new(), [_empty])
 
 func _render_callback(callback_type: int, render_data: RenderData) -> void:
 	if callback_type != EFFECT_CALLBACK_TYPE_POST_OPAQUE or not _pipeline.is_valid() or finished:
@@ -79,7 +91,7 @@ func _render_callback(callback_type: int, render_data: RenderData) -> void:
 	if size.x == 0 or size.y == 0:
 		return
 	var to_world := Projection(data.get_cam_transform()) * AtmosphereFog.image_projection(data.get_view_projection(0)).inverse()
-	_run(buffers.get_depth_layer(0), _map, to_world, 0.0, size)
+	_run(buffers.get_depth_layer(0), _raw, to_world, 0.0, size)
 	captured += 1
 
 ## Opens the map and hands it out. Call on the render thread after the last
@@ -88,10 +100,36 @@ func finish() -> void:
 	if not _pipeline.is_valid() or finished:
 		return
 	var whole := Vector2i(_cells, _cells)
-	_run(_map, _scratch, Projection.IDENTITY, 1.0, whole)
+	_run(_raw, _scratch, Projection.IDENTITY, 1.0, whole)
 	_run(_scratch, _map, Projection.IDENTITY, 2.0, whole)
-	texture.texture_rd_rid = _map
+	# Named again, the texture would be made anew and every material that
+	# reads it would rebuild its uniform set (docs/PERFORMANCE.md, rule 11).
+	if texture.texture_rd_rid != _map:
+		texture.texture_rd_rid = _map
 	finished = true
+
+## Moves the raw map so that its corner is at `origin` (world x, z), a whole
+## number of texels from where it was. What the two places share is kept;
+## the rest holds nothing until its views are taken again. The opened map
+## the shaders read stays as it was until finish(). Call on the main thread.
+func shift(origin: Vector2) -> void:
+	var by := Vector2i(((origin - _origin) / _cell).round())
+	_origin = origin
+	finished = false
+	RenderingServer.call_on_render_thread(_shift.bind(by))
+
+func _shift(by: Vector2i) -> void:
+	if not _pipeline.is_valid():
+		return
+	_rd.texture_update(_scratch, 0, _empty)
+	var whole := Rect2i(Vector2i.ZERO, Vector2i(_cells, _cells))
+	var kept := whole.intersection(Rect2i(by, whole.size))
+	if kept.has_area():
+		_rd.texture_copy(_raw, _scratch, Vector3(kept.position.x, kept.position.y, 0),
+			Vector3(kept.position.x - by.x, kept.position.y - by.y, 0), Vector3(kept.size.x, kept.size.y, 1), 0, 0, 0, 0)
+	var moved := _scratch
+	_scratch = _raw
+	_raw = moved
 
 func _run(source: RID, target: RID, to_world: Projection, mode: float, size: Vector2i) -> void:
 	var values := PackedFloat32Array()

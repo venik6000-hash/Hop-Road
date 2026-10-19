@@ -1,19 +1,17 @@
 [gd_scene format=3 uid="uid://dqyjtaehvoi6m"]
 
 [ext_resource type="Script" uid="uid://bnc2pkqptxapu" path="res://src/alpine/level.gd" id="1_level"]
-[ext_resource type="Resource" path="res://assets/regions/valley.tres" id="2_region"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="3_player"]
-[ext_resource type="PackedScene" path="res://scenes/alpine/lake_dragon.tscn" id="4_dragon"]
 
 [node name="AlpineValley" type="Node3D" unique_id=607665291]
 script = ExtResource("1_level")
-region = ExtResource("2_region")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=419914476]
+[node name="Shared" type="Node3D" parent="." unique_id=1283460517]
 
-[node name="Player" parent="." unique_id=340682983 instance=ExtResource("3_player")]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Shared" unique_id=419914476]
 
-[node name="Overview" type="Camera3D" parent="." unique_id=1454565010]
-far = 24000.0
+[node name="Player" parent="Shared" unique_id=340682983 instance=ExtResource("3_player")]
 
-[node name="LakeDragon" parent="." instance=ExtResource("4_dragon")]
+[node name="Overview" type="Camera3D" parent="Shared" unique_id=1454565010]
+
+[node name="Content" type="Node3D" parent="." unique_id=871923604]

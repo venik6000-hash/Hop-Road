@@ -14,6 +14,10 @@ extends Node
 ## by the InteriorSight of that room's building. The systems outdoors give it
 ## their things here (watch(), watch_pieces()); the trees, the grass, the
 ## ground and the lake ask `sight` themselves.
+##
+## It is a registry of the shared systems (docs/LEVEL.md, «Реестры»): an
+## interior, a watched thing or a tree of pieces goes when its node leaves the
+## tree (the interior's lamps, the thing, the root).
 
 ## A doorway is this deep: the eye goes from outdoors to indoors over it,
 ## half of it on each side of the face of a room's box.
@@ -43,11 +47,17 @@ var _sight_from: InteriorSight
 var _holders := {}
 var _rooms_cast := -1
 
-## Adds the interior of a building or a cave.
+## Adds the interior of a building or a cave; it goes with its lamps.
 func add(interior: Interior) -> void:
 	interiors.append(interior)
 	if interior.contact:
 		contact.watch(interior)
+	if interior.lamps != null:
+		interior.lamps.tree_exiting.connect(_drop_interior.bind(interior), CONNECT_ONE_SHOT)
+
+func _drop_interior(interior: Interior) -> void:
+	interiors.erase(interior)
+	contact.unwatch(interior)
 
 ## Metres the eye is inside the room it is deepest in, of every interior
 ## (Interior.depth_of); -INF without rooms.
@@ -108,14 +118,26 @@ func probes_settled() -> bool:
 			return false
 	return true
 
-## Watches `node` (drawn whole or not at all) by `box` (world space).
+## Watches `node` (drawn whole or not at all) by `box` (world space) while
+## it stands.
 func watch(node: Node3D, box: AABB) -> void:
 	watched.append({"node": node, "box": box, "cast": -1})
+	if not node.tree_exiting.is_connected(_drop_watched.bind(node)):
+		node.tree_exiting.connect(_drop_watched.bind(node), CONNECT_ONE_SHOT)
 
 ## Watches the geometry under `root` piece by piece, each by its box: the
-## mesh's, or what `bounds` (GeometryInstance3D -> AABB) gives.
+## mesh's, or what `bounds` (GeometryInstance3D -> AABB) gives, while `root`
+## stands.
 func watch_pieces(root: Node, bounds := Callable()) -> void:
 	pieces.append({"root": root, "bounds": bounds})
+	if not root.tree_exiting.is_connected(_drop_pieces.bind(root)):
+		root.tree_exiting.connect(_drop_pieces.bind(root), CONNECT_ONE_SHOT)
+
+func _drop_watched(node: Node3D) -> void:
+	watched = watched.filter(func(entry: Dictionary) -> bool: return entry.node != node)
+
+func _drop_pieces(root: Node) -> void:
+	pieces = pieces.filter(func(entry: Dictionary) -> bool: return entry.root != root)
 
 ## `holder` draws the level from above (RainShelter): nothing may be hidden
 ## from it while it does.

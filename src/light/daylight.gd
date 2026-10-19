@@ -46,6 +46,9 @@ const BOUNCE_RANGE := 6.0
 const BOUNCE_LIFT := 0.45
 ## The sun's patch is not followed further into the room than this, m.
 const BOUNCE_REACH := 5.0
+## The group of the floor's lamps. They cast no shadow: their light is the
+## bounce off a lit floor, which no wall of the room cuts.
+const BOUNCE_GROUP := &"daylight_bounce"
 ## How far outside the opening the moon's lamp hangs (m) and how far it
 ## reaches beyond.
 const MOON_BACK := 7.0
@@ -65,11 +68,11 @@ var sky: SkySystem
 ## Asked for the ridges between the sun and the building; none without it.
 var terrain: TerrainSystem
 var interior: Interior
-## The building's doors, whose leaves stand in its openings.
-var doors: Array[TavernDoor] = []
+## The leaves of the building's doors, which stand in its openings.
+var leaves: Array[OpeningLeaf] = []
 
 ## {centre, inward, width, sill, top, spring, floor, reveal, area, light
-## (the profile's `daylight`), sky, bounce, moon, doors}
+## (the profile's `daylight`), sky, bounce, moon, leaves}
 var _openings: Array[Dictionary] = []
 var _shafts: MeshInstance3D
 var _material := ShaderMaterial.new()
@@ -82,9 +85,12 @@ var _sun_clear := true
 var _state := Vector4(-1.0, -1.0, -1.0, -1.0)
 var _by_moon := false
 var _eye_indoors := false
+## How open each opening stands (openness), one per opening up to MOST_OPENINGS.
+var _open := PackedFloat32Array()
 
 func _ready() -> void:
 	_material.shader = SHAFT
+	_open.resize(MOST_OPENINGS)
 	_material.set_shader_parameter("reach", SHAFT_LENGTH)
 
 ## Whether `interior` has an opening the day comes in by.
@@ -107,7 +113,7 @@ func build() -> void:
 		opening.sky = _sky_lamp(opening, found.name)
 		opening.bounce = _bounce_lamp(found.name)
 		opening.moon = _moon_lamp(found.name)
-		opening.doors = _leaves_in(opening)
+		opening.leaves = _leaves_in(opening)
 		_openings.append(opening)
 	_build_shafts()
 	_placed_for = Vector3.ZERO
@@ -144,6 +150,7 @@ func _bounce_lamp(title: String) -> OmniLight3D:
 	lamp.light_specular = 0.0
 	lamp.light_cull_mask = LightLayers.ROOMS
 	lamp.visible = false
+	lamp.add_to_group(BOUNCE_GROUP)
 	FarLights.fade(lamp, "interior")
 	add_child(lamp)
 	return lamp
@@ -167,26 +174,25 @@ func _moon_lamp(title: String) -> SpotLight3D:
 	return lamp
 
 ## The leaves of the building's doors that hang in `opening`.
-func _leaves_in(opening: Dictionary) -> Array[TavernDoor]:
-	var leaves: Array[TavernDoor] = []
+func _leaves_in(opening: Dictionary) -> Array[OpeningLeaf]:
+	var found: Array[OpeningLeaf] = []
 	var inward: Vector3 = opening.inward
 	var across := Vector3.UP.cross(inward).normalized()
 	var half: float = Values.real(opening.width) * 0.5 + HINGE_REACH
-	for door: TavernDoor in doors:
-		var hinge: Vector3 = door.position - opening.centre
+	for leaf: OpeningLeaf in leaves:
+		var hinge: Vector3 = leaf.hinge() - opening.centre
 		if absf(hinge.dot(across)) < half and absf(hinge.dot(inward)) < Values.real(opening.reveal) + HINGE_REACH:
-			leaves.append(door)
-	return leaves
+			found.append(leaf)
+	return found
 
-## 0 with every leaf of `leaves` shut .. 1 with them open, or with none.
-static func openness(leaves: Array[TavernDoor]) -> float:
-	if leaves.is_empty():
+## 0 with every leaf of `in_opening` shut .. 1 with them open, or with none.
+static func openness(in_opening: Array[OpeningLeaf]) -> float:
+	if in_opening.is_empty():
 		return 1.0
 	var open := 0.0
-	for door: TavernDoor in leaves:
-		var swing := absf(door.open_angle - door.closed_angle)
-		open += clampf(absf(door.rotation.y - door.closed_angle) / maxf(swing, 0.001), 0.0, 1.0)
-	return open / leaves.size()
+	for leaf: OpeningLeaf in in_opening:
+		open += leaf.openness()
+	return open / in_opening.size()
 
 ## One mesh for the beams of every opening: a hull each, the opening's
 ## rectangle on the wall's line and the same again, which the shader carries
@@ -260,13 +266,11 @@ func _process(delta: float) -> void:
 	var light := body.light_energy if body.visible else 0.0
 	var camera := get_viewport().get_camera_3d()
 	var indoors := camera != null and interior.depth_of(camera.global_position) > 0.0
-	var open := PackedFloat32Array()
-	open.resize(MOST_OPENINGS)
 	var open_sum := 0.0
 	for number in mini(_openings.size(), MOST_OPENINGS):
-		var leaves: Array[TavernDoor] = _openings[number].doors
-		open[number] = openness(leaves)
-		open_sum += open[number]
+		var in_opening: Array[OpeningLeaf] = _openings[number].leaves
+		_open[number] = openness(in_opening)
+		open_sum += _open[number]
 	var state := Vector4(light, seen, sky.sun_share, open_sum)
 	if not moved and state.is_equal_approx(_state) and by_moon == _by_moon and indoors == _eye_indoors:
 		return
@@ -280,7 +284,7 @@ func _process(delta: float) -> void:
 	air.resize(MOST_OPENINGS)
 	for number in mini(_openings.size(), MOST_OPENINGS):
 		var numbers: Dictionary = _openings[number].light
-		air[number] = open[number] * Values.real(numbers.beam) * (Values.real(numbers.moon_air) if by_moon else 1.0)
+		air[number] = _open[number] * Values.real(numbers.beam) * (Values.real(numbers.moon_air) if by_moon else 1.0)
 	_material.set_shader_parameter("beam", (global_basis.inverse() * -source).normalized())
 	_material.set_shader_parameter("air", air)
 	_material.set_shader_parameter("sun_color", colour)
@@ -300,7 +304,7 @@ func _process(delta: float) -> void:
 		var sky_colour := SKY_GREY.lerp(SKY_BLUE, sky.sun_share).lerp(SKY_DUSK, dusk * sky.sun_share) \
 			.lerp(SKY_NIGHT, by_night / maxf(by_day + by_night, 0.0001))
 		var share := clampf(Values.real(opening.area) / Values.real(numbers.sky_area), 0.4, 2.0) \
-			* (open[number] if number < MOST_OPENINGS else 1.0)
+			* (_open[number] if number < MOST_OPENINGS else 1.0)
 		var lamp: SpotLight3D = opening.sky
 		lamp.light_color = sky_colour
 		lamp.light_energy = (by_day + by_night) * share
@@ -348,15 +352,18 @@ func _place_bounce(opening: Dictionary, sun: Vector3, sun_colour: Color, energy:
 	lamp.light_color = Color(sun_colour.r * BOUNCE_TINT.r, sun_colour.g * BOUNCE_TINT.g, sun_colour.b * BOUNCE_TINT.b)
 	lamp.light_energy = energy
 
-## Whether no ridge of the terrain stands between the sun and the building.
+## Whether no ridge of the terrain stands between the sun and the building:
+## the ground is searched toward the sun out to the edge of the terrain's
+## field.
 func _clear_of_ridges(sun: Vector3) -> bool:
 	if terrain == null or sun.y <= 0.0:
 		return sun.y > 0.0
 	var from := interior.bounds.get_center()
 	var reach := 40.0
-	while reach < 16000.0:
-		var at := from + sun * reach
+	var at := from + sun * reach
+	while terrain.covers(at.x, at.z):
 		if terrain.height_at(at.x, at.z) > at.y:
 			return false
 		reach *= 1.2
+		at = from + sun * reach
 	return true

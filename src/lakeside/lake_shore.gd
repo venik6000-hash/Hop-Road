@@ -2,7 +2,10 @@ class_name LakeShore
 extends Node
 const RdUtil = preload("res://src/common/rd_util.gd")
 const SIZE := 512
-const REGION := Vector4(-170, -150, 256, 0)
+## The square of the waves (LakePlan.shore_field): x, z of its corner, its
+## side, 0. project.godot declares the global `lake_shore_region` empty: a
+## region without a lake has no shore.
+var field := Vector4.ZERO
 var water: WaterSystem
 var terrain: TerrainSystem
 var activities: LakesideSystem
@@ -24,9 +27,12 @@ var _current := 0
 var _ready_gpu := false
 
 func _ready() -> void:
+	# The lake's surface heights take the shore's waves while it stands.
+	if water != null:
+		water.shore = self
 	wakes.resize(16)
 	for i in wakes.size(): wakes[i] = Vector4(0, 0, -100, 0)
-	RenderingServer.global_shader_parameter_set("lake_shore_region", REGION)
+	RenderingServer.global_shader_parameter_set("lake_shore_region", field)
 	# Cell centres, the same expressions as the former per-cell height_at calls;
 	# heights_at_grid returns height_at for each pair in z-major order.
 	var xs := PackedFloat64Array()
@@ -34,9 +40,9 @@ func _ready() -> void:
 	xs.resize(SIZE)
 	zs.resize(SIZE)
 	for x: int in SIZE:
-		xs[x] = REGION.x + (x + 0.5) * REGION.z / SIZE
+		xs[x] = field.x + (x + 0.5) * field.z / SIZE
 	for z: int in SIZE:
-		zs[z] = REGION.y + (z + 0.5) * REGION.z / SIZE
+		zs[z] = field.y + (z + 0.5) * field.z / SIZE
 	var heights := terrain.heights_at_grid(xs, zs)
 	RenderingServer.call_on_render_thread(_create.bind(heights.to_byte_array()))
 
@@ -78,7 +84,7 @@ func _process(delta: float) -> void:
 	amplitude = clampf(water.ocean.wind_speed * 0.017, 0.035, 0.28)
 	RenderingServer.global_shader_parameter_set("lake_shore_clock", Vector2(clock, amplitude))
 	if _ready_gpu:
-		RenderingServer.call_on_render_thread(_dispatch.bind(PackedFloat32Array([clock, minf(delta,0.1), water.water_level, amplitude, REGION.x, REGION.y, REGION.z, 0]).to_byte_array()))
+		RenderingServer.call_on_render_thread(_dispatch.bind(PackedFloat32Array([clock, minf(delta,0.1), water.water_level, amplitude, field.x, field.y, field.z, 0]).to_byte_array()))
 	if activities != null:
 		var boat := activities.boat
 		if boat.velocity.length() > 0.25 and boat.position.distance_to(_last_wake) > 0.6:
@@ -97,7 +103,7 @@ func _dispatch(params: PackedByteArray) -> void:
 	_current = 1 - _current
 
 func height_at(point: Vector2) -> float:
-	var uv := (point - Vector2(REGION.x, REGION.y)) / REGION.z
+	var uv := (point - Vector2(field.x, field.y)) / field.z
 	var edge := smoothstep(0, 0.05, minf(minf(uv.x, uv.y), minf(1-uv.x,1-uv.y)))
 	var depth := water.water_level - terrain.height_at(point.x, point.y)
 	var result := sin(clock * 1.25 - depth * 3) * amplitude * exp(-absf(depth)*1.5) * edge
@@ -110,6 +116,8 @@ func height_at(point: Vector2) -> float:
 	return result
 
 func _exit_tree() -> void:
+	if water != null and water.shore == self:
+		water.shore = null
 	RenderingServer.global_shader_parameter_set("lake_shore_state", null)
 	texture.texture_rd_rid = RID()
 	RenderingServer.call_on_render_thread(_free)

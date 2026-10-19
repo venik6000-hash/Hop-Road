@@ -1,6 +1,6 @@
 # Hop Road
 
-Тестовая карта игры «Хмельная тропа»: альпийская долина с таверной, озером и деревней. По ней можно ходить, плавать, рыбачить с лодки, разжигать костёр, менять погоду и время суток. В деревне стоят пивоварня, кузница, мельница с водяным колесом, бондарня, дом фонарщика и хмелесушильня с хмельником, на острове — маяк, у причала — каменная пристань; дороги ночью освещают фонари. У жителей свой распорядок дня, с ними можно разговаривать.
+Тестовая карта игры «Хмельная тропа»: альпийская долина с таверной, озером и деревней. По ней можно ходить, плавать, рыбачить с лодки, разжигать костёр, менять погоду и время суток. В деревне стоят пивоварня, кузница, мельница с водяным колесом, бондарня, дом фонарщика и хмелесушильня с хмельником, на острове — маяк, у причала — каменная пристань; дороги ночью освещают фонари. У жителей свой распорядок дня, с ними можно разговаривать. Для прогулок открыт квадрат земли около 3 × 3 км; по его краю стоит невидимая стена, горы за ней — только фон.
 
 Проект Godot 4.7.2 (Forward+). Проверен на macOS (Apple M1, Metal); на Windows и Linux не запускался.
 
@@ -15,7 +15,7 @@
 
 Игра рассчитана на запуск из редактора; экспорт отдельной сборкой целиком не проверялся. Сначала проект нужно открыть в редакторе: без импорта игра не запустится. Первый запуск дольше остальных, потому что видеокарта компилирует шейдеры; экран загрузки в это время не завис.
 
-Если игра идёт медленно, F10 открывает настройки: качество изображения и текстур, экран, звук, клавиши.
+Если игра идёт медленно, F10 открывает настройки: качество изображения и текстур, экран, звук, клавиши. Там же выбирается язык: русский или английский.
 
 ## Управление
 
@@ -61,11 +61,11 @@
 
 ## In English
 
-A test map of the game "The Hop Road": an alpine valley with a tavern, a lake and a village. You can walk, swim, fish from a boat, light a campfire, and change the weather and the time of day. The village has a brewery, a smithy, a water mill, a cooperage, a lamplighter's house and a hop kiln with its hop garden; a lighthouse stands on the island, a stone quay at the pier, and lanterns light the roads at night. The villagers keep their own hours and can be talked to.
+A test map of the game "The Hop Road": an alpine valley with a tavern, a lake and a village. You can walk, swim, fish from a boat, light a campfire, and change the weather and the time of day. The village has a brewery, a smithy, a water mill, a cooperage, a lamplighter's house and a hop kiln with its hop garden; a lighthouse stands on the island, a stone quay at the pier, and lanterns light the roads at night. The villagers keep their own hours and can be talked to. The walkable land is a square of about 3 by 3 km; an invisible wall stands at its edge, and the mountains beyond are scenery.
 
 To run it, install [Godot 4.7.2](https://godotengine.org/download/archive/4.7.2-stable/) (standard build), download this repository (about 1.7 GB), import `project.godot` in the Godot project manager, wait for the first import (about seven minutes on an Apple M1, 1.3 GB more in `.godot/`) and press F5, then choose «Новая игра» (New game) in the main menu. Run it from the editor: an exported build has not been tested end to end. The first launch takes longer because the shaders compile. Tested on macOS (Apple M1, Metal) only.
 
-Keys: WASD and mouse to move, Shift to run, E to interact, V to drink, K for a campfire, J for the fishing rod, F10 for the settings (graphics, display, sound, keys), F12 for a screenshot, Tab for the controls help, Esc to pause. R, B, F1–F7, F9, `[` and `]` are debug keys: they work only in the editor and in a debug build. The in-game text is in Russian.
+Keys: WASD and mouse to move, Shift to run, E to interact, V to drink, K for a campfire, J for the fishing rod, F10 for the settings (graphics, display, sound, keys), F12 for a screenshot, Tab for the controls help, Esc to pause. R, B, F1–F7, F9, `[` and `]` are debug keys: they work only in the editor and in a debug build. The game's text is in Russian and English: pick the language in the settings.
 
 Third-party assets keep their own licences (CC0, CC BY 4.0, CC BY 3.0, CC BY-SA 3.0, MIT): see the `CREDITS.*`, `SOURCES.json` and `license.txt` files next to them in `assets/`.
 

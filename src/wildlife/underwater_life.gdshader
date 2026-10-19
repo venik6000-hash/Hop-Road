@@ -24,11 +24,11 @@ uniform float translucency = 0.0;
 // Algal film over sunken wood and stone, and the silt that settles on their
 // upper faces: 0 fresh, 1 long drowned.
 uniform float biofilm = 0.0;
-uniform float water_level = 0.72;
 uniform int motion = 0; // 1 rooted plant, 2 unrigged fish tail
 uniform float plant_height = 1.0;
 uniform float fish_length = 0.5;
 uniform float current = 1.0;
+#include "res://src/water/lake_level.gdshaderinc"
 varying vec3 world_pos;
 varying vec3 world_normal;
 varying vec3 sun_under;
@@ -61,7 +61,7 @@ void vertex() {
 
 void fragment() {
 	// Private underwater capture camera; discard above-water fragments only there.
-	if (CAMERA_VISIBLE_LAYERS == 262144u && world_pos.y > water_level + 0.4) { discard; }
+	if (CAMERA_VISIBLE_LAYERS == 262144u && world_pos.y > lake_level + 0.4) { discard; }
 	vec4 color = base_color;
 	if (has_albedo) color *= texture(albedo_map, UV);
 	if (color.a < 0.28) discard;
@@ -71,7 +71,7 @@ void fragment() {
 		vec4 packed = texture(roughness_map, UV);
 		rough = roughness_channel == 1 ? packed.g : (roughness_channel == 2 ? packed.b : (roughness_channel == 3 ? packed.a : packed.r));
 	}
-	float depth = water_level - world_pos.y;
+	float depth = lake_level - world_pos.y;
 	if (biofilm > 0.0 && depth > 0.0) {
 		// Wood keeps its grain under a thin olive film; silt settles on the
 		// faces that look up, heavier the deeper and flatter they lie.

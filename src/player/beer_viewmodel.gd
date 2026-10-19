@@ -6,7 +6,7 @@ signal sipped
 const Presentation = preload("res://src/player/beer/mug_presentation.gd")
 const Crop = preload("res://src/player/beer/viewmodel_crop.gd")
 const GameSettingsScript = preload("res://src/settings/game_settings.gd")
-const FILL_LEVEL := 0.86
+const FILL_LEVEL := PlayerState.MUG_FULL
 const SIP := 0.13
 ## The tavern's old beer, which the shader draws by default: its absorption
 ## per simulation unit (beer_surface.gdshader), its scatter, its colour (EBC)
@@ -16,12 +16,24 @@ const OLD_SCATTER := 0.12
 const OLD_EBC := 12.0
 const OLD_FOAM := 0.65
 const HAZE_SCATTER := 0.5
+## What the player has (Player.state): the mug's beer and level are its own
+## (PlayerState.mug_beer, mug_fill). A mug without a body has one of its own.
+var state := PlayerState.new()
 ## The beer in the mug (BrewTaste.profile), {} for the tavern's old beer.
-var beer := {}
+var beer: Dictionary:
+	get:
+		return state.mug_beer
+	set(value):
+		state.mug_beer = value
 ## The player's hands and mouth (Player.hands); null for a mug without a body.
 var channels: BodyChannels
 @export var layer_index := 20
-var _fill := FILL_LEVEL
+## The beer's level in the mug (PlayerState.mug_fill).
+var _fill: float:
+	get:
+		return state.mug_fill
+	set(value):
+		state.mug_fill = value
 ## Seconds into the drink (DrinkMotion), 0 when the mug is in the hand.
 var _drink_time := 0.0
 var _drink_fill := 0.0
@@ -132,6 +144,24 @@ func set_hand_resolution(mode: String) -> void:
 
 func _set_fill(value: float) -> void:
 	_fill = value
+
+## The mug takes the player's beer and level from `of` (Player.state): it
+## shows what `of` holds now and whenever a save fills it.
+func use_state(of: PlayerState) -> void:
+	state = of
+	if not of.mug_filled.is_connected(_pour_state):
+		of.mug_filled.connect(_pour_state)
+	_pour_state()
+
+## The mug shows the beer and the level of its state: no drink, no fluid
+## left over from before.
+func _pour_state() -> void:
+	var level := _fill
+	_end_drink()
+	if fluid != null:
+		fluid.refill(level)
+	_fill = level
+	_show_beer()
 
 func fill() -> float:
 	return _fill

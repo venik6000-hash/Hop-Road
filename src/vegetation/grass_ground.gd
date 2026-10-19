@@ -28,12 +28,14 @@ var far_size := Vector2i.ZERO
 ## RGBA8, the terrain's tileable macro noise, `macro_size` squared.
 var macro := PackedByteArray()
 var macro_size := 0
-## Ground covered by buildings and props (ObstacleMap), empty when none.
+## Ground covered by buildings and props and the yards' lawns (ObstacleMap),
+## empty when none. No card grass grows on either.
 var cover := PackedByteArray()
 var cover_origin := Vector2.ZERO
 var cover_cell := 0.5
 var cover_size := Vector2i.ZERO
-## The cover of the trees' crowns, none where no trees stand.
+## The cover of the trees' crowns, none where no trees stand: a view of
+## the field (CanopyField.view), which its moves leave alone.
 var canopy: CanopyField
 ## The atlas's cells by kind (GrassClump.Sheet.cells).
 var cells: Array[PackedInt32Array] = []
@@ -41,15 +43,13 @@ var cells: Array[PackedInt32Array] = []
 ## What the fields are read from: when it changes, the terrain has been given
 ## other fields and they must be read again.
 static func source_of(terrain: TerrainSystem) -> Array:
-	return [terrain.near_image, terrain.far_image, terrain.material.get_shader_parameter("near_control"),
-		terrain.material.get_shader_parameter("near_extra"), terrain.material.get_shader_parameter("water_level")]
+	return [terrain.fields(), terrain.fields().revision, terrain.near_control, terrain.near_extra, terrain.water_level]
 
-## Copies of the terrain's masks, as the terrain's material holds them now
-## (the village and the brook have painted theirs in by this time), with the
-## buildings' footprint (null: none) and the crowns' cover.
+## The terrain's settled masks of the near field (TerrainSystem.near_control,
+## near_extra), with the buildings' footprint (null: none) and the crowns' cover.
 static func read(terrain: TerrainSystem, obstacles: ObstacleMap, canopy_field: CanopyField) -> GrassGround:
 	var ground := GrassGround.new()
-	ground.water_level = terrain.material.get_shader_parameter("water_level")
+	ground.water_level = terrain.water_level
 	ground.near_origin = terrain.near_origin
 	ground.near_cell = terrain.near_cell
 	ground.near_size = terrain.near_size
@@ -57,10 +57,8 @@ static func read(terrain: TerrainSystem, obstacles: ObstacleMap, canopy_field: C
 	ground.mask_origin = Values.vec2(masks.origin)
 	ground.mask_cell = masks.cell
 	ground.mask_size = Values.whole(masks.size)
-	var control_masks: Texture2D = terrain.material.get_shader_parameter("near_control")
-	var extra_masks: Texture2D = terrain.material.get_shader_parameter("near_extra")
-	ground.control = _bytes(control_masks)
-	ground.extra = _bytes(extra_masks)
+	ground.control = _mask_bytes(terrain.near_control)
+	ground.extra = _mask_bytes(terrain.near_extra)
 	# The far masks matter under the near field only: keep that part.
 	var far_masks: Texture2D = terrain.material.get_shader_parameter("far_masks")
 	var far_image := ImageUtil.rgba8(far_masks)
@@ -82,14 +80,25 @@ static func read(terrain: TerrainSystem, obstacles: ObstacleMap, canopy_field: C
 		ground.cover_origin = obstacles.origin
 		ground.cover_cell = obstacles.cell
 		ground.cover_size = obstacles.size
-	ground.canopy = canopy_field
+	ground.canopy = canopy_field.view() if canopy_field != null else null
 	ground.cells = GrassClump.sheet().cells
 	return ground
 
-static func _bytes(texture: Texture2D) -> PackedByteArray:
-	var image := ImageUtil.rgba8(texture)
-	image.clear_mipmaps()
-	return image.get_data()
+## The same ground with the crowns of `canopy_field` where they are now; the
+## jobs under way keep the ground they were given.
+func with_canopy(canopy_field: CanopyField) -> GrassGround:
+	var ground := GrassGround.new()
+	for property: Dictionary in get_property_list():
+		var usage: int = property.usage
+		var key: StringName = property.name
+		if usage & PROPERTY_USAGE_SCRIPT_VARIABLE:
+			ground.set(key, get(key))
+	ground.canopy = canopy_field.view()
+	return ground
+
+## The bytes of a mask (RGBA8, no mipmaps); none for no mask.
+static func _mask_bytes(mask: Image) -> PackedByteArray:
+	return mask.get_data() if mask != null else PackedByteArray()
 
 ## The most of one channel (0..1) of a mask at the eight texels `reach` away
 ## from (mx, mz).
@@ -107,6 +116,7 @@ func around(mask: PackedByteArray, mx: int, mz: int, channel: int, reach: int) -
 	return most / 255.0
 
 ## Whether something solid covers the ground a metre from (x, z) on any side.
+## A lawn is no wall: the grass at its edge stands as on open ground.
 func beside_cover(x: float, z: float) -> bool:
 	if cover.is_empty():
 		return false
@@ -119,7 +129,7 @@ func beside_cover(x: float, z: float) -> bool:
 			continue
 		for dx in range(-step, step + 1, step):
 			var column := cx + dx
-			if column >= 0 and column < cover_size.x and cover[row * cover_size.x + column] > 0:
+			if column >= 0 and column < cover_size.x and cover[row * cover_size.x + column] == ObstacleMap.SOLID:
 				return true
 	return false
 

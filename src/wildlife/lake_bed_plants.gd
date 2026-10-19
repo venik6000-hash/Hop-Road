@@ -29,7 +29,7 @@ static func place(lake: LakeBed, kind: String) -> void:
 		# After every other stand, and the lake's random numbers go on from
 		# where those left them: what the lake places stays where it was.
 		var state := lake.rng.state
-		for stand: Vector3 in LakeBed.MARSH_STANDS:
+		for stand: Vector3 in lake.plan.marsh_stands:
 			var center := Vector3(stand.x, 0.0, stand.y)
 			centers.append(center)
 			_grow(lake, kind, center, stand.z)
@@ -76,10 +76,11 @@ static func _grow(lake: LakeBed, kind: String, center: Vector3, radius: float) -
 static func _shore_survey(lake: LakeBed) -> Array[Vector3]:
 	var found: Array[Vector3] = []
 	var config: Dictionary = LakeBed.PLANTS.reed
-	var x := LakeBed.LAKE.position.x
-	while x < LakeBed.LAKE.end.x:
-		var z := LakeBed.LAKE.position.y
-		while z < LakeBed.LAKE.end.y:
+	var search := lake.plan.search
+	var x := search.position.x
+	while x < search.end.x:
+		var z := search.position.y
+		while z < search.end.y:
 			var point := Vector3(x + lake.rng.randf_range(-1.0, 1.0), 0, z + lake.rng.randf_range(-1.0, 1.0))
 			var depth := Ground.depth(lake, point)
 			if depth >= config.depth.x and depth <= config.depth.y and Ground.slope(lake, point) <= config.slope and reed_shore(lake, point):
@@ -89,8 +90,7 @@ static func _shore_survey(lake: LakeBed) -> Array[Vector3]:
 	return found
 
 static func reed_shore(lake: LakeBed, point: Vector3) -> bool:
-	var flat := Vector2(point.x, point.z)
-	if LakeBed.BEACH.has_point(flat) or LakeBed.COVE.has_point(flat) or flat.distance_to(LakeBed.VILLAGE) < 55.0 or flat.distance_to(LakeBed.POOL) < 18.0:
+	if lake.plan.keeps_reeds_off(Vector2(point.x, point.z)):
 		return false
 	# Not at the foot of a cliff: reeds take root where the shore keeps
 	# shelving gently inland, not where the valley wall drops into the lake.

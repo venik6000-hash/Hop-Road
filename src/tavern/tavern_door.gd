@@ -13,6 +13,8 @@ var target_angle := 0.0
 var leaf_shape: CollisionShape3D
 ## The player's body stands in the way of the leaf.
 var obstructed := false
+## What the light of the rooms knows of the door (Daylight, InteriorSight).
+var leaf: OpeningLeaf
 
 func configure(item: MeshInstance3D, extras: Dictionary) -> void:
 	sync_to_physics = false
@@ -28,6 +30,8 @@ func configure(item: MeshInstance3D, extras: Dictionary) -> void:
 	leaf_shape.shape = item.mesh.create_convex_shape(true, true)
 	leaf_shape.transform = item.transform
 	add_child(leaf_shape)
+	var box := item.transform * item.mesh.get_aabb()
+	leaf = OpeningLeaf.new(self, closed_angle, open_angle, Vector2(maxf(box.size.x, box.size.z), position.y + box.end.y))
 	# A leaf the table hangs open (tav_open, e.g. the kitchen's yard door)
 	# starts standing open, before the first frame is drawn.
 	if Values.whole(extras.get("tav_open", 0)) != 0:

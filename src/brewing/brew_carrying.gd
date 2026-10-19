@@ -80,7 +80,7 @@ func put(place: Dictionary) -> void:
 			return
 		var paid := house.trade.sell_to_borr(Values.table(cellar.rack.kegs[id].beer), house.book)
 		house.readout.say(tr(house.lines.text(&"borr_buys")) % [paid, house.trade.coins])
-		SaveService.save_soon()
+		house.ask_save.call()
 		node.global_transform = _bar
 	else:
 		node.reparent(house)
@@ -210,7 +210,7 @@ func _let_log_go() -> void:
 	house.body.let_go()
 	house.trade.burn_log(id)
 	_player.pace = 1.0
-	SaveService.save_soon()
+	house.ask_save.call()
 
 ## A keg the counter emptied goes back to the rack; a keg away at the market
 ## is hidden; the keg of a save is set on the counter once it stands.

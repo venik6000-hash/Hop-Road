@@ -1,6 +1,6 @@
 shader_type spatial;
 // The cut-out leaves of the forest floor's ferns and clover (village_pack.gd):
-// they sway, take the light from both sides and stand in the light of the
+// they sway in the weather's wind (src/weather/wind.gdshaderinc), take the light from both sides and stand in the light of the
 // ground under them: the sun dimmed by the clouds' and the ridges' shadows,
 // the sky by the crowns overhead. In the rain they darken.
 render_mode cull_disabled;
@@ -9,6 +9,7 @@ global uniform vec3 sun_direction;
 #include "res://src/sky/cloud_shadow.gdshaderinc"
 #include "res://src/vegetation/shaders/canopy.gdshaderinc"
 #include "res://src/weather/wetness.gdshaderinc"
+#include "res://src/weather/wind.gdshaderinc"
 
 uniform sampler2D albedo_map : source_color, filter_linear_mipmap, repeat_enable;
 uniform vec4 tint : source_color = vec4(1.0);
@@ -25,7 +26,10 @@ varying float sky_vis;
 void vertex() {
 	vec3 world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	float stem = max(VERTEX.y, 0.0);
-	VERTEX.x += sin(TIME * 1.7 + world.x * 0.55 + world.z * 0.4) * stem * 0.07;
+	float blow = min(wind_strength(MODEL_MATRIX[3].xz) / BREEZE_STRENGTH, 3.0);
+	float scale = length(MODEL_MATRIX[1].xyz);
+	vec3 downwind = transpose(mat3(MODEL_MATRIX)) * vec3(wind.x, 0.0, wind.y) / scale;
+	VERTEX += downwind * (0.4 + sin(TIME * 1.7 + world.x * 0.55 + world.z * 0.4)) * stem * 0.07 * blow;
 	sun_vis = cloud_sun_visibility(world)
 		* (1.0 - canopy_sun_shade(world.xz, CANOPY_HEIGHT, -(VIEW_MATRIX * vec4(world, 1.0)).z, 0.0));
 	sky_vis = 1.0 - canopy_sky_shade(world.xz, 1.0, 0.0);

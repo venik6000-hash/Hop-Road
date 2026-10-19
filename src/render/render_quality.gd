@@ -9,7 +9,9 @@ extends RefCounted
 ## picture, which flickered from frame to frame; FSR 2 costs more than it
 ## saves here.) The lighter profiles also shorten the work whose cost does
 ## not fall with the pixel count: the sun's shadow range, the cloud march,
-## the ambient occlusion, the reach of the grass and of the tree meshes.
+## the ambient occlusion, the reach of the grass and of the tree meshes, and
+## (after a restart) the grids, the counts and the waves of the systems that
+## read their group when the level is built (QualityGroup.read_at_start).
 
 const GAME_SETTINGS = preload("res://src/settings/game_settings.gd")
 
@@ -23,12 +25,11 @@ static func selected(tree: SceneTree) -> QualityProfile:
 ## `world`: the shadows, and the systems that read world.quality.
 static func apply(viewport: Viewport, sky: SkySystem, profile: QualityProfile, world: WorldContext) -> void:
 	var scale := apply_resolution(viewport, profile)
-	RenderingServer.environment_set_ssao_quality(profile.ssao, true, 0.5, 2, 50.0, 300.0)
-	RenderingServer.directional_shadow_atlas_set_size(profile.shadow_size, true)
+	RenderingServer.environment_set_ssao_quality(profile.post.ssao, true, 0.5, 2, 50.0, 300.0)
+	RenderingServer.directional_shadow_atlas_set_size(profile.shadows.size, true)
 	if sky != null:
-		for light: DirectionalLight3D in [sky.sun, sky.moon]:
-			light.directional_shadow_blend_splits = profile.shadow_blend
-		sky.sky_material.set_shader_parameter("march_steps", profile.cloud_steps)
+		sky.apply_shadows(profile.shadows)
+		sky.sky_material.set_shader_parameter("march_steps", profile.effects.cloud_steps)
 	# The profile's reach of the shadows outdoors; an eye in the tavern's
 	# rooms takes less.
 	world.set_quality(sky, profile)

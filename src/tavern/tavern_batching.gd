@@ -2,6 +2,7 @@ extends RefCounted
 ## Keep repeated props close enough for frustum, occlusion and shadow culling.
 ## A MultiMesh spanning the whole building submits every instance together.
 const CELL_SIZE := 6.0
+const OutdoorScan = preload("res://src/render/outdoor_scan.gd")
 
 static func apply(root: Node3D, parent: Node3D, surface_shader: Shader, interior: bool) -> Dictionary:
 	var groups := {}
@@ -20,7 +21,8 @@ static func apply(root: Node3D, parent: Node3D, surface_shader: Shader, interior
 			if material is BaseMaterial3D:
 				supported = (material as BaseMaterial3D).transparency == BaseMaterial3D.TRANSPARENCY_DISABLED
 			elif material is ShaderMaterial:
-				supported = (material as ShaderMaterial).shader == surface_shader
+				var shader := (material as ShaderMaterial).shader
+				supported = shader == surface_shader or shader in OutdoorScan.SHADERS
 			elif material != null:
 				supported = false
 			if material != null and material.next_pass != null:

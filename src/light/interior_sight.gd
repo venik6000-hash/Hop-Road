@@ -96,9 +96,9 @@ const LOG_EVERY := 1.0
 ## What a thing outdoors is to an eye indoors.
 enum {SHOWN, SHADOW_ONLY, HIDDEN}
 
-## The building's rooms and openings; its doors, whose leaves stand in them.
+## The building's rooms and openings; the leaves of its doors, which stand in them.
 var interior: Interior
-var doors: Array[TavernDoor] = []
+var leaves: Array[OpeningLeaf] = []
 var sky: SkySystem
 ## The level's context: what the sight hides, and the render tier's reach of
 ## the sun's shadows. Null in a tool that builds the building alone.
@@ -114,7 +114,7 @@ var counts := {}
 ## The last look over the watched things, us.
 var cull_usec := 0
 
-var _openings: Array[Dictionary] = []   # {name, centre, inward, half, sill, top, doors, leaf_top}
+var _openings: Array[Dictionary] = []   # {name, centre, inward, half, sill, top, leaves, leaf_top}
 var _floors: Array[Dictionary] = []     # {height, hole}: the hole a Rect2 of x and z
 var _looked_from := Vector3.INF
 var _looked_shut := -1
@@ -382,16 +382,6 @@ static func sweep_meets(centre: Vector3, half: Vector3, sweep: Vector3, target: 
 				return false
 	return true
 
-## A leaf's width and the height of its top (m), from the leaf's own mesh.
-static func leaf_measure(door: TavernDoor) -> Vector2:
-	var item: MeshInstance3D = null
-	if door.get_child_count() > 0:
-		item = door.get_child(0) as MeshInstance3D
-	if item == null or item.mesh == null:
-		return Vector2.ZERO
-	var box := item.transform * item.mesh.get_aabb()
-	return Vector2(maxf(box.size.x, box.size.z), door.position.y + box.end.y)
-
 func _enter_tree() -> void:
 	if world != null:
 		counts = world.interiors.counts
@@ -427,7 +417,7 @@ func build() -> void:
 		elif found.to_outdoors():
 			var opening := {"name": found.name, "centre": found.centre, "inward": found.inward,
 				"half": found.width * 0.5, "sill": found.sill, "top": found.top}
-			opening.doors = _leaves_in(opening)
+			opening.leaves = _leaves_in(opening)
 			opening.leaf_top = _filled_to(opening)
 			_openings.append(opening)
 	for height: float in holes:
@@ -436,38 +426,38 @@ func build() -> void:
 	_looked_from = Vector3.INF
 
 ## The leaves of the building's doors that hang in `opening`.
-func _leaves_in(opening: Dictionary) -> Array[TavernDoor]:
-	var leaves: Array[TavernDoor] = []
+func _leaves_in(opening: Dictionary) -> Array[OpeningLeaf]:
+	var found: Array[OpeningLeaf] = []
 	var inward: Vector3 = opening.inward
 	var across := Vector3.UP.cross(inward).normalized()
-	for door: TavernDoor in doors:
-		var hinge: Vector3 = door.position - opening.centre
+	for leaf: OpeningLeaf in leaves:
+		var at := leaf.hinge()
+		var hinge: Vector3 = at - opening.centre
 		if absf(hinge.dot(across)) < Values.real(opening.half) + HINGE_REACH and absf(hinge.dot(inward)) < WALL + HINGE_REACH \
-				and door.position.y > Values.real(opening.sill) - HINGE_REACH and door.position.y < Values.real(opening.top):
-			leaves.append(door)
-	return leaves
+				and at.y > Values.real(opening.sill) - HINGE_REACH and at.y < Values.real(opening.top):
+			found.append(leaf)
+	return found
 
 ## The height up to which the leaves of `opening`, shut, fill it: its sill
 ## when they are too narrow for it or it has none.
 func _filled_to(opening: Dictionary) -> float:
-	var leaves: Array[TavernDoor] = opening.doors
+	var in_opening: Array[OpeningLeaf] = opening.leaves
 	var width := 0.0
 	var top := INF
-	for door: TavernDoor in leaves:
-		var measure := leaf_measure(door)
-		width += measure.x
-		top = minf(top, measure.y)
-	if leaves.is_empty() or width < Values.real(opening.half) * 2.0 - LEAF_GAP:
+	for leaf: OpeningLeaf in in_opening:
+		width += leaf.measure.x
+		top = minf(top, leaf.measure.y)
+	if in_opening.is_empty() or width < Values.real(opening.half) * 2.0 - LEAF_GAP:
 		return Values.real(opening.sill)
 	return top
 
-## Hangs `door` in the opening called `opening_name` (the tests' way; the
+## Hangs `leaf` in the opening called `opening_name` (the tests' way; the
 ## game finds the leaves by their hinges).
-func hang(opening_name: String, door: TavernDoor) -> void:
+func hang(opening_name: String, leaf: OpeningLeaf) -> void:
 	for opening: Dictionary in _openings:
 		if opening.name == opening_name:
-			var doors: Array[TavernDoor] = opening.doors
-			doors.append(door)
+			var in_opening: Array[OpeningLeaf] = opening.leaves
+			in_opening.append(leaf)
 			opening.leaf_top = _filled_to(opening)
 
 ## Whether an eye at `eye` is in a room of the building.
@@ -565,8 +555,8 @@ func look(eye: Vector3, to_light: Vector3, building: AABB, shadow_reach := INF) 
 	for opening: Dictionary in _openings:
 		var sill: float = opening.sill - FRAME
 		var top: float = opening.top + FRAME
-		var leaves: Array[TavernDoor] = opening.doors
-		if not leaves.is_empty() and Daylight.openness(leaves) < SHUT:
+		var in_opening: Array[OpeningLeaf] = opening.leaves
+		if not in_opening.is_empty() and Daylight.openness(in_opening) < SHUT:
 			# Shut leaves leave what is over them: an arch's head.
 			sill = maxf(sill, Values.real(opening.leaf_top))
 			if sill > top - FRAME - LEAF_GAP:
@@ -584,8 +574,8 @@ func look(eye: Vector3, to_light: Vector3, building: AABB, shadow_reach := INF) 
 func _shut() -> int:
 	var bits := 0
 	for number in _openings.size():
-		var leaves: Array[TavernDoor] = _openings[number].doors
-		if not leaves.is_empty() and Daylight.openness(leaves) < SHUT:
+		var in_opening: Array[OpeningLeaf] = _openings[number].leaves
+		if not in_opening.is_empty() and Daylight.openness(in_opening) < SHUT:
 			bits |= 1 << number
 	return bits
 

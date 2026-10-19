@@ -24,8 +24,6 @@ const DETAIL_SCALE := 2.5
 ## Without `detail` no material gets its detail, to compare the look with and
 ## without.
 static func build(table: Dictionary, ground_level: float, materials: Dictionary, detail := true) -> void:
-	var weather := load("res://assets/generated/sky/cloud_weather.png")
-	var moss := load("res://assets/generated/terrain/terrain_albedo.jpg")
 	var range_: float = table.get("color_range", 2.0)
 	var specs: Dictionary = table.get("materials", {})
 	for name: String in specs:
@@ -59,7 +57,6 @@ static func build(table: Dictionary, ground_level: float, materials: Dictionary,
 			material.set_shader_parameter("leaf_wrap", spec.get("wrap", 0.3))
 			material.set_shader_parameter("leaf_transmission", spec.get("transmission", 0.55))
 			material.set_shader_parameter("flutter", spec.get("flutter", 0.012))
-			material.set_shader_parameter("cloud_weather", weather)
 			materials[name] = material
 			continue
 		if spec.get("shader", "surface") == "fur":
@@ -74,7 +71,6 @@ static func build(table: Dictionary, ground_level: float, materials: Dictionary,
 					"fur_droop", "strand_cell", "tuft_cell", "tuft_pull", "root_shade"]:
 				if spec.has(key):
 					material.set_shader_parameter(key, spec[key])
-			material.set_shader_parameter("cloud_weather", weather)
 			materials[name] = material
 			continue
 		if spec.get("shader", "surface") == "cloth":
@@ -97,7 +93,6 @@ static func build(table: Dictionary, ground_level: float, materials: Dictionary,
 				var size: Array = spec.emblem_size
 				material.set_shader_parameter("emblem_size", Values.vec2(size))
 			_lay_detail(material, name, spec, detail)
-			material.set_shader_parameter("cloud_weather", weather)
 			materials[name] = material
 			continue
 		if spec.get("shader", "surface") == "glass":
@@ -129,8 +124,6 @@ static func build(table: Dictionary, ground_level: float, materials: Dictionary,
 			material.set_shader_parameter("detail_turn", spec.detail_turn)
 		material.set_shader_parameter("color_range", range_)
 		material.set_shader_parameter("ground_level", ground_level)
-		material.set_shader_parameter("cloud_weather", weather)
-		material.set_shader_parameter("moss_albedo", moss)
 		materials[name] = material
 
 ## The fine normal map a table entry asks for (`detail`), with its scale and strength.

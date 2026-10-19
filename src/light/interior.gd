@@ -13,6 +13,11 @@ const WALL_KINDS: Array[String] = ["window", "door"]
 const FLOOR_KINDS: Array[String] = ["stair", "hatch"]
 ## The outdoors, as the other side of an opening.
 const OUT := "out"
+## How far a room a table gives by its probe alone (`probes`) reaches past
+## the probe's box, m. A wall of a village building may be a board, and a
+## probe that reached through it would give the wall's weather side the
+## room's darkness. The tavern's `rooms` say their walls (half a metre of stone).
+const PROBE_WALL := 0.12
 
 class Room:
 	var name := ""
@@ -115,6 +120,17 @@ static func rooms_of(rows: Array) -> Array[Room]:
 		found.append(Room.new(str(row.name), boxes, Values.vec3(row.wall), Values.real(row.floor),
 			LightProfile.named(str(row.profile)), Color(Values.real(a[0]), Values.real(a[1]), Values.real(a[2]))))
 	return found
+
+## The room under a row of a table's `probes` (BuildingSchemas.probe()): its
+## air, PROBE_WALL past it on every side, with the row's profile or the one
+## for such rooms (LightProfile.of_probe_rooms).
+static func room_of_probe(row: Dictionary) -> Room:
+	var half := Values.vec3(row.extents)
+	var air: Array[AABB] = [AABB(Values.vec3(row.position) - half, half * 2.0)]
+	var a: Array = row.ambient
+	var profile: LightProfile = LightProfile.named(str(row.profile)) if row.has("profile") else LightProfile.of_probe_rooms()
+	return Room.new(str(row.room), air, Vector3.ONE * PROBE_WALL, air[0].position.y, profile,
+		Color(Values.real(a[0]), Values.real(a[1]), Values.real(a[2])))
 
 ## The openings of a table's `openings` (BuildingSchemas.opening()). A wall's
 ## opening without a floor of its own has its room's.

@@ -57,10 +57,9 @@ var terrain: TerrainSystem
 
 func _ready() -> void:
 	if map != null:
-		for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
-			if RockField.label_of(item) in REPLACES:
-				item.get_parent().remove_child(item)
-				item.queue_free()
+		var index := MapIndex.of(map)
+		for item: MeshInstance3D in index.labelled_any(REPLACES):
+			index.drop(item)
 	var rows := terrain.course(BROOK)
 	var rill := terrain.course(RILL_COURSE)
 	_add_water("Water", rows, 0.8, 0.3, 0.02)

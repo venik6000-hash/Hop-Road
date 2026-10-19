@@ -6,7 +6,8 @@ extends RefCounted
 
 ## A point of the lake's search rectangle (only x and z count).
 static func random_point(lake: LakeBed) -> Vector3:
-	return Vector3(lake.rng.randf_range(LakeBed.LAKE.position.x, LakeBed.LAKE.end.x), 0, lake.rng.randf_range(LakeBed.LAKE.position.y, LakeBed.LAKE.end.y))
+	var search := lake.plan.search
+	return Vector3(lake.rng.randf_range(search.position.x, search.end.x), 0, lake.rng.randf_range(search.position.y, search.end.y))
 
 static func depth(lake: LakeBed, point: Vector3) -> float:
 	return lake.habitat.terrain.water_level - lake.habitat.terrain.height_at(point.x, point.z)

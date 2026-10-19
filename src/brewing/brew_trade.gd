@@ -4,8 +4,9 @@ extends RefCounted
 ## copper coins, the trust stalls of the valley, Borr's price for a keg, the
 ## order board at the market and the cart at the cellar gates. Wares, prices
 ## and orders are assets/brewing/trade.json; what a ware gives the brewery is
-## here (buy). The coins are kept in ValleyLoop's section of the save, the
-## rest in the brewery's (BrewHouse.to_dict).
+## here (buy). The coins are the player's (PlayerState.coins, its section of
+## the save): the trade takes the player's purse by reference (use_purse).
+## The rest is kept in the brewery's section (BrewHouse.to_dict).
 ##
 ## Kegs: the brewery owns the first `kegs_owned` kegs of the rack
 ## (BrewKegRack.KEGS); the cooperage sells the others one by one. A keg the
@@ -36,7 +37,15 @@ const RAW := {BrewIds.WARE_HONEY: ["honey_kg", BrewDay.HONEY_POT_KG], BrewIds.WA
 
 ## The data of trade.json.
 var data: Dictionary = {}
-var coins := 0
+## The purse the trade pays from and into: its own until the level gives it
+## the player's (use_purse).
+var purse := PlayerState.new()
+## The coins in the purse.
+var coins: int:
+	get:
+		return purse.coins
+	set(value):
+		purse.coins = value
 var kegs_owned := 0
 var away: Array[String] = []
 ## Logs on the woodpiles: "log" (spruce), "beech_log".
@@ -61,6 +70,13 @@ func _init(of_data: Dictionary = {}) -> void:
 		wood[id] = Values.whole(start.get(id, 0))
 	if not template_list().is_empty():
 		_open_next()
+
+## The trade pays from and into the player's purse `state` from now on. A
+## purse the game has put no coins in yet gets the trade's start.
+func use_purse(state: PlayerState) -> void:
+	if state.coins < 0:
+		state.coins = coins
+	purse = state
 
 # ---- Data ------------------------------------------------------------------------
 
@@ -322,14 +338,20 @@ func order_words(order: Dictionary, book: BrewBook) -> String:
 	var taken: bool = order.get("taken", false)
 	var left := Values.whole(order.days_left)
 	var due := left if taken else due_days(str(order.id))
+	var who := tr(str(entry.get("who", "")))
+	var kegs := Values.whole(order.kegs_left)
+	if taken:
+		return tr_n("%s: %s × %d, срок %d день, %d медн.", "%s: %s × %d, срок %d дня, %d медн.", due) % [who, beer, kegs, due,
+			order_pay(order)]
+	# Two counts in one phrase: the phrase takes the form of the days it hangs,
+	# the term its own form.
 	var term := tr_n("срок %d день", "срок %d дня", due) % due
-	if not taken:
-		term = tr_n("висит %d день", "висит %d дня", left) % left + ", " + term
-	return tr("%s: %s × %d, %s, %d медн.") % [tr(str(entry.get("who", ""))), beer, Values.whole(order.kegs_left), term, order_pay(order)]
+	return tr_n("%s: %s × %d, висит %d день, %s, %d медн.", "%s: %s × %d, висит %d дня, %s, %d медн.", left) % [who, beer, kegs,
+		left, term, order_pay(order)]
 
 # ---- Save --------------------------------------------------------------------------
 
-## The trade as plain data for the brewery's section; the coins are ValleyLoop's.
+## The trade as plain data for the brewery's section; the coins are the player's (PlayerState).
 func to_dict() -> Dictionary:
 	return {"kegs_owned": kegs_owned, "away": away.duplicate(), "wood": wood.duplicate(), "orders": orders.duplicate(true),
 		"next_order": next_order}

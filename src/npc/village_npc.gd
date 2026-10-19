@@ -2,7 +2,8 @@ class_name VillageNPC
 extends CharacterBody3D
 ## Imported skeletal clips drive the visible model; collision drives routes.
 ## The round of the route is NpcRounds's, the poses over the clip NpcPoses's,
-## the choice of lights NpcLampZone's.
+## the choice of lights NpcLampZone's, the work the job's (NpcJob), how often
+## the body is brought up to date NpcTier's.
 const SceneUtil = preload("res://src/common/scene_util.gd")
 const BodyPace = preload("res://src/common/body_pace.gd")
 ## The body capsule, m.
@@ -22,29 +23,24 @@ const WALK_STRIDE := 1.1
 const WALK_HASTE := 2.0
 ## Recorded clips are named by their library (NpcMotion.LIBRARY).
 const MOTION := "motion/"
-## What the hand holds, by occupation: the clips in which it is in the hand.
-## In the others it lies where UTENSIL_REST puts it.
-const HELD := {"chop": ["chop", "chop_quick", "slice"], "stir": ["stir"]}
-## Where the tool lies when the hand is busy with something else, from the
-## villager's place of work: the knife on the board, the spoon in the pot.
-const UTENSIL_REST := {
-	"chop": Transform3D(Basis(Vector3.UP, 1.1), Vector3(0.21, 0.997, -0.4)),
-	"stir": Transform3D(Basis(Vector3(0.7412, 0.0, -0.6713), 0.28), Vector3(0.08, 0.98, -0.42)),
-}
 ## Clips whose handwork is done on the thing itself, not in the air as
 ## recorded: the body plays the clip named here and NpcWipe moves the hands.
 const HANDWORK := {"wipe": "idle"}
-## The innkeeper wipes the back edge of his counter, between the brewed keg's
-## place and his keg, one hand: NpcWipe's strip in his own space.
-const BAR_WIPE := {"middle": 0.05, "across": 0.15, "near": 0.39, "far": 0.46, "rest": Vector3.ZERO}
 var model_path := ""
+## The id of the villager's job (NpcJob): the stem of its script.
 var job := "wander"
+## The villager's job, made for the id `job` when first asked.
+var duty: NpcJob:
+	get:
+		if _duty == null or _duty.id != job:
+			_duty = NpcJob.make(job)
+		return _duty
 var title := "Житель"
 ## The villager's sheet in PeopleBook; "" for a passer-by without one.
 var person_id := ""
 var animation: AnimationPlayer
 var skeleton: Skeleton3D
-var state := "working"
+## The tool of a cook's trade (NpcCookJob); null for the others.
 var utensil: Node3D
 var left_hand := -1
 var right_hand := -1
@@ -61,6 +57,9 @@ var seated := false
 ## The rooms' lamps or the sun on the meshes.
 var lamp_zone: NpcLampZone
 var _pace := BodyPace.new()
+var _duty: NpcJob
+## How often the clip and the modifiers run, by the distance to the camera.
+var tier := NpcTier.new()
 ## The clip the body plays now, by its plain name: "chop", "idle_look", "walk".
 var activity := ""
 ## The gait this villager walks by when their speed allows (NpcMotion.gait).
@@ -134,7 +133,7 @@ func _ready() -> void:
 		skeleton = node
 		break
 	for node: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
-		node.visibility_range_end = 65.0
+		node.visibility_range_end = NpcTier.MESH_REACH
 	if animation == null and skeleton != null:
 		# A model that carries no clips of its own plays the recorded ones.
 		animation = AnimationPlayer.new()
@@ -161,25 +160,11 @@ func _ready() -> void:
 		skeleton.add_child(footing)
 		limits = JointLimitModifier3D.new("villager")
 		skeleton.add_child(limits)
-	_setup_props()
+	duty.setup(self)
 	# What the actor is handed later (a mug, a meal) follows the same rule.
 	child_entered_tree.connect(lamp_zone.light)
 	lamp_zone.check()
 	play("idle")
-	if job == "maid":
-		rounds.find_hall_paths.call_deferred()
-
-func _setup_props() -> void:
-	if job in ["chop", "stir"]:
-		utensil = NpcProps.knife() if job == "chop" else NpcProps.spoon()
-		add_child(utensil)
-	elif job in ["bartender", "maid"] and skeleton != null:
-		wipe = NpcWipe.new()
-		wipe.name = "Wipe"
-		wipe.actor = self
-		if job == "bartender":
-			wipe.set_strip(BAR_WIPE)
-		add_child(wipe)
 
 ## Plays a clip, or what the occupation of that name has the body do now
 ## (NpcActing.SETS). A recorded clip is taken before the model's own.
@@ -255,12 +240,8 @@ func _physics_process(delta: float) -> void:
 		outing.drive(delta)
 	elif place in ["hall", "yard"]:
 		play("idle")
-	elif job == "bartender" and at_work():
-		_update_bar()
-	elif not rounds.route.is_empty():
-		rounds.walk(delta)
 	else:
-		play(job)
+		duty.tick(self, delta)
 	if body.has(NpcBody.STUMBLE):
 		# The bumped stand where they were hit and find their feet.
 		velocity.x = 0.0
@@ -271,7 +252,7 @@ func _physics_process(delta: float) -> void:
 	var step := Vector3(velocity.x, 0.0, velocity.z) * delta
 	_pace.slide(self, delta)
 	# The lane has kerbs and stairs: a walker held by one steps onto it.
-	if outing == null and job == "wander" and step != Vector3.ZERO and is_on_wall():
+	if outing == null and duty.walks and step != Vector3.ZERO and is_on_wall():
 		for index in get_slide_collision_count():
 			var met := get_slide_collision(index)
 			if met.get_normal().y < 0.7 and not met.get_collider() is CharacterBody3D and step_onto(met, step):
@@ -301,43 +282,17 @@ func step_onto(collision: KinematicCollision3D, step: Vector3, ceiling := INF) -
 	global_position.y += rise
 	return true
 
-func _update_bar() -> void:
-	match state:
-		"working":
-			play("bar")
-		"pouring", "serving":
-			play("idle")
-			if bar == null:
-				state = "working"
-			elif bar.clock >= NpcBarWork.T_CLOSE:
-				state = "serving"
-			if bar != null and bar.served:
-				state = "ready"
-		"ready":
-			play("idle")
-
+## The tier of the frame first (NpcTier): near, the wiping goes on; farther,
+## the clip and the modifiers step when it is due. The draw at the bar and the
+## body's claims go on at any distance.
 func _process(delta: float) -> void:
-	if wipe != null and wipe.wiping():
+	tier.update(self, delta)
+	if wipe != null and wipe.wiping() and tier.near():
 		wipe.step(delta)
 	if bar != null and bar.drawing():
 		bar.step(delta)
 	poses.update(delta)
-	if utensil != null and HELD.has(job) and _recorded:
-		_hold_utensil()
-
-## The tool of the trade is in the hand while the body works with it; else it
-## lies by the work, or is put away where the work has no place for it.
-func _hold_utensil() -> void:
-	var held: Array = HELD[job]
-	if held.has(activity):
-		utensil.visible = true
-		utensil.global_transform = Transform3D(global_basis, hand_position(right_hand))
-	elif UTENSIL_REST.has(job) and at_work():
-		var rest: Transform3D = UTENSIL_REST[job]
-		utensil.visible = true
-		utensil.global_transform = Transform3D(Basis(Vector3.UP, work_yaw), work_point) * rest
-	else:
-		utensil.visible = false
+	duty.frame(self, delta)
 
 func hand_position(index: int) -> Vector3:
 	if skeleton == null or index < 0: return global_position + Vector3.UP
@@ -346,50 +301,30 @@ func hand_position(index: int) -> Vector3:
 func interaction_point() -> Vector3:
 	return global_position + global_basis * Vector3(0, 1.3, -0.6)
 
-## The prompt at the innkeeper, translated.
+## The prompt at the villager at work, translated (NpcJob.interaction_text).
 func interaction_text() -> String:
-	match state:
-		"pouring": return tr("%s наливает пиво…") % tr(title)
-		"serving": return tr("%s подаёт кружку…") % tr(title)
-		"ready": return tr("{interact} — взять пиво · %s") % tr(title)
-	return tr("{interact} — заказать пиво · %s") % tr(title)
+	return duty.interaction_text(self)
 
+## E on the villager at work (NpcJob.interact).
 func interact(player: Player) -> bool:
-	if state == "working":
-		if bar == null or not bar.start():
-			return false
-		stop_wiping()
-		poses.gesture(NpcBody.POUR, NpcBarWork.LENGTH)
-		state = "pouring"
-		return true
-	if state == "ready":
-		player.viewmodel.refill(BrewHouse.draw_beer(get_tree()))
-		bar.take()
-		state = "working"
-		return true
-	return false
+	return duty.interact(self, player)
 
 ## One who walks about their work is telling a story to someone at `listener`:
 ## they stand where they are and turn to them, and walk on `hold` seconds
 ## after the last call. Those who keep to one place do not turn from it.
 func stop_to_talk(listener: Vector3, delta: float, hold := TALK_HOLD) -> void:
 	_telling = maxf(_telling, hold)
-	if job != "maid" or not at_work() or seated:
+	if not duty.keeps_hall or not at_work() or seated:
 		return
 	rounds.pause(hold)
 	var offset := listener - global_position
 	if Vector2(offset.x, offset.z).length() > 0.3:
 		rotation.y = lerp_angle(rotation.y, atan2(-offset.x, -offset.z), minf(delta * 4.0, 1.0))
 
-## Puts the bar back in order when the innkeeper leaves it: nothing is being
-## poured and nothing stands ready.
-func clear_bar() -> void:
-	if job != "bartender":
-		return
-	state = "working"
-	if bar != null:
-		bar.clear()
-	body.release(NpcBody.POUR)
+## The villager leaves the place of work: what was under way there is put
+## back in order (NpcJob.leave).
+func leave_work() -> void:
+	duty.leave(self)
 
 ## Whether the villager is in the valley, not away at home.
 func present() -> bool:
@@ -398,17 +333,17 @@ func present() -> bool:
 ## Whether the villager keeps to one place, where the player may come up and
 ## talk to them.
 func at_rest() -> bool:
-	return outing == null and (place in ["work", "hall", "yard"] or (place == "" and job != "wander"))
+	return outing == null and (place in ["work", "hall", "yard"] or (place == "" and not duty.walks))
 
 ## Whether the villager is free to be asked along on an outing.
 func invitable() -> bool:
-	return outing == null and (place in ["road", "yard", "hall"] or (place == "" and job == "wander"))
+	return outing == null and (place in ["road", "yard", "hall"] or (place == "" and duty.walks))
 
 ## Whether the villager is at their work: behind the bar, in the kitchen, about
 ## the hall.
 func at_work() -> bool:
-	return outing == null and (place == "work" or (place == "" and job != "wander"))
+	return outing == null and (place == "work" or (place == "" and not duty.walks))
 
 ## Whether the villager walks their road.
 func on_road() -> bool:
-	return outing == null and job == "wander" and place in ["", "road"]
+	return outing == null and duty.walks and place in ["", "road"]

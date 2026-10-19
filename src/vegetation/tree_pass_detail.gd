@@ -7,7 +7,7 @@ const Composed = preload("res://src/vegetation/tree_pass_composed.gd")
 
 ## Beach, rock outcrops and the Blender backdrop take share from the mask forest.
 static func _detail_factor(placer: TreePlacer, x: float, z: float, w: float) -> float:
-	var factor := 1.0 - Composed.backdrop_share(x, z)
+	var factor := 1.0 - Composed.backdrop_share(placer, x, z)
 	if w > 0.0:
 		factor *= (1.0 - placer.terrain.control_at(x, z, 1)) * (1.0 - 0.85 * placer.terrain.extra_at(x, z, 0))
 	return factor

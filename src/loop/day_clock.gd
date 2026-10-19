@@ -2,7 +2,8 @@ class_name DayClock
 extends RefCounted
 ## The valley's day: how fast the hours go by day and by night, which part of
 ## the day an hour belongs to, when a new day begins and when a sleeper wakes.
-## Hours are the sky's (SkySystem.time_of_day, 0..24).
+## Hours are 0..24. The game's time is GameClock's minutes, counted from the
+## midnight before the first day's dawn; the day and the hour come from them.
 
 ## The day runs from DAY_START to DAY_END, the night the rest of the way round.
 const DAY_START := 6.0
@@ -72,14 +73,22 @@ static func dawns_passed(hour: float, hours: float) -> int:
 		return 0
 	return 1 + floori((hours - to_dawn) / 24.0)
 
-## The day the clock is in after it went from hour `was` to hour `now`. A step
-## forward of up to half a day counts the dawns it passed; anything else is
-## the clock being set back, and no day begins.
-static func day_after(day: int, was: float, now: float) -> int:
-	var forward := fposmod(now - was, 24.0)
-	if forward > 12.0:
-		return day
-	return day + dawns_passed(was, forward)
+## The game minute of `hour` in day `day`: an hour before dawn is the night
+## at the end of the day, as a day begins at dawn.
+static func minutes_at(day: int, hour: float) -> float:
+	var h := fposmod(hour, 24.0)
+	var hours := (day - 1) * 24.0 + h
+	if h < DAY_START:
+		hours += 24.0
+	return hours * 60.0
+
+## The day game minute `minutes` is in: the first until its second dawn.
+static func day_of(minutes: float) -> int:
+	return 1 + maxi(0, floori((minutes / 60.0 - DAY_START) / 24.0))
+
+## The hour of game minute `minutes`.
+static func hour_of(minutes: float) -> float:
+	return fposmod(minutes / 60.0, 24.0)
 
 ## Hours from `hour` to the next WAKE_HOUR: a whole day for one who lies down
 ## at that very hour.

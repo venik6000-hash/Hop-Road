@@ -77,6 +77,9 @@ func start() -> bool:
 	rag.visible = true
 	if rest != Vector3.ZERO:
 		_rest_point = _on_top(actor.global_transform * rest)
+	# The rag lies on the top at once: far from the camera the wiping waits
+	# (NpcTier), and the rag waits where it lies.
+	step(0.0)
 	return true
 
 ## Stops wiping: the rag goes with the villager (hidden); NpcBody eases the

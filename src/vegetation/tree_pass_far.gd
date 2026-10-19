@@ -28,7 +28,6 @@ static func _place_block(placer: TreePlacer, block: Rect2) -> void:
 	# A salt per cell size keeps coarser lattices independent of finer ones.
 	var salt_term := (TreePlacer.SALT_CELL + int(cell)) * 83492791
 	var far_masks := t.far_masks
-	var far_h := t.far_h
 	var fsize := t.far_size
 	var fox := t.far_origin.x
 	var foz := t.far_origin.y
@@ -89,9 +88,7 @@ static func _place_block(placer: TreePlacer, block: Rect2) -> void:
 			var thin: float = TreePlacer.thinning(sqrt(ddx * ddx + ddz * ddz))
 			if roll >= forest * thin * area:
 				continue
-			var hi: int = fj * fsize + fi
-			var ground: float = lerpf(lerpf(far_h[hi], far_h[hi + 1], ft),
-				lerpf(far_h[hi + fsize], far_h[hi + fsize + 1], ft), fu)
+			var ground: float = t.height(px, pz)
 			var altitude: float = ground - water
 			if altitude < 2.0:
 				continue

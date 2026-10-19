@@ -93,8 +93,6 @@ const COMPOSED := {
 	"Dense distant fir sprays": [[SPRUCE_B, SPRUCE_A, PINE_B, SPRUCE_B, SPRUCE_C, FIR_YOUNG, PINE_A], 11.0, 1.35],
 	"Dense distant deciduous crown": [[BEECH_A, BEECH_B], 8.5, 1.35],
 }
-## The rectangle the Blender backdrop forest was scattered in (Godot x/z).
-const BACKDROP := Rect2(-112.0, -174.0, 236.0, 95.0)
 const PATCH_COARSE := 150.0
 const PATCH_FINE := 57.0
 ## Pines read the patch noise this far away, so their groups are not the
@@ -106,6 +104,12 @@ var near_rect: Rect2
 var detail_rect: Rect2
 var far_rect: Rect2
 var trees := TreeSet.new()
+## The rectangle the Blender backdrop forest was scattered in (Godot x/z;
+## woodland.json `backdrop`). Without one the composition has no backdrop.
+var backdrop := Rect2()
+## The metres a trunk keeps from a wall at least, whatever its crown: the
+## region's yard rule (`tree_wall` of RegionDef.worn_ground).
+var wall_clearance := 0.0
 ## Accepted composed trees on an 8 m grid, to keep the lattice pass clear of them.
 var composed_grid := {}
 var composed_bounds := Rect2()
@@ -115,6 +119,14 @@ var _patch_fine := PackedFloat32Array()
 var _patch_origin := Vector2.ZERO
 var _patch_coarse_n := 0
 var _patch_fine_n := 0
+
+## The rectangle of `woodland`'s backdrop forest (woodland.json, `backdrop`:
+## x, z, width, depth), or none.
+static func backdrop_of(woodland: Dictionary) -> Rect2:
+	if not woodland.has("backdrop"):
+		return Rect2()
+	var corner: Array = woodland.backdrop
+	return Rect2(Values.real(corner[0]), Values.real(corner[1]), Values.real(corner[2]), Values.real(corner[3]))
 
 func _init(fields: VegetationTerrain) -> void:
 	terrain = fields
@@ -285,7 +297,7 @@ static func seat(fields: VegetationTerrain, x: float, z: float, ground: float, k
 	return maxf(lowest, ground - SEAT_DEPTH)
 
 ## Dry, open ground: above the lake and its wet margin, off paths and beaches,
-## and `clearance` metres from buildings and props.
+## and `clearance` metres from buildings and props, `wall_clearance` at least.
 func ground_ok(x: float, z: float, clearance: float, path_limit: float) -> bool:
 	if terrain.height(x, z) < terrain.water_level + 0.6:
 		return false
@@ -297,4 +309,4 @@ func ground_ok(x: float, z: float, clearance: float, path_limit: float) -> bool:
 		return false
 	if terrain.control_at(x, z, 1) > 0.5:
 		return false
-	return terrain.obstacle_clear(x, z, clearance)
+	return terrain.obstacle_clear(x, z, maxf(clearance, wall_clearance))

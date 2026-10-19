@@ -9,17 +9,15 @@ extends Node3D
 ## MultiMesh, from its nearest point and its centre: the tiles are small so
 ## that only the plants round the walker are drawn in full.
 
-const ImageUtil = preload("res://src/common/image_util.gd")
 const SHADER := preload("res://src/village/village_foliage.gdshader")
 const TILE := 16.0
 ## How far a plant shows (m) unless it names its own `view`: about where the
 ## grass blades end, beyond which a knee-high plant is a few pixels.
 const VIEW := 42.0
-## The village green the loose plants cover (x, z).
-const GREEN := Rect2(-34.0, -90.0, 66.0, 74.0)
 
 var terrain: TerrainSystem
-## The region's village plan (VillageLayout.read_plan): its lanes stay bare.
+## The region's village plan (VillageLayout.read_plan): its lanes and its
+## street stay bare, its green holds the loose plants.
 var village_plan: Dictionary
 var map: Node3D
 var plant_count := 0
@@ -37,23 +35,27 @@ var _control: Image
 var _mask_origin := Vector2.ZERO
 var _mask_cell := 1.0
 
+## Grows the village's plants. Their rays meet the terrain once the ground
+## under the street's north end stands.
 func grow_plants() -> void:
-	await get_tree().physics_frame
-	await get_tree().physics_frame
+	var street := VillageRoad.street(village_plan)
+	if not street.is_empty():
+		var north := Values.vec2(street[0])
+		await PhysicsLayers.ground_stands(self, Vector3(north.x, terrain.height_at(north.x, north.y), north.y))
+		if not is_inside_tree():
+			return
 	var start := Time.get_ticks_usec()
 	_load_plants()
 	var config: Dictionary = terrain.meta.masks
 	_mask_origin = Values.vec2(config.origin)
 	_mask_cell = config.cell
-	var control: Texture2D = terrain.material.get_shader_parameter("near_control")
-	_control = ImageUtil.rgba8(control)
+	_control = terrain.near_control if terrain.near_control != null else Image.create_empty(1, 1, false, Image.FORMAT_RGBA8)
 	var paths: Array = village_plan.paths
 	_lanes = paths.duplicate()
-	_lanes.append({"points": village_plan.main_road})
-	for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
-		if RockField.label_of(item).ends_with("limewashed rooms"):
-			_houses.append({"inverse": item.global_transform.affine_inverse(), "pose": item.global_transform,
-				"box": item.get_aabb()})
+	_lanes.append({"points": VillageRoad.street(village_plan)})
+	for item: MeshInstance3D in MapIndex.of(map).ending("limewashed rooms"):
+		_houses.append({"inverse": item.global_transform.affine_inverse(), "pose": item.global_transform,
+			"box": item.get_aabb()})
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 4102026
 	_grow_walls(rng)
@@ -154,10 +156,14 @@ func _grow_verges(rng: RandomNumberGenerator) -> void:
 				var hand := 1.0 if rng.randf() < 0.5 else -1.0
 				_plant("verge", a.lerp(b, rng.randf()) + side * hand * rng.randf_range(1.7, 3.6), rng, 0.85)
 
-## The green between the yards, in drifts rather than evenly.
+## The green between the yards (the plan's `green`: x, z, width, depth), in
+## drifts rather than evenly.
 func _grow_green(rng: RandomNumberGenerator) -> void:
+	var green: Array = village_plan.green
+	var corner := Vector2(Values.real(green[0]), Values.real(green[1]))
+	var size := Vector2(Values.real(green[2]), Values.real(green[3]))
 	for drift in 300:
-		var centre := GREEN.position + Vector2(rng.randf(), rng.randf()) * GREEN.size
+		var centre := corner + Vector2(rng.randf(), rng.randf()) * size
 		var spread := rng.randf_range(1.2, 3.8)
 		for k in rng.randi_range(5, 13):
 			_plant("green", centre + Vector2(rng.randfn(0.0, spread), rng.randfn(0.0, spread)), rng, 1.0)

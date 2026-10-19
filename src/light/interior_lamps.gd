@@ -9,8 +9,13 @@ extends Node3D
 ## stands still (LightLayers.LAMP_CASTERS), burns day and night, and takes its
 ## shadow and the size of its light from its `kind` (LightProfile.lamp_kind).
 ## A row without one says where it shines itself (`layer`) and whether it is
-## a lantern lit toward dusk (`night`). A lamp that flickers (`flicker`) does
-## so every frame, and one that sways (`sway`) moves about its place.
+## a lantern lit toward dusk (`night`); its shadow and its size are its own or
+## its kind's. A lamp outdoors casts the shadows of
+## LightLayers.OUTDOOR_LAMP_CASTERS. A lantern has a halo in the fog, and so
+## has a lamp that says it does (`fog`: a campfire). A lamp that flickers
+## (`flicker`) does so every frame, and one that sways (`sway`) moves about its
+## place. The building's lamps, a cottage's lantern and a campfire's glow are
+## all rows of this kind (VillageCottage, Campfire).
 ##
 ## A probe takes its room's box grown by the walls, and the ambient light of
 ## the room's profile: dimmer at night. It captures its room again every half
@@ -61,7 +66,7 @@ var lanterns: Array[Dictionary] = []
 ## height (find_candles()), for their halos.
 var candles: Array[Vector4] = []
 ## What the lanterns and the lit windows are from far away, in the building's
-## space: {at, color, radius, facing} (see FarLights.add_glow).
+## space: {at, color, radius, facing} (see LampSet.add_glow).
 var far_glows: Array[Dictionary] = []
 ## The rooms' lamps, which burn day and night.
 var steady: Array[Light3D] = []
@@ -103,7 +108,7 @@ func add_light(config: Dictionary, near := AABB()) -> Light3D:
 	else:
 		var omni := OmniLight3D.new()
 		omni.omni_range = config.range
-		omni.omni_attenuation = 1.0
+		omni.omni_attenuation = config.get("attenuation", 1.0)
 		light = omni
 	light.name = config.name
 	light.light_color = Color(Values.real(color[0]), Values.real(color[1]), Values.real(color[2]))
@@ -121,9 +126,11 @@ func add_light(config: Dictionary, near := AABB()) -> Light3D:
 		# partitions: a point lamp outdoors that reaches the building casts
 		# the shadows of its walls.
 		var reaches := near.has_volume() and near.grow(Values.real(config.range)).has_point(light.position)
-		light.shadow_enabled = config.shadow or layer == "interior" or (config.type == "point" and reaches)
+		var kind := LightProfile.lamp_kind(str(config.get("kind", "")))
+		var shadow := Values.flag(config.get("shadow", kind.get("shadow", false)))
+		light.shadow_enabled = shadow or layer == "interior" or (config.type == "point" and reaches)
 		# Costly area-shadow filtering for the authored large sources only.
-		light.light_size = config.get("size", 0.05) if config.shadow else 0.0
+		light.light_size = Values.real(config.get("size", kind.get("size", 0.05))) if shadow else 0.0
 	if light is OmniLight3D:
 		light.shadow_bias = omni_shadow_bias(Values.real(config.range))
 		light.shadow_normal_bias = NORMAL_BIAS_AREA if light.light_size > 0.0 else NORMAL_BIAS
@@ -146,16 +153,13 @@ func add_light(config: Dictionary, near := AABB()) -> Light3D:
 				steady.append(light)
 		"exterior":
 			FarLights.fade(light, "spill" if config.type == "spot" else "lantern")
-			# Outside: the ground and the building's own still walls, not the
-			# trees and not the ivy (see LightLayers.LAMP_CASTERS).
-			light.shadow_caster_mask = 0xFFFFFFFF & ~VegetationSystem.VISUAL_LAYER & ~LightLayers.ROOMS \
-				& ~LightLayers.SUN_ONLY
+			light.shadow_caster_mask = LightLayers.OUTDOOR_LAMP_CASTERS
 	var amount: float = config.get("flicker", 0.0)
+	# A lantern has a halo in the fog; a window's spill has none.
+	if Values.flag(config.get("fog", night > 0.5 and config.type != "spot")):
+		light.add_to_group(AtmosphereFog.LAMP_GROUP)
 	if night > 0.5:
 		lanterns.append({"light": light, "energy": config.energy})
-		# A lantern has a halo in the fog; a window's spill has none.
-		if config.type != "spot":
-			light.add_to_group(AtmosphereFog.LAMP_GROUP)
 		# Far away the lantern is a glow, and so is the window a spot spills from.
 		far_glows.append({"at": light.position, "color": light.light_color,
 			"radius": 0.3 if config.type == "spot" else 0.22,
@@ -314,14 +318,14 @@ func _process(_delta: float) -> void:
 				cos(t * 4.4 + s * 0.6)) * sway
 	if sky != null and not lanterns.is_empty():
 		# Lanterns outside are lit toward dusk and burn through the night.
-		var dark := 1.0 - smoothstep(-0.02, 0.18, sky.sun_direction.y)
+		var dark := sky.lamp_dusk
 		# Day/night plateaus do not need identical RenderingServer updates.
 		if dark != _last_dark:
 			_last_dark = dark
 			for lantern: Dictionary in lanterns:
 				var light: Light3D = lantern.light
 				light.light_energy = lantern.energy * dark
-				light.visible = dark > 0.01
+				light.visible = dark > SkySystem.LIT_DUSK
 	_update_probes()
 	if _probes_awaited and Engine.get_frames_drawn() > _probes_done_at:
 		_probes_awaited = false
@@ -353,7 +357,7 @@ func _cache_flames() -> void:
 func _update_probes() -> void:
 	if sky == null:
 		return
-	var hour := sky.time_of_day
+	var hour := GameClock.hour()
 	if absf(hour - _last_ambient_hour) >= PROBE_HOURS:
 		_last_ambient_hour = hour
 		var sun_height := SkySystem.solar_direction(hour, sky.latitude_deg, sky.day_of_year).y

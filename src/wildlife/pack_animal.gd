@@ -2,6 +2,7 @@ extends CharacterBody3D
 ## Imported skeletal motion; walking ducks collide with the world, birds fly.
 const SceneUtil = preload("res://src/common/scene_util.gd")
 const BodyPace = preload("res://src/common/body_pace.gd")
+const OutdoorScan = preload("res://src/render/outdoor_scan.gd")
 ## Ground speed, m/s, of an animal that walks its circle.
 const WALK_SPEED := 0.28
 var kind := "dog"
@@ -27,6 +28,9 @@ func _ready() -> void:
 	var pivot := Node3D.new()
 	add_child(pivot)
 	model = (load("res://assets/models/village_pack/" + kind + "/scene.gltf") as PackedScene).instantiate()
+	# Fur and feathers soak in the rain and take no shine, as the wild
+	# animals' do (WildlifeModel).
+	OutdoorScan.dress(model, OutdoorScan.SOAKED_SHINE)
 	pivot.add_child(model)
 	# A fresh instance of the same model under the same transform poses the
 	# same way, so a later animal of a kind reuses the first one's bounds.

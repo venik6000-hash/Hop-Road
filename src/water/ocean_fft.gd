@@ -1,6 +1,7 @@
 class_name OceanFFT
 extends Node
-## GPU FFT ocean (Tessendorf 2001) with three cascades of 256^2.
+## GPU FFT ocean (Tessendorf 2001) with up to three cascades of 256^2: the
+## quality profile says how many (QualityWater.cascades).
 ##
 ## Tile sizes are mutually irrational (250 / 37 / 7.3 m) so no two cascades
 ## repeat together, and each cascade owns a band of wavenumbers so no wave is
@@ -9,22 +10,30 @@ extends Node
 ## displacement, derivatives and persistent foam -> box mip chain.
 ##
 ## Published as global shader parameters `water_displacement` and
-## `water_derivatives` (Texture2DArrayRD) with `water_tiles` and
-## `water_cascade_weights`. Surface heights at arbitrary points are available
+## `water_derivatives` (Texture2DArrayRD) with `water_tiles`,
+## `water_cascade_weights` and `water_wave` (the way the waves run on the
+## tiles, wave_way). Surface heights at arbitrary points are available
 ## one frame late through `query_points` / `query_results`.
 
 signal weather_changed(preset: String)
 
 const RdUtil = preload("res://src/common/rd_util.gd")
+## Points along a side of a cascade: N of the compute shaders
+## (fft_common.glslinc). QualityWater.fft_size records it in the profile.
 const SIZE := 256
-const CASCADES := 3
+## The cascades the lake's shaders know; the profile keeps the first ones.
+const MOST_CASCADES := 3
 const MIPS := 9
 const MAX_QUERIES := 64
 const GRAVITY := 9.81
 ## RenderingDevice.TEXTURE_SLICE_2D_ARRAY exists in the engine but is not
 ## exported to GDScript in 4.6; the value is accepted by the binding.
 const SLICE_2D_ARRAY := 3
-## name: [wind m/s, fetch km, choppiness, swell, foam, spread blend]
+## Seconds a sea takes to turn into the next (the weather's wind turns as long).
+const SEA_SECONDS := 6.0
+## name: [wind m/s, fetch km, choppiness, swell, foam, spread blend]. The wind
+## is the one that raises the sea; the weather blows it (WeatherSystem.set_sea,
+## blow), here or in a region without a lake.
 const PRESETS := {
 	"calm": [2.4, 4.0, 0.85, 0.0, 0.0, 0.25],
 	"breeze": [6.0, 9.0, 1.0, 0.0, 0.25, 0.12],
@@ -33,12 +42,17 @@ const PRESETS := {
 }
 
 @export var tiles := Vector4(250.0, 37.0, 7.3, 1.0)
-@export var wind_direction_deg := 55.0
+## Where the lake's waves run, degrees from +X toward +Z. It stays: the lake
+## is the reference look, and the weather's wind over the ground turns
+## without it (WeatherSystem.wind_heading_deg). The falls and the streams lay
+## the lake's ripples by it (`water_wave`).
+const WAVE_HEADING_DEG := 55.0
 @export var swell_direction_deg := 30.0
 ## Seconds to blend from one weather preset to the next.
-@export var transition_time := 6.0
+@export var transition_time := SEA_SECONDS
 @export var depth := 60.0
 
+## The wind's speed, m/s: the weather's (blow).
 var wind_speed := 6.0
 var fetch_km := 9.0
 var choppiness := 1.0
@@ -47,7 +61,13 @@ var foam_amount := 0.25
 var spread_blend := 0.12
 var preset := "breeze"
 var time := 0.0
-var cascade_weights := Vector4(1.0, 1.0, 1.0, 0.0)
+var cascade_weights := weights(MOST_CASCADES)
+## The water of the level's quality profile; set it before the first frame
+## (WaterSystem makes the ocean, the level gives it this). The authored
+## water without it.
+var quality: QualityWater
+## The cascades this lake runs, fixed in its first frame.
+var cascades := MOST_CASCADES
 
 var displacement_texture := Texture2DArrayRD.new()
 var derivatives_texture := Texture2DArrayRD.new()
@@ -72,11 +92,29 @@ var _query_buffer: RID
 var _result_buffer: RID
 var _pending_read := false
 var _async_read := false
+var _made := false
 
 func _ready() -> void:
 	set_preset(preset, true)
 	_async_read = ClassDB.class_has_method("RenderingDevice", "buffer_get_data_async")
+
+## Takes the profile's water and makes the GPU side.
+func _make() -> void:
+	var water := quality if quality != null else QualityWater.new()
+	if water.fft_size != SIZE:
+		push_error("OceanFFT: the profile asks for %d points, the shaders are built for %d" % [water.fft_size, SIZE])
+	cascades = clampi(water.cascades, 1, MOST_CASCADES)
+	cascade_weights = weights(cascades)
+	_spectrum_dirty = true
 	RenderingServer.call_on_render_thread(_create_gpu_resources)
+
+## The weights of the cascades when the first `kept` run: the shaders skip a
+## cascade of weight 0.
+static func weights(kept: int) -> Vector4:
+	var result := Vector4.ZERO
+	for c in clampi(kept, 1, MOST_CASCADES):
+		result[c] = 1.0
+	return result
 
 func _exit_tree() -> void:
 	for global_name: String in ["water_displacement", "water_derivatives"]:
@@ -91,24 +129,38 @@ func set_preset(preset_name: String, instant := false) -> void:
 	preset = preset_name
 	var values: Array = PRESETS[preset_name]
 	_blend_from = _current()
-	_target = {"wind": values[0], "fetch": values[1], "chop": values[2], "swell": values[3],
-		"foam": values[4], "spread": values[5]}
+	_target = {"fetch": values[1], "chop": values[2], "swell": values[3], "foam": values[4], "spread": values[5]}
 	_blend_t = 1.0 if instant else 0.0
 	_apply(_target if instant else _blend_from)
 	_spectrum_dirty = true
 	weather_changed.emit(preset_name)
 
 func _current() -> Dictionary:
-	return {"wind": wind_speed, "fetch": fetch_km, "chop": choppiness, "swell": swell,
-		"foam": foam_amount, "spread": spread_blend}
+	return {"fetch": fetch_km, "chop": choppiness, "swell": swell, "foam": foam_amount, "spread": spread_blend}
 
 func _apply(values: Dictionary) -> void:
-	wind_speed = values.wind
 	fetch_km = values.fetch
 	choppiness = values.chop
 	swell = values.swell
 	foam_amount = values.foam
 	spread_blend = values.spread
+
+## The weather's wind over the lake: `speed` m/s along WAVE_HEADING_DEG.
+func blow(speed: float) -> void:
+	if speed == wind_speed:
+		return
+	wind_speed = speed
+	_spectrum_dirty = true
+
+## The way the lake's waves run on its tiles (x, z), unit length: the global
+## `water_wave`.
+static func wave_way() -> Vector2:
+	return Vector2(cos(deg_to_rad(WAVE_HEADING_DEG)), sin(deg_to_rad(WAVE_HEADING_DEG)))
+
+## The wind, m/s, that raises the sea `preset_name` (PRESETS).
+static func sea_wind(preset_name: String) -> float:
+	var values: Array = PRESETS.get(preset_name, PRESETS["breeze"])
+	return Values.real(values[0])
 
 ## Significant wave height (m) of the current wind sea, from the fetch-limited
 ## JONSWAP relation; the HUD shows it with the preset name.
@@ -117,6 +169,9 @@ func significant_height() -> float:
 	return 0.0016 * dimensionless * wind_speed * wind_speed / GRAVITY + swell * 0.9
 
 func _process(delta: float) -> void:
+	if not _made:
+		_made = true
+		_make()
 	time += delta
 	if _blend_t < 1.0:
 		_blend_t = minf(_blend_t + delta / transition_time, 1.0)
@@ -146,10 +201,13 @@ func _spectrum_params() -> PackedFloat32Array:
 	var boundary_2 := TAU / tiles.z * 6.0
 	var bands := [Vector2(TAU / tiles.x * 0.9, boundary_1), Vector2(boundary_1, boundary_2), Vector2(boundary_2, 9999.0)]
 	var data := PackedFloat32Array()
-	for c in CASCADES:
+	for c in cascades:
 		var band: Vector2 = bands[c]
+		# The last cascade kept takes the waves of those dropped.
+		if c == cascades - 1:
+			band.y = 9999.0
 		data.append_array([tiles[c], band.x, band.y, maxf(wind_speed, 0.3), fetch_km * 1000.0,
-			deg_to_rad(wind_direction_deg), spread_blend, swell, depth, 3.3, 0.006, 1.0])
+			deg_to_rad(WAVE_HEADING_DEG), spread_blend, swell, depth, 3.3, 0.006, 1.0])
 		# cascade index travels as a float-typed slot reinterpreted as uint
 		data.append(0.0)
 		data.append_array([GRAVITY, deg_to_rad(swell_direction_deg), 0.0])
@@ -166,10 +224,10 @@ func _create_gpu_resources() -> void:
 			return
 		_shaders[pass_name] = _rd.shader_create_from_spirv(spirv)
 		_pipelines[pass_name] = _rd.compute_pipeline_create(_shaders[pass_name])
-	_textures.h0 = _texture(RenderingDevice.DATA_FORMAT_R32G32B32A32_SFLOAT, CASCADES, 1)
-	_textures.signals = _texture(RenderingDevice.DATA_FORMAT_R32G32B32A32_SFLOAT, CASCADES * 2, 1)
-	_textures.displacement = _texture(RenderingDevice.DATA_FORMAT_R16G16B16A16_SFLOAT, CASCADES, MIPS)
-	_textures.derivatives = _texture(RenderingDevice.DATA_FORMAT_R16G16B16A16_SFLOAT, CASCADES, MIPS)
+	_textures.h0 = _texture(RenderingDevice.DATA_FORMAT_R32G32B32A32_SFLOAT, cascades, 1)
+	_textures.signals = _texture(RenderingDevice.DATA_FORMAT_R32G32B32A32_SFLOAT, cascades * 2, 1)
+	_textures.displacement = _texture(RenderingDevice.DATA_FORMAT_R16G16B16A16_SFLOAT, cascades, MIPS)
+	_textures.derivatives = _texture(RenderingDevice.DATA_FORMAT_R16G16B16A16_SFLOAT, cascades, MIPS)
 	for key: String in ["displacement", "derivatives"]:
 		var levels := []
 		for level in MIPS:
@@ -206,6 +264,7 @@ func _publish() -> void:
 	RenderingServer.global_shader_parameter_set("water_derivatives", derivatives_texture)
 	RenderingServer.global_shader_parameter_set("water_tiles", tiles)
 	RenderingServer.global_shader_parameter_set("water_cascade_weights", cascade_weights)
+	RenderingServer.global_shader_parameter_set("water_wave", wave_way())
 	_ready_for_frames = true
 
 func _texture(format: int, layers: int, mips: int) -> RID:
@@ -253,7 +312,7 @@ func _dispatch(now: float, spectrum: PackedFloat32Array, assemble: PackedFloat32
 	if not spectrum.is_empty():
 		_rd.compute_list_bind_compute_pipeline(list, _pipelines.spectrum)
 		_rd.compute_list_bind_uniform_set(list, _sets.spectrum, 0)
-		for c in CASCADES:
+		for c in cascades:
 			var bytes := spectrum.slice(c * 16, c * 16 + 16).to_byte_array()
 			bytes.encode_u32(12 * 4, c)
 			_rd.compute_list_set_push_constant(list, bytes, bytes.size())
@@ -263,20 +322,20 @@ func _dispatch(now: float, spectrum: PackedFloat32Array, assemble: PackedFloat32
 	_rd.compute_list_bind_compute_pipeline(list, _pipelines.evolve)
 	_rd.compute_list_bind_uniform_set(list, _sets.evolve, 0)
 	_rd.compute_list_set_push_constant(list, evolve, evolve.size())
-	_rd.compute_list_dispatch(list, groups, groups, CASCADES)
+	_rd.compute_list_dispatch(list, groups, groups, cascades)
 	_rd.compute_list_add_barrier(list)
 	_rd.compute_list_bind_compute_pipeline(list, _pipelines.ifft)
 	_rd.compute_list_bind_uniform_set(list, _sets.ifft, 0)
 	for vertical: int in [0, 1]:
 		var push := PackedInt32Array([vertical, 0, 0, 0]).to_byte_array()
 		_rd.compute_list_set_push_constant(list, push, push.size())
-		_rd.compute_list_dispatch(list, SIZE, CASCADES * 2, 1)
+		_rd.compute_list_dispatch(list, SIZE, cascades * 2, 1)
 		_rd.compute_list_add_barrier(list)
 	var assemble_bytes := assemble.to_byte_array()
 	_rd.compute_list_bind_compute_pipeline(list, _pipelines.assemble)
 	_rd.compute_list_bind_uniform_set(list, _sets.assemble, 0)
 	_rd.compute_list_set_push_constant(list, assemble_bytes, assemble_bytes.size())
-	_rd.compute_list_dispatch(list, groups, groups, CASCADES)
+	_rd.compute_list_dispatch(list, groups, groups, cascades)
 	_rd.compute_list_add_barrier(list)
 	_rd.compute_list_bind_compute_pipeline(list, _pipelines.mips)
 	for level in MIPS - 1:
@@ -284,7 +343,7 @@ func _dispatch(now: float, spectrum: PackedFloat32Array, assemble: PackedFloat32
 		var push := PackedInt32Array([side, 0, 0, 0]).to_byte_array()
 		_rd.compute_list_bind_uniform_set(list, _sets.mips[level], 0)
 		_rd.compute_list_set_push_constant(list, push, push.size())
-		_rd.compute_list_dispatch(list, maxi(ceili(side / 8.0), 1), maxi(ceili(side / 8.0), 1), CASCADES)
+		_rd.compute_list_dispatch(list, maxi(ceili(side / 8.0), 1), maxi(ceili(side / 8.0), 1), cascades)
 		_rd.compute_list_add_barrier(list)
 	if run_query:
 		var push := PackedFloat32Array([tiles.x, tiles.y, tiles.z, tiles.w,

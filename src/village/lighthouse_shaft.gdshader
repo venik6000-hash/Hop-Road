@@ -4,7 +4,8 @@ shader_type spatial;
 // measure of dusk.
 render_mode unshaded, blend_add, depth_draw_never, cull_disabled, shadows_disabled, fog_disabled;
 
-global uniform vec3 sun_direction;
+// How far the lamps are lit, 0 by day .. 1 at night (SkySystem.dusk_of).
+global uniform float lamp_dusk;
 
 uniform vec3 beam_color : source_color = vec3(1.0, 0.78, 0.46);
 // The cone's length, m: its mesh is a cylinder along y, the lens at the top.
@@ -19,7 +20,7 @@ void vertex() {
 }
 
 void fragment() {
-	float dusk = 1.0 - smoothstep(-0.02, 0.18, sun_direction.y);
+	float dusk = lamp_dusk;
 	// Seen through its edge the cone is thin air: the sides fade out.
 	float body = abs(dot(normalize(NORMAL), normalize(VIEW)));
 	float thin = (1.0 - along) * (1.0 - along);

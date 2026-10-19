@@ -28,7 +28,7 @@ uniform float lichen = 0.0;
 uniform float color_range = 2.0;
 instance uniform float ground_level = 2.0;
 // Moss is the terrain's mossy rock scan (a layer of its array).
-uniform sampler2DArray moss_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+#include "res://src/terrain/moss.gdshaderinc"
 uniform float moss_layer = 13.0;
 uniform vec4 moss_grade = vec4(0.92, 1.03, 0.9, 1.05);
 

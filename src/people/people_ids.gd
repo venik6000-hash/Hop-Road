@@ -1,17 +1,10 @@
 class_name PeopleIds
 extends RefCounted
-## The names the people's code and data share: the seven villagers, the foods
+## The names the people's code and data share: the common sheet, the foods
 ## they love, the gifts the player brings, what a moment of the day is doing,
 ## and the keys of the lines a sheet may hold (assets/loop/people/*.json).
+## Who the villagers are is the folder's (PeopleBook.roster).
 
-const BORR := &"borr"
-const KUL := &"kul"
-const TOMAS := &"tomas"
-const IVAR := &"ivar"
-const MARTA := &"marta"
-const LINA := &"lina"
-const SAVVA := &"savva"
-const VILLAGERS: Array[StringName] = [BORR, KUL, TOMAS, IVAR, MARTA, LINA, SAVVA]
 ## The sheet a passer-by speaks by, and a villager where their own has no line.
 const COMMON := &"passerby"
 
@@ -24,7 +17,7 @@ const GIFT_CATCH := &"catch"
 const GIFT_FOOD := &"food"
 const GIFTS: Array[StringName] = [GIFT_CATCH, GIFT_FOOD]
 
-## What a villager is doing at a moment (CampSystem.moment).
+## What a villager is doing at a moment (CampTalk.moment_of).
 const ACTIVITY_FIRE := &"fire"
 const ACTIVITY_TABLE := &"table"
 const ACTIVITY_BAR := &"bar"

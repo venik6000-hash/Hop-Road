@@ -25,6 +25,7 @@ EditorSessionGuard="*res://src/core/editor_session_guard.gd"
 GameSettings="*res://src/settings/game_settings.gd"
 InputActions="*res://src/core/input_actions.gd"
 GameEvents="*res://src/core/game_events.gd"
+GameClock="*res://src/core/game_clock.gd"
 SaveService="*res://src/save/save_service.gd"
 GameFlow="*res://src/flow/game_flow.gd"
 
@@ -166,13 +167,17 @@ water_cascade_weights={
 "type": "vec4",
 "value": Vector4(1, 1, 1, 0)
 }
+water_wave={
+"type": "vec2",
+"value": Vector2(0.5736, 0.8192)
+}
 lake_shore_state={
 "type": "sampler2D",
 "value": ""
 }
 lake_shore_region={
 "type": "vec4",
-"value": Vector4(-170, -150, 256, 0)
+"value": Vector4(0, 0, 0, 0)
 }
 lake_shore_clock={
 "type": "vec2",
@@ -221,4 +226,32 @@ canopy_light={
 sun_shadow_reach={
 "type": "vec2",
 "value": Vector2(136, 160)
+}
+wind={
+"type": "vec4",
+"value": Vector4(0.5736, 0.8192, 0.5227, 6)
+}
+wind_drift={
+"type": "vec2",
+"value": Vector2(0, 0)
+}
+cloud_weather={
+"type": "sampler2D",
+"value": ""
+}
+moss_albedo={
+"type": "sampler2DArray",
+"value": ""
+}
+lamp_dusk={
+"type": "float",
+"value": 0.0
+}
+cloud_layer={
+"type": "vec4",
+"value": Vector4(1.7, 3.2, 0.016, 3300)
+}
+lake_level={
+"type": "float",
+"value": 0.72
 }

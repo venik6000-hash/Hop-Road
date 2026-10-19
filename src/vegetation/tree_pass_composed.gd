@@ -15,7 +15,7 @@ static func place_composed(placer: TreePlacer, composed: Array) -> void:
 		var pz := Values.real(position[2])
 		var h := TreePlacer.cell_hash(floori(px * 16.0), floori(pz * 16.0), TreePlacer.SALT_CELL + 2)
 		var backdrop := template.begins_with("Dense distant")
-		if backdrop and TreePlacer.unit(TreePlacer.hash_u32(h ^ 0x68e31da4)) >= backdrop_share(px, pz):
+		if backdrop and TreePlacer.unit(TreePlacer.hash_u32(h ^ 0x68e31da4)) >= backdrop_share(placer, px, pz):
 			continue
 		var mapping: Array = TreePlacer.COMPOSED[template]
 		var choices: Array = mapping[0]
@@ -41,10 +41,11 @@ static func place_composed(placer: TreePlacer, composed: Array) -> void:
 
 ## 0..1: how much of the forest near (x, z) the Blender backdrop provides.
 ## Its rectangle edge wanders with noise, so the fade does not run straight.
-static func backdrop_share(x: float, z: float) -> float:
-	if not TreePlacer.BACKDROP.grow(20.0).has_point(Vector2(x, z)):
+static func backdrop_share(placer: TreePlacer, x: float, z: float) -> float:
+	var backdrop := placer.backdrop
+	if not backdrop.has_area() or not backdrop.grow(20.0).has_point(Vector2(x, z)):
 		return 0.0
-	var inside := minf(minf(x - TreePlacer.BACKDROP.position.x, TreePlacer.BACKDROP.end.x - x), minf(z - TreePlacer.BACKDROP.position.y, TreePlacer.BACKDROP.end.y - z))
+	var inside := minf(minf(x - backdrop.position.x, backdrop.end.x - x), minf(z - backdrop.position.y, backdrop.end.y - z))
 	return smoothstep(-2.0, 16.0, inside + (TreePlacer.value_noise(x, z, 23.0, TreePlacer.SALT_EDGE) - 0.5) * 26.0)
 
 static func near_composed(placer: TreePlacer, x: float, z: float, spacing: float) -> bool:

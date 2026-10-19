@@ -9,10 +9,14 @@ extends RefCounted
 ## storm preset's significant height at the largest local wave scale. An eye
 ## above it lets the lens pass skip its water block.
 const LENS_CREST_BOUND := 30.0
+
 const CanopyField = preload("res://src/vegetation/canopy_field.gd")
 
 var fog: AtmosphereFog
 var _interiors: Interiors
+var _eye_adaptation: EyeAdaptation
+## The forest's crowns the content gives (WorldContext.canopies).
+var _canopies: ContentRegistry
 var refraction: RefractionPost
 var lens: LensPost
 var _sky: SkySystem
@@ -31,19 +35,23 @@ var _sun_direction := Vector3.ZERO
 var _sun_radiance := Vector3.ZERO
 var _viewer_radius := 0.0
 
-## After the vegetation, whose canopy the fog reads.
+## The fog and the eye read the forest's canopy (canopy) while the content
+## gives one (WorldContext.canopies).
 func _init(sky: SkySystem, weather: WeatherSystem, terrain: TerrainSystem, water: WaterSystem, sun_shadow: SunShadowField,
-		interiors: Interiors, eye_adaptation: EyeAdaptation, canopy: CanopyField, environment: WorldEnvironment) -> void:
+		world: WorldContext, eye_adaptation: EyeAdaptation, environment: WorldEnvironment) -> void:
+	var interiors := world.interiors
+	# The grids and the cadence of the passes are the profile's the level is
+	# built with (QualityGroup.read_at_start).
+	var quality := QualityProfile.of(world)
 	_sky = sky
 	_weather = weather
 	_terrain = terrain
 	_water = water
-	fog = AtmosphereFog.new()
+	fog = AtmosphereFog.new(quality.effects)
 	fog.sky = _sky
 	fog.terrain = _terrain
 	fog.sun_shadow = sun_shadow
-	fog.canopy = canopy
-	fog.weather_map = load("res://assets/generated/sky/cloud_weather.png")
+	fog.weather_map = load(SkySystem.WEATHER_MAP)
 	_interiors = interiors
 	fog.interiors = interiors
 	_weather.fog = fog
@@ -56,16 +64,28 @@ func _init(sky: SkySystem, weather: WeatherSystem, terrain: TerrainSystem, water
 	refraction = RefractionPost.new()
 	# The eye meters the picture as the air leaves it, before the lens darkens
 	# its corners.
-	eye_adaptation.meter = LightMeter.new()
+	eye_adaptation.meter = LightMeter.new(quality.post)
 	var compositor := Compositor.new()
 	compositor.compositor_effects = [interiors.contact, refraction, fog, eye_adaptation.meter, lens]
 	environment.compositor = compositor
+	_eye_adaptation = eye_adaptation
+	_canopies = world.canopies
+	_canopies.added.connect(_take_canopy)
+	_canopies.removed.connect(_take_canopy)
+	_take_canopy(null)
+
+## The fog and the eye read the canopy given last; none without one.
+func _take_canopy(_entry: Variant) -> void:
+	var canopy: CanopyField = null
+	if not _canopies.is_empty():
+		canopy = _canopies.entries().back()
+	fog.canopy = canopy
+	_eye_adaptation.canopy = canopy
 
 ## The inputs of this frame's passes, seen from `eye`.
 func update(delta: float, eye: Vector3, tree: SceneTree) -> void:
 	var ocean := _water.ocean
-	var wind_heading := deg_to_rad(ocean.wind_direction_deg)
-	fog.wind = Vector2(cos(wind_heading), sin(wind_heading)) * ocean.wind_speed
+	fog.wind = _weather.wind_over_ground()
 	fog.wave_height = ocean.significant_height()
 	fog.building = _interiors.fog_box(eye)
 	fog.prepare(delta, eye, tree.get_nodes_in_group(AtmosphereFog.LAMP_GROUP) if fog.active() else [])
@@ -73,7 +93,7 @@ func update(delta: float, eye: Vector3, tree: SceneTree) -> void:
 	# The lake lies within the rings' view where the ground dips under its level.
 	var lake_near := falling > 0.0 and _terrain.height_range(Rect2(eye.x - RefractionPost.RING_VIEW, eye.z - RefractionPost.RING_VIEW,
 		RefractionPost.RING_VIEW * 2.0, RefractionPost.RING_VIEW * 2.0)).x < _water.water_level
-	refraction.prepare(delta, eye, tree.get_nodes_in_group(RefractionPost.HEAT_GROUP), falling, _water.water_level, lake_near,
+	refraction.prepare(delta, eye, HearthFire.heating, falling, _water.water_level, lake_near,
 		fog.wave_height)
 	# The lens only takes new values when an input changed: the same inputs
 	# give the same packed parameters. wave_scale_at() depends on the eye's

@@ -5,10 +5,8 @@ extends RefCounted
 ## Old tavern meshes go; a collider under one moves up to the map to stay,
 ## unless the new pieces bring their own.
 static func replace_old(tavern: TavernSystem, labels: Array, drop: Array, moved: Array = []) -> void:
-	for item: MeshInstance3D in tavern.map.find_children("*", "MeshInstance3D", true, false):
+	for item: MeshInstance3D in MapIndex.of(tavern.map).labelled_any(labels):
 		var label := RockField.label_of(item)
-		if not labels.has(label):
-			continue
 		for move: Dictionary in moved:
 			if move.of == label:
 				for body in item.get_children():
@@ -28,7 +26,7 @@ static func replace_old(tavern: TavernSystem, labels: Array, drop: Array, moved:
 		item.queue_free()
 		tavern.replaced += 1
 
-static func cached_shape(tavern: TavernSystem, mesh: Mesh, kind: String) -> Shape3D:
+static func cached_shape(tavern: Building, mesh: Mesh, kind: String) -> Shape3D:
 	var key := str(mesh.get_instance_id()) + ":" + kind
 	if not tavern.shape_cache.has(key):
 		var shape: Shape3D
@@ -42,7 +40,7 @@ static func cached_shape(tavern: TavernSystem, mesh: Mesh, kind: String) -> Shap
 		tavern.shape_cache[key] = shape
 	return tavern.shape_cache[key]
 
-static func add_shape(tavern: TavernSystem, item: MeshInstance3D, shape: Shape3D, local := Transform3D.IDENTITY) -> void:
+static func add_shape(tavern: Building, item: MeshInstance3D, shape: Shape3D, local := Transform3D.IDENTITY) -> void:
 	if shape == null:
 		return
 	if shape is ConcavePolygonShape3D:

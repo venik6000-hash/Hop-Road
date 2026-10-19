@@ -23,7 +23,7 @@ uniform vec3 room_min = vec3(0.0);
 uniform vec3 room_max = vec3(0.0);
 uniform float roofed = 0.0;
 // No drops under the lake.
-uniform float water_level = -1000.0;
+#include "res://src/water/lake_level.gdshaderinc"
 // What the rain falls on first, as a map of heights from above (RainShelter):
 // no drop under a roof, an awning or a bridge. `rain_shelter_rect` is the
 // map's corner (x, z), its side (m) and 1 once it is drawn.
@@ -62,7 +62,7 @@ void vertex() {
 			indoors = indoors || at.y - 0.5 * span < textureLod(rain_shelter, from_above, 0.0).r;
 		}
 	}
-	if (fract(seed.y * 91.0 + seed.x * 13.0) >= amount || indoors || at.y < water_level) {
+	if (fract(seed.y * 91.0 + seed.x * 13.0) >= amount || indoors || at.y < lake_level) {
 		// Not falling: all its corners at one point.
 		world = eye;
 		fade = 0.0;

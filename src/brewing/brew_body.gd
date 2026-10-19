@@ -324,7 +324,6 @@ func _in_reach(hands: Array[Dictionary], shoulders: Array[Vector3]) -> Array[Dic
 func hands_now(frame: Transform3D, shoulders: Array[Vector3]) -> Array[Dictionary]:
 	var layout := house.layout
 	var station := house.work.station
-	var building := house.building
 	var right := frame.basis.x
 	var hands: Array[Dictionary] = []
 	var held := house.carry.held
@@ -333,9 +332,9 @@ func hands_now(frame: Transform3D, shoulders: Array[Vector3]) -> Array[Dictionar
 		var tipping: bool = station != null and station.work().gesture == "tilt" and not layout.sideways(held)
 		hands = BrewHands.on_utensil(held, layout.entry_of(held), layout.node_of(held).global_transform, shoulders,
 			right, tipping, station != null)
-	elif station != null and station.work().has("part") and building != null and building.machinery != null:
+	elif station != null and station.work().has("part") and house.machinery != null:
 		var work := station.work()
-		var pivot := building.machinery.pivot(str(work.part))
+		var pivot := house.machinery.pivot(str(work.part))
 		if pivot != null and layout.moving.has(work.part):
 			var part: Dictionary = layout.moving[work.part]
 			var pull := str(part.group) + "_pull"
@@ -383,7 +382,6 @@ func leave(station_id: String) -> void:
 	leaned = Vector3.ZERO
 	_player.rig.position = Vector3(0.0, _player.rig.position.y, 0.0)
 	_crouch = 0.0
-	_player.movement_locked = false
 
 ## The eye at `eye` (world) turned to what it is kept on at the work.
 func _aim(eye: Vector3) -> void:
@@ -475,7 +473,7 @@ func _sees(spot: Vector3, point: Vector3) -> bool:
 
 ## Whether the body has room standing at `spot`.
 func _room(spot: Vector3) -> bool:
-	var body := _player.get_node("Collision") as CollisionShape3D
+	var body := _player.collision
 	var query := PhysicsShapeQueryParameters3D.new()
 	query.shape = body.shape
 	query.transform = Transform3D(Basis.IDENTITY, house.to_global(spot) + body.position + Vector3.UP * 0.05)

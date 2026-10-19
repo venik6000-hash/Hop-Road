@@ -4,7 +4,9 @@ extends MultiMeshInstance3D
 ## pixel in its reach, and a room's lamps shine for nobody across the lake, so
 ## the lights themselves fade out with distance (Light3D.distance_fade_*) and
 ## these small quads, one draw call for all of them, keep the village lit in
-## the night's view. They burn from dusk, as the lanterns do.
+## the night's view. They burn from dusk, as the lanterns do. The glows are
+## those of the content's lamps (WorldContext.lamps, LampSet); the quads are
+## drawn again in the frame after a building comes or goes.
 
 const SHADER := preload("res://src/render/far_lights.gdshader")
 
@@ -17,7 +19,14 @@ const FADES := {
 }
 const GLOW_RISE := Vector2(30.0, 60.0)
 
+## The content's lamps (WorldContext.lamps): Callable() -> LampSet. None in a
+## tool that draws no glows.
+var lamps: ContentRegistry
+
+## {at, color, radius, facing, lit}, as LampSet.glows.
 var _glows: Array[Dictionary] = []
+## The first of `_glows` of each LampSet, by its instance id.
+var _firsts := {}
 
 func _init() -> void:
 	name = "FarLights"
@@ -32,20 +41,47 @@ static func fade(light: Light3D, kind: String) -> void:
 	light.distance_fade_length = range.length
 	light.distance_fade_shadow = range.shadow
 
-## A glow of `radius` metres at `at` (world space). `facing` is the way a
-## window looks; a lamp, seen from all round, leaves it zero. Returns the
-## glow's index, for set_lit().
-func add_glow(at: Vector3, color: Color, radius: float, facing := Vector3.ZERO) -> int:
-	_glows.append({"at": at, "color": color, "radius": radius, "facing": facing, "lit": true})
-	return _glows.size() - 1
+func _ready() -> void:
+	set_process(false)
+	if lamps == null:
+		return
+	lamps.added.connect(_changed)
+	lamps.removed.connect(_changed)
+	_gather()
 
-## Puts the glow `index` out, or lights it again: a fire that is kept for a
-## part of the day only.
-func set_lit(index: int, lit: bool) -> void:
-	_glows[index].lit = lit
-	if multimesh != null:
-		var color: Color = _glows[index].color
-		multimesh.set_instance_color(index, color if lit else Color.BLACK)
+## A building came or went: the glows are drawn again in the next frame.
+func _changed(_entry: Variant) -> void:
+	set_process(true)
+
+func _process(_delta: float) -> void:
+	set_process(false)
+	_gather()
+
+## Takes the glows of every LampSet of the registry and draws them; none
+## without lamps.
+func _gather() -> void:
+	_glows.clear()
+	_firsts.clear()
+	for entry: Variant in lamps.entries():
+		var lamps_for: Callable = entry
+		var given: LampSet = lamps_for.call()
+		_firsts[given.get_instance_id()] = _glows.size()
+		_glows.append_array(given.glows)
+		if not given.lit_changed.is_connected(_set_lit):
+			given.lit_changed.connect(_set_lit)
+	if _glows.is_empty():
+		multimesh = null
+	else:
+		build()
+
+## The glow `index` of `given` goes out or is lit again: a fire that is kept
+## for a part of the day only.
+func _set_lit(given: LampSet, index: int, lit: bool) -> void:
+	var first: int = _firsts.get(given.get_instance_id(), -1)
+	if first < 0 or multimesh == null:
+		return
+	var color: Color = _glows[first + index].color
+	multimesh.set_instance_color(first + index, color if lit else Color.BLACK)
 
 func build() -> void:
 	var quad := QuadMesh.new()

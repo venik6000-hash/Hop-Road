@@ -12,12 +12,14 @@ extends RefCounted
 const D := preload("res://src/data/data_schema.gd")
 
 ## The kinds of a room's lamp (assets/light/profiles.json, `lamps`).
-const LAMP_KINDS: Array[String] = ["candle", "lantern", "chandelier", "stove", "hearth"]
+const LAMP_KINDS: Array[String] = ["candle", "lantern", "chandelier", "stove", "hearth", "campfire"]
 
 ## A light (InteriorLamps.add_light). A lamp of a room names the `room` and
 ## its `kind`, which gives its shadow and its size; any other light says
 ## where it shines (`layer`), whether it is a lantern lit at dusk (`night`),
-## its shadow and its size.
+## and its shadow and its size, or a kind that gives them. `attenuation` is
+## how its light falls off (1 when left out), `fog` whether it has a halo in
+## the fog (a lantern has one when left out).
 static func light() -> Dictionary:
 	var row := D.object({
 		"name": D.text(),
@@ -37,18 +39,21 @@ static func light() -> Dictionary:
 		"sway": D.number(0.0),
 		"direction": D.optional(D.vector(3)),
 		"angle": D.optional(D.number(1.0, 179.0)),
+		"attenuation": D.optional(D.number(0.0)),
+		"fog": D.optional(D.flag()),
 	})
-	var of_room: Array[String] = ["kind"]
 	var of_other: Array[String] = ["shadow", "night", "layer", "size"]
+	var of_kind: Array[String] = ["shadow", "size"]
 	return D.checked(row, func(value: Variant) -> String:
 		var lamp := Values.table(value)
-		var what := "lamp of a room" if lamp.has("room") else "light"
-		for field: String in of_room + of_other:
-			var needed := of_room.has(field) == lamp.has("room")
-			if needed and not lamp.has(field):
-				return "a %s needs `%s`" % [what, field]
-			if not needed and lamp.has(field):
-				return "a %s has no `%s`" % [what, field]
+		var of_a_room := lamp.has("room")
+		if of_a_room and not lamp.has("kind"):
+			return "a lamp of a room needs `kind`"
+		for field: String in of_other:
+			if of_a_room and lamp.has(field):
+				return "a lamp of a room has no `%s`" % field
+			if not of_a_room and not lamp.has(field) and not (lamp.has("kind") and of_kind.has(field)):
+				return "a light needs `%s`" % field
 		return "")
 
 ## A room of an interior (Interior.Room): its air as boxes (middle and half
@@ -115,9 +120,11 @@ static func light_profiles() -> Dictionary:
 			"daylight": D.optional(D.object(daylight)),
 		}), &"light_profile"),
 		"lamps": D.object(lamps),
+		"probe_rooms": D.ref(&"light_profile"),
 	})
 
-## A reflection probe over a room.
+## A reflection probe over a room, which is the room's air (Interior.room_of_probe).
+## Without a `profile` the room takes the one of assets/light/profiles.json, `probe_rooms`.
 static func probe() -> Dictionary:
 	return D.object({
 		"name": D.text(),
@@ -125,6 +132,7 @@ static func probe() -> Dictionary:
 		"extents": D.vector(3),
 		"ambient": D.vector(3),
 		"room": D.text(),
+		"profile": D.optional(D.ref(&"light_profile")),
 	})
 
 static func window() -> Dictionary:
@@ -140,24 +148,44 @@ static func vent() -> Dictionary:
 	return D.object({"id": D.text(), "kind": D.choice(["smoke", "steam"]), "at": D.vector(3), "fire": D.optional(D.text())})
 
 ## Flames with hot air over them (HearthFire.from_table): the middle of
-## their base, the way along the grate, its width and the flames' height.
+## their base, the way along the grate, its width and the flames' height;
+## or, with a `bed` (fire_bed()), that bed laid in a hearth of that width and
+## height to its crown.
 static func hearth() -> Dictionary:
 	return D.object(_hearth_fields())
 
 ## A fire of a village building: a hearth with the lamps that flicker with it,
 ## the machinery's group whose draught blows it up, and its glow from afar.
+## It burns by its lamp's `hours`, or, `tended`, as the building's work stokes
+## it (BrewHouse).
 static func fire() -> Dictionary:
 	var fields := _hearth_fields()
 	fields["lamps"] = D.list(D.text())
 	fields["blown"] = D.optional(D.text())
-	fields["far"] = D.object({"radius": D.number(0.0), "out": D.vector(3)})
+	fields["tended"] = D.optional(D.flag())
+	fields["far"] = D.optional(D.object({"radius": D.number(0.0), "out": D.vector(3)}))
 	return D.object(fields)
+
+## A modelled bed of a wood fire (FireBed, tools/pipeline/fire_bed): the
+## model, the maps of its logs and of its embers, the hearth it was laid in
+## (width, depth, height to the crown; and where its arch springs), and the
+## roots of the flames on each log: the first lasts longest, the last goes first.
+static func fire_bed() -> Dictionary:
+	var maps := D.object({"albedo": D.file(), "normal": D.file(), "mask": D.file()})
+	return D.object({
+		"model": D.file(),
+		"maps": D.object({"logs": maps, "embers": maps}),
+		"firebox": D.vector(3, 0.0),
+		"spring": D.number(0.0),
+		"logs": D.list(D.object({"name": D.text(), "roots": D.list(D.vector(3), 1)}), 1),
+	})
 
 static func _hearth_fields() -> Dictionary:
 	return {
 		"name": D.text(),
 		"at": D.vector(3),
 		"along": D.vector(3),
+		"bed": D.optional(D.file()),
 		"width": D.number(0.0),
 		"height": D.number(0.0),
 	}
@@ -222,9 +250,16 @@ static func tavern_work() -> Dictionary:
 ## The region's worn ground (RegionDef.worn_ground): what worn() holds, in
 ## the map's frame, and the patches of softly worn earth round the village's
 ## yards (GroundWear.paint_patches): a middle (x, z) and the half sizes.
+## The region's yard rule: `lawn` keeps the card grass off the ground `yard`
+## metres round a cottage's levelled yard, and `door` metres round a route's
+## end that lies within `wall` metres of a wall: a door, a step, a porch
+## (ObstacleMap.lay_lawn). `tree_wall` is the metres a trunk keeps from a
+## wall (TreePlacer.wall_clearance).
 static func worn_ground() -> Dictionary:
 	var fields := _worn_fields()
 	fields["patches"] = D.optional(D.list(D.object({"at": D.vector(2), "reach": D.vector(2, 0.0)})))
+	fields["lawn"] = D.optional(D.object({"yard": D.number(0.0), "door": D.number(0.0), "wall": D.number(0.0)}))
+	fields["tree_wall"] = D.optional(D.number(0.0))
 	return D.object(fields)
 
 static func _worn_fields() -> Dictionary:
@@ -258,6 +293,7 @@ static func building(station_kind := &"") -> Dictionary:
 		"vents": D.optional(D.list(vent())),
 		"fires": D.optional(D.list(fire())),
 		"hours": D.optional(D.table(D.vector(2))),
+		"dusk": D.optional(D.list(D.text(), 1)),
 		"glows": D.optional(D.list(D.object({"parts": D.list(D.text(), 1), "hours": D.vector(2)}))),
 		"terrain": D.optional(terrain()),
 		"worn": D.optional(worn()),
@@ -302,8 +338,14 @@ static func building(station_kind := &"") -> Dictionary:
 ## `ramp` lays a walking surface (convex points, cottage frame, at the
 ## table's origin) over the porch's stair. `smoke` hides the map's chimney
 ## smoke within that many metres of the table's origin: the old house's.
+## `yard` is the box the ground bake levels round the cottage (half sizes
+## across and along its frame, its middle `middle` m along); `yards` are the
+## rules of every yard: a soft rim `rim` m wide, the ground `sink` m under the
+## cottage's place in the plan, kept off the main road from `road[1]` to
+## `road[0]` m from its centre line, nothing north of `north` (z), where the
+## tavern's approach keeps its ground (VillageLayout.yards).
 static func cottages() -> Dictionary:
-	return D.object({
+	return D.checked(D.object({
 		"cottages": D.list(D.object({
 			"key": D.id(&"cottage"),
 			"node": D.text(),
@@ -313,8 +355,13 @@ static func cottages() -> Dictionary:
 			"lantern": D.object({"name": D.text(), "range": D.number(0.0), "energy": D.number(0.0)}),
 			"ramp": D.optional(D.object({"name": D.text(), "points": D.list(D.vector(3), 4)})),
 			"smoke": D.optional(D.number(0.0)),
+			"yard": D.optional(D.object({"half": D.vector(2), "middle": D.number()})),
 		})),
-	})
+		"yards": D.optional(D.object({"rim": D.number(0.01), "sink": D.number(), "road": D.vector(2), "north": D.number()})),
+	}), func(value: Variant) -> String:
+		var data := Values.table(value)
+		var yards := Values.list(data.get("cottages", [])).any(func(entry: Variant) -> bool: return Values.table(entry).has("yard"))
+		return "a cottage with a yard needs the rules of the yards" if yards and not data.has("yards") else "")
 
 ## A cottage's table (herbalist.json, potter.json; tools/pipeline/cottage, potter).
 static func cottage() -> Dictionary:
@@ -333,7 +380,11 @@ static func cottage() -> Dictionary:
 ## tavern.json and tavern_interior.json: the parts of the tavern (RegionDef.tavern).
 ## The interior's part holds the building's light (BuildingLight): what the
 ## building takes up (`bounds`: x0, y0, z0, x1, y1, z1 in its frame), its
-## rooms, their openings and the lamps that name them.
+## rooms, their openings and the lamps that name them. It holds too what E
+## finds there (TavernFurnishings) and the staff's grid of the hall
+## (TavernNavigation), all in the building's frame: the boxes of the beds
+## (x0, y0, z0, x1, y1, z1), the ladder to the attic and the grid's corner
+## (x, z), cells, cell size and floor.
 static func tavern_part() -> Dictionary:
 	var fields: Dictionary = {
 		"scenes": D.list(D.file(), 2, 2),
@@ -347,6 +398,11 @@ static func tavern_part() -> Dictionary:
 		"rooms": D.optional(D.list(room(), 1)),
 		"openings": D.optional(D.list(opening())),
 		"fires": D.optional(D.list(hearth())),
+		"beds": D.optional(D.list(D.vector(6))),
+		"ladder": D.optional(D.object({
+			"foot": D.vector(3), "hatch": D.vector(3), "attic": D.vector(3), "corridor": D.vector(3)})),
+		"hall": D.optional(D.object({
+			"origin": D.vector(2), "cells": D.vector(2, 1.0), "cell": D.number(0.01), "floor": D.number()})),
 		"seats": D.list(D.object({
 			"name": D.id(&"seat"),
 			"position": D.vector(3),

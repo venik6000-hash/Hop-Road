@@ -12,12 +12,13 @@ shader_type sky;
 render_mode use_quarter_res_pass;
 
 #include "res://src/sky/atmosphere.gdshaderinc"
+#include "res://src/sky/cloud_weather.gdshaderinc"
 
 global uniform vec4 cloud_params;   // x coverage 0..1, y density, z cumulus bias, w darkness of the base 0..1
 global uniform vec2 cloud_offset;   // wind drift in km
 global uniform vec3 moon_direction;
 global uniform float night_factor;
-global uniform vec4 weather_sky;    // x cirrus 0..1, y light a closed layer lets through its base 0..1
+global uniform vec4 weather_sky;    // x cirrus 0..1, y light a closed layer lets through its base 0..1, z how closed the layer is 0..1
 // Strikes shining in the clouds: xz km of world space, y km above the layer's
 // base, w their light now.
 global uniform vec4 lightning_a;
@@ -25,18 +26,14 @@ global uniform vec4 lightning_b;
 
 uniform sampler3D cloud_shape : filter_linear_mipmap, repeat_enable;
 uniform sampler3D cloud_detail : filter_linear_mipmap, repeat_enable;
-uniform sampler2D cloud_weather : filter_linear_mipmap, repeat_enable;
 // r fibres, g rippled cells, b veil (tools/pipeline/sky/cirrus_noise.py).
 uniform sampler2D cloud_cirrus : filter_linear_mipmap_anisotropic, repeat_enable;
 uniform float cirrus_altitude_km = 8.0;
 uniform float cirrus_frequency = 0.021;
 uniform float cirrus_optical = 0.85;
 uniform float lightning_radiance = 90.0;
-uniform float cloud_bottom_km = 1.7;
-uniform float cloud_thickness_km = 3.2;
 uniform float shape_frequency = 0.12;
 uniform float detail_frequency = 1.6;
-uniform float weather_frequency = 0.016;
 uniform float extinction_per_km = 32.0;
 uniform int march_steps = 64;
 uniform float max_distance_km = 90.0;
@@ -79,7 +76,7 @@ float cloud_phase(float cos_theta, float eccentricity) {
 }
 
 vec4 weather_at(vec2 xz_km) {
-	return textureLod(cloud_weather, (xz_km + cloud_offset) * weather_frequency, 0.0);
+	return textureLod(cloud_weather, (xz_km + cloud_offset) * cloud_layer.z, 0.0);
 }
 
 // Density 0..1 at a world position (km); h = height fraction in the layer.
@@ -146,8 +143,8 @@ vec3 sky_ambient() {
 // Returns premultiplied cloud radiance (rgb) and opacity (a).
 vec4 march_clouds(vec3 camera, vec3 dir, int steps, int light_steps, bool detail, float jitter) {
 	float ground_r = atmo_view_radius - camera.y * 0.001;
-	float inner = ground_r + cloud_bottom_km;
-	float outer = inner + cloud_thickness_km;
+	float inner = ground_r + cloud_layer.x;
+	float outer = inner + cloud_layer.y;
 	vec3 origin = vec3(0.0, atmo_view_radius, 0.0);
 	float t_start = atmo_ray_sphere(origin, dir, inner);
 	float t_end = atmo_ray_sphere(origin, dir, outer);
@@ -189,7 +186,7 @@ vec4 march_clouds(vec3 camera, vec3 dir, int steps, int light_steps, bool detail
 		}
 		vec3 p = origin + dir * t;
 		float r = length(p);
-		float h = (r - inner) / cloud_thickness_km;
+		float h = (r - inner) / cloud_layer.y;
 		vec3 world_km = vec3(camera_xz.x + p.x, r - inner, camera_xz.y + p.z);
 		vec4 weather = weather_at(world_km.xz);
 		float density = cloud_density(world_km, h, weather, detail);
@@ -202,7 +199,7 @@ vec4 march_clouds(vec3 camera, vec3 dir, int steps, int light_steps, bool detail
 			for (int j = 0; j < light_steps; j++) {
 				q += sun_direction * step_len;
 				float rq = length(q);
-				float hq = (rq - inner) / cloud_thickness_km;
+				float hq = (rq - inner) / cloud_layer.y;
 				if (hq > 1.0 || hq < 0.0) {
 					break;
 				}

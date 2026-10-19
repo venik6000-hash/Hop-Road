@@ -5,7 +5,6 @@ extends MultiMeshInstance3D
 ## which way, and how far they have come).
 
 const SHADER := preload("res://src/weather/rain_fall.gdshader")
-const DROPS := 9000
 ## The box of air around the eye the drops are kept in, m.
 const BOX := Vector3(26.0, 18.0, 26.0)
 ## A 2-3 mm drop's speed, m/s, and the share of the wind it takes near the
@@ -20,11 +19,13 @@ const TRAVEL_WRAP := 5.0
 const RAIN_SHARE := 0.6
 
 var weather: WeatherSystem
+## The level's context: its quality profile gives the count of the drops
+## (QualityEffects.rain_drops; the authored count without it).
+var world: WorldContext
 ## The wind over the ground, m/s (x, z).
 var wind := Vector2.ZERO
 ## The building no rain falls in.
 var building := AABB()
-var water_level := -1000.0
 
 var _material: ShaderMaterial
 var _travelled := Vector3.ZERO
@@ -41,15 +42,14 @@ func _ready() -> void:
 	_material.set_shader_parameter("room_min", building.position)
 	_material.set_shader_parameter("room_max", building.end)
 	_material.set_shader_parameter("roofed", 1.0 if building.has_volume() else 0.0)
-	_material.set_shader_parameter("water_level", water_level)
 	quad.material = _material
 	var drops := MultiMesh.new()
 	drops.transform_format = MultiMesh.TRANSFORM_3D
 	drops.mesh = quad
-	drops.instance_count = DROPS
+	drops.instance_count = QualityProfile.of(world).effects.rain_drops
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7411
-	for drop in DROPS:
+	for drop in drops.instance_count:
 		drops.set_instance_transform(drop, Transform3D(Basis.IDENTITY, Vector3(rng.randf(), rng.randf(), rng.randf())))
 	# The shader places the drops around the eye, wherever that is.
 	drops.custom_aabb = AABB(Vector3.ONE * -1e5, Vector3.ONE * 2e5)

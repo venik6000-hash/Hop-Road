@@ -2,19 +2,13 @@ extends RefCounted
 ## Placement only: the tavern precinct and original resource materials stay intact.
 const VILLAGE_BUILDINGS = preload("res://src/village/village_buildings.gd")
 
-## The x of the village's main road at `y` (m south of the tavern's yard, that
-## is -z): the line the Blender road was drawn on, with the shoulder it keeps
-## for the tavern's approach. The ground bake keeps the cottages' yards off it
-## (ground_height). tools/pipeline/buildings/ground.py has the same line in
-## Python; the road the villagers walk is the region's (PeopleSchemas.villagers).
-static func road_x(y: float) -> float:
-	return -3.5 + 3.5 * sin((y + 11.0) * 0.079) - 0.09 * maxf(0.0, y) + 0.63 * maxf(0.0, -y - 3.0) \
-		- minf(10.0, maxf(0.0, (y - 20.0) * 0.5))
-
 ## The village plan at `path` (RegionDef.village_plan): houses, cottages,
-## paths and the main road.
+## paths, the main road (VillageRoad) and the green. A region without a
+## village names none: an empty plan.
 static func read_plan(path: String) -> Dictionary:
-	return DataFile.read(path, WorldSchemas.village_plan())
+	if path.is_empty():
+		return {}
+	return Values.table(DataFile.read(path, WorldSchemas.village_plan()))
 
 static func cottage_pose(village_plan: Dictionary, key: String) -> Transform3D:
 	var spec: Dictionary = village_plan.cottages[key]
@@ -49,43 +43,87 @@ static func house_pose(spec: Dictionary, terrain: TerrainSystem) -> Transform3D:
 	return Transform3D(basis, target - basis * source)
 
 static func place_houses(map: Node3D, terrain: TerrainSystem, village_plan: Dictionary) -> void:
-	for spec: Dictionary in village_plan.houses:
+	for spec: Dictionary in Values.list(village_plan.get("houses", [])):
 		var pose := house_pose(spec, terrain)
 		var prefix := "Village house %02d " % Values.whole(spec.id)
-		for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
-			if RockField.label_of(item).begins_with(prefix):
-				item.global_transform = pose * item.global_transform
+		for item: MeshInstance3D in MapIndex.of(map).starting(prefix):
+			item.global_transform = pose * item.global_transform
 
 static func smoke_position(point: Vector3, terrain: TerrainSystem, village_plan: Dictionary) -> Vector3:
-	for spec: Dictionary in village_plan.houses:
+	for spec: Dictionary in Values.list(village_plan.get("houses", [])):
 		if Vector2(Values.real(point.x - spec.source[0]), Values.real(point.z - spec.source[1])).length() < 3.0:
 			return house_pose(spec, terrain) * point
 	return point
 
-## Shallow earthen yards of the two cottages. The original textures, lake,
-## main street and tavern elevations are retained.
-static func ground_height(x: float, z: float, original: float, cottages: Dictionary) -> float:
-	var height := original
-	if z > -18.0:
-		return height
-	for spec: Dictionary in cottages.values():
-		var offset := Vector3(Values.real(x - spec.position[0]), 0, Values.real(z - spec.position[2]))
-		var local := Basis(Vector3.UP, deg_to_rad(Values.real(-spec.yaw))) * offset
-		var edge := maxf(absf(local.x) - 3.9, absf(local.z - 0.5) - 4.7)
-		var weight := 1.0 - smoothstep(0.0, 1.5, edge)
-		# Preserve the already laid main road and the tavern approach.
-		weight *= smoothstep(2.8, 3.8, absf(x - road_x(-z)))
-		height = lerpf(height, Values.real(spec.position[1]) - 0.025, weight)
-	return height
+## The levelled yards of the cottages of `cottages` (RegionDef.cottages:
+## each one's `yard`, the rules of all of them in `yards`) at their places in
+## `village_plan`: {x, z, level, yaw, half, middle, rim, sink, road, north}
+## (BuildingSchemas.cottages); `half` and `road` are pairs of numbers.
+## tools/lib/village_ground.py reads the same.
+static func yards(village_plan: Dictionary, cottages: String) -> Array[Dictionary]:
+	var found: Array[Dictionary] = []
+	if cottages.is_empty():
+		return found
+	var data := Values.table(DataFile.read(cottages, BuildingSchemas.cottages()))
+	for entry: Dictionary in Values.list(data.get("cottages", [])):
+		if not entry.has("yard"):
+			continue
+		var rules: Dictionary = data.yards
+		var place: Dictionary = village_plan.cottages[entry.key]
+		var yard: Dictionary = entry.yard
+		var position: Array = place.position
+		found.append({"x": Values.real(position[0]), "level": Values.real(position[1]), "z": Values.real(position[2]),
+			"yaw": Values.real(place.yaw), "half": Values.list(yard.half), "middle": Values.real(yard.middle),
+			"rim": Values.real(rules.rim), "sink": Values.real(rules.sink), "road": Values.list(rules.road),
+			"north": Values.real(rules.north)})
+	return found
 
-static func settle_ground(image: Image, origin: Vector2, cell: float, village_plan: Dictionary) -> void:
-	var cottages: Dictionary = village_plan.cottages
-	for iz in range(int((-56.0 - origin.y) / cell), int((-18.0 - origin.y) / cell) + 1):
-		for ix in range(int((-18.0 - origin.x) / cell), int((12.0 - origin.x) / cell) + 1):
-			var x := origin.x + ix * cell
-			var z := origin.y + iz * cell
-			var height := ground_height(x, z, image.get_pixel(ix, iz).r, cottages)
-			image.set_pixel(ix, iz, Color(height, 0, 0))
+## 0..1: how much of the level of `yard` (yards()) the ground takes at (x, z):
+## its box with a soft rim, kept off the main road of `village_plan`. The
+## original textures, lake, main street and tavern elevations are retained.
+static func yard_weight(yard: Dictionary, x: float, z: float, village_plan: Dictionary) -> float:
+	if z > Values.real(yard.north):
+		return 0.0
+	var offset := Vector3(x - Values.real(yard.x), 0, z - Values.real(yard.z))
+	var local := Basis(Vector3.UP, deg_to_rad(-Values.real(yard.yaw))) * offset
+	# The numbers stay in double precision: a Vector2 would round them.
+	var half: Array = yard.half
+	var road: Array = yard.road
+	var edge := maxf(absf(local.x) - Values.real(half[0]), absf(local.z - Values.real(yard.middle)) - Values.real(half[1]))
+	var weight := 1.0 - smoothstep(0.0, Values.real(yard.rim), edge)
+	# Preserve the already laid main road and the tavern approach.
+	weight *= smoothstep(Values.real(road[0]), Values.real(road[1]), absf(x - VillageRoad.centre(village_plan, z)))
+	return weight
+
+## Where `yard` can reach (x, z): its box with the rim, cut at its north edge.
+static func yard_window(yard: Dictionary) -> Rect2:
+	var half: Array = yard.half
+	var rim := Values.real(yard.rim)
+	var basis := Basis(Vector3.UP, deg_to_rad(Values.real(yard.yaw)))
+	var window := Rect2()
+	for corner in 4:
+		var local := Vector3((Values.real(half[0]) + rim) * (1.0 if corner & 1 else -1.0), 0.0,
+			Values.real(yard.middle) + (Values.real(half[1]) + rim) * (1.0 if corner & 2 else -1.0))
+		var at := basis * local
+		var point := Vector2(Values.real(yard.x) + at.x, Values.real(yard.z) + at.z)
+		window = Rect2(point, Vector2.ZERO) if corner == 0 else window.expand(point)
+	window.size.y = minf(window.end.y, Values.real(yard.north)) - window.position.y
+	return window
+
+## Lays the shallow earthen yards of the region's cottages into `image`
+## (FORMAT_RF, texel (0, 0) at `origin`, `cell` metres apart).
+static func settle_ground(image: Image, origin: Vector2, cell: float, village_plan: Dictionary,
+		cottages: String) -> void:
+	for yard: Dictionary in yards(village_plan, cottages):
+		var window := yard_window(yard)
+		var level := Values.real(yard.level) - Values.real(yard.sink)
+		for iz in range(maxi(0, floori((window.position.y - origin.y) / cell)),
+				mini(image.get_height(), ceili((window.end.y - origin.y) / cell) + 1)):
+			for ix in range(maxi(0, floori((window.position.x - origin.x) / cell)),
+					mini(image.get_width(), ceili((window.end.x - origin.x) / cell) + 1)):
+				var weight := yard_weight(yard, origin.x + ix * cell, origin.y + iz * cell, village_plan)
+				if weight > 0.0:
+					image.set_pixel(ix, iz, Color(lerpf(image.get_pixel(ix, iz).r, level, weight), 0, 0))
 
 ## Trodden earth around each house: the grass thins toward the walls. Paints
 ## the path mask `image` (texel (0, 0) at `origin`, `cell` metres apart) round
@@ -99,9 +137,9 @@ static func paint_aprons(image: Image, origin: Vector2, cell: float, map: Node3D
 	var poses := {}
 	for spec: Dictionary in plan.houses:
 		poses["Village house %02d " % Values.whole(spec.id)] = house_pose(spec, terrain)
-	for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
+	for item: MeshInstance3D in MapIndex.of(map).ending("limewashed rooms"):
 		var label := RockField.label_of(item)
-		if not label.ends_with("limewashed rooms") or VILLAGE_BUILDINGS.begins(label, replaced):
+		if VILLAGE_BUILDINGS.begins(label, replaced):
 			continue
 		var holder := item.get_parent() as Node3D
 		if holder is MeshInstance3D and RockField.label_of(holder).begins_with("Village house "):

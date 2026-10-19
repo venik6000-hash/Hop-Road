@@ -30,14 +30,13 @@ render_mode blend_mix, depth_draw_always, cull_disabled, ambient_light_disabled;
 
 global uniform sampler2DArray water_derivatives : filter_linear_mipmap_anisotropic, repeat_enable;
 global uniform vec4 water_tiles;
+// The way the lake's waves run on its tiles (OceanFFT.wave_way).
+global uniform vec2 water_wave;
 
 // Seconds of fall until the water is torn by air.
 uniform float breakup = 0.55;
 // Slope of the lake's ripples on the glassy water over the lip.
 uniform float ripple_strength = 0.6;
-// The way the lake's waves run on its tiles (radians from +x; WaterfallSystem
-// copies the lake's wind).
-uniform float wind_heading = 0.96;
 // 0 = normal, 1 = refraction only, 2 = reflection * fresnel, 3 = foam, 4 = view normal, 5 = coverage,
 // 6 = where the water below shows through instead of the screen copy
 uniform int debug_view = 0;
@@ -92,7 +91,9 @@ void fragment() {
 	// drawn out three times along it, so that their crests run down it as
 	// streaks.
 	float stretch = length(vec2(lip_speed, 9.81 * t)) / lip_speed;
-	vec2 wave = vec2(cos(wind_heading), sin(wind_heading));
+	// The lake's waves run on its tiles along `water_wave`, whatever way the
+	// wind over the ground blows.
+	vec2 wave = water_wave;
 	mat2 onto_tile = mat2(wave, vec2(-wave.y, wave.x));
 	vec4 d = texture(water_derivatives, vec3(onto_tile * vec2(across, launch * lip_speed / 3.0) / (water_tiles.z * 0.5), 2.0));
 	vec2 slope = transpose(onto_tile) * vec2(d.x / (1.0 + d.z), d.y / (1.0 + d.w));

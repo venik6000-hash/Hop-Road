@@ -2,18 +2,20 @@ class_name WildlifeSystem
 extends Node3D
 ## Habitat placement and distance budgets for the alpine world's wildlife:
 ## the herds, flocks, fish waters and birdsong of the region's file
-## (RegionDef.wildlife; "" for none), and the lake's bed.
+## (RegionDef.wildlife; "" for none), and the bed of the region's lake.
 
 ## The region's file of its wild animals (WorldSchemas.wildlife).
 var wildlife := ""
 var terrain: TerrainSystem
 var player: Player
-var sky: SkySystem
 var water: WaterSystem
+## The region's lake (RegionDef.lake); null: no bed, no fish.
+var lake: LakePlan
 var rocks: RockField
 var ground_animals: Array[GroundAnimal] = []
 var flyers: Array[FlyingAnimal] = []
 var schools: Array[FishSchool] = []
+## Null for a region without a lake.
 var bed: LakeBed
 ## The level's rooms: the lake bed's pieces are hidden from an eye in a room
 ## that sees none of them (Interiors.watch_pieces). Null: never hidden.
@@ -26,7 +28,6 @@ var _budget_clock := 0.0
 var _clearance: Dictionary = {}
 
 func _ready() -> void:
-	_rng.seed = 702026
 	for kind: String in ["deer", "fox", "chicken"]:
 		var shape := CapsuleShape3D.new()
 		shape.radius = 0.36 if kind == "deer" else 0.22
@@ -35,11 +36,21 @@ func _ready() -> void:
 	if auto_populate:
 		populate.call_deferred()
 
+## Places the region's animals, birds and fish. The herds' rays meet the
+## terrain once the ground under the first herd stands; the lake bed waits for
+## its own stones (LakeBed.build).
 func populate() -> void:
-	await get_tree().physics_frame
 	var data: Variant = DataFile.read(wildlife, WorldSchemas.wildlife()) if not wildlife.is_empty() else {}
 	var plan: Dictionary = data if data is Dictionary else {}
 	var herds: Array = plan.get("herds", [])
+	if not herds.is_empty():
+		var first_herd: Dictionary = herds[0]
+		var first := Values.vec2(first_herd.at)
+		await PhysicsLayers.ground_stands(self, Vector3(first.x, terrain.height_at(first.x, first.y), first.y))
+		if not is_inside_tree():
+			return
+	# The region's seed: each load places the same animals and fish.
+	_rng.seed = Values.whole(plan.get("seed", 0))
 	for herd: Dictionary in herds:
 		var middle := Values.vec2(herd.at)
 		_add_ground(str(herd.kind), Vector3(middle.x, 0.0, middle.y), Values.real(herd.radius), Values.whole(herd.count))
@@ -47,20 +58,23 @@ func populate() -> void:
 	for flock: Dictionary in flocks:
 		var middle := Values.vec2(flock.at)
 		_add_flock(str(flock.kind), Vector3(middle.x, 0.0, middle.y), Values.whole(flock.count), str(flock.get("species", "bird")))
-	bed = LakeBed.new()
-	bed.name = "LakeBed"
-	bed.habitat = self
-	add_child(bed)
-	if interiors != null:
-		interiors.watch_pieces(bed, bed.seen_bounds)
-	await bed.build()
-	if plan.has("fish_water"):
+	if lake != null:
+		bed = LakeBed.new()
+		bed.name = "LakeBed"
+		bed.habitat = self
+		bed.plan = lake
+		add_child(bed)
+		if interiors != null:
+			interiors.watch_pieces(bed, bed.seen_bounds)
+		await bed.build()
+	if plan.has("fish_water") and bed != null:
 		var box: Array = plan.fish_water
 		_add_schools(Vector4(Values.real(box[0]), Values.real(box[1]), Values.real(box[2]), Values.real(box[3])))
 	if plan.has("birdsong"):
 		_setup_audio(Values.vec2(plan.birdsong))
 	ready_for_visitors = true
-	print("WILDLIFE ground=%d flyers=%d schools=%d fish=%d wood=%d boulders=%d plants=%d" % [ground_animals.size(), flyers.size(), schools.size(), fish_count(), bed.wood_count, bed.rock_count, bed.plant_count])
+	var laid := [bed.wood_count, bed.rock_count, bed.plant_count] if bed != null else [0, 0, 0]
+	print("WILDLIFE ground=%d flyers=%d schools=%d fish=%d wood=%d boulders=%d plants=%d" % ([ground_animals.size(), flyers.size(), schools.size(), fish_count()] + laid))
 
 func _add_ground(kind: String, zone: Vector3, radius: float, count: int) -> void:
 	for index in count:
@@ -149,10 +163,8 @@ func _add_flock(kind: String, zone: Vector3, count: int, species := "bird") -> v
 ## z0, x1, z1), perch over the eelgrass, trout by the drowned wood, a pike at
 ## a meadow's edge.
 func _add_schools(box: Vector4) -> void:
-	var meadows := bed.meadow_centers.duplicate()
-	var wood := bed.wood_places.duplicate()
-	meadows.shuffle()
-	wood.shuffle()
+	var meadows := _shuffled(bed.meadow_centers)
+	var wood := _shuffled(bed.wood_places)
 	var plans: Array[Dictionary] = []
 	for index in mini(5, meadows.size()):
 		plans.append({"species": "perch", "at": meadows[index]})
@@ -195,6 +207,17 @@ func _add_schools(box: Vector4) -> void:
 		add_child(school)
 		schools.append(school)
 
+## A copy of `points` in an order drawn from the region's seed (Array.shuffle
+## draws from the global generator, a new order each run).
+func _shuffled(points: Array[Vector3]) -> Array[Vector3]:
+	var order: Array[Vector3] = points.duplicate()
+	for index in range(order.size() - 1, 0, -1):
+		var other := _rng.randi_range(0, index)
+		var kept: Vector3 = order[index]
+		order[index] = order[other]
+		order[other] = kept
+	return order
+
 func fish_count() -> int:
 	var total := 0
 	for school in schools:
@@ -220,10 +243,8 @@ func _process(delta: float) -> void:
 	if not ready_for_visitors:
 		return
 	var camera := get_viewport().get_camera_3d()
-	if camera != null and water != null and bed != null:
-		var heading := deg_to_rad(water.ocean.wind_direction_deg)
-		var speed: float = water.ocean.wind_speed
-		bed.set_wind(Vector4(cos(heading), sin(heading), minf(pow(speed / 9.0, 1.6), 2.2), speed), camera.global_position)
+	if camera != null and bed != null:
+		bed.follow(camera.global_position)
 	_budget_clock -= delta
 	if _budget_clock > 0.0:
 		return
@@ -231,7 +252,7 @@ func _process(delta: float) -> void:
 	if camera == null:
 		return
 	var eye := camera.global_position
-	var day := sky == null or (sky.time_of_day > 5.5 and sky.time_of_day < 20.5)
+	var day := GameClock.hour() > 5.5 and GameClock.hour() < 20.5
 	for animal in ground_animals:
 		animal.set_active(animal.global_position.distance_squared_to(eye) < 135.0 * 135.0)
 	for flyer in flyers:

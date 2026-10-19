@@ -1,32 +1,34 @@
 class_name TavernBeds
 extends RefCounted
-## The beds of the guest rooms, as the boxes of their colliders in the level:
-## a Gothic bed in each front room, a plank bed in the back west room and two
-## in the back east one (tools/pipeline/tavern/furnish_upstairs.py puts them
-## there; the tavern stands at the level's origin, so the builder's (x, y, z)
-## is the level's (x, z, -y)).
+## The beds of the guest rooms: the boxes of a table's `beds` in the
+## tavern's frame (tools/pipeline/tavern/furnish_upstairs.py marks the beds,
+## export.py writes their boxes).
 
-const BEDS: Array[AABB] = [
-	# GothicBed_01 in the front rooms: the model's box, turned a quarter.
-	AABB(Vector3(4.26, 10.86, -2.746), Vector3(2.041, 1.535, 1.492)),
-	AABB(Vector3(15.699, 10.86, -2.696), Vector3(2.041, 1.535, 1.492)),
-	# Plank beds: the builder's own collider boxes.
-	AABB(Vector3(9.38, 10.86, -13.8), Vector3(1.04, 0.6, 2.08)),
-	AABB(Vector3(15.7, 10.86, -9.82), Vector3(2.08, 0.6, 1.04)),
-	AABB(Vector3(15.7, 10.86, -11.17), Vector3(2.08, 0.6, 1.04)),
-]
+## The boxes of a table's `beds`: rows of x0, y0, z0, x1, y1, z1.
+static func from_table(rows: Array) -> Array[AABB]:
+	var boxes: Array[AABB] = []
+	for row: Variant in rows:
+		var b: Array = row
+		var low := Vector3(Values.real(b[0]), Values.real(b[1]), Values.real(b[2]))
+		var high := Vector3(Values.real(b[3]), Values.real(b[4]), Values.real(b[5]))
+		boxes.append(AABB(low, high - low))
+	return boxes
 
-## Where a look from `eye` along `forward` first meets a bed, or null.
-static func looked_at(eye: Vector3, forward: Vector3) -> Variant:
+## Where a look from `eye` along `forward` (in the world) first meets one of
+## the `beds` of a tavern standing at `place`, in the world; null for none.
+static func looked_at(beds: Array[AABB], place: Transform3D, eye: Vector3, forward: Vector3) -> Variant:
+	var into := place.affine_inverse()
+	var from := into * eye
+	var along := into.basis * forward
 	var nearest: Variant = null
 	var best := INF
-	for bed: AABB in BEDS:
-		var hit: Variant = bed.intersects_ray(eye, forward)
+	for bed: AABB in beds:
+		var hit: Variant = bed.intersects_ray(from, along)
 		if hit == null:
 			continue
 		var point: Vector3 = hit
-		var away := eye.distance_squared_to(point)
+		var away := from.distance_squared_to(point)
 		if away < best:
 			best = away
-			nearest = point
+			nearest = place * point
 	return nearest

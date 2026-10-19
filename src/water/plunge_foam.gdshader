@@ -8,6 +8,7 @@ render_mode blend_mix, depth_draw_never, cull_back, ambient_light_disabled, worl
 
 #include "res://src/sky/atmosphere.gdshaderinc"
 #include "res://src/sky/cloud_shadow.gdshaderinc"
+#include "res://src/weather/wind.gdshaderinc"
 #include "res://src/water/water_look.gdshaderinc"
 
 global uniform sampler2DArray water_displacement : filter_linear_mipmap, repeat_enable;
@@ -15,36 +16,14 @@ global uniform sampler2DArray water_derivatives : filter_linear_mipmap_anisotrop
 global uniform vec4 water_tiles;
 global uniform vec4 water_cascade_weights;
 
-uniform sampler2D near_height : filter_linear, repeat_disable;
-uniform sampler2D far_height : filter_linear, repeat_disable;
-uniform vec4 near_rect;
-uniform vec4 far_rect;
-uniform float water_level = 0.72;
+// The terrain's heights under the foam (TerrainSystem.share_fields()).
+#include "res://src/terrain/terrain_fields.gdshaderinc"
 // Where the fall lands (world x, z), how far its foam reaches (m), strength.
 uniform vec4 plunge = vec4(0.0, 0.0, 8.0, 1.0);
 
 varying vec2 grid_xz;
 varying float wave_scale;
 varying float sun_vis;
-
-vec2 near_uv(vec2 xz) {
-	return ((xz - near_rect.xy) / near_rect.z + 0.5) / near_rect.w;
-}
-
-vec2 far_uv(vec2 xz) {
-	return ((xz - far_rect.xy) / far_rect.z + 0.5) / far_rect.w;
-}
-
-float ground_height(vec2 xz) {
-	float h = textureLod(far_height, far_uv(xz), 0.0).r;
-	vec2 local = (xz - near_rect.xy) / near_rect.z;
-	vec2 edge = min(local, vec2(near_rect.w - 1.0) - local) * near_rect.z;
-	float w = clamp(min(edge.x, edge.y) / 40.0, 0.0, 1.0);
-	if (w > 0.0) {
-		h = mix(h, textureLod(near_height, near_uv(xz), 0.0).r, w);
-	}
-	return h;
-}
 
 // Per-cascade fade with distance: small waves go first, before they alias.
 vec3 cascade_fade(float dist) {
@@ -54,10 +33,10 @@ vec3 cascade_fade(float dist) {
 void vertex() {
 	// The lake's waves, shrunk over shallows and varied by gusts.
 	vec2 xz = VERTEX.xz;
-	float dist = distance(CAMERA_POSITION_WORLD, vec3(xz.x, water_level, xz.y));
-	float depth = water_level - ground_height(xz);
+	float dist = distance(CAMERA_POSITION_WORLD, vec3(xz.x, lake_level, xz.y));
+	float depth = lake_level - height_at(xz);
 	float shore = mix(0.08, 1.0, smoothstep(0.0, 7.0, depth));
-	float gust = 0.72 + 0.56 * textureLod(macro_noise, xz / 1700.0, 0.0).r;
+	float gust = lake_gust(xz);
 	wave_scale = shore * gust;
 	vec3 fade = cascade_fade(dist) * water_cascade_weights.xyz * wave_scale;
 	vec4 d = vec4(0.0);
@@ -66,7 +45,7 @@ void vertex() {
 	}
 	grid_xz = xz;
 	// A couple of centimetres over the water so it never sinks into it.
-	VERTEX = vec3(xz.x + d.x, water_level + d.y + 0.03, xz.y + d.z);
+	VERTEX = vec3(xz.x + d.x, lake_level + d.y + 0.03, xz.y + d.z);
 	NORMAL = vec3(0.0, 1.0, 0.0);
 	sun_vis = cloud_sun_visibility(VERTEX);
 }

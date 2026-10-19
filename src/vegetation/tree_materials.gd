@@ -39,7 +39,6 @@ const RAIN_ON_LEAVES := 0.35
 # --- materials ----------------------------------------------------------------
 
 static func make(system: VegetationSystem) -> void:
-	var wind_noise := load("res://assets/generated/sky/cloud_weather.png")
 	for group: Array in GROUPS:
 		system.bark_materials.append(bark_material(str(group[0]), str(group[1])))
 		var foliage := ShaderMaterial.new()
@@ -72,9 +71,6 @@ static func make(system: VegetationSystem) -> void:
 	# terrain's forest mask.
 	for param: String in ["far_masks", "far_rect"]:
 		system.impostor_material.set_shader_parameter(param, system.terrain.material.get_shader_parameter(param))
-	for material in all_materials(system):
-		material.set_shader_parameter("wind_noise", wind_noise)
-		material.set_shader_parameter("cloud_weather", wind_noise)
 
 static func bark_material(textures: String, extension: String) -> ShaderMaterial:
 	var bark := ShaderMaterial.new()
@@ -82,8 +78,6 @@ static func bark_material(textures: String, extension: String) -> ShaderMaterial
 	bark.set_shader_parameter("albedo_texture", load(TEXTURES + textures + "_diff" + extension))
 	bark.set_shader_parameter("normal_texture", load(TEXTURES + textures + "_nor_gl" + extension))
 	bark.set_shader_parameter("arm_texture", load(TEXTURES + textures + "_arm" + extension))
-	# Moss for the foot of the trunk: the terrain's layer array, as the rocks'.
-	bark.set_shader_parameter("moss_albedo", load("res://assets/generated/terrain/terrain_albedo.jpg"))
 	return bark
 
 ## Applies [wrap, transmission, tint, ambient] per group to the mesh foliage

@@ -131,7 +131,7 @@ func _process(delta: float) -> void:
 	if sky_system == null:
 		return
 	# Lit toward dusk, as the lanterns are.
-	var dark := 1.0 - smoothstep(-0.02, 0.18, sky_system.sun_direction.y)
+	var dark := sky_system.lamp_dusk
 	var camera := get_viewport().get_camera_3d()
 	shine(dark, light_for(camera.global_position) if camera != null else 1.0)
 

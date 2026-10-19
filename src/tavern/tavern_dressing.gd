@@ -1,18 +1,24 @@
 extends RefCounted
-## Dresses the tavern's part scenes: materials, layer and shadows per mesh,
-## doors, colliders, and the old fire surfaces the hearth fires replace.
+## Dresses the part scenes of a Building (the tavern, a village building):
+## materials, layer and shadows per mesh, doors, colliders, and the old fire
+## surfaces the hearth fires replace.
 const TAVERN_COLLISION = preload("res://src/tavern/tavern_collision.gd")
+const OutdoorScan = preload("res://src/render/outdoor_scan.gd")
 ## How many times a hide is drawn over itself to stand its hair up (tavern_fur.gdshader).
 const FUR_SHELLS := 20
 
-static func dress(tavern: TavernSystem, item: MeshInstance3D, room := false) -> void:
-	tavern.mesh_count += 1
+static func dress(building: Building, item: MeshInstance3D, room := false) -> void:
+	building.mesh_count += 1
 	var extras: Dictionary = item.get_meta("extras", {})
 	for surface in item.mesh.get_surface_count():
 		var old := item.mesh.surface_get_material(surface)
-		if old != null and tavern.materials.has(old.resource_name):
-			var material: Material = tavern.materials[old.resource_name]
+		if old != null and building.materials.has(old.resource_name):
+			var material: Material = building.materials[old.resource_name]
 			item.set_surface_override_material(surface, material)
+	# What stands round the house (the yard's casks and barrels) is in the
+	# weather; the house's own surfaces have the building's materials above.
+	if not room:
+		OutdoorScan.dress(item)
 	item.layers = LightLayers.ROOMS | (LightLayers.ROOM_SUN if room else LightLayers.SUN)
 	item.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 	if Values.whole(extras.get("tav_shadow", 1)) == 0:
@@ -27,27 +33,25 @@ static func dress(tavern: TavernSystem, item: MeshInstance3D, room := false) -> 
 		item.visibility_range_end = reach
 		item.visibility_range_end_margin = reach * 0.1
 	var coat := item.get_active_material(0) as ShaderMaterial
-	if coat != null and coat.shader == TavernSystem.FUR:
+	if coat != null and coat.shader == Building.FUR:
 		grow_fur(item, coat)
 		return
 	if Values.whole(extras.get("tav_door", 0)) == 1:
 		var door := TavernDoor.new()
 		door.name = item.name
-		tavern.add_child(door)
+		building.add_child(door)
 		door.configure(item, extras)
-		tavern.doors.append(door)
+		building.doors.append(door)
 		return
-	if extras.has("tav_cuckoo"):
-		tavern.cuckoo.add(str(extras.tav_cuckoo), item, extras)
 	match str(extras.get("tav_collide", "none")):
 		"mesh":
-			TAVERN_COLLISION.add_shape(tavern, item, TAVERN_COLLISION.cached_shape(tavern, item.mesh, "mesh"))
+			TAVERN_COLLISION.add_shape(building, item, TAVERN_COLLISION.cached_shape(building, item.mesh, "mesh"))
 		"hull":
-			TAVERN_COLLISION.add_shape(tavern, item, TAVERN_COLLISION.cached_shape(tavern, item.mesh, "hull"))
+			TAVERN_COLLISION.add_shape(building, item, TAVERN_COLLISION.cached_shape(building, item.mesh, "hull"))
 		"box":
 			var bounds := item.mesh.get_aabb()
-			var box := TAVERN_COLLISION.cached_shape(tavern, item.mesh, "box")
-			TAVERN_COLLISION.add_shape(tavern, item, box, Transform3D(Basis.IDENTITY, bounds.get_center()))
+			var box := TAVERN_COLLISION.cached_shape(building, item.mesh, "box")
+			TAVERN_COLLISION.add_shape(building, item, box, Transform3D(Basis.IDENTITY, bounds.get_center()))
 
 ## The hair of a hide: its mesh again in FUR_SHELLS shells, the copies' custom
 ## data running from the tips (1) down to the skin, which `item` itself is; in
@@ -75,7 +79,7 @@ static func grow_fur(item: MeshInstance3D, coat: ShaderMaterial) -> void:
 	hair.visibility_range_end_margin = item.visibility_range_end_margin
 	item.add_child(hair)
 
-## Whether the tavern's lamps draw `item` into their shadow maps (see
+## Whether the building's lamps draw `item` into their shadow maps (see
 ## LightLayers.LAMP_CASTERS): it casts shadows at all, and none of its
 ## materials moves by itself.
 static func casts_lamp_shadows(item: MeshInstance3D) -> bool:
@@ -83,7 +87,7 @@ static func casts_lamp_shadows(item: MeshInstance3D) -> bool:
 		return false
 	for surface in item.mesh.get_surface_count():
 		var material := item.get_active_material(surface) as ShaderMaterial
-		if material != null and (material.shader == TavernSystem.FOLIAGE or material.shader == TavernSystem.FLAME):
+		if material != null and (material.shader == Building.FOLIAGE or material.shader == Building.FLAME):
 			return false
 	return true
 

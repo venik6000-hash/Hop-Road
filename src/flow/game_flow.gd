@@ -6,7 +6,8 @@ extends Node
 ## The way out of a region takes the game through the loading screen into
 ## another region (travel): the level leaves whole, as on the way to the menu.
 ##
-## The pause is the tree's (SceneTree.paused), and only the flow sets it: the
+## The pause is the tree's (SceneTree.paused), and only the flow sets it, with
+## its context of the input on top (InputActions.MENU): the
 ## level stops whole, its clock, villagers, brewery, physics and sounds. What
 ## runs in the pause has its own process_mode: the flow with its pause menu,
 ## the settings panel. The settings (F10) open over the pause menu; from the
@@ -94,13 +95,15 @@ func _adopt_main_scene() -> void:
 	scene = menu
 	_move(MENU)
 
-## Goes to the main menu: the level leaves whole and saves as it goes
-## (ValleyLoop). `notice` tells the player why ("" for nothing).
+## Goes to the main menu: the level is saved, the slot let go, and the
+## level leaves whole. The flow alone lets the file go (SaveService.close);
+## the level's loop does not. `notice` tells the player why ("" for nothing).
 func open_menu(notice := "") -> void:
 	if not _can(MENU):
 		return
 	get_tree().paused = false
 	pause_menu.hide()
+	InputActions.pop(self)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	# Saved while the level still stands; the slot is let go.
 	SaveService.close()
@@ -133,9 +136,8 @@ func travel(exit: RegionExit) -> void:
 	# Saved while the level still stands; the file is let go.
 	SaveService.close()
 	_load(exit.to, exit.spawn)
-	# The old level has left the tree at once (change_scene_to_node), and its
-	# loop, which lets the file go as it leaves, with it: the slot is opened
-	# again for the level that loads. The way holds where the player is even
+	# The slot is opened again for the level that loads: its loop adds its
+	# sections and reads the file. The way holds where the player is even
 	# when the save above was not written.
 	if not slot.is_empty():
 		SaveService.open(slot)
@@ -174,6 +176,7 @@ func pause() -> void:
 		return
 	_mouse_mode = Input.mouse_mode
 	get_tree().paused = true
+	InputActions.push(InputActions.MENU, self)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	pause_menu.open(_settings_panel())
 	_move(PAUSED)
@@ -204,6 +207,7 @@ func resume() -> void:
 		UI_SOUNDS.play(UI_SOUNDS.CLOSE)
 	pause_menu.hide()
 	get_tree().paused = false
+	InputActions.pop(self)
 	Input.mouse_mode = _mouse_mode
 	_move(PLAYING)
 
@@ -216,7 +220,7 @@ func quit_game() -> void:
 func _settings_panel() -> SettingsPanel:
 	var found: Variant = scene.get(&"world")
 	var world: Node = found if found is Node else null
-	return world.get_node_or_null("Settings") as SettingsPanel if world != null else null
+	return world.get_node_or_null("Shared/Settings") as SettingsPanel if world != null else null
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_echo():

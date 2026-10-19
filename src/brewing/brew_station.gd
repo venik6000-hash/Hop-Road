@@ -10,7 +10,9 @@ extends RefCounted
 ## needs in the hand; none: an empty hand), part (the moving part of
 ## brewery.json it turns, if any), weight, along}. A numbered station
 ## (`fermenter_1`, `lager_3`) takes the works of its kind (NUMBERED), with its
-## number in the part's name; a dried-out tun or cask has none.
+## number in the part's name; a dried-out tun or cask has none. The kind's
+## own station without a number (`lager`) only marks the casks for the guide:
+## it has none either.
 
 const WORKS := "res://assets/brewing/works.json"
 ## Works whose gesture sets a control of BrewDay of the same id.
@@ -63,6 +65,8 @@ static func works_for(station: String, holding: String, cellar_now: BrewCellar =
 	var result: Array[Dictionary] = []
 	var count := number_of(station)
 	var kind := station
+	if count == 0 and NUMBERED.has(station):
+		return result
 	if count > 0:
 		kind = station.trim_suffix("_%d" % count)
 		var sound := count <= (BrewCellar.START_SOUND_TUNS if kind == "fermenter" else BrewCellar.START_SOUND_CASKS)

@@ -4,8 +4,10 @@ extends RefCounted
 ## «Свет помещений»): how far the eye opens in it, how bright its probe's
 ## ambient light is by day and by night, how much of the valley's haze it
 ## keeps, and how bright the day comes in through its openings. A room of a
-## table names its profile; a lamp of a table names its kind, whose defaults
-## (a shadow, the size of the light for a soft one) the row may leave out.
+## table names its profile; a room a table gives by its probe alone (`probes`)
+## may name one, else it takes the file's `probe_rooms`. A lamp names its kind,
+## whose defaults (a shadow, the size of the light for a soft one) the row may
+## leave out.
 
 const FILE := "res://assets/light/profiles.json"
 
@@ -23,12 +25,18 @@ var daylight := {}
 
 static var _profiles := {}
 static var _lamps := {}
+static var _probe_rooms := ""
 
 ## The profile called `title`; null when the file has none of that name.
 static func named(title: String) -> LightProfile:
 	_load()
 	var found: Variant = _profiles.get(title)
 	return found if found is LightProfile else null
+
+## The profile of a room a table gives by its probe alone and names none of.
+static func of_probe_rooms() -> LightProfile:
+	_load()
+	return named(_probe_rooms)
 
 ## The defaults of a lamp of `kind`: {shadow, size}; empty when there is no such kind.
 static func lamp_kind(kind: String) -> Dictionary:
@@ -53,3 +61,4 @@ static func _load() -> void:
 		profile.daylight = Values.table(row.get("daylight", {}))
 		_profiles[title] = profile
 	_lamps = Values.table(file.get("lamps", {}))
+	_probe_rooms = str(file.get("probe_rooms", ""))

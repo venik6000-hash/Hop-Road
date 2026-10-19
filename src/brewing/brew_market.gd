@@ -99,6 +99,8 @@ func text(target: BrewWork.Target) -> String:
 				trade.price(ware_id), trade.coins]
 			return line + (tr("   ·   {choice} — другой товар") if offered.size() > 1 else "")
 		"take_order":
+			if trade.orders.is_empty():
+				return ""
 			var open: Dictionary = trade.orders[posmod(offer, trade.orders.size())]
 			var line := tr("{interact} — взять заказ · %s") % trade.order_words(open, book)
 			return line + (tr("   ·   {choice} — другой заказ") if trade.orders.size() > 1 else "")
@@ -126,27 +128,29 @@ func act(target: BrewWork.Target) -> void:
 		"buy":
 			_buy(target.id)
 		"take_order":
+			# The target was chosen a frame ago; the dawn between may have
+			# taken the board's last order.
+			if trade.orders.is_empty():
+				return
 			guide.take(trade.orders[posmod(offer, trade.orders.size())], trade)
 			readout.say(tr(lines.text(&"order_taken")) % tr(str(trade.template(guide.order_id).get("who", ""))))
-			GameEvents.order_taken.emit(guide.order_id)
+			house.ask_save.call()
 		"drop_order":
 			# A refused order leaves the board: its term ran from the taking.
 			var dropped := guide.order_id
 			trade.orders.assign(trade.orders.filter(func(order: Dictionary) -> bool: return str(order.id) != dropped))
 			guide.drop()
 			readout.say(lines.text(&"order_dropped"))
-			GameEvents.order_dropped.emit(dropped)
+			house.ask_save.call()
 		"order":
 			var keg := house.carry.held
 			var index := trade.order_for(_held_beer(), book, guide.order_id)
 			var guided := index >= 0 and str(trade.orders[index].id) == guide.order_id
-			var order_id := str(trade.orders[index].id) if index >= 0 else ""
 			var paid := trade.deliver(keg, _held_beer(), book, guide.order_id)
 			if guided and paid > 0:
 				guide.delivered()
 			if paid > 0:
 				_sold(keg, tr(lines.text(&"order_delivered")) % [paid, trade.coins])
-				GameEvents.order_delivered.emit(order_id, paid)
 			else:
 				readout.say(lines.text(&"no_order_fits"))
 		"cart":
@@ -178,7 +182,7 @@ func _buy(id: String) -> void:
 		house.readout.say("%s: %s" % [tr(house.lines.text(reason)), tr(str(trade.ware(ware_id).title))])
 		return
 	house.readout.say(tr(house.lines.text(&"bought")) % [tr(str(trade.ware(ware_id).title)), trade.coins])
-	SaveService.save_soon()
+	house.ask_save.call()
 
 ## Keg `keg` in the hand went away with its beer: the hand is empty.
 func _sold(keg: String, words: String) -> void:
@@ -188,7 +192,7 @@ func _sold(keg: String, words: String) -> void:
 	if _player != null:
 		_player.pace = 1.0
 	house.readout.say(words)
-	SaveService.save_soon()
+	house.ask_save.call()
 
 ## What the eye reads off the trade's place looked at: a stall's price board,
 ## the order board's orders, the cart's terms; "" when none is looked at.

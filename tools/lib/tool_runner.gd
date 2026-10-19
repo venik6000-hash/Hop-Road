@@ -18,11 +18,24 @@ extends SceneTree
 ## MainLoop: such a script starts by --script and compiles before the
 ## autoloads. Exit code 1 when one fails.
 ##   tools/run/godot_lock.sh godot --headless --path . --script res://tools/lib/tool_runner.gd -- --check
+##
+## A runtime error of a script or a push_error() while the tool runs fails
+## the run (script_error_log.gd): at the exit it prints a line per error,
+## "TOOL_SCRIPT_ERROR <text>", then "TOOL_RESULT FAIL script_errors=<n>",
+## and the exit code is 1. The verdict of a tool goes through verdict() of
+## tool_script.gd, which gives FAIL once an error came. An error the tool
+## waits for is marked with expect_error() and prints "TOOL_EXPECTED_ERROR".
 
 const CHECK := "--check"
 const TOOLS := "res://tools"
+const ScriptErrorLog := preload("res://tools/lib/script_error_log.gd")
+## A run without a window has no RenderingDevice: the beer of the player's
+## mug does not simulate, and beer_fluid.gd says so by push_error(). There the
+## error is expected.
+const NO_GPU_BEER := "Beer simulation requires Godot Forward+ or Mobile rendering."
 
 var _tool: Object
+var _errors: ScriptErrorLog
 var _processes := false
 var _physics_processes := false
 
@@ -45,10 +58,31 @@ func _initialize() -> void:
 		push_error("tool_runner.gd: '%s' does not extend tools/lib/tool_script.gd" % arguments[0])
 		quit(2)
 		return
+	_errors = ScriptErrorLog.new(true)
+	if DisplayServer.get_name() == "headless":
+		_errors.expect(NO_GPU_BEER)
+	OS.add_logger(_errors)
+	set_meta(ScriptErrorLog.META, _errors)
 	_tool.call("attach", self)
 	_processes = _tool.has_method("_process")
 	_physics_processes = _tool.has_method("_physics_process")
 	_tool.call("_initialize")
+
+## The errors caught while the tool ran fail the run, whatever exit code the
+## tool gave: quit() here sets the exit code that Godot returns.
+func _finalize() -> void:
+	if _errors == null:
+		return
+	OS.remove_logger(_errors)
+	for message: String in _errors.expected():
+		print("TOOL_EXPECTED_ERROR ", message)
+	var found := _errors.take()
+	if found.is_empty():
+		return
+	for message: String in found:
+		print("TOOL_SCRIPT_ERROR ", message)
+	print("TOOL_RESULT FAIL script_errors=%d" % found.size())
+	quit(1)
 
 ## Compiles the scripts at `paths` (files and folders); the exit code.
 func _check(paths: PackedStringArray) -> int:

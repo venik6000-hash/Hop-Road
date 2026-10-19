@@ -3,8 +3,9 @@ extends Node3D
 ## A cottage of the village plan in place of an old house of the Blender map
 ## (RegionDef.cottages, BuildingSchemas.cottages): its placed model with the
 ## tavern's PBR lighting, its colliders, a walking surface over its porch's
-## stair if it has one, and a porch lantern that lights at dusk. The old
-## house's meshes go only once the cottage has loaded.
+## stair if it has one, and a porch lantern that lights at dusk (a lamp of
+## kind `lantern`, InteriorLamps). The old house's meshes go only once the
+## cottage has loaded.
 
 const LAYOUT := preload("res://src/village/village_layout.gd")
 const MATERIALS := preload("res://src/village/cottage_materials.gd")
@@ -17,14 +18,11 @@ var replaced := 0
 var mesh_count := 0
 var collision_count := 0
 var sky: SkySystem
-var lantern: OmniLight3D
+## The porch lantern, among the lamps that light it at dusk.
+var lamps: InteriorLamps
+var lantern: Light3D
 ## Its table (BuildingSchemas.cottage), from install().
 var table: Dictionary
-# The lantern's energy at full dark.
-var _energy := 0.0
-# The darkness _process last applied, and to which lantern (-1: none yet).
-var _last_darkness := -1.0
-var _lit_lantern: OmniLight3D
 
 ## The entries of the cottages file at `path` (RegionDef.cottages); none without one.
 static func entries(path: String) -> Array:
@@ -70,28 +68,21 @@ func install(map: Node3D, sky_system: SkySystem, village_plan: Dictionary) -> vo
 			body.add_child(shape)
 			item.add_child(body)
 			collision_count += 1
-	for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
-		if RockField.label_of(item).begins_with(str(table.replaces_prefix)):
-			item.get_parent().remove_child(item)
-			item.queue_free()
-			replaced += 1
+	var index := MapIndex.of(map)
+	for item: MeshInstance3D in index.starting(str(table.replaces_prefix)):
+		index.drop(item)
+		replaced += 1
 	if spec.has("ramp"):
 		_add_stair_ramp(Values.table(spec.ramp), pose, origin)
 	var light: Dictionary = spec.lantern
-	lantern = OmniLight3D.new()
-	lantern.name = light.name
-	lantern.position = pose * Values.vec3(table.lantern)
-	lantern.light_color = LANTERN_COLOR
-	lantern.omni_range = light.range
-	_energy = light.energy
-	lantern.light_energy = 0.0
-	lantern.shadow_enabled = true
-	# As the tavern's lanterns: swaying plants and the tavern's ivy would
-	# redraw the shadow map every frame.
-	lantern.shadow_caster_mask = 0xFFFFFFFF & ~VegetationSystem.VISUAL_LAYER & ~LightLayers.ROOMS & ~LightLayers.SUN_ONLY
-	FarLights.fade(lantern, "lantern")
-	lantern.add_to_group(AtmosphereFog.LAMP_GROUP)
-	add_child(lantern)
+	lamps = InteriorLamps.new()
+	lamps.name = "Lamps"
+	lamps.sky = sky
+	add_child(lamps)
+	var at := pose * Values.vec3(table.lantern)
+	lantern = lamps.add_light({"name": light.name, "type": "point", "kind": "lantern", "layer": "exterior", "night": 1.0,
+		"position": [at.x, at.y, at.z], "color": [LANTERN_COLOR.r, LANTERN_COLOR.g, LANTERN_COLOR.b],
+		"energy": light.energy, "range": light.range})
 	print("COTTAGE %s replaced=%d meshes=%d colliders=%d" % [key, replaced, mesh_count, collision_count])
 
 ## A continuous walking surface over the chamfered treads keeps the capsule
@@ -113,13 +104,13 @@ func _add_stair_ramp(ramp: Dictionary, pose: Transform3D, origin: Vector3) -> vo
 	body.transform = pose * body.transform
 	collision_count += 1
 
-func _process(_delta: float) -> void:
-	if lantern != null and sky != null:
-		var darkness := 1.0 - smoothstep(-0.02, 0.18, sky.sun_direction.y)
-		# The same darkness gives the same energy and visibility; write on change.
-		if darkness == _last_darkness and lantern == _lit_lantern:
-			return
-		_last_darkness = darkness
-		_lit_lantern = lantern
-		lantern.light_energy = _energy * darkness
-		lantern.visible = darkness > 0.01
+## What the cottage gives the lamps registry (WorldContext.lamps): its porch
+## lantern, in the shadow watch and as a glow from far away.
+func lamps_for() -> LampSet:
+	var given := LampSet.new()
+	given.lanterns = lamps.shadowed_lanterns()
+	for glow: Dictionary in lamps.far_glows:
+		var glow_at: Vector3 = glow.at
+		var glow_color: Color = glow.color
+		given.add_glow(to_global(glow_at), glow_color, Values.real(glow.radius))
+	return given

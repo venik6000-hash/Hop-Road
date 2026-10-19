@@ -5,12 +5,6 @@ extends RefCounted
 ## every file the bake reads, code included. A bake whose key differs from
 ## the key of the files now is stale (problems()).
 
-## The ground recipe of each region by RegionDef.id: a script whose static
-## settle() lays the region's rocks, buildings and water courses into the
-## near heights, whose static paint() paints its beds, yards and worn ground
-## into the masks, and whose static inputs() names the files they read. A
-## region without one is baked as terrain.py wrote it.
-const RECIPES := {&"valley": "res://tools/pipeline/terrain/valley_ground.gd"}
 ## The code of the bake itself; the recipe names its own files.
 const CODE := ["res://src/terrain/terrain_bake.gd", "res://tools/pipeline/terrain/ground_bake.gd",
 	"res://tools/pipeline/terrain/bake_ground.gd"]
@@ -21,10 +15,13 @@ const SOURCE_MASKS := ["near_control.png", "near_extra.png"]
 ## digested by its bytes.
 const TEXT := ["gd", "json", "tres", "tscn", "import", "py"]
 
-## The recipe of `region`, or null.
+## The ground recipe of `region` (RegionDef.ground_recipe), or null: a script
+## whose static settle() lays the region's rocks, buildings and water courses
+## into the near heights, whose static paint() paints its beds, yards and worn
+## ground into the masks, and whose static inputs() names the files they
+## read. A region without one is baked as terrain.py wrote it.
 static func recipe(region: RegionDef) -> Script:
-	var path: String = RECIPES.get(region.id, "")
-	return null if path.is_empty() else load(path) as Script
+	return null if region.ground_recipe.is_empty() else load(region.ground_recipe) as Script
 
 ## Every file the bake of `region` reads.
 static func inputs(region: RegionDef) -> PackedStringArray:

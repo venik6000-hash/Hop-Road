@@ -39,9 +39,12 @@ func _init(walker: VillageNPC) -> void:
 	actor = walker
 
 ## Builds the hall's navigation grid for the one who keeps the hall, once the
-## physics of the level is in place. Her round waits for it.
+## floor under her answers a ray (PhysicsLayers.ground_stands). Her round
+## waits for it.
 func find_hall_paths() -> void:
-	await actor.get_tree().physics_frame
+	await PhysicsLayers.ground_stands(actor, actor.global_position)
+	if not is_instance_valid(actor) or not actor.is_inside_tree():
+		return
 	_hall_navigation = TavernNavigation.new()
 	_hall_navigation.build(actor)
 	_route_probe = PhysicsShapeQueryParameters3D.new()
@@ -71,7 +74,7 @@ func pause(seconds: float) -> void:
 ## Walks the round on by `delta` seconds: the stop, or the steps to the next
 ## point.
 func walk(delta: float) -> void:
-	if actor.job == "maid" and not _hall_ready:
+	if actor.duty.keeps_hall and not _hall_ready:
 		return
 	wait_time = maxf(0.0, wait_time - delta)
 	if wait_time > 0.0:
@@ -104,7 +107,7 @@ func walk(delta: float) -> void:
 	var offset := destination - actor.global_position
 	offset.y = 0.0
 	if offset.length() < (0.12 if _hall_navigation != null else 0.22) and (_hall_navigation == null or _hall_path.size() == 1):
-		_cleaning = actor.job == "maid" and wipes.has(route_point)
+		_cleaning = actor.duty.keeps_hall and wipes.has(route_point)
 		_face_to = Values.real(wipes[route_point].yaw) if _cleaning else NAN
 		if _cleaning:
 			actor.wipe.set_strip(wipes[route_point])

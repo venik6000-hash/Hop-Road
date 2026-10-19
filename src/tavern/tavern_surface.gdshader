@@ -64,7 +64,7 @@ uniform vec4 fires[4];
 uniform sampler2D floor_wear : hint_default_black, filter_linear, repeat_disable;
 uniform vec4 floor_wear_rect = vec4(0.0, 0.0, 0.0, 0.0);
 // Moss is the terrain's mossy rock scan (a layer of its array).
-uniform sampler2DArray moss_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+#include "res://src/terrain/moss.gdshaderinc"
 uniform float moss_layer = 13.0;
 uniform vec4 moss_grade = vec4(0.92, 1.03, 0.9, 1.05);
 

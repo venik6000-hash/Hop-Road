@@ -46,6 +46,25 @@ const STEP := 5.0
 const CONTROLS := {"steep_plug": 0.0, "kiln_damper": 1.0, "quern_wedge": 0.35}
 ## The moving part of brewery.json each control turns.
 const PARTS := {"steep_plug": "steep_plug", "kiln_damper": "kiln_damper", "quern_wedge": "quern_wedge"}
+## What the steeping tub says of its barley, by its stage (steeped, dry) and
+## its water (under, low, none); what the floor says of its couch (warm,
+## cool). Whole phrases: each language puts its words in its own order.
+const STEEP_LINES := {
+	"steeped": {
+		"under": "Замочный чан: %.0f кг ячменя, замочен, под водой",
+		"low": "Замочный чан: %.0f кг ячменя, замочен, воды мало",
+		"none": "Замочный чан: %.0f кг ячменя, замочен, без воды",
+	},
+	"dry": {
+		"under": "Замочный чан: %.0f кг ячменя, сухой, под водой",
+		"low": "Замочный чан: %.0f кг ячменя, сухой, воды мало",
+		"none": "Замочный чан: %.0f кг ячменя, сухой, без воды",
+	},
+}
+const FLOOR_LINES := {
+	"warm": "Ток: %.0f кг, ростки %.0f мм, куча тёплая",
+	"cool": "Ток: %.0f кг, ростки %.0f мм, куча прохладная",
+}
 
 var controls := CONTROLS.duplicate()
 ## Sack id -> the lots in it.
@@ -327,14 +346,16 @@ func reading(place: String, held := "", fine := false) -> String:
 				return tr("Замочный чан: %.0f л воды") % steep_water_l
 			if steep == null:
 				return tr("Замочный чан пуст, воды %.0f л") % steep_water_l if steep_water_l > 0.5 else tr("Замочный чан пуст")
-			var state := "замочен" if steep.stage == "steeped" else "сухой"
-			var water := "под водой" if steep_water_l >= steep.kg * MaltLot.STEEP_WATER else ("воды мало" if steep_water_l > 0.5 else "без воды")
-			return tr("Замочный чан: %.0f кг ячменя, %s, %s") % [steep.kg, tr(state), tr(water)]
+			var water := "under" if steep_water_l >= steep.kg * MaltLot.STEEP_WATER else ("low" if steep_water_l > 0.5 else "none")
+			var lines: Dictionary = STEEP_LINES["steeped" if steep.stage == "steeped" else "dry"]
+			var line: String = lines[water]
+			return tr(line) % steep.kg
 		"floor":
 			if couch == null:
 				return tr("Ток пуст")
-			var warm := "тёплая" if couch.unturned_days > 0 or (couch_passes < TURN_PASSES and couch.floor_days > 0) else "прохладная"
-			return tr("Ток: %.0f кг, ростки %.0f мм, куча %s") % [couch.kg, couch.growth * 8.0, tr(warm)]
+			var warm := couch.unturned_days > 0 or (couch_passes < TURN_PASSES and couch.floor_days > 0)
+			var line: String = FLOOR_LINES["warm" if warm else "cool"]
+			return tr(line) % [couch.kg, couch.growth * 8.0]
 		"kiln":
 			var heat := tr("Сушилка: %s") % BrewGauges.degrees(kiln_temp, fine) if held == "thermometer" else tr("Сушилка")
 			if kiln == null:

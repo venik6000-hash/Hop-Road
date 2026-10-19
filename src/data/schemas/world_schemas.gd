@@ -6,6 +6,8 @@ extends RefCounted
 const D := preload("res://src/data/data_schema.gd")
 ## The models of the village pack (VillagePack.DIRECTORY).
 const PACK_DIRECTORY := "res://assets/models/village_pack/"
+## The kinds of a lake's shore (tools/pipeline/terrain/terrain_village.py).
+const SHORE_KINDS: Array[String] = ["gravel", "marsh", "turf", "rock"]
 
 ## regions.json: the regions of the game (RegionDef.listed()) by the id
 ## each one's RegionDef has, the first one where a new game starts.
@@ -37,8 +39,12 @@ static func zones() -> Dictionary:
 	})
 
 ## village_plan.json: where the old map's houses and the cottages stand now,
-## and the paths of the village. A cottage goes by the key of its entry in
-## the region's cottages (BuildingSchemas.cottages).
+## the paths of the village, its main road and its green. A cottage goes by
+## the key of its entry in the region's cottages (BuildingSchemas.cottages).
+## `main_road`: the centre line from north to south, a point (x, z, half
+## width of the paving) every half metre, and `street`, the z from and to of
+## its stretch through the village (VillageRoad). `green`: the green between
+## the yards that the loose plants cover (x, z, width, depth; VillageFlora).
 static func village_plan() -> Dictionary:
 	var cottage := D.object({
 		"source": D.vector(3),
@@ -61,7 +67,8 @@ static func village_plan() -> Dictionary:
 			"points": D.list(D.vector(2), 2),
 			"paved": D.optional(D.flag()),
 		})),
-		"main_road": D.list(D.vector(2), 2),
+		"main_road": D.object({"points": D.list(D.vector(3), 2), "street": D.vector(2)}),
+		"green": D.vector(4),
 		# Read by the layout scene and tools/pipeline/village_layout, not by the game.
 		"part_moves": D.list(D.object({
 			"house": D.text(),
@@ -138,6 +145,17 @@ static func forest_wood() -> Dictionary:
 		"xform": D.vector(12),
 	}))
 
+## forest_floor.json: where the ferns, clover and bracken of the forest floor
+## are scattered (VillagePack): `count` tries in a disc of `radius` m round
+## each of `places` (x, z), from `seed`.
+static func forest_floor() -> Dictionary:
+	return D.object({
+		"seed": D.whole(0),
+		"radius": D.number(0.0),
+		"count": D.whole(0),
+		"places": D.list(D.vector(2)),
+	})
+
 ## map_context.json: the labels of the Blender map's pieces the layout scene
 ## shows for orientation.
 static func map_context() -> Dictionary:
@@ -156,11 +174,15 @@ static func trees() -> Dictionary:
 
 ## woodland.json: the trees of the Blender composition. `kind` and `bushes`
 ## are written by tools/pipeline/alpine_scene/export_godot.py; the placer reads
-## the template, the position, the yaw and the scale.
+## the template, the position, the yaw and the scale. `backdrop` (x, z,
+## width, depth) is the rectangle the composition's backdrop forest was
+## scattered in, which the placer's own forest fades into (TreePlacer); the
+## export does not write it.
 static func woodland() -> Dictionary:
 	return D.object({
 		"trees": trees(),
 		"bushes": D.list(D.object({"min": D.vector(3), "max": D.vector(3)})),
+		"backdrop": D.optional(D.vector(4)),
 	})
 
 ## cliff_seat.json: the heights behind the scanned faces of the waterfall
@@ -180,6 +202,22 @@ static func cliff_seat() -> Dictionary:
 		}), 1),
 	})
 
+## The scans of a region's cliff and where they stand (RegionDef.cliff_faces;
+## tools/pipeline/rocks/cliff_seat.py seats them): `keep` is the stretch along
+## a face whose ground stays, `floor` the lowest ground before its foot.
+static func cliff_faces() -> Dictionary:
+	return D.object({
+		"faces": D.list(D.object({
+			"note": D.optional(D.any_text()),
+			"scan": D.text(),
+			"at": D.vector(3),
+			"yaw": D.number(),
+			"scale": D.vector(3),
+			"keep": D.optional(D.vector(2)),
+			"floor": D.optional(D.number()),
+		}), 1),
+	})
+
 ## terrain.json: the grids of the terrain's fields (tools/pipeline/terrain/terrain.py).
 static func terrain() -> Dictionary:
 	var field := D.object({
@@ -195,6 +233,34 @@ static func terrain() -> Dictionary:
 		"near": field,
 		"masks": D.object({"size": D.whole(1), "cell": D.number(0.01), "origin": D.vector(2)}),
 		"minmax": D.object({"cell": D.number(0.01), "size": D.whole(1), "origin": D.vector(2), "layout": D.text()}),
+		"convention": D.text(),
+	})
+
+## world.json: the grid of the world's terrain tiles, the mid field and the
+## bounds (tools/pipeline/terrain/terrain_tiles.py; TerrainTiles).
+static func world_tiles() -> Dictionary:
+	var mask := D.object({"file": D.text(), "channels": D.list(D.text(), 4, 4)})
+	return D.object({
+		"format_version": D.whole(1),
+		"origin": D.vector(2),
+		"tile": D.number(1.0),
+		"tiles": D.object({"first": D.whole(), "last": D.whole(), "folder": D.text()}),
+		"land": D.vector(4),
+		"water_level": D.number(),
+		"height": D.object({"file": D.text(), "samples": D.whole(2), "cell": D.number(0.01), "format": D.text()}),
+		"masks": D.object({"samples": D.whole(2), "cell": D.number(0.01), "format": D.text(), "control": mask, "extra": mask}),
+		"mid": D.object({
+			"file": D.text(),
+			"samples": D.whole(2),
+			"cell": D.number(0.01),
+			"origin": D.vector(2),
+			"format": D.text(),
+			"min": D.number(),
+			"max": D.number(),
+		}),
+		"minmax": D.object({"cell": D.number(0.01), "size": D.whole(1), "origin": D.vector(2), "layout": D.text(), "file": D.text()}),
+		"region": D.text(),
+		"sources": D.table(D.text()),
 		"convention": D.text(),
 	})
 
@@ -290,7 +356,9 @@ static func map_manifest() -> Dictionary:
 			"noise": D.number(0.0),
 			"stretch": D.vector(3),
 		})),
-		"cameras": D.list(D.object({"name": D.text(), "position": D.vector(3), "forward": D.vector(3), "fov": D.number(1.0, 179.0)})),
+		# A map without cameras gives the overview a view of the spawn (Level._place_spawn).
+		"cameras": D.optional(D.list(D.object({"name": D.text(), "position": D.vector(3), "forward": D.vector(3),
+			"fov": D.number(1.0, 179.0)}))),
 		"lights": D.list(D.object({"position": D.vector(3), "color": D.vector(3)})),
 		"sun_forward": D.vector(3),
 		"smoke": D.list(D.vector(3)),
@@ -306,6 +374,7 @@ static func weathers() -> Dictionary:
 	var kind := D.object({
 		"name": D.text(),
 		"lake": D.choice(OceanFFT.PRESETS.keys()),
+		"heading": D.vector(2, -360.0, 360.0),
 		"state": D.object(state),
 		"next": D.table(D.whole(1), &"", &"weather"),
 	})
@@ -314,6 +383,9 @@ static func weathers() -> Dictionary:
 			var row: Variant = Values.table(value)[id]
 			if row is Dictionary and Values.table(Values.table(row).get("next", {})).has(id):
 				return "the weather '%s' goes to itself" % id
+			var heading: Variant = Values.table(row).get("heading", [])
+			if heading is Array and Values.list(heading).size() == 2 and Values.real(heading[0]) > Values.real(heading[1]):
+				return "the weather '%s' turns the wind from a heading past its last" % id
 		return "")
 
 ## fish.json: the fish of the lake (FishingState).
@@ -349,6 +421,39 @@ static func flora() -> Dictionary:
 ## width of the water there.
 static func brook() -> Dictionary:
 	return D.object({"brook": D.list(D.vector(3), 2), "rill": D.list(D.vector(3), 2)})
+
+## The region's lake (RegionDef.lake; LakePlan, tools/lib/lake_plan.py). Rects are
+## x, z, width, depth. `search`: where the bed is searched; `shore_field`:
+## the square of the shore's waves (x, z, side); `beach`: its `rect` keeps
+## the reeds off, its `x` and `z` are the ramps of the beach the terrain
+## shapes (rising from the first to the second, falling from the third to
+## the fourth); `cove` and `reedless` (x, z, radius): more shores without
+## reeds; `shore`: the village's waterline from south to north (x, z, the
+## kind that holds to the next point); `marsh_stands`: reed beds (x, z,
+## radius); `mooring`: where the boat's mooring is searched, the point it
+## moors nearest to, the mooring when none is found.
+static func lake() -> Dictionary:
+	var waterline := D.checked(D.list(D.any(), 3, 3), func(value: Variant) -> String:
+		var point := Values.list(value)
+		if not (point[0] is float and point[1] is float):
+			return "a point of the shore starts with x and z"
+		return "" if str(point[2]) in SHORE_KINDS else "the kind of the shore is one of %s" % [SHORE_KINDS])
+	return D.object({
+		"search": D.vector(4),
+		"shore_field": D.vector(3),
+		"beach": D.object({"rect": D.vector(4), "x": D.vector(4), "z": D.vector(4)}),
+		"cove": D.vector(4),
+		"reedless": D.list(D.vector(3)),
+		"shore": D.list(waterline),
+		"marsh_stands": D.list(D.vector(3)),
+		"mooring": D.object({"search": D.vector(4), "near": D.vector(2), "fallback": D.vector(2)}),
+	})
+
+## The region's dragon (RegionDef.dragon; LakeDragon): the middle of its
+## circuit, the circuit's half axes along x and z (m) and how much the circuit
+## rises along z per metre along x.
+static func dragon() -> Dictionary:
+	return D.object({"centre": D.vector(3), "radii": D.vector(2), "slope": D.number()})
 
 ## The region's falls (RegionDef.falls; WaterfallSystem): the stream above
 ## the upper fall (its surface on the centre line, half its width, the speed
@@ -388,9 +493,10 @@ static func animals() -> Dictionary:
 ## the ground round a middle (x, z), flocks of birds and butterflies over one,
 ## the box of open water the fish schools keep to (x0, z0, x1, z1) and where
 ## the birdsong sounds (x, z). A region without the box or the birdsong has
-## neither.
+## neither. `seed` draws every place and turn, the same on each load.
 static func wildlife() -> Dictionary:
 	return D.object({
+		"seed": D.whole(0),
 		"herds": D.list(D.object({
 			"kind": D.choice(["deer", "fox", "chicken"]),
 			"at": D.vector(2),

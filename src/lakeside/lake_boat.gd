@@ -1,6 +1,7 @@
 class_name LakeBoat
 extends CharacterBody3D
 ## Small clinker rowboat. Physics is independent of the camera and input focus.
+const OutdoorScan = preload("res://src/render/outdoor_scan.gd")
 ## Top speed under the oars, m/s.
 const TOP_SPEED := 2.7
 ## The hull's collision box, m.
@@ -37,6 +38,8 @@ func _ready() -> void:
 
 func build_hull() -> void:
 	var model := preload("res://assets/models/lakeside/rowboat.glb").instantiate() as Node3D
+	# The boat lies in the weather: the rain wets its planks.
+	OutdoorScan.dress(model)
 	visual.add_child(model)
 	for part: String in ["OarPort", "OarStarboard"]:
 		oars.append(model.find_child(part, true, false) as Node3D)
@@ -47,9 +50,8 @@ func build_hull() -> void:
 
 func can_navigate(at: Vector3) -> bool:
 	# Buoyancy changes y each tick, but navigation depends only on x/z and yaw.
-	var key: Array = [Vector2(at.x, at.z), rotation.y, water.water_level, terrain,
-		terrain.near_image, terrain.far_image, terrain.near_origin, terrain.far_origin,
-		terrain.near_cell, terrain.far_cell, terrain.near_size, terrain.far_size]
+	var key: Array = [Vector2(at.x, at.z), rotation.y, water.water_level, terrain, terrain.fields(),
+		terrain.fields().revision]
 	if key == _navigation_key:
 		return _navigation_clear
 	_navigation_key = key

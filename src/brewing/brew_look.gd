@@ -18,6 +18,9 @@ const GREEN_MALT := Color(0.68, 0.62, 0.36)
 const WET_DARK := 0.3
 ## Works whose pour is grain, or as coarse as grain.
 const GRAIN_POURS: Array[String] = ["grain", "steep_barley", "pour_hopper", "cherry_cask"]
+## The names of the table's fires under the copper and the kiln.
+const COPPER_FIRE := "Copper firebox"
+const KILN_FIRE := "Kiln fire"
 ## Honey and cherries in a stream.
 const HONEY := Color(0.72, 0.45, 0.1)
 const CHERRY := Color(0.32, 0.03, 0.05)
@@ -45,10 +48,21 @@ var streams: Dictionary[String, BrewStream] = {}
 ## Plume key -> CPUParticles3D: the copper, the mash tun, the hop back, the
 ## coolship, the cupola, the kiln.
 var steam := {}
+## The table's fires (BuildingFires.fire) under the copper and the kiln;
+## null in a house without its building.
 var fire: HearthFire
 var kiln_fire: HearthFire
 ## Group -> the pose last given, so a pose is set only when it changes.
 var _posed := {}
+
+## Droplets where a stream lands, by stream key.
+var _splashes: Dictionary[String, CPUParticles3D] = {}
+## Streams landing in each vessel's face this frame: surface id -> world
+## points, w the flow.
+var _hits := {}
+## Stream keys that land somewhere this frame.
+var _splashing := {}
+var _shaped := false
 
 ## The streams, the steam, the fires and the sounds, at the anchors of the
 ## house's layout; once its day stands.
@@ -69,17 +83,6 @@ func build() -> void:
 	for vent: Dictionary in layout.table.get("vents", []):
 		if vent.kind == "steam":
 			steam.cupola = _plume(Values.vec3(vent.at), 1.4)
-	fire = HearthFire.new()
-	fire.name = "CopperFire"
-	add_child(fire)
-	var stoke: Vector3 = layout.anchors["copper_stoke"]
-	fire.configure(stoke + Vector3(0.0, -0.13, 0.4), Vector3.RIGHT, 0.45, 0.32)
-	fire.visible = false
-	kiln_fire = HearthFire.new()
-	kiln_fire.name = "KilnFire"
-	add_child(kiln_fire)
-	kiln_fire.configure(layout.anchors["kiln_stoke"] + Vector3(0.0, -0.1, 0.3), Vector3.RIGHT, 0.4, 0.3)
-	kiln_fire.visible = false
 	for vent: Dictionary in layout.table.get("vents", []):
 		if vent.id == "kiln":
 			steam.kiln = _plume(Values.vec3(vent.at), 1.2)
@@ -87,6 +90,8 @@ func build() -> void:
 ## The parts posed and the surfaces levelled for this frame, before the
 ## hands take hold of them.
 func settle() -> void:
+	if not _shaped and is_inside_tree():
+		_shape_surfaces()
 	_pose_parts()
 	_level_surfaces()
 
@@ -102,8 +107,7 @@ func run(delta: float) -> void:
 ## The taps, cocks, damper and hatch as the day has them; the work's part as
 ## the hand holds it; the windlass at the bucket's height; the hourglass.
 func _pose_parts() -> void:
-	var building := house.building
-	if building == null or building.machinery == null:
+	if house.machinery == null:
 		return
 	var day := house.day
 	for work_id: String in BrewStation.CONTROLS:
@@ -131,7 +135,7 @@ func _set_pose(part: String, amount: float) -> void:
 	if group == "" or is_equal_approx(Values.real(_posed.get(group, NAN)), amount):
 		return
 	_posed[group] = amount
-	house.building.machinery.set_pose(group, amount)
+	house.machinery.set_pose(group, amount)
 
 # ---- Surfaces ---------------------------------------------------------------------
 
@@ -169,6 +173,7 @@ func _level_surfaces() -> void:
 		material.set_shader_parameter("boil", boil)
 		material.set_shader_parameter("foam", foam)
 		material.set_shader_parameter("thick", 1.0 if held == "mash" or held == "grain" else 0.0)
+		material.set_shader_parameter("scum", 1.0 if held == "wort" else 0.0)
 	var maltings := house.maltings
 	for key: String in steam:
 		var plume: CPUParticles3D = steam[key]
@@ -192,6 +197,26 @@ func _level_surfaces() -> void:
 		var vessel := str({"mash": BrewDay.MASH_TUN, "hop_back": BrewDay.HOP_BACK, "coolship": BrewDay.COOLSHIP}.get(key, BrewDay.COPPER))
 		plume.emitting = hot > 0.0 and BrewGauges.contents(day, vessel) != ""
 		plume.speed_scale = clampf(0.5 + hot, 0.5, 1.5)
+
+## Tells each vessel's material the shape of its face (world space): its
+## middle, its radius or the half sides of its rectangle (`rect`), and the
+## building's X along the ground.
+func _shape_surfaces() -> void:
+	_shaped = true
+	var across := Vector2(global_basis.x.x, global_basis.x.z).normalized()
+	for id: String in house.layout.surfaces:
+		var surface: Dictionary = house.layout.surfaces[id]
+		var entry: Dictionary = surface.entry
+		var material: ShaderMaterial = surface.material
+		material.set_shader_parameter("centre", to_global(Values.vec3(entry.at)))
+		material.set_shader_parameter("across", across)
+		if entry.has("rect"):
+			var corners := Values.list(entry.rect)
+			var a := Values.vec2(corners[0])
+			var b := Values.vec2(corners[1])
+			material.set_shader_parameter("extent", (b - a).abs() * 0.5)
+		else:
+			material.set_shader_parameter("extent", Vector2(Values.real(entry.get("radius", 0.5)), 0.0))
 
 ## The maltings' grain: the tub's at the level of its grain and water, a heap
 ## as large as its kg; tinted by how far the grain has come.
@@ -290,12 +315,14 @@ func boiling() -> float:
 
 # ---- Streams ----------------------------------------------------------------------
 
-## The streams that run now.
+## The streams that run now, and where they land.
 func _run_streams() -> void:
 	var layout := house.layout
 	var day := house.day
 	for key: String in streams:
 		streams[key].stop()
+	_hits.clear()
+	_splashing.clear()
 	for control: String in TAPS:
 		var open := Values.real(day.controls[control])
 		var source := BrewDay.HOP_BACK if control == "hop_back_tap" else BrewDay.MASH_TUN if control == "mash_tap" else BrewDay.COPPER
@@ -311,8 +338,9 @@ func _run_streams() -> void:
 		var into: String = TAPS[control][1]
 		var to := layout.surface_point(into) if into != "" else _floor_under(control, from)
 		var colour := WATER if control == "liquor_cock" else wort_color(_ebc(source))
-		streams[control].pour(to_global(from), to_global(Vector3(from.x, to.y, from.z)), open, 0.035,
-			Color(colour, 0.85))
+		var landing := to_global(Vector3(from.x, to.y, from.z))
+		streams[control].pour(to_global(from), landing, open, 0.035, Color(colour, 0.85))
+		_landed(into, landing, open, control, colour)
 	_run_cellar_streams()
 	var plug := Values.real(house.maltings.controls.steep_plug)
 	if plug > 0.0 and house.maltings.steep_water_l > 0.01:
@@ -321,6 +349,17 @@ func _run_streams() -> void:
 		streams["steep_drain"].pour(to_global(drain), to_global(Vector3(drain.x, under.y, drain.z)), plug, 0.03,
 			Color(WATER, 0.85))
 	_run_work_streams()
+	for key: String in _splashes:
+		if _splashes[key].emitting != _splashing.has(key):
+			_splashes[key].emitting = _splashing.has(key)
+	for id: String in layout.surfaces:
+		var surface: Dictionary = layout.surfaces[id]
+		var material: ShaderMaterial = surface.material
+		var hits: Array = _hits.get(id, [])
+		var points := PackedVector4Array([Vector4.ZERO, Vector4.ZERO])
+		for index in mini(hits.size(), 2):
+			points[index] = hits[index]
+		material.set_shader_parameter("impacts", points)
 
 ## What the hand's work pours: a tipped thing's stream, a pump's spout.
 func _run_work_streams() -> void:
@@ -355,14 +394,20 @@ func _run_work_streams() -> void:
 		landing.x = mouth.x
 		landing.z = mouth.z
 		streams["grain"].pour(mouth, landing, station.gesture.flow(), 0.14 if grain else 0.06, Color(colour, 0.9), grain)
+		if not grain:
+			_landed(layout.pour_vessel(str(work.id), station), landing, station.gesture.flow(), "grain", colour)
 	elif work.gesture == "rock" and station.gesture.amount > 0.5:
 		var outlet: Vector3 = layout.anchors["liquor_pipe_outlet" if work.id == "pump_liquor" else "wort_pump_outlet"]
 		if work.id == "pump_liquor" and Values.real(day.controls.pipe_cock) < 0.5:
 			outlet = layout.anchors["liquor_spout"]
-		var to := Vector3(outlet.x, layout.surface_height(BrewDay.COPPER) if BrewGauges.contents(day, BrewDay.COPPER) != "" else 1.2, outlet.z)
+		var filled := BrewGauges.contents(day, BrewDay.COPPER) != ""
+		var to := Vector3(outlet.x, layout.surface_height(BrewDay.COPPER) if filled else 1.2, outlet.z)
 		if outlet == layout.anchors["liquor_spout"]:
 			to.y = 0.5
-		streams["liquor_pipe"].pour(to_global(outlet), to_global(to), station.gesture.amount, 0.04, Color(WATER, 0.8))
+			filled = false
+		var landing := to_global(to)
+		streams["liquor_pipe"].pour(to_global(outlet), landing, station.gesture.amount, 0.04, Color(WATER, 0.8))
+		_landed(BrewDay.COPPER if filled else "", landing, station.gesture.amount, "liquor_pipe", WATER)
 
 ## The cellar's taps: the plate's wort down the spout into a tun, a tun's
 ## tap into the bucket under it, a cask's tap into the keg under it; else
@@ -373,9 +418,9 @@ func _run_cellar_streams() -> void:
 	if Values.real(cellar.controls.coolship_gate) > 0.0 and house.day.coolship_l > 0.01:
 		var tun := cellar.spout_tun()
 		var nozzle: Vector3 = layout.anchors["spout_nozzle_%d" % tun]
-		var into := layout.surface_point("fermenting_tun_%d_wort" % tun) if cellar.tun_l(tun) > 0.5 \
-			else layout.anchors["fermenting_tun_%d_bottom" % tun]
-		_pour_stream("spout", nozzle, into.y, Values.real(cellar.controls.coolship_gate), wort_color(_ebc(BrewDay.COOLSHIP)))
+		var face := "fermenting_tun_%d_wort" % tun if cellar.tun_l(tun) > 0.5 else ""
+		var into := layout.surface_point(face) if face != "" else layout.anchors["fermenting_tun_%d_bottom" % tun]
+		_pour_stream("spout", nozzle, into.y, Values.real(cellar.controls.coolship_gate), wort_color(_ebc(BrewDay.COOLSHIP)), face)
 	for number in range(1, BrewCellar.TUNS + 1):
 		var tap := Values.real(cellar.controls["fermenter_tap_%d" % number])
 		if tap <= 0.0 or cellar.tun_l(number) <= 0.01:
@@ -400,11 +445,62 @@ func _run_cellar_streams() -> void:
 		var batch: BrewBatch = cask.batch
 		_pour_stream("lager_tap_%d" % number, nozzle, bottom, open, wort_color(batch_ebc(batch)))
 
-## A stream from `from` straight down to the height `to_y`; a lip above the
-## nozzle takes it at the nozzle's foot.
-func _pour_stream(key: String, from: Vector3, to_y: float, open: float, colour: Color) -> void:
-	var to := Vector3(from.x, minf(to_y, from.y - 0.05), from.z)
-	streams[key].pour(to_global(from), to_global(to), open, 0.03, Color(colour, 0.85))
+## A stream from `from` straight down to the height `to_y`, onto the face of
+## `vessel` (none: a bucket, a keg or the floor); a lip above the nozzle
+## takes it at the nozzle's foot.
+func _pour_stream(key: String, from: Vector3, to_y: float, open: float, colour: Color, vessel := "") -> void:
+	var to := to_global(Vector3(from.x, minf(to_y, from.y - 0.05), from.z))
+	streams[key].pour(to_global(from), to, open, 0.03, Color(colour, 0.85))
+	_landed(vessel, to, open, key, colour)
+
+## A stream of `colour` lands at `at` (world) with `flow`: it rings and froths
+## the face of `vessel` (none: a bucket or the floor) and throws up drops.
+func _landed(vessel: String, at: Vector3, flow: float, key: String, colour: Color) -> void:
+	if vessel != "" and house.layout.surfaces.has(vessel):
+		var hits: Array = _hits.get(vessel, [])
+		hits.append(Vector4(at.x, at.y, at.z, clampf(flow, 0.0, 1.0)))
+		_hits[vessel] = hits
+	var splash: CPUParticles3D = _splashes.get(key)
+	if splash == null:
+		splash = _splash()
+		_splashes[key] = splash
+	splash.global_position = at + Vector3.UP * 0.01
+	splash.color = Color(colour.lerp(Color(0.5, 0.48, 0.45), 0.2), 1.0)
+	splash.initial_velocity_min = 0.3 + 0.5 * flow
+	splash.initial_velocity_max = 0.7 + 1.0 * flow
+	_splashing[key] = true
+
+## Drops thrown up where a stream lands: small beads stretched along their flight.
+func _splash() -> CPUParticles3D:
+	var bead := SphereMesh.new()
+	bead.radius = 0.0035
+	bead.height = 0.012
+	bead.radial_segments = 6
+	bead.rings = 3
+	var wet := StandardMaterial3D.new()
+	wet.vertex_color_use_as_albedo = true
+	wet.roughness = 0.05
+	wet.metallic_specular = 0.5
+	bead.material = wet
+	var splash := CPUParticles3D.new()
+	splash.mesh = bead
+	splash.amount = 36
+	splash.lifetime = 0.45
+	splash.direction = Vector3.UP
+	splash.spread = 65.0
+	splash.gravity = Vector3(0.0, -9.8, 0.0)
+	splash.particle_flag_align_y = true
+	splash.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
+	splash.emission_sphere_radius = 0.025
+	splash.scale_amount_min = 0.5
+	splash.scale_amount_max = 1.3
+	splash.local_coords = false
+	splash.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	splash.layers = LightLayers.ROOMS
+	splash.top_level = true
+	splash.emitting = false
+	add_child(splash)
+	return splash
 
 ## Where a tap with no vessel of its own pours: into the hoist bucket under it, or onto the floor.
 func _floor_under(control: String, from: Vector3) -> Vector3:
@@ -414,16 +510,21 @@ func _floor_under(control: String, from: Vector3) -> Vector3:
 
 # ---- Fires and sounds --------------------------------------------------------------
 
-## The fire under the copper and the kiln's: their flames and their lamps.
+## The fire under the copper (its logs as the wood in the firebox) and the
+## kiln's, and their lamps.
 func _burn() -> void:
+	var fires := house.fires
+	if fires == null:
+		return
+	if fire == null:
+		fire = fires.fire(COPPER_FIRE)
+		kiln_fire = fires.fire(KILN_FIRE)
 	var day := house.day
-	fire.visible = day.fire > BrewDay.FIRE_OUT
-	fire.scale = Vector3.ONE * (0.4 + 0.8 * day.fire)
-	kiln_fire.visible = house.maltings.fire() > 0.02
-	kiln_fire.scale = Vector3.ONE * (0.4 + 0.8 * house.maltings.fire())
-	if house.building != null:
-		house.building.stoke("Copper firebox", clampf(day.fire * 1.4, 0.0, 1.4))
-		house.building.stoke("Kiln fire", clampf(house.maltings.fire() * 1.4, 0.0, 1.4))
+	# The day's fire is out below FIRE_OUT: its flames go, its embers glow on.
+	fire.burn(day.fire if day.fire > BrewDay.FIRE_OUT else 0.0, day.fuel / BrewDay.FULL_FUEL)
+	kiln_fire.burn(house.maltings.fire())
+	fires.stoke("Copper firebox", clampf(day.fire * 1.4, 0.0, 1.4))
+	fires.stoke("Kiln fire", clampf(house.maltings.fire() * 1.4, 0.0, 1.4))
 
 ## The sounds of what runs on its own: each stream, the boil, the fires.
 func _sound_running(delta: float) -> void:

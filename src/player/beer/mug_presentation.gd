@@ -29,8 +29,8 @@ func _ready() -> void:
 	add_child(camera)
 	var world := WorldEnvironment.new()
 	environment = Environment.new()
-	environment.tonemap_mode = Environment.TONE_MAPPER_ACES
-	environment.tonemap_white = 8.0
+	environment.tonemap_mode = RealismEnvironment.TONEMAP
+	environment.tonemap_white = RealismEnvironment.TONEMAP_WHITE
 	environment.background_mode = Environment.BG_COLOR
 	environment.background_color = Color(0, 0, 0, 0)
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR

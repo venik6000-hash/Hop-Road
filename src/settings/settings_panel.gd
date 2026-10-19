@@ -93,7 +93,7 @@ func _input(event: InputEvent) -> void:
 	if visible and InputActions.pressed(event, "ui_cancel"):
 		close()
 		get_viewport().set_input_as_handled()
-	elif InputActions.pressed(event, "toggle_hand") and (visible or Input.mouse_mode == Input.MOUSE_MODE_CAPTURED):
+	elif InputActions.pressed(event, "toggle_hand") and (visible or InputActions.routes(event, &"toggle_hand")):
 		_hand_toggled(not settings.show_hand)
 		hand.set_pressed_no_signal(settings.show_hand)
 		get_viewport().set_input_as_handled()

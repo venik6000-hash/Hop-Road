@@ -1,11 +1,16 @@
-// The terrain's height as its shaders see it (terrain_fields.gdshaderinc):
-// the 0.5 m near field fading into the 8 m far field over its outer 40 m.
+// The terrain's height as its shaders see it (height_at() of
+// terrain_fields.gdshaderinc): the tiles over the mid field over the far
+// field, each fading into the next over 40 m.
 
-layout(set = 0, binding = 0) uniform sampler2D near_height;
+layout(set = 0, binding = 0) uniform sampler2DArray tile_heights;
 layout(set = 0, binding = 1) uniform sampler2D far_height;
+layout(set = 0, binding = 2) uniform sampler2D mid_height;
+layout(set = 0, binding = 3) uniform sampler2D tile_slots;
 
 layout(push_constant, std430) uniform Params {
-	vec4 near_rect;    // heights: origin x, origin z, cell (m), samples
+	vec4 tile_rect;    // corner of tile (0, 0) x, z, tile (m), map texels per side
+	vec4 tile_cells;   // height cell (m), heights per side, mask cell (m), mask texels per side
+	vec4 mid_rect;     // origin x, origin z, cell (m), samples (0: no mid field)
 	vec4 far_rect;
 	vec4 field_rect;   // the field being built: origin x, origin z, cell, samples
 	vec4 coarse_rect;  // the far field (w = 0 while it is the one being built)
@@ -13,17 +18,49 @@ layout(push_constant, std430) uniform Params {
 	vec4 mode;         // x: 0 seed, 1 sweep; y: metres of path per metre of step
 } params;
 
-float near_weight(vec2 xz) {
-	vec2 local = (xz - params.near_rect.xy) / params.near_rect.z;
-	vec2 edge = min(local, vec2(params.near_rect.w - 1.0) - local) * params.near_rect.z;
-	return clamp(min(edge.x, edge.y) / 40.0, 0.0, 1.0);
+const float TILE_FADE = 40.0;
+const float TILE_MAP_FIRST = -16.0;
+
+// The weight of the tile under `xz` (TerrainTiles.tile_weight()); `uv` its
+// height coordinates, z the layer.
+float tile_weight(vec2 xz, out vec3 uv) {
+	vec2 at = floor((xz - params.tile_rect.xy) / params.tile_rect.z);
+	vec2 on = at - TILE_MAP_FIRST;
+	vec4 slot = texelFetch(tile_slots, ivec2(clamp(on, vec2(0.0), vec2(params.tile_rect.w - 1.0))), 0);
+	bool mapped = all(greaterThanEqual(on, vec2(0.0))) && all(lessThan(on, vec2(params.tile_rect.w)));
+	int layer = mapped ? int(round(slot.r * 255.0)) - 1 : -1;
+	int missing = int(round(slot.g * 255.0));
+	vec2 l = xz - (params.tile_rect.xy + at * params.tile_rect.z);
+	vec2 r = vec2(params.tile_rect.z) - l;
+	float edge = 1e9;
+	edge = (missing & 1) != 0 ? min(edge, l.x) : edge;
+	edge = (missing & 2) != 0 ? min(edge, r.x) : edge;
+	edge = (missing & 4) != 0 ? min(edge, l.y) : edge;
+	edge = (missing & 8) != 0 ? min(edge, r.y) : edge;
+	edge = (missing & 16) != 0 ? min(edge, max(l.x, l.y)) : edge;
+	edge = (missing & 32) != 0 ? min(edge, max(r.x, l.y)) : edge;
+	edge = (missing & 64) != 0 ? min(edge, max(l.x, r.y)) : edge;
+	edge = (missing & 128) != 0 ? min(edge, max(r.x, r.y)) : edge;
+	uv = vec3((l / params.tile_cells.x + 0.5) / params.tile_cells.y, float(max(layer, 0)));
+	return layer < 0 ? 0.0 : clamp(edge / TILE_FADE, 0.0, 1.0);
+}
+
+float mid_weight(vec2 xz) {
+	vec2 local = (xz - params.mid_rect.xy) / params.mid_rect.z;
+	vec2 edge = min(local, vec2(params.mid_rect.w - 1.0) - local) * params.mid_rect.z;
+	return clamp(min(edge.x, edge.y) / TILE_FADE, 0.0, 1.0);
 }
 
 float height_at(vec2 xz) {
-	float w = near_weight(xz);
+	vec3 uv;
+	float w = tile_weight(xz, uv);
 	float h = textureLod(far_height, ((xz - params.far_rect.xy) / params.far_rect.z + 0.5) / params.far_rect.w, 0.0).r;
+	float wm = mid_weight(xz);
+	if (wm > 0.0) {
+		h = mix(h, textureLod(mid_height, ((xz - params.mid_rect.xy) / params.mid_rect.z + 0.5) / params.mid_rect.w, 0.0).r, wm);
+	}
 	if (w > 0.0) {
-		h = mix(h, textureLod(near_height, ((xz - params.near_rect.xy) / params.near_rect.z + 0.5) / params.near_rect.w, 0.0).r, w);
+		h = mix(h, textureLod(tile_heights, uv, 0.0).r, w);
 	}
 	return h;
 }

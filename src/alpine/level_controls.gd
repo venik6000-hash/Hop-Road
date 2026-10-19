@@ -5,15 +5,12 @@ extends Node
 ## level makes it and hands it what the keys work on before it enters the tree.
 const LEVEL_HUD = preload("res://src/alpine/level_hud.gd")
 
-## Standing on the bay's south beach, facing the island and the far lake.
-const BEACH := Vector3(-58, 4, -6)
-const BEACH_YAW := 20.0
 const WEATHER_KEYS := {KEY_F1: "calm", KEY_F2: "breeze", KEY_F3: "choppy", KEY_F4: "storm"}
 
 ## Told when the line of the weather and the hour is to be written again.
 signal status_changed
 
-## The node that holds the "Controls" canvas (LEVEL_HUD.build): the level.
+## The node that holds the "Controls" canvas (LEVEL_HUD.build): the level's "Shared".
 var hud: Node3D
 var region: RegionDef
 var player: Player
@@ -28,6 +25,9 @@ var lakeside: LakesideSystem
 ## and the region's spawn it is (RegionSpawn.id).
 var spawn := Vector3.ZERO
 var spawn_id := &""
+## The spawn of the region B took the player to last (an index of
+## RegionDef.spawns); -1 before the first B.
+var _toured := -1
 ## The overview camera shows in place of the player's eye (F9).
 var overview_active := false
 
@@ -60,16 +60,32 @@ func _debug_key(key: Key) -> void:
 		var start := region.spawn(spawn_id)
 		teleport(spawn, start.yaw_deg, start.pitch_deg)
 	elif key == KEY_B:
-		teleport(BEACH, BEACH_YAW, -4.0)
+		tour()
 	elif WEATHER_KEYS.has(key):
-		water.ocean.set_preset(str(WEATHER_KEYS[key]))
+		weather.set_sea(str(WEATHER_KEYS[key]))
 	elif key == KEY_F5 or key == KEY_F6:
 		weather.cycle(-1 if key == KEY_F5 else 1)
 	elif key == KEY_F7:
 		weather.auto = not weather.auto
 		status_changed.emit()
 	elif key == KEY_BRACKETLEFT or key == KEY_BRACKETRIGHT:
-		sky.time_of_day += -1.0 if key == KEY_BRACKETLEFT else 1.0
+		# An hour on is lived (the brewery boils it); an hour back is only set.
+		if key == KEY_BRACKETRIGHT:
+			GameClock.pass_hours(1.0)
+		else:
+			GameClock.set_minutes(GameClock.minutes - 60.0)
+
+## The player at the region's next spawn (RegionDef.spawns), the one after the
+## spawn R takes them to first: B goes round all of them.
+func tour() -> void:
+	var spawns := region.spawns
+	if spawns.is_empty():
+		return
+	if _toured < 0:
+		_toured = maxi(spawns.find(region.spawn(spawn_id)), 0)
+	_toured = (_toured + 1) % spawns.size()
+	var place := spawns[_toured]
+	teleport(place.position, place.yaw_deg, place.pitch_deg)
 
 ## The player put at `where`, looking by `yaw` and `pitch`, out of the boat,
 ## a seat, a station and the overview.

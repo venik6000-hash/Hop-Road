@@ -7,9 +7,9 @@
 #include "sun_shadow_common.glslinc"
 
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
-layout(set = 0, binding = 2) uniform sampler2D source;       // r shadow height, g distance
-layout(set = 0, binding = 3) uniform sampler2D coarse_field; // the finished far field
-layout(rg32f, set = 0, binding = 4) uniform restrict writeonly image2D target;
+layout(set = 0, binding = 4) uniform sampler2D source;       // r shadow height, g distance
+layout(set = 0, binding = 5) uniform sampler2D coarse_field; // the finished far field
+layout(rg32f, set = 0, binding = 6) uniform restrict writeonly image2D target;
 
 void main() {
 	ivec2 texel = ivec2(gl_GlobalInvocationID.xy);

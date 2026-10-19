@@ -21,6 +21,9 @@ extends RefCounted
 ##     there and its earth black;
 ##   - the patches wear the path mask bare round the yards of the village,
 ##     with ragged edges, and take the forest floor and the flowers there.
+## The plan's file also holds the region's yard rule (`lawn`, `tree_wall`).
+## The vegetation reads it, not the ground bake (ObstacleMap.lay_lawn,
+## TreePlacer.wall_clearance).
 
 const VILLAGE_BUILDINGS = preload("res://src/village/village_buildings.gd")
 ## Metres to a texel of the field, and the farthest distance it holds.
@@ -53,10 +56,7 @@ const CINDER_PATCH := 1.3
 ## fields {wear, cinder (null without cinders), rect}; empty when the region
 ## wears no yard or route. The patches are painted either way, last.
 static func bake(region: RegionDef, control: Image, origin: Vector2, cell: float) -> Dictionary:
-	var plan := read(region.worn_ground)
-	# A building brings its yard in its table, in its own frame.
-	for table: Dictionary in VILLAGE_BUILDINGS.tables(region):
-		take(plan, Values.table(table.get("worn", {})), VILLAGE_BUILDINGS.pose(table))
+	var plan := plan_of(region)
 	var yards: Array = plan.yards
 	var cart: Array = plan.cart
 	var foot: Array = plan.foot
@@ -70,14 +70,27 @@ static func bake(region: RegionDef, control: Image, origin: Vector2, cell: float
 	paint_patches(control, origin, cell, plan)
 	return fields
 
-## The plan at `path`: {yards, cart, foot, stands, cinder, patches}. The
-## first three are lists of PackedVector2Array (x, z): the yards' outlines
-## and the routes, smoothed; the stands are Vector3 (x, z, the radius feet
-## keep off); the patches of cinders are {outline: PackedVector2Array, fade:
-## the metres over which the cinders run out round it}; the worn patches are
-## Vector4 (x, z of the middle, the half sizes). No path: an empty plan.
+## The plan of `region` whole: its file (read()) and the yard each building
+## brings in its table, in its own frame, stood at the building's place.
+static func plan_of(region: RegionDef) -> Dictionary:
+	var plan := read(region.worn_ground)
+	for table: Dictionary in VILLAGE_BUILDINGS.tables(region):
+		take(plan, Values.table(table.get("worn", {})), VILLAGE_BUILDINGS.pose(table))
+	return plan
+
+## The plan at `path`: {yards, cart, foot, stands, cinder, patches, lawn,
+## tree_wall}. The first three are lists of PackedVector2Array (x, z): the
+## yards' outlines and the routes, smoothed; the stands are Vector3 (x, z,
+## the radius feet keep off); the patches of cinders are {outline:
+## PackedVector2Array, fade: the metres over which the cinders run out round
+## it}; the worn patches are Vector4 (x, z of the middle, the half sizes).
+## The yard rule: `lawn` is Vector3 (metres round a cottage's yard, round a
+## door, how near a wall a route's end makes a door), `tree_wall` the metres
+## a trunk keeps from a wall; zero where the file names none. No path: an
+## empty plan.
 static func read(path: String) -> Dictionary:
-	var plan := {"yards": [], "cart": [], "foot": [], "stands": [], "cinder": [], "patches": []}
+	var plan := {"yards": [], "cart": [], "foot": [], "stands": [], "cinder": [], "patches": [],
+		"lawn": Vector3.ZERO, "tree_wall": 0.0}
 	if path.is_empty() or not FileAccess.file_exists(path):
 		return plan
 	var data: Variant = DataFile.read(path, BuildingSchemas.worn_ground())
@@ -87,6 +100,10 @@ static func read(path: String) -> Dictionary:
 		var patches: Array = plan.patches
 		for patch: Dictionary in file.get("patches", []):
 			patches.append(Vector4(Values.real(patch.at[0]), Values.real(patch.at[1]), Values.real(patch.reach[0]), Values.real(patch.reach[1])))
+		if file.has("lawn"):
+			var lawn: Dictionary = file.lawn
+			plan.lawn = Vector3(Values.real(lawn.yard), Values.real(lawn.door), Values.real(lawn.wall))
+		plan.tree_wall = Values.real(file.get("tree_wall", 0.0))
 	return plan
 
 ## Adds to `plan` what `data` names the way the plan's file does ({yards,

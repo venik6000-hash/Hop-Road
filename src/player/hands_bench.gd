@@ -12,7 +12,7 @@ extends Node3D
 
 const PLAYER := preload("res://scenes/player/player.tscn")
 const LAKESIDE_ROD := preload("res://src/lakeside/lakeside_rod.gd")
-## The real bite's length (CampSystem.eat).
+## The real bite's length (CampFood.eat).
 const BITE_SECONDS := 0.65
 const NAMES: Dictionary[StringName, String] = {
 	BodyChannels.MUG: "кружка",
@@ -37,7 +37,7 @@ const LOG_HANDS := 0.26
 const EYE_PITCH := -28.0
 const LOG_LENGTH := 0.62
 const LOG_RADIUS := 0.075
-## The potato in the left hand, the camera's frame (as CampSystem holds it).
+## The potato in the left hand, the camera's frame (as CampFood holds it).
 const POTATO_AT := Vector3(-0.19, -0.20, -0.46)
 
 var player: Player
@@ -79,7 +79,7 @@ func _ready() -> void:
 	player = PLAYER.instantiate() as Player
 	add_child(player)
 	player.hands_breached.connect(_breached)
-	_camera = player.get_node("CameraRig/Camera3D") as Camera3D
+	_camera = player.camera
 	_tool = MeshInstance3D.new()
 	_tool.mesh = ImmediateMesh.new()
 	var ink := StandardMaterial3D.new()

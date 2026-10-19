@@ -5,6 +5,16 @@ extends Node3D
 ## region's ground bake settled and painted them (TerrainBake), with the water
 ## courses cut there.
 ##
+## The ground is read from tiles over the mid and the far field (TerrainTiles):
+## the world's tiles of tools/pipeline/terrain/terrain_tiles.py, with the
+## settled ground cut into those the bake covers (cut_ground_tiles.gd). The
+## terrain loads the tiles that cover the region's near field when it enters
+## the tree; fill_layer() loads one more. A region the world was not built
+## for has its near field as its one tile. The near field itself stays as
+## the lake's field: the frozen WaterSystem copies `near_height` and
+## `near_rect` from the material. The collision is chunks of the tiles and the
+## mid field round the player (TerrainCollision).
+##
 ## Rendering is CDLOD (Strugar 2009): a quadtree over the 16 km far field is
 ## walked every frame from the camera; each selected node draws one shared grid
 ## patch through a MultiMesh and the vertex shader samples the heightmaps and
@@ -23,7 +33,6 @@ extends Node3D
 
 const TerrainMaterial = preload("res://src/terrain/terrain_material.gd")
 const TerrainPatchMesh = preload("res://src/terrain/terrain_patch_mesh.gd")
-const TerrainCollision = preload("res://src/terrain/terrain_collision.gd")
 const TerrainHeights = preload("res://src/terrain/terrain_heights.gd")
 const SHADER := preload("res://src/terrain/terrain.gdshader")
 const PATCH_QUADS := 32
@@ -32,28 +41,24 @@ const LEVELS := 12
 const MAX_NODES := 1400
 ## A tile this near an opening's wedge (m) is drawn for an eye indoors.
 const SIGHT_MARGIN := 4.0
-## Metres to a repeat of each layer (the L_* of terrain.gdshader). The last
-## is no scan of its own: a yard's trodden earth, the scan of the forest's
-## floor laid finer.
-const LAYER_TILES := [3.2, 3.4, 3.6, 2.8, 3.4, 7.0, 6.0, 38.0, 1.9, 2.3, 2.6, 3.2, 5.0, 3.0, 2.7]
-## rgb tint and saturation per layer (see terrain.gdshader grade()). The
-## forest's floor is graded to rust: dry needles, not the scan's dull earth,
-## and darker than the sward beside it in the same light; a yard's earth is
-## that scan nearly as it was shot. The two rock scans are of red-brown rock: they
-## are held to the grey of the scanned cliffs and boulders that stand on them
-## (RockField.CLIFF_GRADES, rock_grey of rock.gdshaderinc), red to green 1.08
-## and blue to green 0.89 in the mean of the graded scan, as those have.
-const LAYER_GRADES := [
-	Vector4(0.2, 0.47, 0.12, 0.7), Vector4(1.29, 2.39, 1.67, 0.7), Vector4(0.65, 0.635, 0.515, 1.5),
-	Vector4(1.0, 0.97, 0.92, 0.75), Vector4(1.0, 1.0, 1.0, 0.55), Vector4(0.92, 1.0, 0.97, 0.2),
-	Vector4(0.95, 1.0, 0.98, 0.25), Vector4(0.9, 1.0, 0.8, 1.15), Vector4(1.0, 1.0, 1.0, 0.9),
-	Vector4(1.0, 1.0, 1.0, 0.8), Vector4(1.0, 0.94, 0.84, 0.55), Vector4(1.0, 1.0, 1.0, 0.9),
-	Vector4(0.98, 0.99, 1.02, 1.0), Vector4(0.92, 1.03, 0.9, 1.05), Vector4(1.0, 0.98, 0.94, 0.85),
-]
+## Render layer of the terrain's patches. The quadtree picks them for the
+## main camera alone, so a camera of a capture leaves this layer out: it
+## would draw whatever part the eye happens to look at (RainShelter).
+const VISUAL_LAYER := 1 << 19
+## A test turns this on (tests/test_flat_region.gd): a height asked outside
+## the far field is not read off the field's clamped edge. The ask goes to
+## the error log and to `strays`, once per chain of callers.
+static var strict := false
+## The asks outside the far field in strict mode: the callers ("file:line <
+## file:line ...") to the first point asked, Vector2(x, z).
+static var strays := {}
 
 ## Uniforms of terrain_fields.gdshaderinc, which other materials share.
-const FIELD_PARAMS := ["near_height", "far_height", "near_control", "near_extra", "far_masks",
-	"near_rect", "far_rect", "mask_rect", "water_level"]
+const FIELD_PARAMS := ["tile_heights", "tile_control", "tile_extra", "tile_slots", "tile_rect", "tile_cells",
+	"mid_height", "mid_rect", "far_height", "far_masks", "far_rect"]
+
+## A layer of the tiles was filled or emptied (fill_layer()).
+signal tiles_changed
 
 ## LOD k is used out to lod_distance * (size of a level-k node); larger = denser.
 @export var lod_distance := 2.4
@@ -77,8 +82,25 @@ var region: RegionDef
 var meta: Dictionary
 var material := ShaderMaterial.new()
 var water_level := 0.72
+## The near field's settled heights (the lake's field)
+## and the far field's. A terrain in the tree lets them go once it is ready:
+## the tiles and the textures hold the heights. A terrain built outside the
+## tree sets them and asks fields().
 var near_image: Image
 var far_image: Image
+## The physics body of the ground (TerrainCollision); null with
+## collision_enabled off.
+var collision: TerrainCollision
+## The ground the terrain draws and height_at() reads (see fields()).
+var tiles: TerrainTiles
+## The world the tiles come from (TerrainTiles.open_world()); empty for a
+## region it was not built for.
+var tile_world := {}
+## The settled masks of the near field (TerrainBake.read_masks, RGBA8, no
+## mipmaps; null if missing): what the grass, the flowers and the trees read
+## on the CPU.
+var near_control: Image
+var near_extra: Image
 var near_origin := Vector2.ZERO
 var near_cell := 0.5
 var near_size := 2048
@@ -88,6 +110,8 @@ var far_size := 2048
 var selected_nodes := 0
 ## The water courses of the ground bake by name (TerrainBake.courses_of).
 var courses := {}
+## The key of the ground bake the settled tiles must be cut from.
+var _bake_key := ""
 
 var _minmax: Array[PackedFloat32Array] = []
 var _minmax_cell := 32.0
@@ -125,17 +149,96 @@ func _ready() -> void:
 	var saved: Variant = TerrainBake.read_manifest(region)
 	var settled: Dictionary = saved if saved is Dictionary else {}
 	courses = TerrainBake.courses_of(settled)
+	_bake_key = str(settled.get("key", ""))
 	far_image = _load_height(region.terrain_dir.path_join("far_height.bin"), far_size)
+	var baked := TerrainBake.read_masks(region, settled)
+	near_control = baked.get("control")
+	near_extra = baked.get("extra")
+	var start := _open_world()
 	_load_minmax()
 	for level in LEVELS:
 		_ranges.append(lod_distance * LOD0_SIZE * pow(2.0, level))
-	TerrainMaterial.setup(self, TerrainBake.read_masks(region, settled))
+	TerrainMaterial.setup(self, baked)
+	if tile_world.is_empty():
+		TerrainMaterial.fill_layer(self, 0, _blank_if_null(near_control), _blank_if_null(near_extra))
+	for layer in start.size():
+		if not fill_layer(layer, start[layer]):
+			push_error("TerrainSystem: tile %s of %s is missing or short; run tools/run/rebuild.sh --only world-tiles,world-ground-tiles"
+				% [start[layer], tile_world.path])
 	_full = _make_layer("TerrainPatches", PATCH_QUADS)
 	_quad = _make_layer("TerrainQuadrants", PATCH_QUADS / 2)
 	_full_buffer.resize(MAX_NODES * 16)
 	_quad_buffer.resize(MAX_NODES * 16)
 	if collision_enabled:
-		TerrainCollision.build(self)
+		collision = TerrainCollision.build(self)
+	# The tiles and the textures hold the heights from here on.
+	near_image = null
+	far_image = null
+
+## Opens the world's tiles for this region and returns the tiles to load at
+## start: those that cover the near field. Without a world built for this
+## terrain, or with tiles cut from another bake, the near field is the one
+## tile and nothing is to load.
+func _open_world() -> Array[Vector2i]:
+	tile_world = TerrainTiles.open_world(region.terrain_dir, near_origin)
+	var start: Array[Vector2i] = []
+	if not tile_world.is_empty():
+		start = TerrainTiles.covering(tile_world, Rect2(near_origin, Vector2.ONE * near_cell * (near_size - 1)))
+		for at: Vector2i in start:
+			if TerrainTiles.tile_files(tile_world, at, _bake_key).is_empty():
+				push_error("TerrainSystem: tile %s of %s is not cut from the ground bake %s; run tools/run/rebuild.sh --only world-ground-tiles"
+					% [at, tile_world.path, _bake_key.left(12)])
+				tile_world = {}
+				break
+	if tile_world.is_empty():
+		tiles = null
+		fields()
+		return []
+	tiles = TerrainTiles.of_world(tile_world, start.size())
+	tiles.set_far(far_image.get_data().to_float32_array(), far_origin, far_cell, far_size)
+	return start
+
+## One step of a build queue: layer `layer` takes tile `at` of the world:
+## its heights for height_at(), its heights and masks for the shaders, its
+## place on the map. False if its files are missing or short, or if the
+## terrain has no world.
+func fill_layer(layer: int, at: Vector2i) -> bool:
+	if tile_world.is_empty():
+		return false
+	var files := TerrainTiles.tile_files(tile_world, at, _bake_key)
+	if files.is_empty():
+		return false
+	var data := tiles.read_tile(files)
+	if data.is_empty():
+		return false
+	var tile_heights: PackedFloat32Array = data.heights
+	var control: PackedByteArray = data.control
+	var extra: PackedByteArray = data.extra
+	tiles.put(layer, at, tile_heights)
+	TerrainMaterial.fill_layer(self, layer, control, extra)
+	tiles_changed.emit()
+	return true
+
+## The tiles height_at() reads. A terrain built outside the tree (a tool's,
+## a test's) with only its near and far images set gets the near field as
+## its one tile on first use.
+func fields() -> TerrainTiles:
+	if tiles == null:
+		var masks_size := 0
+		var masks_cell := 1.0
+		if meta.has("masks"):
+			masks_size = Values.whole(meta.masks.size)
+			masks_cell = Values.real(meta.masks.cell)
+		tiles = TerrainTiles.of_near(near_image.get_data().to_float32_array(), near_origin, near_cell, near_size,
+			far_image.get_data().to_float32_array(), far_origin, far_cell, far_size, masks_size, masks_cell)
+	return tiles
+
+func _blank_if_null(mask: Image) -> PackedByteArray:
+	if mask != null:
+		return mask.get_data()
+	var blank := PackedByteArray()
+	blank.resize(tiles.mask_samples * tiles.mask_samples * 4)
+	return blank
 
 func _load_height(path: String, size: int) -> Image:
 	var bytes := FileAccess.get_file_as_bytes(path)
@@ -147,8 +250,13 @@ func course(course_name: StringName) -> Array[Dictionary]:
 		return courses[course_name]
 	return []
 
+## The bounds of the patches: terrain.py's pyramid, with the land's tiles
+## folded in when the ground is the world's (terrain_tiles.py).
 func _load_minmax() -> void:
-	var data := FileAccess.get_file_as_bytes(region.terrain_dir.path_join("far_minmax.bin")).to_float32_array()
+	var path := region.terrain_dir.path_join("far_minmax.bin")
+	if not tile_world.is_empty():
+		path = str(tile_world.path).get_base_dir().path_join(str(tile_world.minmax.file))
+	var data := FileAccess.get_file_as_bytes(path).to_float32_array()
 	_minmax_cell = meta.minmax.cell
 	var size := Values.whole(meta.minmax.size)
 	var offset := 0
@@ -183,6 +291,7 @@ func _make_layer(layer_name: String, quads: int) -> MultiMeshInstance3D:
 	multimesh.custom_aabb = AABB(Vector3(-20000, -200, -20000), Vector3(40000, 4400, 40000))
 	instance.multimesh = multimesh
 	instance.material_override = material
+	instance.layers = VISUAL_LAYER
 	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	instance.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 	instance.extra_cull_margin = 4000.0
@@ -197,34 +306,46 @@ static func _patch_mesh(quads: int) -> ArrayMesh:
 
 ## Height at a world position from the same fields the shader uses.
 func height_at(x: float, z: float) -> float:
-	var near_weight := _near_weight(Vector2(x, z))
-	var far_h := _sample(far_image, far_origin, far_cell, far_size, x, z)
-	if near_weight <= 0.0:
-		return far_h
-	return lerpf(far_h, _sample(near_image, near_origin, near_cell, near_size, x, z), near_weight)
+	check_field(x, z, far_origin, far_cell, far_size)
+	return fields().height(x, z)
 
 ## height_at(xs[i], zs[j]) for every pair, row by row (index j * xs.size() + i),
 ## stored as 32-bit floats (see terrain_heights.gd).
 func heights_at_grid(xs: PackedFloat64Array, zs: PackedFloat64Array) -> PackedFloat32Array:
-	return TerrainHeights.heights_at_grid(self, xs, zs)
+	if strict and not xs.is_empty() and not zs.is_empty():
+		for x: float in [_least(xs), _most(xs)]:
+			for z: float in [_least(zs), _most(zs)]:
+				check_field(x, z, far_origin, far_cell, far_size)
+	return TerrainHeights.heights_at_grid(fields(), xs, zs)
 
-func _near_weight(xz: Vector2) -> float:
-	var local := (xz - near_origin) / near_cell
-	var edge := minf(minf(local.x, local.y), minf(near_size - 1 - local.x, near_size - 1 - local.y)) * near_cell
-	return clampf(edge / 40.0, 0.0, 1.0)
+static func _least(values: PackedFloat64Array) -> float:
+	var least := values[0]
+	for value: float in values:
+		least = minf(least, value)
+	return least
 
-static func _sample(image: Image, origin: Vector2, cell: float, size: int, x: float, z: float) -> float:
-	var fx := clampf((x - origin.x) / cell, 0.0, size - 1.001)
-	var fz := clampf((z - origin.y) / cell, 0.0, size - 1.001)
-	var ix := int(fx)
-	var iz := int(fz)
-	var tx := fx - ix
-	var tz := fz - iz
-	var a := image.get_pixel(ix, iz).r
-	var b := image.get_pixel(ix + 1, iz).r
-	var c := image.get_pixel(ix, iz + 1).r
-	var d := image.get_pixel(ix + 1, iz + 1).r
-	return lerpf(lerpf(a, b, tx), lerpf(c, d, tx), tz)
+static func _most(values: PackedFloat64Array) -> float:
+	var most := values[0]
+	for value: float in values:
+		most = maxf(most, value)
+	return most
+
+## In strict mode, notes a height asked at (x, z) outside the far field of
+## `origin`, `cell` and `size` (strays).
+static func check_field(x: float, z: float, origin: Vector2, cell: float, size: int) -> void:
+	if not strict:
+		return
+	var span := cell * (size - 1)
+	if x >= origin.x and z >= origin.y and x <= origin.x + span and z <= origin.y + span:
+		return
+	var callers := PackedStringArray()
+	for frame: Dictionary in get_stack().slice(1):
+		callers.append("%s:%d" % [str(frame.source).trim_prefix("res://"), Values.whole(frame.line)])
+	var chain := " < ".join(callers)
+	if strays.has(chain):
+		return
+	strays[chain] = Vector2(x, z)
+	push_error("TerrainSystem: height asked outside the field at (%.1f, %.1f) by %s" % [x, z, chain])
 
 func _process(_delta: float) -> void:
 	var view := camera if camera != null else get_viewport().get_camera_3d()
@@ -331,6 +452,16 @@ func height_range(rect: Rect2) -> Vector2:
 			var k := (iz * count + ix) * 2
 			result = Vector2(minf(result.x, data[k]), maxf(result.y, data[k + 1]))
 	return result + Vector2(-2.0, 2.0)
+
+## The lowest ground of the whole far field (the top of the min/max pyramid).
+func lowest() -> float:
+	return _minmax[_minmax.size() - 1][0]
+
+## Whether the far field has the height at (x, z): an ask outside it reads
+## the clamped edge (check_field).
+func covers(x: float, z: float) -> bool:
+	var span := far_cell * (far_size - 1)
+	return x >= far_origin.x and z >= far_origin.y and x <= far_origin.x + span and z <= far_origin.y + span
 
 ## Lowest and highest terrain height over the square [x, x+size] x [z, z+size].
 func height_bounds(x: float, z: float, size: float) -> Vector2:

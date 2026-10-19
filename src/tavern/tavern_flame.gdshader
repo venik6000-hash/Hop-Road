@@ -4,7 +4,8 @@ shader_type spatial;
 // flickering over time; each flame its own rhythm from where it stands.
 render_mode unshaded, blend_add, cull_disabled, depth_draw_never, shadows_disabled;
 
-global uniform vec3 sun_direction;
+// How far the lamps are lit, 0 by day .. 1 at night (SkySystem.dusk_of).
+global uniform float lamp_dusk;
 
 uniform vec3 flame_color : source_color = vec3(1.0, 0.62, 0.25);
 uniform float energy = 4.0;
@@ -33,7 +34,7 @@ float noise(vec2 p) {
 }
 
 void fragment() {
-	float lit = mix(1.0, 1.0 - smoothstep(-0.02, 0.18, sun_direction.y), dusk_only);
+	float lit = mix(1.0, lamp_dusk, dusk_only);
 	if (lit < 0.01) {
 		discard;
 	}

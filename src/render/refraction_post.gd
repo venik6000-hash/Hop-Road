@@ -2,7 +2,7 @@ class_name RefractionPost
 extends CompositorEffect
 ## Bends the finished picture where light is bent on its way to the eye
 ## (refraction_post.glsl), after the transparent geometry and before the fog:
-##  - the hot air over the fires (the nodes of HEAT_GROUP) shimmers;
+##  - the hot air over the fires (HearthFire.heating) shimmers;
 ##  - the rain's drops leave rings on the lake.
 ## Both are done on the picture because nothing else can do them: a material
 ## reads the scene without the transparent things already drawn (the lake, the
@@ -15,8 +15,6 @@ extends CompositorEffect
 const RdUtil = preload("res://src/common/rd_util.gd")
 const SHADER := "res://src/render/refraction_post.glsl"
 const PARAM_FLOATS := 128
-## Fires whose hot air shimmers (HearthFire nodes).
-const HEAT_GROUP := &"heat_haze"
 const MAX_FIRES := 8
 ## How far away (m) a fire's air still shows, and the rings on the lake.
 const HEAT_VIEW := 32.0
@@ -60,8 +58,8 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE and _rd != null:
 		RdUtil.free_rids(_rd, [_shader, _nearest, _linear, _params])
 
-## Takes this frame's state for the render thread. `fires` are the nodes of
-## HEAT_GROUP, `rain` the share of the drops that fall (RainFall.amount),
+## Takes this frame's state for the render thread. `fires` are the fires
+## whose air shimmers (HearthFire.heating), `rain` the share of the drops that fall (RainFall.amount),
 ## `lake_level` the lake's level, `lake_near` whether its water lies within
 ## RING_VIEW of the eye, and `wave_height` its waves' significant height (m).
 func prepare(delta: float, eye: Vector3, fires: Array, rain: float, lake_level: float, lake_near: bool,

@@ -9,6 +9,10 @@ const SMALL_SHAPE := Vector2(0.16, 0.4)
 ## Ground speed, m/s: Vector2(walking, fleeing), by kind; SMALL for the rest.
 const SPEEDS := {"deer": Vector2(0.85, 3.4), "fox": Vector2(0.65, 2.4)}
 const SMALL_SPEED := Vector2(0.38, 1.3)
+## What the animal does: grazes, stands, watches the player, runs away.
+enum State {GRAZE, IDLE, ALERT, FLEE}
+## The clip the animal plays while it waits in a state.
+const CLIPS: Dictionary[State, String] = {State.GRAZE: "graze", State.IDLE: "idle", State.ALERT: "alert", State.FLEE: "flee"}
 var kind := "deer"
 var habitat: WildlifeSystem
 var home := Vector3.ZERO
@@ -16,7 +20,7 @@ var home_radius := 16.0
 var rng := RandomNumberGenerator.new()
 var animation: AnimationPlayer
 var target := Vector3.ZERO
-var state := "graze"
+var state := State.GRAZE
 var _wait := 0.0
 var _blocked := 0.0
 var _decision := 0.0
@@ -65,12 +69,12 @@ func _physics_process(delta: float) -> void:
 	var offset := target - global_position
 	offset.y = 0.0
 	if _wait > 0.0:
-		WildlifeModel.play(animation, state)
+		WildlifeModel.play(animation, CLIPS[state])
 	elif offset.length() < 0.65:
-		state = "graze" if rng.randf() < 0.65 else "idle"
+		state = State.GRAZE if rng.randf() < 0.65 else State.IDLE
 		_wait = rng.randf_range(3.0, 9.0)
 		target = habitat.ground_target(home, home_radius, kind, rng)
-		WildlifeModel.play(animation, state)
+		WildlifeModel.play(animation, CLIPS[state])
 	else:
 		var direction := offset.normalized()
 		var ahead := global_position + direction * 1.4
@@ -82,8 +86,8 @@ func _physics_process(delta: float) -> void:
 			velocity.x = direction.x * speed
 			velocity.z = direction.z * speed
 			# The doe's source has a run clip but no walk; slow the same gait.
-			var clip := "run" if state == "flee" or kind == "deer" else "walk"
-			WildlifeModel.play(animation, clip, 0.48 if kind == "deer" and state != "flee" else 1.0)
+			var clip := "run" if state == State.FLEE or kind == "deer" else "walk"
+			WildlifeModel.play(animation, clip, 0.48 if kind == "deer" and state != State.FLEE else 1.0)
 	var before := global_position
 	_pace.slide(self, delta)
 	if _wait <= 0.0 and offset.length() > 0.65:
@@ -93,19 +97,19 @@ func _physics_process(delta: float) -> void:
 
 func _speed() -> float:
 	var speeds: Vector2 = SPEEDS.get(kind, SMALL_SPEED)
-	return speeds.y if state == "flee" else speeds.x
+	return speeds.y if state == State.FLEE else speeds.x
 
 func _replan() -> void:
 	_blocked = 0.0
 	_wait = 1.5
-	state = "idle"
+	state = State.IDLE
 	target = habitat.ground_target(home, home_radius, kind, rng)
 
 ## Runs to `point` at once.
 func flee_to(point: Vector3) -> void:
 	target = point
 	_wait = 0.0
-	state = "flee"
+	state = State.FLEE
 
 ## Minds the player: flees from one too near by the first clear way, or
 ## stands alert; calms down once the run is over.
@@ -116,8 +120,8 @@ func react() -> void:
 	away.y = 0.0
 	var scare := 6.5 if kind == "deer" else 5.0 if kind == "fox" else 2.3
 	if away.length() >= scare or away.length() < 0.01:
-		if state == "flee" and global_position.distance_to(target) < 1.0:
-			state = "idle"
+		if state == State.FLEE and global_position.distance_to(target) < 1.0:
+			state = State.IDLE
 		return
 	# Try a fan of escape paths so a tree or a cliff does not suppress fear.
 	for turn: float in [0.0, 0.45, -0.45, 0.9, -0.9, 1.25, -1.25]:
@@ -135,5 +139,5 @@ func react() -> void:
 		if safe:
 			flee_to(retreat)
 			return
-	state = "alert" if kind == "deer" else "idle"
+	state = State.ALERT if kind == "deer" else State.IDLE
 	_wait = 0.8

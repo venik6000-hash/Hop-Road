@@ -10,8 +10,17 @@ extends Node
 ## the share of the sun that reaches the ground), AtmosphereFog (haze, the
 ## mist over the lake, rain fog under the clouds, the fog in the woods, light
 ## shafts, the rainbow),
-## LightningFx (the flash, the bolt, the thunder), the lake's wind, and the
-## surfaces' shaders (how wet the ground is and how full its puddles).
+## LightningFx (the flash, the bolt, the thunder), and the surfaces' shaders
+## (how wet the ground is and how full its puddles).
+##
+## The wind over the ground is the weather's too: each kind raises a sea on
+## the lake (its row's "lake", OceanFFT.PRESETS), and the wind of that sea
+## blows everywhere, lake or not (set_sea). Each kind turns it to a heading of
+## its row's "heading" (pick_heading). It is written once, as the global
+## shader parameter `wind` (pack_wind), which every plant reads, with the
+## gusts' way `wind_drift`; the rain, the mist and the vanes take it from
+## here. The lake's ocean takes its speed only: its waves keep their own
+## heading (OceanFFT.WAVE_HEADING_DEG), the lake being the reference look.
 
 signal weather_changed(kind: String)
 ## A lightning strike: {at: Vector3 (world, m), ground: bool, power: 0..1,
@@ -37,7 +46,7 @@ const WOOD_IN_RAIN := 0.7
 const RING_CLOCK_WRAP := 900.0
 ## How far from the viewer a strike lands, m, and the clouds' base above it.
 const STRIKE_RANGE := Vector2(1200.0, 8500.0)
-const CLOUD_BASE := 1700.0
+const CLOUD_BASE := SkySystem.CLOUD_BASE_KM * 1000.0
 ## A strike's height against the base, m: low in the cloud, where its light
 ## still gets out through the base.
 const STRIKE_HEIGHT := Vector2(-60.0, 260.0)
@@ -47,9 +56,17 @@ const STRIKE_PAUSE := Vector2(3.5, 11.0)
 ## hour at most, against a day of 48 minutes. A storm passes sooner.
 const DWELL_SECONDS := Vector2(360.0, 900.0)
 const STORM_DWELL_SECONDS := Vector2(180.0, 300.0)
+## Metres at which the gusts' way wraps (`wind_drift`): ten repeats of their
+## field (wind.gdshaderinc, GUST_SCALE), whose finer octave repeats 2.7 times
+## as often.
+const GUST_WRAP := 1800.0
 
-## Seconds one weather takes to turn into the next.
+## Seconds one weather takes to turn into the next; the wind comes round to
+## the new weather's heading as long.
 @export var transition_seconds := 25.0
+## Where the wind over the ground blows to, degrees from +X toward +Z: the
+## authored one until a weather turns it.
+@export var wind_heading_deg := 55.0
 ## The weather changes by itself.
 @export var auto := false
 
@@ -57,6 +74,9 @@ var sky: SkySystem
 var ocean: OceanFFT
 var fog: AtmosphereFog
 var viewer: Node3D
+## What the content has for the wind to turn (WorldContext.wind_vanes):
+## Callable(heading: float), the heading in radians. Null in a tool without it.
+var vanes: ContentRegistry
 var kind := "fair"
 ## The state now (WeatherTable.FIELDS).
 var state: Dictionary = WeatherTable.state("fair")
@@ -70,51 +90,117 @@ var puddles := 0.0
 var strikes: Array[Dictionary] = []
 ## The light of all the strikes on the ground at the viewer, 0..1.
 var flash_light := 0.0
+## The sea the wind raises on the lake (OceanFFT.PRESETS).
+var sea := "breeze"
+## The wind over the ground, m/s: it turns to the wind of a new sea over
+## OceanFFT.SEA_SECONDS, as the waves do.
+var wind_speed := OceanFFT.sea_wind("breeze")
+## Metres the gusts have gone downwind (x, z), wrapped at GUST_WRAP: the
+## global `wind_drift`.
+var gust_drift := Vector2.ZERO
 
 var _from: Dictionary = state
+## The state of `kind` the transition goes to (WeatherTable.state), taken once
+## at set_weather.
+var _to: Dictionary = state
 var _blend := 1.0
 var _dwell := 0.0
 var _strike_in := 0.0
-var _rng := RandomNumberGenerator.new()
 var _ring_clock := 0.0
 var _wet_sent := Vector4(-1.0, 0.0, 0.0, 0.0)
+var _wind_from := wind_speed
+var _wind_to := wind_speed
+var _wind_blend := 1.0
+var _heading_from := wind_heading_deg
+var _heading_to := wind_heading_deg
+var _heading_blend := 1.0
+## The wind last written; NaN never compares equal, so the first is.
+var _wind_sent := Vector4(NAN, NAN, NAN, NAN)
+## The heading the vanes last turned to; NaN turns them at the next frame.
+var _vanes_heading := NAN
+## The weather's own chance: the kinds it goes to by itself, how long each
+## stays, the strikes and the wind's headings. Seeded at random as the weather
+## comes into the tree; a test seeds it to draw the same weather again.
+var dice := RandomNumberGenerator.new()
 
 func _ready() -> void:
-	_rng.randomize()
+	dice.randomize()
 	_dwell = _keep(kind)
+	if vanes != null:
+		vanes.added.connect(_vane_added)
 	apply()
+
+## A vane came: every vane is turned to the wind at the next frame.
+func _vane_added(_vane: Variant) -> void:
+	_vanes_heading = NAN
 
 func set_weather(new_kind: String, instant := false) -> void:
 	if not WeatherTable.rows().has(new_kind):
 		return
 	kind = new_kind
 	_from = state
+	_to = WeatherTable.state(kind)
 	_blend = 1.0 if instant else 0.0
 	if instant:
-		state = WeatherTable.state(kind)
+		state = _to.duplicate()
 		droplets = state.rain
 		wetness = damp(Values.real(state.rain), Values.real(state.mist))
 		puddles = state.rain
 		strikes.clear()
-	if ocean != null:
-		ocean.set_preset(str(WeatherTable.row(kind).get("lake", "breeze")), instant)
+	set_sea(str(WeatherTable.row(kind).get("lake", "breeze")), instant)
+	turn_wind(pick_heading(kind, dice), instant)
 	_dwell = _keep(kind)
 	apply()
 	weather_changed.emit(kind)
+
+## The wind of the sea `sea_name` (OceanFFT.PRESETS) blows, at once or over
+## OceanFFT.SEA_SECONDS; the lake raises that sea where there is one.
+func set_sea(sea_name: String, instant := false) -> void:
+	if not OceanFFT.PRESETS.has(sea_name):
+		return
+	sea = sea_name
+	_wind_from = wind_speed
+	_wind_to = OceanFFT.sea_wind(sea_name)
+	_wind_blend = 1.0 if instant else 0.0
+	if instant:
+		wind_speed = _wind_to
+	if ocean != null:
+		ocean.set_preset(sea_name, instant)
+	_blow()
 
 ## The weather `seconds` on, without the turns between: what a sleeper wakes
 ## to. Weather that stands still stays as it is.
 func skip(seconds: float) -> void:
 	if not auto:
 		return
-	var later := after(kind, _dwell, seconds, _rng)
+	var later := after(kind, _dwell, seconds, dice)
 	if later.kind != kind:
 		set_weather(str(later.kind), true)
 	_dwell = later.dwell
 
+## The wind comes round to `heading_deg`, at once or over transition_seconds,
+## the short way.
+func turn_wind(heading_deg: float, instant := false) -> void:
+	_heading_from = wind_heading_deg
+	_heading_to = heading_deg
+	_heading_blend = 1.0 if instant else 0.0
+	if instant:
+		wind_heading_deg = heading_deg
+
+## A heading, degrees 0..360, for the wind of the weather `of_kind`: one of its
+## row's "heading" range (WeatherTable.headings), drawn by `rng`.
+static func pick_heading(of_kind: String, rng: RandomNumberGenerator) -> float:
+	var span := WeatherTable.headings(of_kind)
+	return fposmod(rng.randf_range(span.x, span.y), 360.0)
+
+## The heading `t` (0..1) of the way from `from_deg` round to `to_deg`, the
+## short way, degrees 0..360.
+static func turned(from_deg: float, to_deg: float, t: float) -> float:
+	return fposmod(rad_to_deg(lerp_angle(deg_to_rad(from_deg), deg_to_rad(to_deg), t)), 360.0)
+
 func _keep(of_kind: String) -> float:
 	var keeps := dwell_range(of_kind)
-	return _rng.randf_range(keeps.x, keeps.y)
+	return dice.randf_range(keeps.x, keeps.y)
 
 ## The next (`step` 1) or the previous (-1) kind of the list.
 func cycle(step: int) -> void:
@@ -123,11 +209,19 @@ func cycle(step: int) -> void:
 func _process(delta: float) -> void:
 	if _blend < 1.0:
 		_blend = minf(_blend + delta / maxf(transition_seconds, 0.01), 1.0)
-		state = blend_states(_from, WeatherTable.state(kind), smoothstep(0.0, 1.0, _blend))
+		state = blend_states(_from, _to, smoothstep(0.0, 1.0, _blend))
+	if _wind_blend < 1.0:
+		_wind_blend = minf(_wind_blend + delta / OceanFFT.SEA_SECONDS, 1.0)
+		wind_speed = lerpf(_wind_from, _wind_to, smoothstep(0.0, 1.0, _wind_blend))
+	if _heading_blend < 1.0:
+		_heading_blend = minf(_heading_blend + delta / maxf(transition_seconds, 0.01), 1.0)
+		wind_heading_deg = turned(_heading_from, _heading_to, smoothstep(0.0, 1.0, _heading_blend))
+	gust_drift = (gust_drift + wind_over_ground() * delta).posmod(GUST_WRAP)
+	RenderingServer.global_shader_parameter_set(&"wind_drift", gust_drift)
 	if auto:
 		_dwell -= delta
 		if _dwell <= 0.0:
-			set_weather(pick_next(kind, _rng))
+			set_weather(pick_next(kind, dice))
 	droplets = settle_droplets(droplets, Values.real(state.rain), delta)
 	wetness = soak(wetness, damp(Values.real(state.rain), Values.real(state.mist)), delta, SOAK_SECONDS, DRY_SECONDS)
 	puddles = soak(puddles, Values.real(state.rain), delta, PUDDLE_FILL_SECONDS, PUDDLE_DRY_SECONDS)
@@ -140,8 +234,8 @@ func _strike(delta: float) -> void:
 	if state.storm > 0.05 and viewer != null:
 		_strike_in -= delta * state.storm
 		if _strike_in <= 0.0:
-			_strike_in = _rng.randf_range(STRIKE_PAUSE.x, STRIKE_PAUSE.y)
-			var strike := make_strike(viewer.global_position, _rng)
+			_strike_in = dice.randf_range(STRIKE_PAUSE.x, STRIKE_PAUSE.y)
+			var strike := make_strike(viewer.global_position, dice)
 			strikes.append(strike)
 			lightning_struck.emit(strike)
 	flash_light = 0.0
@@ -169,6 +263,7 @@ func apply() -> void:
 		sky.wind_scale = state.wind
 		sky.sun_share = sun_share(Values.real(state.coverage), Values.real(state.density), Values.real(state.darkness))
 		sky.cloud_glow = cloud_glow(Values.real(state.coverage), Values.real(state.density), Values.real(state.darkness))
+		sky.cloud_closed = closed_sky(Values.real(state.coverage), Values.real(state.density))
 		for index in sky.lightning.size():
 			sky.lightning[index] = Vector4.ZERO
 		for index in mini(strikes.size(), sky.lightning.size()):
@@ -190,6 +285,34 @@ func apply() -> void:
 	if wet != _wet_sent:
 		_wet_sent = wet
 		RenderingServer.global_shader_parameter_set(&"weather_wet", wet)
+	_blow()
+
+## Gives the wind's speed to the lake's ocean, the wind to the global `wind`
+## when it has changed, and to the vanes when it has turned.
+func _blow() -> void:
+	if ocean != null:
+		ocean.blow(wind_speed)
+	var blowing := pack_wind(wind_heading_deg, wind_speed)
+	if blowing != _wind_sent:
+		_wind_sent = blowing
+		RenderingServer.global_shader_parameter_set(&"wind", blowing)
+	if vanes != null and wind_heading_deg != _vanes_heading:
+		_vanes_heading = wind_heading_deg
+		for vane: Variant in vanes.entries():
+			var turn: Callable = vane
+			turn.call(deg_to_rad(wind_heading_deg))
+
+## The wind over the ground, m/s along x and z.
+func wind_over_ground() -> Vector2:
+	var heading := deg_to_rad(wind_heading_deg)
+	return Vector2(cos(heading), sin(heading)) * wind_speed
+
+## The wind as the global `wind` holds it: (x, z of the way it blows to, unit
+## length; strength, 0 calm .. 1 a fresh breeze .. 2.2 a storm; speed m/s).
+## Pressure grows with the square of the speed: a storm bends hard.
+static func pack_wind(heading_deg: float, speed: float) -> Vector4:
+	var heading := deg_to_rad(heading_deg)
+	return Vector4(cos(heading), sin(heading), minf(pow(speed / 9.0, 1.6), 2.2), speed)
 
 ## Fog everywhere: the weather's own and the haze of a low sun.
 func haze() -> float:
@@ -202,7 +325,7 @@ func mist() -> float:
 		return state.mist
 	var calm: float = (1.0 - smoothstep(0.55, 0.85, Values.real(state.coverage))) * (1.0 - state.rain) \
 		* (1.0 - smoothstep(0.9, 1.6, Values.real(state.wind)))
-	return maxf(Values.real(state.mist), 0.7 * calm * dawn_mist(sky.sun_direction.y, sky.time_of_day))
+	return maxf(Values.real(state.mist), 0.7 * calm * dawn_mist(sky.sun_direction.y, GameClock.hour()))
 
 ## The fog a wood holds under its crowns, 0..1: all of it in a mist, most of
 ## it under rain and for as long after it as the drops hang in the air.

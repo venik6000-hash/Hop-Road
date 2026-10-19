@@ -20,9 +20,43 @@ const FLOOR_SNAP_LENGTH := MOTION.FLOOR_SNAP_LENGTH
 const GAME_SETTINGS = preload("res://src/settings/game_settings.gd")
 
 @onready var rig: CameraRig = $CameraRig
+## The eye of the rig, which the systems that look where the player looks use.
+@onready var camera: Camera3D = $CameraRig/Camera3D
+## The capsule the body stands in.
+@onready var collision: CollisionShape3D = $Collision
 @onready var viewmodel: BeerViewmodel = get_node_or_null("BeerViewmodel")
 
-var movement_locked := false
+## The player's modes (docs/PLAYER.md, «Режимы игрока»). One system owns the
+## mode at a time: it asks for it with enter() and gives it back with leave().
+## WALK: the feet walk and swim by the controls. SEATED, LADDER, BOAT: a seat,
+## the ladder or the boat carries the body (CARRIED). STATION, SLEEP, MENU:
+## the feet stand still, the body falls and floats as it does on foot (a
+## brewery's station; the sleep; the brewer's book or the catch's journal).
+const WALK := &"walk"
+const SEATED := &"seated"
+const LADDER := &"ladder"
+const BOAT := &"boat"
+const STATION := &"station"
+const SLEEP := &"sleep"
+const MENU := &"menu"
+const MODES: Array[StringName] = [WALK, SEATED, LADDER, BOAT, STATION, SLEEP, MENU]
+## The modes where something carries the body: its physics and its capsule
+## are off.
+const CARRIED: Array[StringName] = [SEATED, LADDER, BOAT]
+## The modes where the player stands on their own feet.
+const ON_FEET: Array[StringName] = [WALK, STATION, MENU]
+## The mode the player is in now (MODES). Read it; change it with enter() and
+## leave().
+var mode := WALK
+## The system that owns the mode; null in WALK.
+var _mode_owner: Object = null
+## The feet stand still: the player is in a mode other than WALK.
+var movement_locked: bool:
+	get:
+		return mode != WALK
+## What the player has: the coins, the mug, the food in the hand, the place
+## they stood (PlayerState). The save keeps it.
+var state := PlayerState.new()
 ## The right stick does not turn the view: a doer reads it (BrewHouse at a
 ## station takes it as the mouse).
 var look_held := false
@@ -47,7 +81,9 @@ var _arms_doer := &""
 
 var _previous_velocity := Vector3.ZERO
 ## CameraRig.sensitivity as the scene sets it, before the settings scale it.
-var _base_sensitivity := 0.0
+## stick_gesture divides by it: it is taken as the body enters the tree, also
+## for a player whose own _ready does not call this one (the tools' player).
+@onready var _base_sensitivity: float = rig.sensitivity
 var _settings: GAME_SETTINGS
 ## Шагал ли игрок в прошлом кадре.
 ##
@@ -87,13 +123,17 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	_set_up_body()
 	_join_hands()
-	_base_sensitivity = rig.sensitivity
 	_settings = get_node_or_null("/root/GameSettings")
 	if _settings != null:
 		_settings.controls_changed.connect(_apply_look_settings)
 		_apply_look_settings()
 		_settings.fov_changed.connect(_set_fov)
 		_set_fov(_settings.fov)
+
+## Switches the capsule of the body on and off: off while a seat or a
+## ladder carries the player.
+func set_body_enabled(enabled: bool) -> void:
+	collision.disabled = not enabled
 
 ## Прилипание к полу — свойство тела, и задаётся оно здесь, а не в сцене,
 ## чтобы стоять рядом с высотой шага: эти две цифры связаны и врозь не имеют
@@ -115,6 +155,7 @@ func _join_hands() -> void:
 	hands.leaked.connect(_leaked)
 	if viewmodel != null:
 		viewmodel.channels = hands
+		viewmodel.use_state(state)
 		hands.changed.connect(_show_mug)
 		hands.claim(BodyChannels.MUG, viewmodel.is_inside_tree)
 
@@ -134,7 +175,7 @@ func set_first_person(shown: bool) -> void:
 
 func _process(delta: float) -> void:
 	var turn := stick_look(delta)
-	if turn != Vector2.ZERO and not look_held and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+	if turn != Vector2.ZERO and not look_held and camera.current and InputActions.live(&"look_left"):
 		rig.apply_look(turn)
 	guard_hands()
 
@@ -210,26 +251,73 @@ func _leaked(doer: StringName) -> void:
 	push_error("BodyChannels: " + what)
 	hands_breached.emit(what)
 
+## The mouse turns the view while the pointer is captured and the look is the
+## game's (InputActions.live); E with nothing to act on, or V, sips from the
+## mug; a click takes the pointer back.
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		rig.apply_look((event as InputEventMouseMotion).relative)
-	elif InputActions.pressed(event, "interact") or InputActions.pressed(event, "drink_beer"):
-		if viewmodel != null and viewmodel.visible and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and not event.is_echo():
+	if event is InputEventMouseMotion:
+		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and InputActions.live(&"look_left"):
+			rig.apply_look((event as InputEventMouseMotion).relative)
+	elif InputActions.takes(event, &"interact") or InputActions.takes(event, &"drink_beer"):
+		if viewmodel != null and viewmodel.visible and not event.is_echo():
 			viewmodel.drink()
-	elif (event is InputEventMouseButton or event is InputEventJoypadButton) and event.is_pressed():
+	elif (event is InputEventMouseButton or event is InputEventJoypadButton) and event.is_pressed() \
+			and InputActions.in_play():
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+## `holder` takes the player into `to` (MODES, not WALK). Only from WALK: a
+## mode another system owns is not taken over. True when the player is in
+## `to` for `holder` now (also when it was already).
+func enter(to: StringName, holder: Object) -> bool:
+	if to == WALK or not MODES.has(to) or holder == null:
+		push_error("Player.enter: no mode %s for %s" % [to, holder])
+		return false
+	if mode != WALK:
+		return mode == to and _mode_owner == holder
+	_mode_owner = holder
+	_set_mode(to)
+	return true
+
+## `holder` gives its mode back: the player walks again. Nothing happens when
+## another system owns the mode.
+func leave(holder: Object) -> void:
+	if mode == WALK or _mode_owner != holder:
+		return
+	_mode_owner = null
+	_set_mode(WALK)
+
+## The system that owns the mode now; null in WALK.
+func mode_owner() -> Object:
+	return _mode_owner
+
+## The player stands on their own feet: not carried and not asleep (ON_FEET).
+func on_feet() -> bool:
+	return ON_FEET.has(mode)
+
+## Puts the body as `to` wants it: a carried body stops and lets go of the
+## floor; it walks again when the mode ends.
+func _set_mode(to: StringName) -> void:
+	var previous := mode
+	mode = to
+	var carried := CARRIED.has(to)
+	if carried != CARRIED.has(previous):
+		velocity = Vector3.ZERO
+		set_body_enabled(not carried)
+		set_physics_process(not carried)
 
 func _physics_process(delta: float) -> void:
 	var depth := water_surface - global_position.y
+	# The feet answer the controls in WALK only, and only while the game's
+	# context has the walk (InputActions.live).
 	var input := Vector2(
-		Input.get_axis("move_left", "move_right"),
-		Input.get_axis("move_back", "move_forward")
+		InputActions.axis(&"move_left", &"move_right"),
+		InputActions.axis(&"move_back", &"move_forward")
 	)
 	if movement_locked:
 		input = Vector2.ZERO
-	var sprint := Input.is_action_pressed("sprint") and not movement_locked
+	var sprint := not movement_locked and InputActions.live(&"sprint") and Input.is_action_pressed(&"sprint")
 	var speed := water_speed((RUN_SPEED if sprint else WALK_SPEED) * pace, depth, sprint)
-	var vertical_input := 0.0 if movement_locked else Input.get_axis("swim_down", "swim_up")
+	var vertical_input := 0.0 if movement_locked else InputActions.axis(&"swim_down", &"swim_up")
 	swimming = depth > SWIM_DEPTH
 	diving = swimming and (depth > EYE_HEIGHT + 0.05 or vertical_input < 0.0)
 	var target := wish_direction(input, rotation_degrees.y) * speed

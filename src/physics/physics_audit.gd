@@ -3,16 +3,19 @@ extends Node
 ## Holds every CollisionObject3D of the level to the rules of PhysicsLayers
 ## (docs/LEVEL.md, «Сторож»): a live shape that is not degenerate, one layer
 ## of PhysicsLayers.MASKS, the mask of that layer, CCD and mass on a rigid
-## body. It checks the bodies under its parent when it enters the tree and
-## each body added later, once, at the end of the frame the body is added in:
-## code often gives a body its shapes after add_child. A body that gets its
-## shapes only after an await is checked too early. Nothing runs per frame.
+## body. It checks the bodies under its scope (the parent when none is given)
+## when it enters the tree and each body added later, once, at the end of the
+## frame the body is added in: code often gives a body its shapes after
+## add_child. A body that gets its shapes only after an await is checked too
+## early. Nothing runs per frame.
 
 ## A body breaks a rule: `message` names the body, the rule and the values.
 signal violation(body: CollisionObject3D, message: String)
 
 ## Every violation seen so far.
 var violations: PackedStringArray = []
+## Whose bodies it checks: the level, shared systems and content alike.
+var scope: Node
 ## Bodies checked so far.
 var checked := 0
 ## Untyped: a body may be freed before the flush.
@@ -27,18 +30,20 @@ func _exit_tree() -> void:
 	get_tree().node_added.disconnect(_on_node_added)
 
 func _ready() -> void:
-	for node in get_parent().find_children("*", "CollisionObject3D", true, false):
+	if scope == null:
+		scope = get_parent()
+	for node in scope.find_children("*", "CollisionObject3D", true, false):
 		_queue(node)
 
-## Checks every body under the parent again now; returns what is wrong now.
+## Checks every body under the scope again now; returns what is wrong now.
 func audit_all() -> PackedStringArray:
 	var found := PackedStringArray()
-	for node in get_parent().find_children("*", "CollisionObject3D", true, false):
+	for node in scope.find_children("*", "CollisionObject3D", true, false):
 		found.append_array(_check(node as CollisionObject3D))
 	return found
 
 func _on_node_added(node: Node) -> void:
-	if node is CollisionObject3D and get_parent().is_ancestor_of(node):
+	if node is CollisionObject3D and scope != null and scope.is_ancestor_of(node):
 		_queue(node)
 
 func _queue(body: Object) -> void:

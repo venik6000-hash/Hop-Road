@@ -70,28 +70,11 @@ const PLANTS := {
 ## surface, and what the waves add), and this much (m) for its swaying.
 const SEEN_SPREAD := 1.5
 const SEEN_SWAY := 1.0
-## Where the lake is searched (world x, z).
-const LAKE := Rect2(-192.0, -114.0, 165.0, 124.0)
-## The village beach and pier (the beach zone of
-## tools/pipeline/terrain/terrain.py): no reeds on the bathing shore (x range,
-## z range).
-const BEACH := Rect2(-132.0, -62.0, 106.0, 88.0)
-const VILLAGE := Vector2(0.0, -35.0)
-const POOL := Vector2(-50.0, -119.5)
-## The cove under the waterfall cliff: bare rock and plunging water, no reeds.
-const COVE := Rect2(-74.0, -142.0, 50.0, 38.0)
-## The village's two marsh shores (tools/pipeline/terrain/terrain_village.py:
-## the MARSH reaches of SHORE) are reed beds all the same, drawn stand by stand
-## (x, z, radius): the corner of the bay by the bridge, with windows of open
-## water between its stands, and the fishing cove, whose stands leave the way
-## from the ditch's mouth to the lake clear for a boat.
-const MARSH_STANDS: Array[Vector3] = [
-	Vector3(-35.5, -25.0, 3.4), Vector3(-36.5, -20.0, 3.8), Vector3(-33.2, -17.4, 2.8), Vector3(-32.8, -22.2, 2.2),
-	Vector3(-27.0, -72.6, 3.2), Vector3(-29.0, -69.8, 2.2), Vector3(-29.6, -74.0, 1.8), Vector3(-27.6, -81.6, 2.9),
-	Vector3(-25.4, -80.4, 1.7),
-]
 
 var habitat: WildlifeSystem
+## Where the bed is searched, the shores without reeds and the reed beds
+## (RegionDef.lake).
+var plan: LakePlan
 ## Bed points under the centre of each piece of wood and each boulder group.
 var wood_places: Array[Vector3] = []
 var boulder_places: Array[Vector3] = []
@@ -120,6 +103,8 @@ func build() -> void:
 	solid.collision_layer = PhysicsLayers.BOULDERS
 	add_child(solid)
 	Boulders.place(self)
+	# The stones just laid enter the physics space at the next step: the wood
+	# and the plants settle on them.
 	await get_tree().physics_frame
 	Wood.place(self)
 	Wood.litter(self)
@@ -127,10 +112,10 @@ func build() -> void:
 		Plants.place(self, kind)
 	Batches.build(self)
 
-## The reeds bend in the wind that raises the waves.
-func set_wind(wind: Vector4, eye: Vector3) -> void:
+## The reeds' level of detail is for the eye at `eye` (they bend in the
+## global `wind`, as the trees).
+func follow(eye: Vector3) -> void:
 	if reed_material != null:
-		reed_material.set_shader_parameter("wind", wind)
 		reed_material.set_shader_parameter("lod_camera", eye)
 
 ## Height of the bed (terrain or a boulder) under a point, cached per metre.

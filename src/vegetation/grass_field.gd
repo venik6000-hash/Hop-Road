@@ -48,13 +48,9 @@ const PATCH := 4.0
 ## piece SPLIT_SLACK farther out.
 const SPLIT_REACH := 20.0
 const SPLIT_SLACK := 8.0
-## Clumps to the square metre of open meadow, and flowers where the flower
-## mask is full.
-const DENSITY := 9.0
-const FLOWER_DENSITY := 1.4
-## Clumps of the mat to the square metre, and the side (m) of the squares a
-## tile's mat is held as.
-const MAT_DENSITY := 12.0
+## The side (m) of the squares a tile's mat is held as. How many clumps,
+## flowers and clumps of the mat grow to the square metre is the profile's
+## (QualityVegetation).
 const MAT_PIECE := 8.0
 ## A tile holds the first 1 / 2^level of its clumps; farther than the last
 ## level's share it holds that share still.
@@ -82,6 +78,10 @@ var crowns := PackedVector2Array()
 ## the jobs: the grass gives way to a wood where its trees stand.
 var canopy: CanopyField
 var material := ShaderMaterial.new()
+## The profile's vegetation as the field was made: the densities hold till a
+## restart (QualityVegetation.read_at_start), the reach of the grass follows
+## the profile at once.
+var thickness: QualityVegetation
 ## Jobs done: count, total and longest time (us), clumps made.
 var job_stats := Vector4i.ZERO
 
@@ -92,8 +92,6 @@ var _pending: Array[GrassTile] = []
 ## The eye and the sight the tiles are drawn for, and their meshes.
 var _view: GrassTile.View
 var _surveyed := false
-var _wind := Vector4.ZERO
-var _wind_sent := false
 ## The Interiors.revision the pieces were last shown by.
 var _portal_revision := 0
 
@@ -101,11 +99,9 @@ func _ready() -> void:
 	# Bounds are set in world space.
 	top_level = true
 	material.shader = SHADER
-	var noise := load("res://assets/generated/sky/cloud_weather.png")
-	material.set_shader_parameter("wind_noise", noise)
-	material.set_shader_parameter("cloud_weather", noise)
 	GrassClump.dress(material)
-	set_fade(QualityProfile.of(world).grass_fade)
+	thickness = QualityProfile.of(world).vegetation
+	set_fade(thickness.grass_fade)
 	if world != null:
 		world.quality_changed.connect(_quality_changed)
 	_view = GrassTile.View.new(material)
@@ -125,7 +121,7 @@ func set_fade(fade: Vector2) -> void:
 	material.set_shader_parameter("fade_end", fade.y)
 
 func _quality_changed(profile: QualityProfile) -> void:
-	set_fade(profile.grass_fade)
+	set_fade(profile.vegetation.grass_fade)
 
 func _exit_tree() -> void:
 	for tile: GrassTile in _pending:
@@ -135,12 +131,8 @@ func _exit_tree() -> void:
 		canopy.withdraw()
 
 ## Keeps the tiles round the camera; VegetationSystem calls it every frame.
-func follow(eye: Vector3, wind: Vector4) -> void:
-	# A uniform set to the value it already holds changes nothing; skip those.
-	if not _wind_sent or wind != _wind:
-		material.set_shader_parameter("wind", wind)
-		_wind = wind
-		_wind_sent = true
+## The blades bend in the global `wind` (WeatherSystem).
+func follow(eye: Vector3) -> void:
 	# The clumps stand on the fields as they were read: read them again when
 	# the terrain is given other ones.
 	var key := GrassGround.source_of(terrain)
@@ -148,6 +140,12 @@ func follow(eye: Vector3, wind: Vector4) -> void:
 		_ground_key = key
 		_ground = GrassGround.read(terrain, obstacles, canopy)
 		_clear()
+	# The crowns' field follows the eye. Where the old and the new place
+	# share the ground its numbers are the same: the tiles grown stay.
+	if canopy != null:
+		canopy.follow(Vector2(eye.x, eye.z))
+		if canopy.revision != _ground.canopy.revision:
+			_ground = _ground.with_canopy(canopy)
 	var fade := GrassScatter.fade_of(material)
 	var mat_fade := GrassScatter.mat_fade_of(material)
 	var interiors := world.interiors if world != null else null
@@ -281,12 +279,12 @@ func _start(tile: GrassTile, level: int, piece: float, matted: bool) -> void:
 	job.side = TILE
 	job.piece = piece
 	job.level = level
-	job.total = roundi(DENSITY * TILE * TILE)
+	job.total = roundi(thickness.grass_density * TILE * TILE)
 	job.wanted = prefix(job.total, level)
 	# Flowers are few and outlast the grass: a tile holds all of its own.
-	job.flower_total = roundi(FLOWER_DENSITY * TILE * TILE)
+	job.flower_total = roundi(thickness.flower_density * TILE * TILE)
 	job.flower_wanted = job.flower_total
-	job.mat_total = roundi(MAT_DENSITY * TILE * TILE) if matted else 0
+	job.mat_total = roundi(thickness.mat_density * TILE * TILE) if matted else 0
 	job.mat_piece = MAT_PIECE
 	job.slope_floor = cos(SLOPE_LIMIT)
 	job.salt = hash(tile.key) & 0x3fffffff

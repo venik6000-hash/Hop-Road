@@ -11,7 +11,6 @@ const UNDER_CUTOFF := 650.0
 var player: Player
 var water: WaterSystem
 var terrain: TerrainSystem
-var sky: SkySystem
 var activities: LakesideSystem
 var bank: Dictionary = {}
 var voices: Array[AudioStreamPlayer3D] = []
@@ -28,9 +27,6 @@ var bird_time := 2.0
 var submerged := false
 var _last := Vector3.ZERO
 var _bank_index: Dictionary = {}
-# player's CameraRig/Camera3D, looked up on first use (see _player_camera).
-var _camera: Node
-var _camera_owner: Node
 
 func _ready() -> void:
 	var files: Dictionary = DataFile.read(BANK, BodySchemas.lake_bank())
@@ -132,19 +128,8 @@ func surface_sound() -> String:
 		return "step_rock"
 	return "step_grass"
 
-## The node at player's "CameraRig/Camera3D", as get_node() would return it.
-## Looked up lazily: the player and its script can be set after _ready (tools
-## swap in tools/lib/background_player.gd), and again when the node is
-## replaced.
-func _player_camera() -> Node:
-	if _camera_owner != player or not is_instance_valid(_camera) or _camera.get_parent() == null \
-			or _camera.get_parent().get_parent() != player:
-		_camera = player.get_node("CameraRig/Camera3D")
-		_camera_owner = player
-	return _camera
-
 func _process(delta: float) -> void:
-	var eye := _player_camera() as Camera3D
+	var eye := player.camera
 	var under := eye.global_position.y < player.water_surface - 0.03
 	if under != submerged:
 		submerged = under
@@ -152,7 +137,7 @@ func _process(delta: float) -> void:
 	for filter in lowpass:
 		filter.cutoff_hz = lerpf(filter.cutoff_hz, UNDER_CUTOFF if under else OPEN_CUTOFF, 1.0 - exp(-delta * 8))
 	wind.volume_db = -34 + clampf(water.ocean.wind_speed, 0, 20) * 0.5
-	var is_night := sky.time_of_day < 5.5 or sky.time_of_day > 20
+	var is_night := GameClock.hour() < 5.5 or GameClock.hour() > 20
 	night.volume_db = lerpf(night.volume_db, -25.0 if is_night and eye.global_position.y > water.water_level else -70.0, delta)
 	hull_lap.volume_db = -25 + minf(activities.boat.velocity.length(), 3.0) * 2.0
 	var runup := int(activities.clock * 1.25 / TAU)

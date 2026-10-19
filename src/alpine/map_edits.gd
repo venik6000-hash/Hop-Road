@@ -32,30 +32,30 @@ static func apply(map: Node3D, terrain: TerrainSystem) -> void:
 		var base := Values.vec3(raise.base)
 		lifts.append(terrain.height_at(base.x, base.z) - base.y)
 	var splits: Array = edits.get("split", [])
-	for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
-		var label := RockField.label_of(item)
-		if label in labels or VILLAGE_BUILDINGS.begins(label, prefixes) or VILLAGE_BUILDINGS.begins(label, replaced):
-			item.get_parent().remove_child(item)
-			item.queue_free()
-			continue
-		var raised := false
-		for index in raises.size():
-			var raise: Dictionary = raises[index]
-			if label in Values.list(raise.labels):
-				item.global_position.y += lifts[index]
-				raised = true
-				break
-		if raised:
-			continue
-		for split: Dictionary in splits:
-			if label == str(split.label):
+	var index := MapIndex.of(map)
+	for item: MeshInstance3D in index.labelled_any(labels):
+		index.drop(item)
+	for prefix: String in prefixes + replaced:
+		for item: MeshInstance3D in index.starting(prefix):
+			index.drop(item)
+	# A piece takes the first raise or split that names it; a raised piece is
+	# not split.
+	var edited := {}
+	for at in raises.size():
+		var raise: Dictionary = raises[at]
+		for item: MeshInstance3D in index.labelled_any(Values.list(raise.labels)):
+			if not edited.has(item):
+				item.global_position.y += lifts[at]
+				edited[item] = true
+	for split: Dictionary in splits:
+		for item: MeshInstance3D in index.labelled(str(split.label)):
+			if not edited.has(item):
 				_split(item, split)
-				break
+				edited[item] = true
 	var lowers: Array = edits.get("lower", [])
 	for lower: Dictionary in lowers:
-		for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
-			if RockField.label_of(item) in Values.list(lower.labels):
-				item.position.y -= Values.real(lower.by)
+		for item: MeshInstance3D in index.labelled_any(Values.list(lower.labels)):
+			item.position.y -= Values.real(lower.by)
 	var walkways: Array = edits.get("walkways", [])
 	for walkway: Dictionary in walkways:
 		_lay_walkway(map, terrain, walkway)
@@ -94,12 +94,10 @@ static func _split(item: MeshInstance3D, split: Dictionary) -> void:
 ## A body over the stones of the deck piece, row by row across x, with a
 ## ramp down to the ground at either end.
 static func _lay_walkway(map: Node3D, terrain: TerrainSystem, walkway: Dictionary) -> void:
-	var deck: MeshInstance3D
-	for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
-		if RockField.label_of(item) == str(walkway.deck):
-			deck = item
-	if deck == null:
+	var decks := MapIndex.of(map).labelled(str(walkway.deck))
+	if decks.is_empty():
 		return
+	var deck := decks[-1]
 	var half_width := Values.real(walkway.half_width)
 	var approach := Values.real(walkway.approach)
 	var depth := Values.real(walkway.depth)

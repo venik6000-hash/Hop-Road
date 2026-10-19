@@ -1,36 +1,16 @@
 // Shared by every vegetation shader: wind, LOD cross-fade, cloud shadows, the
 // shade of the crowns and the foliage light model. VegetationSystem sets the
-// uniforms on each material every frame (there are few materials, so no
-// global parameters are needed).
+// eye on each material when it moves (there are few materials); the wind is
+// the global `wind` (src/weather/wind.gdshaderinc).
 
 global uniform vec3 sun_direction;
 #include "res://src/sky/cloud_shadow.gdshaderinc"
 #include "res://src/vegetation/shaders/canopy.gdshaderinc"
+#include "res://src/weather/wind.gdshaderinc"
 
-// x, y: wind direction on the ground (x, z), unit length; z: strength
-// (0 calm .. 1 fresh breeze .. 2 storm); w: gust travel speed (m/s).
-uniform vec4 wind = vec4(0.57, 0.82, 0.5, 5.0);
-// Tileable noise; its red channel is the gust field, scrolled downwind.
-uniform sampler2D wind_noise : filter_linear_mipmap, repeat_enable;
 // Main camera, used for LOD distances in every pass (shadow passes included,
 // where CAMERA_POSITION_WORLD would be the light's camera).
 uniform vec3 lod_camera;
-
-const float GUST_SCALE = 180.0;
-
-// 0..1 gust strength at a ground position; shared by trees and grass, so a
-// gust visibly travels from the meadow into the forest.
-float wind_gust(vec2 xz, float time) {
-	vec2 uv = (xz - wind.xy * wind.w * time) / GUST_SCALE;
-	float a = texture(wind_noise, uv).r;
-	float b = texture(wind_noise, uv * 2.7 + vec2(0.31, 0.77)).r;
-	return clamp((a * 0.7 + b * 0.3 - 0.35) * 2.2, 0.0, 1.0);
-}
-
-// Wind pressure grows with the square of speed; `wind.z` is already that.
-float wind_strength(vec2 xz, float time) {
-	return wind.z * (0.45 + 0.9 * wind_gust(xz, time));
-}
 
 // Per-instance LOD weight from (fade-in start, fade-in end, fade-out start,
 // fade-out end); adjacent LODs share their bands so the weights sum to one.

@@ -13,6 +13,8 @@ const FOREST_LEAVES: Array[String] = ["fern", "clover"]
 ## mesh back from the GPU, which can time out on Metal while the level loads.
 const HULL := "res://assets/generated/village_pack/%s_hull.tres"
 const SOLID_FOREST: Array[String] = ["stump", "log", "roots"]
+## Yard props of cloth and straw: the rain soaks them and leaves no shine.
+const SOAKING_PROPS: Array[String] = ["sack", "hay"]
 ## Side of a forest batch (m). The engine picks one mesh LOD and one
 ## visibility for a whole MultiMesh, so small cells keep the full scans to
 ## the ground round the walker.
@@ -21,10 +23,13 @@ const FOREST_CELL := 12.0
 const FOREST_VIEW := 45.0
 const FOREST_WOOD_VIEW := 80.0
 const FOREST_WOOD: Array[String] = ["stump", "log", "roots", "branch"]
+## The material a model of the pack names its still water with (the well's):
+## it gets the look of dark standing water.
+const WATER_MATERIAL := "water"
 var terrain: TerrainSystem
 var player: Player
-## Its yard props, the forest's wood and the animals (RegionDef.props,
-## forest_wood, animals).
+## Its yard props, the forest's wood and floor and the animals
+## (RegionDef.props, forest_wood, forest_floor, animals).
 var region: RegionDef
 var removed_labels: Array[String] = []
 var props: Array[Node3D] = []
@@ -86,14 +91,14 @@ func _layout() -> Array:
 	return DataFile.read(region.props, WorldSchemas.props())
 
 func _prepare_map(map: Node3D) -> void:
-	for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
+	var index := MapIndex.of(map)
+	for item: MeshInstance3D in index.pieces():
 		var label := RockField.label_of(item)
 		var extras: Dictionary = item.get_meta("extras", {})
 		var group: String = str(extras.get("alpine_group", ""))
 		if group == "31":
 			removed_labels.append(label)
-			item.get_parent().remove_child(item)
-			item.queue_free()
+			index.drop(item)
 
 func _finish_install(scatter := true) -> void:
 	# Wait for all building/tree colliders before sampling the forest floor.
@@ -128,15 +133,14 @@ func _place(entry: Dictionary) -> Node3D:
 		mesh.visibility_range_end_margin = 12.0
 		mesh.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 		mesh.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
-		if entry.asset == "well":
-			for surface in mesh.mesh.get_surface_count():
-				var material := mesh.get_active_material(surface) as StandardMaterial3D
-				if material != null and material.resource_name == "Material_7":
-					var water := material.duplicate() as StandardMaterial3D
-					water.albedo_color = Color("182c28")
-					water.metallic = 0.0
-					water.roughness = 0.2
-					mesh.set_surface_override_material(surface, water)
+		for surface in mesh.mesh.get_surface_count():
+			var material := mesh.get_active_material(surface) as StandardMaterial3D
+			if material != null and material.resource_name == WATER_MATERIAL:
+				var water := material.duplicate() as StandardMaterial3D
+				water.albedo_color = Color("182c28")
+				water.metallic = 0.0
+				water.roughness = 0.2
+				mesh.set_surface_override_material(surface, water)
 		if entry.get("solid", true):
 			var body := StaticBody3D.new()
 			body.name = mesh.name + "_col"
@@ -144,18 +148,30 @@ func _place(entry: Dictionary) -> Node3D:
 			holder.shape = _collision_cache.shape(str(entry.asset), str(item.get_path_to(mesh)), mesh.mesh)
 			body.add_child(holder)
 			mesh.add_child(body)
+	# The yard stands in the weather: the rain wets it, the clouds and the
+	# crowns shade it.
+	OutdoorScan.dress(item, OutdoorScan.SOAKED_SHINE if str(entry.asset) in SOAKING_PROPS else OutdoorScan.PROP_SHINE)
 	props.append(item)
 	return item
 
+## Lays the forest floor's plants and wood. The plants' rays meet the
+## terrain once the ground under the first place stands.
 func scatter_forest() -> void:
-	await get_tree().physics_frame
 	var rng := RandomNumberGenerator.new()
-	rng.seed = 3102026
-	# Trail shoulders east/south of the village, away from the lake and yards.
-	var habitats := [Vector2(38, 20), Vector2(55, -35), Vector2(32, -78), Vector2(-35, 35), Vector2(10, 52)]
-	for zone: Vector2 in habitats:
-		for index in 85:
-			var point: Vector2 = zone + Vector2.from_angle(rng.randf_range(0, TAU)) * sqrt(rng.randf()) * 19.0
+	# The region's places of the forest floor: none without the file.
+	var scatter := {} if region.forest_floor.is_empty() else Values.table(DataFile.read(region.forest_floor, WorldSchemas.forest_floor()))
+	var places := Values.list(scatter.get("places", []))
+	if not places.is_empty():
+		var first := Values.vec2(places[0])
+		await PhysicsLayers.ground_stands(self, Vector3(first.x, terrain.height_at(first.x, first.y), first.y))
+		if not is_inside_tree():
+			return
+	rng.seed = Values.whole(scatter.get("seed", 0))
+	var radius := Values.real(scatter.get("radius", 0.0))
+	for place: Variant in places:
+		var zone := Values.vec2(place)
+		for index in Values.whole(scatter.get("count", 0)):
+			var point: Vector2 = zone + Vector2.from_angle(rng.randf_range(0, TAU)) * sqrt(rng.randf()) * radius
 			var y := terrain.height_at(point.x, point.y)
 			if y < terrain.water_level + 1.0:
 				continue
@@ -228,7 +244,6 @@ func _forest_mesh(asset: String) -> Dictionary:
 		mat.shader = FOLIAGE
 		mat.set_shader_parameter("albedo_map", old.albedo_texture)
 		mat.set_shader_parameter("tint", old.albedo_color)
-		mat.set_shader_parameter("cloud_weather", load("res://assets/generated/sky/cloud_weather.png"))
 		mesh.surface_set_material(i, mat)
 	source.free()
 	return {"mesh": mesh, "transform": transform}

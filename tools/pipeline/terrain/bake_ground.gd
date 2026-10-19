@@ -3,8 +3,9 @@ extends "res://tools/lib/tool_script.gd"
 ## with the rocks, buildings and water courses laid in, its masks with the
 ## beds, yards and worn ground painted in, and the manifest with the courses
 ## and the key (TerrainBake reads them in the game). A bake whose key is
-## current is left alone; pass `-- --force` to bake anyway,
-## `-- --region=res://...tres` for another region.
+## current is left alone; pass `-- --force` to bake anyway. The region is the
+## first of the game's list (RegionDef.LIST); `-- --region=<id>` bakes another
+## region of the list, `-- --region=res://...tres` a region that is not in it.
 ##
 ##   tools/run/godot_lock.sh "$GODOT" --headless --path . --script res://tools/lib/tool_runner.gd -- res://tools/pipeline/terrain/bake_ground.gd
 ##
@@ -15,13 +16,23 @@ const GroundBake = preload("res://tools/pipeline/terrain/ground_bake.gd")
 
 func _initialize() -> void:
 	var force := false
-	var region_path := RegionDef.VALLEY
+	var named := ""
 	for argument: String in OS.get_cmdline_user_args():
 		if argument == "--force":
 			force = true
 		elif argument.begins_with("--region="):
-			region_path = argument.trim_prefix("--region=")
-	quit(_bake(load(region_path) as RegionDef, force))
+			named = argument.trim_prefix("--region=")
+	quit(_bake(region_named(named), force))
+
+## The region `named` names: a RegionDef file, an id of the game's list, or
+## the first region of the list when empty. Null for an id the list lacks.
+static func region_named(named: String) -> RegionDef:
+	if named.begins_with("res://"):
+		return load(named) as RegionDef
+	for entry: Dictionary in RegionDef.entries():
+		if named.is_empty() or str(entry.id) == named:
+			return load(str(entry.region)) as RegionDef
+	return null
 
 func _bake(region: RegionDef, force: bool) -> int:
 	if region == null:

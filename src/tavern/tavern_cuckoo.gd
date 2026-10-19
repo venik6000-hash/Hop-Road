@@ -1,6 +1,6 @@
 class_name TavernCuckoo
 extends Node
-## The cuckoo clock in the hall keeps the game's time (SkySystem.time_of_day).
+## The cuckoo clock in the hall keeps the game's time (GameClock).
 ## On the hour its door swings open, the bird comes out and calls the hour,
 ## on the half hour once; then it goes back in and the door shuts. The door
 ## and the bird are pieces of their own in the furnishing (`tav_cuckoo` in
@@ -49,7 +49,7 @@ func add(part: String, item: MeshInstance3D, extras: Dictionary) -> void:
 func _process(delta: float) -> void:
 	if tavern == null or tavern.sky_system == null or _door == null or _bird == null:
 		return
-	var hour := tavern.sky_system.time_of_day
+	var hour := GameClock.hour()
 	if not is_nan(_hour) and _time < 0.0:
 		var step := wrapf(hour - _hour, -12.0, 12.0)
 		var was := floori(fposmod(_hour, 24.0) * 2.0)

@@ -41,11 +41,9 @@ const FAMILIES := {
 }
 
 static func apply(map: Node3D, terrain: TerrainSystem) -> int:
-	var weather := load("res://assets/generated/sky/cloud_weather.png") as Texture2D
-	var moss := load("res://assets/generated/terrain/terrain_albedo.jpg") as Texture
 	var made := {}
 	var changed := 0
-	for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
+	for item: MeshInstance3D in MapIndex.of(map).pieces():
 		var extras: Dictionary = item.get_meta("extras", {})
 		var label := str(extras.get("alpine_label", item.name))
 		if str(extras.get("alpine_group", "")) in TAVERN_GROUPS:
@@ -62,7 +60,7 @@ static func apply(map: Node3D, terrain: TerrainSystem) -> int:
 			var shade: Color = old.get_shader_parameter("base_color")
 			var key := "%s/%s" % [kind, old.resource_name]
 			if not made.has(key):
-				made[key] = _material(Values.table(KINDS[kind]), shade, kind, weather, moss)
+				made[key] = _material(Values.table(KINDS[kind]), shade, kind)
 			var dressed: Material = made[key]
 			item.set_surface_override_material(surface, dressed)
 			touched = true
@@ -87,7 +85,7 @@ static func _kind(material: String, label: String) -> String:
 			return kind
 	return ""
 
-static func _material(spec: Dictionary, shade: Color, kind: String, weather: Texture2D, moss: Texture) -> ShaderMaterial:
+static func _material(spec: Dictionary, shade: Color, kind: String) -> ShaderMaterial:
 	var material := ShaderMaterial.new()
 	material.shader = SURFACE
 	var base := "%s%s_" % [TEXTURES, spec.scan]
@@ -107,6 +105,4 @@ static func _material(spec: Dictionary, shade: Color, kind: String, weather: Tex
 	material.set_shader_parameter("moss", spec.moss)
 	material.set_shader_parameter("lichen", spec.lichen)
 	material.set_shader_parameter("color_range", 1.0)
-	material.set_shader_parameter("cloud_weather", weather)
-	material.set_shader_parameter("moss_albedo", moss)
 	return material

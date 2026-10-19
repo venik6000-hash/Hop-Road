@@ -128,8 +128,8 @@ uniform float lone_shade : hint_range(0.0, 1.0) = 0.35;
 // ---------------------------------------------------------------------------
 // 5. Wind
 // ---------------------------------------------------------------------------
-// The direction and strength are `wind`, the gusts `wind_noise` (a tileable
-// 2D noise texture scrolled downwind), both from vegetation.gdshaderinc.
+// The direction and strength are the global `wind`, the gusts the weather
+// map scrolled downwind and the lake's gusts (src/weather/wind.gdshaderinc).
 group_uniforms wind_response;
 // How far the wind lays a clump's top over, as a share of its height.
 uniform float wind_bend : hint_range(0.0, 1.0) = 0.24;
@@ -195,7 +195,7 @@ float hash_unit(uint h) {
 // lookup for a vertex instead of two. The gusts still cross the meadow with
 // those in the trees.
 float grass_gust(vec2 xz) {
-	float broad = textureLod(wind_noise, (xz - wind.xy * wind.w * TIME) / GUST_SCALE, 0.0).r;
+	float broad = textureLod(cloud_weather, (xz - wind_drift) / GUST_SCALE, 0.0).r;
 	return clamp((broad - 0.35) * 2.2, 0.0, 1.0);
 }
 
@@ -287,7 +287,7 @@ void vertex() {
 
 		// -- Wind: the root stands, the top travels farthest. A gust field
 		// sweeps across the meadow, every clump sways on its own phase.
-		float strength = wind.z * (0.45 + 0.9 * grass_gust(root.xz));
+		float strength = wind.z * lake_gust(root.xz) * (0.45 + 0.9 * grass_gust(root.xz));
 		float sway = sin(TIME * (1.5 + phase) + phase * 37.0 - dot(root.xz, wind.xy) * 0.5);
 		float reach = t * t * cell_flex[cell] * tall;
 		vec2 push = wind.xy * strength * (wind_bend + 0.1 * sway) * reach;

@@ -81,6 +81,12 @@ func _ready() -> void:
 	if scene == null or region == null:
 		_fail("Не удалось загрузить сцену долины.")
 		return
+	var unreadable := DataFiles.unreadable(region)
+	if not unreadable.is_empty():
+		for problem in unreadable:
+			push_error("World data: " + problem)
+		_fail(tr("Данные области не читаются: %s") % unreadable[0])
+		return
 	# The village pack's models, for a region that has the pack.
 	if region.has_part(&"village_pack"):
 		_set_stage("Загружаем модели деревни…")
@@ -93,6 +99,10 @@ func _ready() -> void:
 	else:
 		PACK.discard_prefetch()
 	_set_stage("Создаём мир…")
+	# A frame for the words: making the level holds the main thread.
+	await get_tree().process_frame
+	if failed:
+		return
 	var level: LEVEL = scene.instantiate()
 	level.region = region
 	level.spawn_id = spawn
@@ -102,12 +112,13 @@ func _ready() -> void:
 	# Pause callbacks only, so placement rays see all real obstacles throughout.
 	level.set_process(false)
 	level.set_physics_process(false)
-	var player := level.get_node("Player")
-	player.set_physics_process(false)
 	_gate = InputGate.new()
 	_gate.lock(level, get_tree())
 	level.loading_stage.connect(_set_stage)
 	add_child(level)
+	# The level's player is known once the level is in the tree; no physics
+	# frame has passed yet.
+	level.player.set_physics_process(false)
 	while not failed and not level.built():
 		await get_tree().process_frame
 	if failed:
@@ -135,7 +146,7 @@ func _ready() -> void:
 		await get_tree().process_frame
 		if failed:
 			return
-	player.set_physics_process(true)
+	level.player.set_physics_process(true)
 	_gate.release()
 	_gate = null
 	_overlay.queue_free()
@@ -157,7 +168,7 @@ func _set_stage(message: String) -> void:
 	_stage_started = Time.get_ticks_msec()
 	_watch.begin()
 	_message.text = _text()
-	print("WORLD_LOADING ", message)
+	print("WORLD_LOADING %.2f s %s" % [(_stage_started - _started) / 1000.0, message])
 
 ## The screen's words: a stage is a key of the table or words translated.
 func _text() -> String:

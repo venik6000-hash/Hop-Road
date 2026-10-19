@@ -43,7 +43,7 @@ uniform vec4 bark_lichen = vec4(0.5, 0.4, 1.0, 6.0);
 uniform vec3 lichen_pale = vec3(0.16, 0.175, 0.14);
 // Moss is the growth of the terrain's mossy rock scan (its layer array), the
 // bare stone of the scan left out.
-uniform sampler2DArray moss_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+#include "res://src/terrain/moss.gdshaderinc"
 uniform float moss_layer = 13.0;
 uniform float moss_tile = 0.7;
 uniform vec3 moss_tint = vec3(0.18, 0.32, 0.2);
@@ -118,7 +118,7 @@ void vertex() {
 		float height = species_height(INSTANCE_CUSTOM.y);
 		// Wind direction in model space (the basis is a rotation times scale).
 		vec3 downwind = (transpose(mat3(MODEL_MATRIX)) * vec3(wind.x, 0.0, wind.y)) / scale;
-		float strength = wind_strength(origin.xz, TIME);
+		float strength = wind_strength(origin.xz);
 		float phase = COLOR.b * TAU + tree_seed * 17.0;
 		// The whole tree leans with the wind and sways slowly about that lean.
 		float sway = 0.7 + 0.3 * sin(TIME * (0.55 + 0.25 * tree_seed) + tree_seed * TAU);

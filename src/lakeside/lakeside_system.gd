@@ -10,7 +10,8 @@ const LAKESIDE_COOKING = preload("res://src/lakeside/lakeside_cooking.gd")
 var player: Player
 var terrain: TerrainSystem
 var water: WaterSystem
-var sky: SkySystem
+## The region's lake (RegionDef.lake): where the boat moors.
+var plan: LakePlan
 var interactions: TavernInteractions
 var camping: CampSystem
 var soundscape: LakeSoundscape
@@ -58,8 +59,24 @@ func _ready() -> void:
 		interactions.add_source(_boat_target)
 		interactions.add_hold(_hold)
 
+## The rod hangs on the player's camera, which stays when the region's
+## content goes (docs/LEVEL.md, «Общие системы и содержимое»): it goes with
+## the lake, and the hands are given back.
+func _exit_tree() -> void:
+	if rod_out:
+		player.hands.release(BodyChannels.ROD)
+		rod_out = false
+	if is_instance_valid(rod):
+		rod.queue_free()
+
 func find_mooring() -> Vector3:
 	return LAKESIDE_BOARDING.find_mooring(self)
+
+## Where the lake's waves are asked for (WorldContext.water_probes): the boat,
+## then the bobber's catch point (x, z). They follow the player's point, so
+## the boat reads surface_height(1) and the bobber surface_height(2).
+func probe_points() -> PackedVector2Array:
+	return PackedVector2Array([Vector2(boat.position.x, boat.position.z), Vector2(catch_point.x, catch_point.z)])
 
 func build_rod() -> void:
 	LAKESIDE_ROD.build(self)
@@ -67,8 +84,15 @@ func build_rod() -> void:
 func build_ui() -> void:
 	LAKESIDE_HUD.build(self)
 
+## The player's modes where the lake's keys work: on foot, in a seat, in
+## the boat. Not on the ladder, at a brewery's station or book, asleep.
+const LAKE_MODES: Array[StringName] = [Player.WALK, Player.SEATED, Player.BOAT]
+
+## Whether the lake's keys work: the player's own eye, the game in play
+## (InputActions.in_play), a mode of LAKE_MODES and no fire being laid.
 func allowed() -> bool:
-	return interactions.camera.current and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and not interactions.climbing and not camping.placing
+	return interactions.camera.current and InputActions.in_play() and LAKE_MODES.has(player.mode) \
+		and not camping.placing
 
 func notify(text: String) -> void:
 	message = text
@@ -80,25 +104,25 @@ func play(name: String, at: Vector3) -> void:
 
 func _input(event: InputEvent) -> void:
 	if panel.visible:
-		if InputActions.pressed(event, "fish_journal") or InputActions.pressed(event, "pause"):
+		if InputActions.takes(event, &"fish_journal") or InputActions.takes(event, &"pause"):
 			toggle_journal()
 		get_viewport().set_input_as_handled()
 		return
-	if allowed() and InputActions.pressed(event, "place_camp") and (aboard or rod_out):
+	if allowed() and InputActions.takes(event, &"place_camp") and (aboard or rod_out):
 		notify("Убери удочку и выйди из лодки, чтобы поставить костёр.")
 		get_viewport().set_input_as_handled()
 		return
 	if not allowed() or event.is_echo():
 		return
-	if InputActions.pressed(event, "fish_journal"):
+	if InputActions.takes(event, &"fish_journal"):
 		toggle_journal()
-	elif InputActions.pressed(event, "fishing_rod"):
+	elif InputActions.takes(event, &"fishing_rod"):
 		toggle_rod()
-	elif InputActions.pressed(event, "fish_use"):
+	elif InputActions.takes(event, &"fish_use"):
 		use_catch()
-	elif rod_out and InputActions.pressed(event, "fish_cancel"):
+	elif rod_out and InputActions.takes(event, &"fish_cancel"):
 		cancel_fishing()
-	elif rod_out and InputActions.pressed(event, "fish_cast"):
+	elif rod_out and InputActions.takes(event, &"fish_cast"):
 		if phase == "idle":
 			phase = "charging"
 			charge = 0.0
@@ -108,7 +132,7 @@ func _input(event: InputEvent) -> void:
 			progress = 0.0
 		else:
 			return
-	elif rod_out and event.is_action_released("fish_cast"):
+	elif rod_out and InputActions.releases(event, &"fish_cast"):
 		if phase == "charging":
 			cast()
 		else:
@@ -117,19 +141,19 @@ func _input(event: InputEvent) -> void:
 		return
 	get_viewport().set_input_as_handled()
 
-## J: the rod out into both hands, or put away.
+## J: the rod out into both hands, or put away. While it is out, the rod's
+## context of the input lies over the game's (InputActions.ROD): the left
+## trigger reels in instead of diving.
 func toggle_rod() -> void:
 	if player.swimming and not aboard:
 		notify("Для рыбалки выйди на берег или сядь в лодку.")
 	elif rod_out:
-		cancel_fishing()
-		rod_out = false
-		rod.visible = false
-		player.hands.release(BodyChannels.ROD)
+		_put_rod_away()
 	elif player.hands.claim(BodyChannels.ROD, func() -> bool: return rod_out):
 		cancel_fishing()
 		rod_out = true
 		rod.visible = true
+		InputActions.push(InputActions.ROD, rod)
 	else:
 		notify(player.hands.busy_text(BodyChannels.ROD))
 
@@ -178,12 +202,17 @@ func unboard(at: Vector3) -> void:
 func reset() -> void:
 	if aboard:
 		unboard(player.global_position)
+	_put_rod_away()
+	if panel.visible:
+		toggle_journal()
+
+## The rod out of the hands and its context of the input off.
+func _put_rod_away() -> void:
 	cancel_fishing()
 	rod_out = false
 	rod.hide()
 	player.hands.release(BodyChannels.ROD)
-	if panel.visible:
-		toggle_journal()
+	InputActions.pop(rod)
 
 func cast() -> bool:
 	return LAKESIDE_FISHING.cast(self)
@@ -233,15 +262,21 @@ func use_catch() -> void:
 func advance_cooking(delta: float) -> void:
 	LAKESIDE_COOKING.advance_cooking(self, delta)
 
+## The catch's journal opened or shut. Open, it has its context of the input
+## on top (InputActions.JOURNAL) and frees the pointer; on foot it also owns
+## the player's mode (Player.MENU). In a seat or the boat that mode holds
+## the feet already.
 func toggle_journal() -> void:
 	panel.visible = not panel.visible
 	if panel.visible:
-		player.movement_locked = true
+		player.enter(Player.MENU, panel)
+		InputActions.push(InputActions.JOURNAL, panel)
 		_previous_mouse_mode = Input.mouse_mode
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		journal_text.text = InputActions.hint(LAKESIDE_HUD.journal(fishing))
 	else:
-		player.movement_locked = false
+		player.leave(panel)
+		InputActions.pop(panel)
 		Input.mouse_mode = _previous_mouse_mode
 
 func update_hud() -> void:

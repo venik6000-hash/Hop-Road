@@ -9,6 +9,9 @@ static func material(color: Color, metal := 0.0) -> StandardMaterial3D:
 	result.roughness = 0.65
 	return result
 
+## A piece of `shape` in `color` under `parent`. Its material is plain: the
+## owner of a piece that stands outdoors puts it in the weather
+## (OutdoorScan.dress) once it is built.
 static func mesh(parent: Node3D, shape: Mesh, color: Color, at := Vector3.ZERO, metal := 0.0) -> MeshInstance3D:
 	var result := MeshInstance3D.new()
 	result.mesh = shape
@@ -17,6 +20,17 @@ static func mesh(parent: Node3D, shape: Mesh, color: Color, at := Vector3.ZERO, 
 	result.layers = 1 | LightLayers.ROOMS
 	parent.add_child(result)
 	return result
+
+## Gives the piece `item` the colour `color`, whether its material is still
+## plain or in the weather (OutdoorScan).
+static func colour(item: GeometryInstance3D, color: Color) -> void:
+	var plain := item.material_override as StandardMaterial3D
+	if plain != null:
+		plain.albedo_color = color
+		return
+	var outdoor := item.material_override as ShaderMaterial
+	if outdoor != null:
+		outdoor.set_shader_parameter("tint", color)
 
 static func cylinder(radius: float, height: float, open_top := false) -> CylinderMesh:
 	var shape := CylinderMesh.new()

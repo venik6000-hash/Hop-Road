@@ -24,6 +24,10 @@ const ROOM_SUN := 4096
 ## Both are the sun's alone: a lantern's shadow map must leave them out, or
 ## the ivy they carry is drawn into it again in every frame.
 const SUN_ONLY := SUN | ROOM_SUN
+## What a lamp outdoors draws into its shadow map: the ground and the
+## buildings' still walls; not the trees and the plants, not the rooms' pieces
+## (the ivy, the flames, the people) and not the sun's own layers.
+const OUTDOOR_LAMP_CASTERS := 0xFFFFFFFF & ~VegetationSystem.VISUAL_LAYER & ~ROOMS & ~SUN_ONLY
 ## What never stands still outdoors and casts the sun's shadow: a mill's
 ## wheel, a goat. A lamp with a shadow draws its map again in every frame in
 ## which such a thing moves in its light, in the map or not. A village

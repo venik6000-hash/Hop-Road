@@ -90,7 +90,11 @@ func watch(interior: Interior) -> void:
 	var lit: Array[AABB] = []
 	for lamp in lamps:
 		lit.append(room_of(lamp.global_position, rooms, interior.bounds))
-	_buildings.append({"bounds": interior.bounds, "lamps": lamps, "rooms": lit})
+	_buildings.append({"interior": interior, "bounds": interior.bounds, "lamps": lamps, "rooms": lit})
+
+## Leaves the lamps and rooms of `interior` (watch) alone: its building goes.
+func unwatch(interior: Interior) -> void:
+	_buildings = _buildings.filter(func(watched: Dictionary) -> bool: return watched.interior != interior)
 
 ## Whether the pass will run in this frame.
 func running() -> bool:

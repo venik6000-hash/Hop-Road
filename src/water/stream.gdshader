@@ -24,6 +24,8 @@ render_mode blend_mix, depth_draw_always, cull_back, ambient_light_disabled;
 
 global uniform sampler2DArray water_derivatives : filter_linear_mipmap_anisotropic, repeat_enable;
 global uniform vec4 water_tiles;
+// The way the lake's waves run on its tiles (OceanFFT.wave_way).
+global uniform vec2 water_wave;
 
 // Where the upper fall lands (world x, z) and how far its boil reaches.
 uniform vec2 landing = vec2(0.0);
@@ -33,9 +35,6 @@ uniform float landing_reach = 3.0;
 uniform float ripple_scale = 0.45;
 uniform float ripple_strength = 0.7;
 uniform float swirl_height = 0.03;
-// The way the lake's waves run on its tiles (radians from +x; WaterfallSystem
-// copies the lake's wind).
-uniform float wind_heading = 0.96;
 // Seconds each phase of the flowing ripples and foam lasts.
 uniform float flow_cycle = 1.6;
 // White water where the flow is fastest (steps of a brook); 0 = none, as on
@@ -76,7 +75,9 @@ void fragment() {
 	// streaks of running water, where waves running with the flow would cross
 	// it in bars. (Its larger cascades have the regular crests of a wind sea,
 	// which a stream does not.)
-	vec2 wave = vec2(cos(wind_heading), sin(wind_heading));
+	// The lake's waves run on its tiles along `water_wave`, whatever way the
+	// wind over the ground blows.
+	vec2 wave = water_wave;
 	mat2 onto_tile = mat2(wave, vec2(-wave.y, wave.x));
 	vec2 drawn = vec2(1.0, 0.45);
 	float tile = water_tiles.z * ripple_scale;

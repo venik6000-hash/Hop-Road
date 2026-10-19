@@ -308,15 +308,26 @@ func pour_over(work_id: String, station: BrewStation) -> Vector3:
 func pour_landing(work_id: String, station: BrewStation) -> Vector3:
 	if work_id == "fill_bucket" or work_id == "dip_yeast" or work_id == "scoop":
 		return Vector3.INF
+	var into := pour_vessel(work_id, station)
+	if into != "":
+		return surface_point(into)
 	if POURS.has(work_id):
-		var into: String = POURS[work_id][1]
-		return surface_point(into) if into != "" else anchors[POURS[work_id][0]] - Vector3.UP * 0.2
+		return anchors[POURS[work_id][0]] - Vector3.UP * 0.2
 	match work_id:
 		"pitch":
-			return surface_point("fermenting_tun_1_wort") if station.number == 1 else anchors["fermenting_tun_2_bottom"]
+			return anchors["fermenting_tun_2_bottom"]
 		"fill_cask", "scald", "cherry_cask":
 			return cask_mouth(station.number) - Vector3.UP * 0.1
 	return Vector3.INF
+
+## The surface a tipped thing pours onto at work `work_id` of `station`; ""
+## when it lands in no vessel's face (a bucket, a cask, the floor).
+func pour_vessel(work_id: String, station: BrewStation) -> String:
+	if POURS.has(work_id):
+		return str(POURS[work_id][1])
+	if work_id == "pitch" and station.number == 1:
+		return "fermenting_tun_1_wort"
+	return ""
 
 # ---- Save ---------------------------------------------------------------------------
 

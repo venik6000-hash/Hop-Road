@@ -116,10 +116,12 @@ func _ready() -> void:
 	_place_props()
 	_measure_top.call_deferred()
 
-## The counter's top under the serving place, found by a ray once the level's
-## colliders are in.
+## The counter's top under the serving place, found by a ray once what stands
+## there answers one (PhysicsLayers.ground_stands).
 func _measure_top() -> void:
-	await get_tree().physics_frame
+	await PhysicsLayers.ground_stands(self, global_transform * SERVE)
+	if not is_inside_tree():
+		return
 	var space := get_world_3d().direct_space_state
 	var over := global_transform * (SERVE + Vector3.UP * 1.8)
 	var ray := PhysicsRayQueryParameters3D.create(over, over + Vector3.DOWN * 1.6, PhysicsLayers.WORLD)

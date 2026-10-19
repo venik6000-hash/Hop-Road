@@ -12,13 +12,20 @@ const LIST := "res://assets/regions/regions.json"
 ## The parts of a level a region can name (`parts`), in the order the level
 ## builds them (LevelParts).
 const PARTS: Array[StringName] = [&"falls", &"brook", &"tavern", &"cottages", &"buildings", &"village_pack",
-	&"rocks", &"vegetation", &"flora", &"people", &"camping", &"wildlife", &"lakeside"]
+	&"rocks", &"vegetation", &"flora", &"people", &"camping", &"wildlife", &"dragon", &"lakeside"]
 ## The parts a part cannot stand without.
 const NEEDS := {
 	&"brook": [&"falls"],
 	&"camping": [&"people"],
 	&"lakeside": [&"camping"],
 }
+## The parts that read the village plan (`village_plan`): the cottages stand
+## at its places, the plants keep off its ways and grow on its green.
+const PLAN_PARTS: Array[StringName] = [&"cottages", &"flora"]
+## The parts that stand on the lake (`lake`): the boat moors on it, its shore
+## takes the waves. A region without a lake builds neither these nor the
+## lake's bed (WildlifeSystem).
+const LAKE_PARTS: Array[StringName] = [&"lakeside"]
 ## The fields a part reads. The first one must name a file; a region without
 ## the part names none of them.
 const PART_FILES := {
@@ -27,11 +34,12 @@ const PART_FILES := {
 	&"tavern": ["tavern", "tavern_ground"],
 	&"cottages": ["cottages"],
 	&"buildings": ["buildings"],
-	&"village_pack": ["props", "forest_wood", "animals"],
-	&"rocks": ["rocks", "cliff"],
+	&"village_pack": ["props", "forest_wood", "forest_floor", "animals"],
+	&"rocks": ["rocks", "cliff", "cliff_faces"],
 	&"vegetation": ["woodland", "village_trees", "placement", "placement_manifest"],
 	&"people": ["villagers", "tavern_work"],
 	&"wildlife": ["wildlife"],
+	&"dragon": ["dragon"],
 }
 
 @export var id: StringName
@@ -45,14 +53,21 @@ const PART_FILES := {
 @export var parts: Array[StringName] = []
 
 @export_group("Terrain")
-## The fields of tools/pipeline/terrain/terrain.py: terrain.json, the
-## heightfields, the masks and the layer textures.
+## The walkable land (world x, z): the near field of heights and its masks
+## cover it (tools/pipeline/terrain/terrain.py; tools/lib/region.py has their
+## cells).
+@export var near_bounds := Rect2()
+## The fields of terrain.py: terrain.json, the heightfields, the masks and
+## the layer textures.
 @export_dir var terrain_dir := ""
+## The ground recipe of the bake (tools/pipeline/terrain/ground_bake.gd): a
+## script that lays the region's rocks, buildings and water courses into the
+## near heights and paints its beds, yards and worn ground into the masks.
+## Empty: the bake keeps the fields of terrain.py as they are.
+@export_file("*.gd") var ground_recipe := ""
 ## What the ground bake writes (TerrainBake): the near heights with the
-## region's rocks, buildings and water courses laid in, the masks of the near
-## field with the region's beds, yards and worn ground painted in, and the
-## manifest with the courses. The recipe that lays them in belongs to the
-## bake, by id.
+## recipe's work laid in, the masks with its paint, and the manifest with the
+## courses.
 @export_file("*.bin") var settled_heights := ""
 @export_file("*.bin") var settled_masks := ""
 @export_file("*.json") var settled_ground := ""
@@ -68,10 +83,16 @@ const PART_FILES := {
 ## rain to fall on.
 @export var shelter_centre := Vector2.ZERO
 
+@export_group("Environment")
+## The air, the season and the look of the ground (EnvironmentDef).
+@export var environment: EnvironmentDef
+
 @export_group("Layout")
 ## The Blender map the level stands its systems in (node "Map"), and its
-## lights and cameras (tools/pipeline/alpine_scene/export_godot.py).
-@export var map: PackedScene
+## lights and cameras (tools/pipeline/alpine_scene/export_godot.py). A path:
+## the map loads when the level of this region is built (map_scene), not
+## with the region.
+@export_file("*.glb", "*.tscn") var map := ""
 @export_file("*.json") var map_manifest := ""
 ## The edits of the map's pieces by their labels (MapEdits): pieces dropped,
 ## raised, moved and lowered, and the walkways laid over them.
@@ -79,16 +100,21 @@ const PART_FILES := {
 ## The pieces of the map the loaded level still shows, for the layout scene
 ## (tools/pipeline/layout/bake_map_context.gd).
 @export_file("*.json") var map_context := ""
-## The hand-placed objects (src/layout/layout_store.gd): houses and cottages,
-## yard props, scanned stones, the forest's wood.
+## The hand-placed objects (src/layout/layout_store.gd): houses and cottages
+## with the village's ways and green, yard props, scanned stones, the
+## forest's wood. A region without a village names no plan.
 @export_file("*.json") var village_plan := ""
 @export_file("*.json") var props := ""
 @export_file("*.json") var rocks := ""
 @export_file("*.json") var forest_wood := ""
+## Where the forest floor's ferns, clover and bracken are scattered (VillagePack).
+@export_file("*.json") var forest_floor := ""
 
 @export_group("Buildings")
 ## The tables of the parts of the tavern (TavernSystem), shell first.
 @export var tavern: PackedStringArray = []
+## Where the tavern stands in the region: the transform of its node.
+@export var tavern_at := Transform3D.IDENTITY
 ## The cottages of the village plan (VillageCottage): one file, every cottage's
 ## table, scene and lantern.
 @export_file("*.json") var cottages := ""
@@ -107,9 +133,16 @@ const PART_FILES := {
 ## The scanned faces of the region's cliffs and the ground behind them
 ## (RockField; tools/pipeline/rocks/cliff_seat.py writes it).
 @export_file("*.json") var cliff := ""
+## The scans cliff_seat.py stands as the cliff's faces and where: what it
+## writes `cliff` from. The game does not read it.
+@export_file("*.json") var cliff_faces := ""
 ## The brook and the street's rill the ground bake cuts and the level fills
 ## with water (VillageBrook).
 @export_file("*.json") var brook := ""
+## The lake (LakePlan): where its bed lies, its shore, its reeds, where the
+## boat moors. Empty: the region has no lake. The water lies wherever the
+## ground is below the terrain's water level (WaterSystem).
+@export_file("*.json") var lake := ""
 ## The falls, the stream that feeds the upper one and the stream between
 ## them (WaterfallSystem).
 @export_file("*.json") var falls := ""
@@ -131,6 +164,8 @@ const PART_FILES := {
 ## The wild animals, the birds and the fish, and where each kind keeps
 ## (WildlifeSystem).
 @export_file("*.json") var wildlife := ""
+## The circuit the dragon flies (LakeDragon).
+@export_file("*.json") var dragon := ""
 
 static func valley() -> RegionDef:
 	return load(VALLEY) as RegionDef
@@ -156,11 +191,6 @@ static func listed(list := LIST) -> Array[RegionDef]:
 			regions.append(region)
 	return regions
 
-## The id of the first region of the list `list`: where a new game starts.
-static func first_id(list := LIST) -> StringName:
-	var found := entries(list)
-	return StringName(str(found[0].id)) if not found.is_empty() else &""
-
 ## The file of the region `region_id` of the list `list`, read without
 ## loading any region; the file of the first region when the list has no such
 ## id; "" when the list is empty.
@@ -170,6 +200,17 @@ static func path_of(region_id: StringName, list := LIST) -> String:
 		if StringName(str(entry.id)) == region_id:
 			return str(entry.region)
 	return str(found[0].region) if not found.is_empty() else ""
+
+## The scene of the map; null when the region names none or it does not load.
+func map_scene() -> PackedScene:
+	return load(map) as PackedScene if not map.is_empty() else null
+
+## What is wrong with the region's environment (EnvironmentDef.problems), or
+## that it names none.
+func environment_problems() -> PackedStringArray:
+	if environment == null:
+		return PackedStringArray(["the region names no environment"])
+	return environment.problems()
 
 ## Whether the region has the part `part` (PARTS).
 func has_part(part: StringName) -> bool:
@@ -187,6 +228,10 @@ func part_problems() -> PackedStringArray:
 		for need: StringName in NEEDS.get(part, []):
 			if not has_part(need):
 				found.append("part %s needs part %s" % [part, need])
+		if part in PLAN_PARTS and village_plan.is_empty():
+			found.append("part %s names no village_plan" % part)
+		if part in LAKE_PARTS and lake.is_empty():
+			found.append("part %s names no lake" % part)
 	for part: StringName in PART_FILES:
 		var fields: Array = PART_FILES[part]
 		for index in fields.size():
@@ -212,10 +257,10 @@ func spawn(spawn_id := &"") -> RegionSpawn:
 ## Every file this names, for a check that they exist. An empty path is a
 ## part the region does not have.
 func files() -> PackedStringArray:
-	var named := PackedStringArray([terrain_dir.path_join("terrain.json"), settled_heights, settled_masks,
-		settled_ground, zones, map.resource_path if map != null else "", map_manifest, map_edits, map_context,
-		village_plan, props, rocks, forest_wood, cottages, worn_ground, tavern_ground, tavern_work, cliff, brook,
-		falls, woodland, village_trees, placement, placement_manifest, villagers, animals, wildlife])
+	var named := PackedStringArray([terrain_dir.path_join("terrain.json"), ground_recipe, settled_heights, settled_masks,
+		settled_ground, zones, map, map_manifest, map_edits, map_context,
+		village_plan, props, rocks, forest_wood, forest_floor, cottages, worn_ground, tavern_ground, tavern_work, cliff, cliff_faces, brook,
+		lake, falls, woodland, village_trees, placement, placement_manifest, villagers, animals, wildlife, dragon])
 	named.append_array(tavern)
 	named.append_array(buildings)
 	return named

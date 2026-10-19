@@ -72,15 +72,12 @@ var water: WaterSystem
 ## The region's file of its falls; "" for none.
 var falls_file := ""
 
-var _weather: Texture2D
 
 func _ready() -> void:
 	if map != null:
-		for item: MeshInstance3D in map.find_children("*", "MeshInstance3D", true, false):
-			if RockField.label_of(item) in REPLACES:
-				item.get_parent().remove_child(item)
-				item.queue_free()
-	_weather = load("res://assets/generated/sky/cloud_weather.png")
+		var index := MapIndex.of(map)
+		for item: MeshInstance3D in index.labelled_any(REPLACES):
+			index.drop(item)
 	var plan := WaterfallSystem.read(falls_file)
 	if plan.is_empty():
 		return
@@ -197,14 +194,11 @@ func _lake_material(shader: Shader, priority: int) -> ShaderMaterial:
 	var material := ShaderMaterial.new()
 	material.shader = shader
 	material.render_priority = priority
-	material.set_shader_parameter("cloud_weather", _weather)
 	if water != null:
 		for parameter: String in LAKE_LOOK:
 			var value: Variant = water.material.get_shader_parameter(parameter)
 			if value != null:
 				material.set_shader_parameter(parameter, value)
-		if water.ocean != null:
-			material.set_shader_parameter("wind_heading", deg_to_rad(water.ocean.wind_direction_deg))
 	return material
 
 ## A ribbon of running water along `course` (rows of [surface point on the
@@ -262,8 +256,7 @@ func _add_ribbon(ribbon_name: String, mesh: ArrayMesh, material: ShaderMaterial)
 ## lake that rides its waves (plunge_foam.gdshader).
 func _add_plunge_foam(landing: Vector3) -> void:
 	var material := _lake_material(FOAM_SHADER, FOAM_PRIORITY)
-	for parameter: String in ["near_height", "far_height", "near_rect", "far_rect", "water_level"]:
-		material.set_shader_parameter(parameter, water.material.get_shader_parameter(parameter))
+	water.terrain.share_fields(material)
 	material.set_shader_parameter("plunge", Vector4(landing.x, landing.z, PLUNGE_REACH, 1.0))
 	var plane := PlaneMesh.new()
 	plane.size = Vector2.ONE * PLUNGE_REACH * 2.0

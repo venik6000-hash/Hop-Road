@@ -5,7 +5,7 @@ extends Node3D
 ## without a sheet of their own. Where the staff work in the tavern (the
 ## cook's board and pot, the maid's round) is the tavern's
 ## (RegionDef.tavern_work); how they work there (the innkeeper's bar, the
-## cook's board and pot, the maid's wiping) is here.
+## cook's board and pot, the maid's wiping) is their job's (NpcJob).
 
 ## The region's file of who lives there (PeopleSchemas.villagers); "" for
 ## nobody.
@@ -32,36 +32,10 @@ func _ready() -> void:
 	var work: Dictionary = spots if spots is Dictionary else {}
 	var staff: Array = cast.get("staff", [])
 	for entry: Dictionary in staff:
-		var at := Values.vec3(entry.at)
-		var job := str(entry.job)
-		var actor := settle(str(entry.person), str(entry.model), job, at, deg_to_rad(Values.real(entry.yaw)))
-		if actor == null:
-			continue
-		if job == "bartender":
-			bartender = actor
-			bar = NpcBarWork.new()
-			bar.name = "Bar"
-			bar.actor = bartender
-			bar.transform = Transform3D(Basis(Vector3.UP, actor.work_yaw), at)
-			add_child(bar)
-			bartender.bar = bar
-			bartender.posed.connect(bar.follow)
-		elif job == "chop" and work.has("board"):
-			_add_board(Values.vec3(work.board))
-		elif job == "stir" and work.has("pot"):
-			_add_pot(Values.vec3(work.pot))
-		elif job == "maid" and work.has("round"):
-			var round_route: Array[Vector3] = [at]
-			for point: Variant in Values.list(work.round):
-				round_route.append(Values.vec3(point))
-			actor.rounds.route.assign(round_route)
-			# She wipes the counter facing it, the other hand on its top, and the small
-			# table by it from its free side, a narrower strip on the round top and the
-			# other hand at her side.
-			for wipe: Dictionary in Values.list(work.wipes):
-				var row := wipe.duplicate()
-				row.rest = Values.vec3(wipe.rest)
-				actor.rounds.wipes[Values.whole(wipe.stop)] = row
+		var actor := settle(str(entry.person), str(entry.model), str(entry.job), Values.vec3(entry.at),
+			deg_to_rad(Values.real(entry.yaw)))
+		if actor != null:
+			actor.duty.place_work(self, actor, work)
 	var road: Array[Vector3] = []
 	for point: Variant in Values.list(cast.get("road", [])):
 		road.append(Values.vec3(point))
@@ -77,58 +51,6 @@ func _ready() -> void:
 			passer.rounds.route.assign(road)
 			passer.rounds.wait_time = Values.real(entry.wait)
 	place_walkers.call_deferred()
-
-## The cook's cutting board with the carrots on it, at `at`.
-func _add_board(at: Vector3) -> void:
-	var cutting := Node3D.new()
-	cutting.name = "FoodPreparation"
-	add_child(cutting)
-	cutting.position = at
-	var board := BoxMesh.new()
-	board.size = Vector3(0.32, 0.018, 0.23)
-	NpcProps.mesh(cutting, board, Color("85633f"))
-	for i in range(4):
-		var carrot := NpcProps.mesh(cutting, NpcProps.cylinder(0.013, 0.04), Color("b97a3f"), Vector3(0.04 * i - 0.06, 0.022, -0.025))
-		carrot.rotation.x = PI / 2.0
-	_shade_with_tavern(cutting)
-
-## The stew's pot, steaming, at `at`.
-func _add_pot(at: Vector3) -> void:
-	var pot := Node3D.new()
-	pot.name = "CookingStew"
-	add_child(pot)
-	pot.position = at
-	NpcProps.mesh(pot, NpcProps.cylinder(0.17, 0.18, true), Color("786847"), Vector3.ZERO, 0.5)
-	NpcProps.mesh(pot, NpcProps.cylinder(0.155, 0.012), Color("704b26"), Vector3.UP * 0.075)
-	_shade_with_tavern(pot)
-	var steam := CPUParticles3D.new()
-	pot.add_child(steam)
-	steam.position.y = 0.1
-	steam.amount = 10
-	steam.lifetime = 1.6
-	steam.direction = Vector3.UP
-	steam.spread = 10
-	steam.initial_velocity_min = 0.15
-	steam.initial_velocity_max = 0.25
-	steam.gravity = Vector3(0, 0.1, 0)
-	steam.scale_amount_min = 0.04
-	steam.scale_amount_max = 0.08
-	var puff := SphereMesh.new()
-	puff.radius = 0.5
-	puff.height = 1.0
-	puff.radial_segments = 8
-	puff.rings = 4
-	var puff_material := NpcProps.material(Color(0.65,0.62,0.57,0.15))
-	puff.material = puff_material
-	puff_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	steam.mesh = puff
-	steam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-
-## `prop` never moves: the lamps draw it into their shadow maps with the
-## tavern's own pieces.
-static func _shade_with_tavern(prop: Node3D) -> void:
-	for item: MeshInstance3D in prop.find_children("*", "MeshInstance3D", true, false):
-		item.layers |= LightLayers.LAMP_CASTERS
 
 ## A villager with a sheet (PeopleBook): goes by the role until the name is told.
 func settle(person: String, model: String, job: String, point: Vector3, yaw := 0.0) -> VillageNPC:
@@ -172,12 +94,20 @@ func spawn(model: String, job: String, title: String, point: Vector3, yaw := 0.0
 	actors.append(actor)
 	return actor
 
+## Puts each walker on the ground under them, the next point of the road
+## ahead, once the ground under the first of them answers a ray.
 func place_walkers() -> void:
-	await get_tree().physics_frame
+	var walkers := actors.filter(func(actor: VillageNPC) -> bool: return actor.duty.walks)
+	if walkers.is_empty():
+		return
+	var first: VillageNPC = walkers[0]
+	await PhysicsLayers.ground_stands(self, first.global_position)
+	if not is_inside_tree():
+		return
 	var exclude: Array[RID] = []
 	for actor in actors: exclude.append(actor.get_rid())
 	for actor in actors:
-		if actor.job != "wander": continue
+		if not actor.duty.walks: continue
 		var nearest := 0
 		var best := INF
 		for i in actor.rounds.route.size():

@@ -5,7 +5,8 @@ shader_type spatial;
 //
 // COLOR.rgb is the card's tint over `color_range`; COLOR.a how freely the
 // corner moves (0 where the stalk holds it, 1 at a free tip): the cards
-// flutter a little in the moving air, each in its own time. Light as the
+// flutter in the weather's wind (src/weather/wind.gdshaderinc), each in its
+// own time. Light as the
 // trees' leaves: wrapped diffuse, light passing through the thin blades from
 // behind, a glossy sheen (ivy is waxy); the sun dimmed by cloud shadows.
 render_mode cull_disabled, depth_draw_opaque;
@@ -20,9 +21,8 @@ uniform float roughness_value = 0.42;
 uniform float normal_strength = 0.7;
 uniform float leaf_wrap = 0.3;
 uniform float leaf_transmission = 0.55;
-// Metres a free tip moves.
+// Metres a free tip moves in a fresh breeze.
 uniform float flutter = 0.012;
-uniform vec2 flutter_dir = vec2(0.57, 0.82);
 
 varying float sun_vis;
 varying vec3 card_tint;
@@ -36,10 +36,10 @@ void vertex() {
 		vec3 cell = floor(world * 5.0);
 		float seed = fract(sin(dot(cell, vec3(12.9898, 78.233, 37.719))) * 43758.5453);
 		float t = TIME * (1.6 + 1.1 * seed) + seed * TAU;
-		float gust = 0.55 + 0.45 * sin(TIME * 0.41 + dot(world.xz, flutter_dir) * 0.2);
-		vec3 push = vec3(flutter_dir.x, 0.0, flutter_dir.y) * (0.6 + 0.4 * sin(t)) * gust
+		float gust = min(wind_strength(world.xz) / BREEZE_STRENGTH, 3.0);
+		vec3 push = (vec3(wind.x, 0.0, wind.y) * (0.6 + 0.4 * sin(t))
 			+ vec3(0.0, 0.45, 0.0) * sin(t * 1.9 + 1.3)
-			+ vec3(-flutter_dir.y, 0.0, flutter_dir.x) * 0.35 * sin(t * 2.7 + seed * 5.0);
+			+ vec3(-wind.y, 0.0, wind.x) * 0.35 * sin(t * 2.7 + seed * 5.0)) * gust;
 		VERTEX += (vec4(push * flutter * COLOR.a, 0.0) * MODEL_MATRIX).xyz;
 	}
 }

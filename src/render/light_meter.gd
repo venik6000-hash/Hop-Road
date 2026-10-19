@@ -10,8 +10,6 @@ const RdUtil = preload("res://src/common/rd_util.gd")
 const SHADER := "res://src/render/light_meter.glsl"
 ## Cells of the grid.
 const GRID := Vector2i(32, 18)
-## A reading is asked for once in this many frames.
-const EVERY := 4
 ## The weight of the picture's top rows, where the sky stands, against the
 ## rest, and what the sides lose against the middle.
 const SKY_WEIGHT := 0.35
@@ -20,6 +18,10 @@ const SIDE_LOSS := 0.4
 ## black doorway, a lamp and the sun's glare are no measure of a scene.
 const DARK_CUT := 0.1
 const BRIGHT_CUT := 0.15
+
+## A reading is asked for once in this many frames: the profile's
+## (QualityPost.meter_every), fixed when the pass is made.
+var every := 0
 
 var _rd: RenderingDevice
 var _shader: RID
@@ -33,7 +35,10 @@ var _readings := 0
 var _weighed := 0
 var _stops := NAN
 
-func _init() -> void:
+## `post`: the post passes of the level's quality profile (the authored ones
+## without it).
+func _init(post: QualityPost = null) -> void:
+	every = (post if post != null else QualityProfile.named(QualityProfile.AUTHORED).post).meter_every
 	effect_callback_type = EFFECT_CALLBACK_TYPE_POST_TRANSPARENT
 	RenderingServer.call_on_render_thread(_create)
 
@@ -100,7 +105,7 @@ func _render_callback(callback_type: int, render_data: RenderData) -> void:
 	if callback_type != EFFECT_CALLBACK_TYPE_POST_TRANSPARENT or not _pipeline.is_valid():
 		return
 	_frame += 1
-	if _waiting or _frame % EVERY != 0:
+	if _waiting or _frame % every != 0:
 		return
 	var buffers := render_data.get_render_scene_buffers() as RenderSceneBuffersRD
 	if buffers == null:
