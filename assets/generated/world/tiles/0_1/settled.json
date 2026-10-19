@@ -1,0 +1,25 @@
+{
+ "format_version": 1,
+ "region": "valley",
+ "bake_key": "cd072e02e37a8b230b94ec32290f4c307960f966593bbf4a8b5f100c5f31d586",
+ "tile": [
+  0,
+  1
+ ],
+ "origin": [
+  -632.0,
+  -60.0
+ ],
+ "height": {
+  "file": "settled_height.bin",
+  "sha256": "b184518db8edf87634f8caed8aa7107887227d39fe813f54cca58bf6e0285f58"
+ },
+ "control": {
+  "file": "settled_control.bin",
+  "sha256": "0e2e46dba02b22b2cfbb309caa467d0f257e2e93acadc47b4ec5b42197667a91"
+ },
+ "extra": {
+  "file": "settled_extra.bin",
+  "sha256": "fe033e3efb69c29e652c53a1274e8b711c3700f56b490c8040aefed3aedfbf51"
+ }
+}

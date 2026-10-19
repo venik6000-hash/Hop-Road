@@ -1,0 +1,82 @@
+{
+ "format_version": 1,
+ "origin": [
+  -632.0,
+  -572.0
+ ],
+ "tile": 512.0,
+ "tiles": {
+  "first": -2,
+  "last": 3,
+  "folder": "tiles/<tx>_<tz>"
+ },
+ "land": [
+  -1656.0,
+  -1596.0,
+  1416.0,
+  1476.0
+ ],
+ "water_level": 0.72,
+ "height": {
+  "file": "height.bin",
+  "samples": 1025,
+  "cell": 0.5,
+  "format": "float32 little-endian"
+ },
+ "masks": {
+  "samples": 513,
+  "cell": 1.0,
+  "format": "RGBA8",
+  "control": {
+   "file": "control.bin",
+   "channels": [
+    "path",
+    "beach",
+    "forest",
+    "meadow"
+   ]
+  },
+  "extra": {
+   "file": "extra.bin",
+   "channels": [
+    "rock",
+    "wet",
+    "lake_sdf",
+    "occlusion"
+   ]
+  }
+ },
+ "mid": {
+  "file": "mid_height.bin",
+  "samples": 1537,
+  "cell": 2.0,
+  "origin": [
+   -1656.0,
+   -1596.0
+  ],
+  "format": "float32 little-endian",
+  "min": -57.72798538208008,
+  "max": 754.802001953125
+ },
+ "minmax": {
+  "cell": 32.0,
+  "size": 512,
+  "origin": [
+   -9000.0,
+   -9700.0
+  ],
+  "layout": "levels of (min, max) float32 pairs, 512^2 then halving to 1^2",
+  "file": "minmax.bin"
+ },
+ "region": "valley",
+ "sources": {
+  "assets/generated/terrain/terrain.json": "fcbf3b7532b5a3bfbb2b02be332f78e2012a9d0aadd039e7138d4f22f0ba6ded",
+  "assets/generated/terrain/far_height.bin": "7f691273afae2820f685a3bae6f2b461203e6321f91e4a8b639fa022a1c8dac0",
+  "assets/generated/terrain/far_masks.png": "3d39b90df848b87031c4a9bbbff870fe717dbacb45e7623ec7c0e53a1fe78106",
+  "assets/generated/terrain/far_minmax.bin": "cd1eb3ff68fc70b9965baeb27d6d67c802167dcb357d429dba45ea5bda96ef0c",
+  "assets/generated/terrain/near_height.bin": "d5f5c971eaaf37a9e93516892cb354d9e7fef05619daa75727e47db1c9b00ea8",
+  "assets/generated/terrain/near_control.png": "93b7db01cc8a143b957819289493e4c269dfb42b2cd92a1aca1ab6de69ea2f69",
+  "assets/generated/terrain/near_extra.png": "b57f3c946b771555de320a9657d996b137e5344411c2646560d2f608d8b76a7e"
+ },
+ "convention": "sample [row z][column x] sits at origin + (x, z) * cell; the last row and column of a tile are the first of its neighbour"
+}

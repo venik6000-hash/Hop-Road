@@ -1,0 +1,55 @@
+{
+ "format_version": 1,
+ "region": "valley",
+ "bake_key": "cd072e02e37a8b230b94ec32290f4c307960f966593bbf4a8b5f100c5f31d586",
+ "tile": [
+  1,
+  0
+ ],
+ "origin": [
+  -120.0,
+  -572.0
+ ],
+ "height": {
+  "file": "settled_height.bin",
+  "sha256": "1520157e93566cd4befe72d404a68557a51ac4e9cbaff9042ba380d38335b870"
+ },
+ "control": {
+  "file": "settled_control.bin",
+  "sha256": "b02696d4cd5e73f237818b148311bf3739939310bac0bf050a878d98d6a24c44"
+ },
+ "extra": {
+  "file": "settled_extra.bin",
+  "sha256": "9536afb242f57b9df4574d4ec0bd53ad3dcf4edbba6bb789169bb2285a034fcf"
+ },
+ "wear": {
+  "file": "settled_wear.bin",
+  "sha256": "e98b5ec6edb9ff6aed7328a2efbad1a30f8a531cf3ff5e7f97651274e83caf09",
+  "rect": [
+   -40.0,
+   -113.75,
+   76.75,
+   54.0
+  ],
+  "size": [
+   307,
+   216
+  ],
+  "format": "RGBAH"
+ },
+ "cinder": {
+  "file": "settled_cinder.bin",
+  "sha256": "ebdd9a35e3796544b9057a5afb664ab169381bed2c530183df6198bcb5f1c433",
+  "rect": [
+   -40.0,
+   -113.75,
+   76.75,
+   54.0
+  ],
+  "size": [
+   307,
+   216
+  ],
+  "format": "R8"
+ }
+}
