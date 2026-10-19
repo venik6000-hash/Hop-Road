@@ -1,6 +1,4 @@
 {
-"terrain": "assets/generated/terrain",
-"out": "assets/generated/rocks/cliff_seat.json",
 "faces": [
 {"note": "The upper face: 2.5 m short of the plateau, the water falls from its brink.",
  "scan": "coastal_cliff_02", "at": [-49.5, 15.6, -149.3], "yaw": 0.0, "scale": [0.82, 1.44, 0.9]},

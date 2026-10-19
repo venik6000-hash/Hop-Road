@@ -881,24 +881,12 @@
    ]
   }
  ],
- "hours": {
-  "Workshop lamp": [
-   21.0,
-   5.0
-  ],
-  "Workshop lantern": [
-   21.0,
-   5.0
-  ],
-  "Workshop spill": [
-   21.0,
-   5.0
-  ],
-  "Smoky lantern": [
-   20.0,
-   6.0
-  ]
- },
+ "dusk": [
+  "Workshop lamp",
+  "Workshop lantern",
+  "Workshop spill",
+  "Smoky lantern"
+ ],
  "terrain": {
   "walls_reach": -1.2
  },

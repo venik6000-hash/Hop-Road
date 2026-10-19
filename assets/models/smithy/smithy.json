@@ -1076,12 +1076,11 @@
   "Forge glow": [
    5.5,
    22.0
-  ],
-  "Room candle": [
-   19.5,
-   23.0
   ]
  },
+ "dusk": [
+  "Room candle"
+ ],
  "moving": [
   {
    "id": "bellows_lever",

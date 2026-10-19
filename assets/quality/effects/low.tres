@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="QualityEffects" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/render/quality/quality_effects.gd" id="1_group"]
+
+[resource]
+script = ExtResource("1_group")
+cloud_steps = 36

@@ -917,12 +917,11 @@
   "Kiln glow": [
    14.0,
    23.0
-  ],
-  "Store lantern": [
-   19.5,
-   23.0
   ]
  },
+ "dusk": [
+  "Store lantern"
+ ],
  "vanes": [
   {
    "id": "cowl",

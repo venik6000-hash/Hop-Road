@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d2x7xedyo12c3"
-path.s3tc="res://.godot/imported/wine_barrel_01_diff_1k.jpg-33acf88080885feb1a3afe24b589e284.s3tc.ctex"
+uid="uid://r8fbac753uxf"
+path.s3tc="res://.godot/imported/embers_normal.png-b485e5324a679384ccbefa319be7587d.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/models/tavern/tavern_textures/wine_barrel_01_diff_1k.jpg"
-dest_files=["res://.godot/imported/wine_barrel_01_diff_1k.jpg-33acf88080885feb1a3afe24b589e284.s3tc.ctex"]
+source_file="res://assets/models/fire_bed/embers_normal.png"
+dest_files=["res://.godot/imported/embers_normal.png-b485e5324a679384ccbefa319be7587d.s3tc.ctex"]
 
 [params]
 
@@ -22,7 +22,7 @@ compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=1
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1
@@ -37,5 +37,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=2048
 detect_3d/compress_to=0

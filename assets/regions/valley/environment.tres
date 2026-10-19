@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EnvironmentDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/world/environment_def.gd" id="1_environment"]
+
+[resource]
+script = ExtResource("1_environment")
+latitude_deg = 47.0
+day_of_year = 225
+start_hour = 14.6
+ground_altitude_km = 0.75
+moon_colour = Color(0.62, 0.72, 1, 1)
+start_weather = "fair"
+start_wind = "breeze"
+fog_density = 5e-05
+fog_light_colour = Color(0.62, 0.72, 0.86, 1)
+fog_sun_scatter = 0.12
+fog_height = 380.0
+fog_height_density = 0.0001
+layer_tiles = PackedFloat32Array(3.2, 3.4, 3.6, 2.8, 3.4, 7, 6, 38, 1.9, 2.3, 2.6, 3.2, 5, 3, 2.7)
+layer_grades = Array[Vector4]([Vector4(0.2, 0.47, 0.12, 0.7), Vector4(1.29, 2.39, 1.67, 0.7), Vector4(0.65, 0.635, 0.515, 1.5), Vector4(1, 0.97, 0.92, 0.75), Vector4(1, 1, 1, 0.55), Vector4(0.92, 1, 0.97, 0.2), Vector4(0.95, 1, 0.98, 0.25), Vector4(0.9, 1, 0.8, 1.15), Vector4(1, 1, 1, 0.9), Vector4(1, 1, 1, 0.8), Vector4(1, 0.94, 0.84, 0.55), Vector4(1, 1, 1, 0.9), Vector4(0.98, 0.99, 1.02, 1), Vector4(0.92, 1.03, 0.9, 1.05), Vector4(1, 0.98, 0.94, 0.85)])

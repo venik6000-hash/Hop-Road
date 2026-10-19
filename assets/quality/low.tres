@@ -1,17 +1,20 @@
-[gd_resource type="Resource" script_class="QualityProfile" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="QualityProfile" load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://src/render/quality_profile.gd" id="1_profile"]
+[ext_resource type="Resource" path="res://assets/quality/shadows/low.tres" id="2_shadows"]
+[ext_resource type="Resource" path="res://assets/quality/effects/low.tres" id="3_effects"]
+[ext_resource type="Resource" path="res://assets/quality/vegetation/low.tres" id="4_vegetation"]
+[ext_resource type="Resource" path="res://assets/quality/water/maximum.tres" id="5_water"]
+[ext_resource type="Resource" path="res://assets/quality/post/low.tres" id="6_post"]
 
 [resource]
 script = ExtResource("1_profile")
 id = &"low"
 title = "Низкое — меньше пикселей, короче тени, сжатые текстуры до 512 px"
 pixels = 300000
-ssao = 0
-cloud_steps = 36
-shadow_distance = 90.0
-shadow_size = 2048
-shadow_blend = false
-grass_fade = Vector2(60.0, 75.0)
-tree_mesh_reach = Vector2(100.0, 115.0)
 textures = "low"
+shadows = ExtResource("2_shadows")
+effects = ExtResource("3_effects")
+vegetation = ExtResource("4_vegetation")
+water = ExtResource("5_water")
+post = ExtResource("6_post")

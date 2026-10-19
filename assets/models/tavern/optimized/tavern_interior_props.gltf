@@ -1401,7 +1401,8 @@
     {
       "extras": {
         "tav_collide": "box",
-        "tav_shadow": 1
+        "tav_shadow": 1,
+        "tav_bed": 1
       },
       "mesh": 21,
       "name": "GothicBed_01.001",
@@ -1420,7 +1421,8 @@
     {
       "extras": {
         "tav_collide": "box",
-        "tav_shadow": 1
+        "tav_shadow": 1,
+        "tav_bed": 1
       },
       "mesh": 21,
       "name": "GothicBed_01.002",
@@ -3399,7 +3401,7 @@
     },
     {
       "doubleSided": true,
-      "name": "wine_barrel_01",
+      "name": "wine_barrel_01.001",
       "normalTexture": {
         "index": 3
       },
@@ -3553,7 +3555,7 @@
           ]
         }
       },
-      "name": "cuckoo_clock.001",
+      "name": "cuckoo_clock",
       "normalTexture": {
         "index": 30
       },
@@ -3861,7 +3863,7 @@
           ]
         }
       },
-      "name": "plaid_chair.001",
+      "name": "plaid_chair",
       "normalTexture": {
         "index": 87
       },
@@ -4182,7 +4184,7 @@
     },
     {
       "doubleSided": true,
-      "name": "wooden_display_shelves_01.001",
+      "name": "wooden_display_shelves_01",
       "normalTexture": {
         "index": 148
       },
@@ -5025,7 +5027,7 @@
       ]
     },
     {
-      "name": "wooden_display_shelves_01.001",
+      "name": "wooden_display_shelves_01",
       "primitives": [
         {
           "attributes": {

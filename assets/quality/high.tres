@@ -1,17 +1,20 @@
-[gd_resource type="Resource" script_class="QualityProfile" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="QualityProfile" load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://src/render/quality_profile.gd" id="1_profile"]
+[ext_resource type="Resource" path="res://assets/quality/shadows/high.tres" id="2_shadows"]
+[ext_resource type="Resource" path="res://assets/quality/effects/high.tres" id="3_effects"]
+[ext_resource type="Resource" path="res://assets/quality/vegetation/high.tres" id="4_vegetation"]
+[ext_resource type="Resource" path="res://assets/quality/water/maximum.tres" id="5_water"]
+[ext_resource type="Resource" path="res://assets/quality/post/high.tres" id="6_post"]
 
 [resource]
 script = ExtResource("1_profile")
 id = &"high"
 title = "Высокое — рекомендуется"
 pixels = 450000
-ssao = 1
-cloud_steps = 48
-shadow_distance = 120.0
-shadow_size = 4096
-shadow_blend = true
-grass_fade = Vector2(95.0, 115.0)
-tree_mesh_reach = Vector2(145.0, 165.0)
 textures = "maximum"
+shadows = ExtResource("2_shadows")
+effects = ExtResource("3_effects")
+vegetation = ExtResource("4_vegetation")
+water = ExtResource("5_water")
+post = ExtResource("6_post")

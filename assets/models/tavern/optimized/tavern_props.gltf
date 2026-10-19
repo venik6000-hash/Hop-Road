@@ -925,18 +925,18 @@
   "images": [
     {
       "mimeType": "image/jpeg",
-      "name": "wine_barrel_01_nor_gl_1k",
-      "uri": "../tavern_textures/wine_barrel_01_nor_gl_1k.jpg"
+      "name": "wine_barrel_01_nor_gl_1k_512",
+      "uri": "../tavern_textures/wine_barrel_01_nor_gl_1k_512.jpg"
     },
     {
       "mimeType": "image/jpeg",
-      "name": "wine_barrel_01_diff_1k",
-      "uri": "../tavern_textures/wine_barrel_01_diff_1k.jpg"
+      "name": "wine_barrel_01_diff_1k_512",
+      "uri": "../tavern_textures/wine_barrel_01_diff_1k_512.jpg"
     },
     {
       "mimeType": "image/jpeg",
-      "name": "wine_barrel_01_arm_1k",
-      "uri": "../tavern_textures/wine_barrel_01_arm_1k.jpg"
+      "name": "wine_barrel_01_arm_1k_512",
+      "uri": "../tavern_textures/wine_barrel_01_arm_1k_512.jpg"
     }
   ],
   "accessors": [

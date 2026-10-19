@@ -6,9 +6,11 @@
  "ramp": {"name": "PorchStairRamp", "points": [[-0.045, -0.1, 5.0], [-0.045, 0.055, 5.0], [-0.045, 0.56, 4.12],
   [-0.045, -0.1, 3.5], [-0.045, 0.56, 3.5], [1.605, -0.1, 5.0], [1.605, 0.055, 5.0], [1.605, 0.56, 4.12],
   [1.605, -0.1, 3.5], [1.605, 0.56, 3.5]]},
- "smoke": 4.0},
+ "smoke": 4.0, "yard": {"half": [3.9, 4.7], "middle": 0.5}},
 {"key": "potter", "node": "PotterCottage", "table": "res://assets/models/potter/potter.json",
  "scene": "res://assets/generated/layout/potter_placed.glb", "solid": "potter_collision",
- "lantern": {"name": "PotterPorchLantern", "range": 3.0, "energy": 1.4}}
-]
+ "lantern": {"name": "PotterPorchLantern", "range": 3.0, "energy": 1.4},
+ "yard": {"half": [3.9, 4.7], "middle": 0.5}}
+],
+"yards": {"rim": 1.5, "sink": 0.025, "road": [2.8, 3.8], "north": -18.0}
 }

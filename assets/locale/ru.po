@@ -6,12 +6,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: src/brewing/brew_house.gd
+#: src/brewing/brew_readout.gd
 msgid "Зелёное и резкое: бочке стоять ещё %d день."
 msgid_plural "Зелёное и резкое: бочке стоять ещё %d дня."
 msgstr[0] "Зелёное и резкое: бочке стоять ещё %d день."
 msgstr[1] "Зелёное и резкое: бочке стоять ещё %d дня."
 msgstr[2] "Зелёное и резкое: бочке стоять ещё %d дней."
+
+#: src/brewing/brew_trade.gd
+msgid "%s: %s × %d, срок %d день, %d медн."
+msgid_plural "%s: %s × %d, срок %d дня, %d медн."
+msgstr[0] "%s: %s × %d, срок %d день, %d медн."
+msgstr[1] "%s: %s × %d, срок %d дня, %d медн."
+msgstr[2] "%s: %s × %d, срок %d дней, %d медн."
 
 #: src/brewing/brew_trade.gd
 msgid "срок %d день"
@@ -21,11 +28,11 @@ msgstr[1] "срок %d дня"
 msgstr[2] "срок %d дней"
 
 #: src/brewing/brew_trade.gd
-msgid "висит %d день"
-msgid_plural "висит %d дня"
-msgstr[0] "висит %d день"
-msgstr[1] "висит %d дня"
-msgstr[2] "висит %d дней"
+msgid "%s: %s × %d, висит %d день, %s, %d медн."
+msgid_plural "%s: %s × %d, висит %d дня, %s, %d медн."
+msgstr[0] "%s: %s × %d, висит %d день, %s, %d медн."
+msgstr[1] "%s: %s × %d, висит %d дня, %s, %d медн."
+msgstr[2] "%s: %s × %d, висит %d дней, %s, %d медн."
 
 #: src/lakeside/lakeside_hud.gd
 msgid "%s — %d улов · рекорд %.1f см"

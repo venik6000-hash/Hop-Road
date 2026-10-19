@@ -6,26 +6,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/alpine/level.gd
-msgid "Готовим небо и землю…"
-msgstr "Preparing the sky and the land…"
-
-#: src/alpine/level.gd
-msgid "Открываем таверну…"
-msgstr "Opening the tavern…"
-
-#: src/alpine/level.gd
-msgid "Собираем деревню…"
-msgstr "Building the village…"
-
-#: src/alpine/level.gd
-msgid "Рассаживаем лес…"
-msgstr "Planting the forest…"
-
-#: src/alpine/level.gd
-msgid "Готовим жителей и озеро…"
-msgstr "Waking the villagers and the lake…"
-
 #: src/alpine/level_hud.gd
 msgid "Штиль"
 msgstr "Calm"
@@ -77,6 +57,26 @@ msgstr "%s (on its own)"
 #: src/alpine/level_hud.gd
 msgid "волна %.1f м"
 msgstr "waves %.1f m"
+
+#: src/alpine/level_parts.gd
+msgid "Готовим небо и землю…"
+msgstr "Preparing the sky and the land…"
+
+#: src/alpine/level_parts.gd
+msgid "Открываем таверну…"
+msgstr "Opening the tavern…"
+
+#: src/alpine/level_parts.gd
+msgid "Собираем деревню…"
+msgstr "Building the village…"
+
+#: src/alpine/level_parts.gd
+msgid "Рассаживаем лес…"
+msgstr "Planting the forest…"
+
+#: src/alpine/level_parts.gd
+msgid "Готовим жителей и озеро…"
+msgstr "Waking the villagers and the lake…"
 
 #: src/brewing/brew_book.gd
 msgid "Изъян: %s. %s"
@@ -262,231 +262,41 @@ msgstr "Scales: %.0f g of hops"
 msgid "Безмен: %.1f кг"
 msgstr "Steelyard: %.1f kg"
 
-#: src/brewing/brew_house.gd
+#: src/brewing/brew_layout.gd
 msgid "Лагерная бочка"
 msgstr "Lager cask"
 
-#: src/brewing/brew_house.gd
-msgid "{move_left} / {move_right} — листать   ·   {interact} — закрыть книгу"
-msgstr "{move_left} / {move_right} — turn the pages   ·   {interact} — close the book"
+#: src/brewing/brew_maltings.gd
+msgid "Замочный чан: %.0f кг ячменя, замочен, под водой"
+msgstr "Steeping tub: %.0f kg of barley, steeped, under water"
 
-#: src/brewing/brew_house.gd
-msgid "{look} от себя — наклонить"
-msgstr "{look} away from you — tilt"
+#: src/brewing/brew_maltings.gd
+msgid "Замочный чан: %.0f кг ячменя, замочен, воды мало"
+msgstr "Steeping tub: %.0f kg of barley, steeped, too little water"
 
-#: src/brewing/brew_house.gd
-msgid "{look} по кругу"
-msgstr "{look} in circles"
+#: src/brewing/brew_maltings.gd
+msgid "Замочный чан: %.0f кг ячменя, замочен, без воды"
+msgstr "Steeping tub: %.0f kg of barley, steeped, no water"
 
-#: src/brewing/brew_house.gd
-msgid "{look} вниз-вверх — качать"
-msgstr "{look} down and up — pump"
+#: src/brewing/brew_maltings.gd
+msgid "Замочный чан: %.0f кг ячменя, сухой, под водой"
+msgstr "Steeping tub: %.0f kg of barley, dry, under water"
 
-#: src/brewing/brew_house.gd
-msgid "{look} — тянуть"
-msgstr "{look} — pull"
+#: src/brewing/brew_maltings.gd
+msgid "Замочный чан: %.0f кг ячменя, сухой, воды мало"
+msgstr "Steeping tub: %.0f kg of barley, dry, too little water"
 
-#: src/brewing/brew_house.gd
-msgid "{look} полосами"
-msgstr "{look} in strokes"
+#: src/brewing/brew_maltings.gd
+msgid "Замочный чан: %.0f кг ячменя, сухой, без воды"
+msgstr "Steeping tub: %.0f kg of barley, dry, no water"
 
-#: src/brewing/brew_house.gd
-msgid "замах и удар"
-msgstr "swing and strike"
+#: src/brewing/brew_maltings.gd
+msgid "Ток: %.0f кг, ростки %.0f мм, куча тёплая"
+msgstr "Malting floor: %.0f kg, rootlets %.0f mm, the couch is warm"
 
-#: src/brewing/brew_house.gd
-msgid "замах вниз, бросок вверх"
-msgstr "swing down, throw up"
-
-#: src/brewing/brew_house.gd
-msgid "   ·   {choice} — другое дело"
-msgstr "   ·   {choice} — another task"
-
-#: src/brewing/brew_house.gd
-msgid "   ·   {interact} — отойти"
-msgstr "   ·   {interact} — step away"
-
-#: src/brewing/brew_house.gd
-msgid "{interact} — открыть книгу пивовара"
-msgstr "{interact} — open the brewer's book"
-
-#: src/brewing/brew_house.gd
-msgid "{interact} — взять · %s"
-msgstr "{interact} — take · %s"
-
-#: src/brewing/brew_house.gd
-msgid "{interact} — взять полено · %s"
-msgstr "{interact} — take a log · %s"
-
-#: src/brewing/brew_house.gd
-msgid "{interact} — перевернуть песочные часы"
-msgstr "{interact} — turn the hourglass"
-
-#: src/brewing/brew_house.gd
-msgid "{interact} — поставить на стойку · %s"
-msgstr "{interact} — set on the bar · %s"
-
-#: src/brewing/brew_house.gd
-msgid "{interact} — поставить · %s"
-msgstr "{interact} — put down · %s"
-
-#: src/brewing/brew_house.gd
-msgid "{interact} — купить: %s · %d медн. · в кошельке %d"
-msgstr "{interact} — buy: %s · %d coppers · %d in the purse"
-
-#: src/brewing/brew_house.gd
-msgid "   ·   {choice} — другой товар"
-msgstr "   ·   {choice} — another ware"
-
-#: src/brewing/brew_house.gd
-msgid "{interact} — взять заказ · %s"
-msgstr "{interact} — take the order · %s"
-
-#: src/brewing/brew_house.gd
-msgid "   ·   {choice} — другой заказ"
-msgstr "   ·   {choice} — another order"
-
-#: src/brewing/brew_house.gd
-msgid "{interact} — отказаться от заказа: он уйдёт с доски · %s"
-msgstr "{interact} — give up the order: it leaves the board · %s"
-
-#: src/brewing/brew_house.gd
-msgid "Бочонок не подходит ни к одному заказу"
-msgstr "This keg fits no order"
-
-#: src/brewing/brew_house.gd
-msgid "{interact} — сдать бочонок по заказу · %s · %d медн."
-msgstr "{interact} — deliver the keg for the order · %s · %d coppers"
-
-#: src/brewing/brew_house.gd
-msgid "{interact} — погрузить бочонок на телегу · %d медн."
-msgstr "{interact} — load the keg onto the cart · %d coppers"
-
-#: src/brewing/brew_house.gd
-msgid "Доска заказов пуста"
-msgstr "The order board is empty"
-
-#: src/brewing/brew_house.gd
-msgid "Заказы · %s"
-msgstr "Orders · %s"
-
-#: src/brewing/brew_house.gd
-msgid "Телега берёт бочонки за половину цены Борра, кислое пиво — на уксус"
-msgstr "The cart takes kegs at half Borr's price, and sour beer for vinegar"
-
-#: src/brewing/brew_house.gd
-msgid "Заказ · %s"
-msgstr "Order · %s"
-
-#: src/brewing/brew_house.gd
-msgid " Бочонков по заказу: %d, готово: %d."
-msgstr " Kegs for the order: %d, ready: %d."
-
-#: src/brewing/brew_house.gd
-msgid "Партия в погребе вышла другим сортом: «%s». Этот заказ её не возьмёт."
-msgstr "The batch in the cellar came out another sort: “%s”. This order will not take it."
-
-#: src/brewing/brew_house.gd
-msgid "%s · %d м"
-msgstr "%s · %d m"
-
-#: src/brewing/brew_house.gd
-msgid "Поленница"
-msgstr "Woodpile"
-
-#: src/brewing/brew_house.gd
-msgid "Буковая поленница"
-msgstr "Beech woodpile"
-
-#: src/brewing/brew_house.gd
-msgid "Зелёное и резкое: бочке стоять ещё %d день."
-msgid_plural "Зелёное и резкое: бочке стоять ещё %d дня."
-msgstr[0] "Green and harsh: the cask must stand %d more day."
-msgstr[1] "Green and harsh: the cask must stand %d more days."
-
-#: src/brewing/brew_house.gd
-msgid "Бродильный чан пуст"
-msgstr "The fermenting tun is empty"
-
-#: src/brewing/brew_house.gd
-msgid "Бродильный чан: %.0f л"
-msgstr "Fermenting tun: %.0f l"
-
-#: src/brewing/brew_house.gd
-msgid "Бродильный чан: %s"
-msgstr "Fermenting tun: %s"
-
-#: src/brewing/brew_house.gd
-msgid "Горшок с дрожжами: %.1f л"
-msgstr "Yeast crock: %.1f l"
-
-#: src/brewing/brew_house.gd
-msgid "Буковые поленья: %d шт."
-msgstr "Beech logs: %d"
-
-#: src/brewing/brew_house.gd
-msgid "Еловые поленья: %d шт."
-msgstr "Spruce logs: %d"
-
-#: src/brewing/brew_house.gd
-msgid "Бродильный чан рассохся: нужен бондарь"
-msgstr "The fermenting tun has dried out: it needs the cooper"
-
-#: src/brewing/brew_house.gd
-msgid "Бродильный чан: %.0f л сусла · ждёт дрожжей"
-msgstr "Fermenting tun: %.0f l of wort · waiting for yeast"
-
-#: src/brewing/brew_house.gd
-msgid "Бродильный чан: %.0f л · дрожжи в сусле"
-msgstr "Fermenting tun: %.0f l · yeast in the wort"
-
-#: src/brewing/brew_house.gd
-msgid "Бродильный чан: %.0f л · брожение кончилось"
-msgstr "Fermenting tun: %.0f l · fermentation finished"
-
-#: src/brewing/brew_house.gd
-msgid "Бродильный чан: %.0f л · бродит, день %d · шапка пены"
-msgstr "Fermenting tun: %.0f l · fermenting, day %d · a head of yeast"
-
-#: src/brewing/brew_house.gd
-msgid "Бродильный чан: %.0f л · бродит, день %d"
-msgstr "Fermenting tun: %.0f l · fermenting, day %d"
-
-#: src/brewing/brew_house.gd
-msgid "Бродильный чан: %.0f л пива"
-msgstr "Fermenting tun: %.0f l of beer"
-
-#: src/brewing/brew_house.gd
-msgid "Лагерная бочка рассохлась: нужен бондарь"
-msgstr "The lager cask has dried out: it needs the cooper"
-
-#: src/brewing/brew_house.gd
-msgid "Лагерная бочка пуста · ошпарена"
-msgstr "The lager cask is empty · scalded"
-
-#: src/brewing/brew_house.gd
-msgid "Лагерная бочка пуста"
-msgstr "The lager cask is empty"
-
-#: src/brewing/brew_house.gd
-msgid "Лагерная бочка: %.0f л · выдержка %d из %d дн. · под пробкой"
-msgstr "Lager cask: %.0f l · aged %d of %d days · bunged"
-
-#: src/brewing/brew_house.gd
-msgid "Лагерная бочка: %.0f л · выдержка %d из %d дн. · без пробки"
-msgstr "Lager cask: %.0f l · aged %d of %d days · not bunged"
-
-#: src/brewing/brew_house.gd
-msgid "Бочонок пуст"
-msgstr "The keg is empty"
-
-#: src/brewing/brew_house.gd
-msgid "Бочонок: %.0f л · %s · под пробкой"
-msgstr "Keg: %.0f l · %s · bunged"
-
-#: src/brewing/brew_house.gd
-msgid "Бочонок: %.0f л · %s"
-msgstr "Keg: %.0f l · %s"
+#: src/brewing/brew_maltings.gd
+msgid "Ток: %.0f кг, ростки %.0f мм, куча прохладная"
+msgstr "Malting floor: %.0f kg, rootlets %.0f mm, the couch is cool"
 
 #: src/brewing/brew_maltings.gd
 msgid "Замочный чан: %.0f л воды"
@@ -501,44 +311,8 @@ msgid "Замочный чан пуст"
 msgstr "The steeping tub is empty"
 
 #: src/brewing/brew_maltings.gd
-msgid "замочен"
-msgstr "steeped"
-
-#: src/brewing/brew_maltings.gd
-msgid "сухой"
-msgstr "dry"
-
-#: src/brewing/brew_maltings.gd
-msgid "под водой"
-msgstr "under water"
-
-#: src/brewing/brew_maltings.gd
-msgid "воды мало"
-msgstr "too little water"
-
-#: src/brewing/brew_maltings.gd
-msgid "без воды"
-msgstr "no water"
-
-#: src/brewing/brew_maltings.gd
-msgid "Замочный чан: %.0f кг ячменя, %s, %s"
-msgstr "Steeping tub: %.0f kg of barley, %s, %s"
-
-#: src/brewing/brew_maltings.gd
 msgid "Ток пуст"
 msgstr "The malting floor is empty"
-
-#: src/brewing/brew_maltings.gd
-msgid "тёплая"
-msgstr "warm"
-
-#: src/brewing/brew_maltings.gd
-msgid "прохладная"
-msgstr "cool"
-
-#: src/brewing/brew_maltings.gd
-msgid "Ток: %.0f кг, ростки %.0f мм, куча %s"
-msgstr "Malting floor: %.0f kg, rootlets %.0f mm, the couch is %s"
 
 #: src/brewing/brew_maltings.gd
 msgid "Сушилка: %s"
@@ -559,6 +333,10 @@ msgstr "wet"
 #: src/brewing/brew_maltings.gd
 msgid "сыроват"
 msgstr "damp"
+
+#: src/brewing/brew_maltings.gd
+msgid "сухой"
+msgstr "dry"
 
 #: src/brewing/brew_maltings.gd
 msgid "%s, %.0f кг солода, %s, %s"
@@ -592,6 +370,162 @@ msgstr "smoky"
 msgid "светлый"
 msgstr "pale"
 
+#: src/brewing/brew_market.gd
+msgid "{interact} — купить: %s · %d медн. · в кошельке %d"
+msgstr "{interact} — buy: %s · %d coppers · %d in the purse"
+
+#: src/brewing/brew_market.gd
+msgid "   ·   {choice} — другой товар"
+msgstr "   ·   {choice} — another ware"
+
+#: src/brewing/brew_market.gd
+msgid "{interact} — взять заказ · %s"
+msgstr "{interact} — take the order · %s"
+
+#: src/brewing/brew_market.gd
+msgid "   ·   {choice} — другой заказ"
+msgstr "   ·   {choice} — another order"
+
+#: src/brewing/brew_market.gd
+msgid "{interact} — отказаться от заказа: он уйдёт с доски · %s"
+msgstr "{interact} — give up the order: it leaves the board · %s"
+
+#: src/brewing/brew_market.gd
+msgid "Бочонок не подходит ни к одному заказу"
+msgstr "This keg fits no order"
+
+#: src/brewing/brew_market.gd
+msgid "{interact} — сдать бочонок по заказу · %s · %d медн."
+msgstr "{interact} — deliver the keg for the order · %s · %d coppers"
+
+#: src/brewing/brew_market.gd
+msgid "{interact} — погрузить бочонок на телегу · %d медн."
+msgstr "{interact} — load the keg onto the cart · %d coppers"
+
+#: src/brewing/brew_market.gd
+msgid "Доска заказов пуста"
+msgstr "The order board is empty"
+
+#: src/brewing/brew_market.gd
+msgid "Заказы · %s"
+msgstr "Orders · %s"
+
+#: src/brewing/brew_market.gd
+msgid "Телега берёт бочонки за половину цены Борра, кислое пиво — на уксус"
+msgstr "The cart takes kegs at half Borr's price, and sour beer for vinegar"
+
+#: src/brewing/brew_market.gd
+msgid "Заказ · %s"
+msgstr "Order · %s"
+
+#: src/brewing/brew_market.gd
+msgid " Бочонков по заказу: %d, готово: %d."
+msgstr " Kegs for the order: %d, ready: %d."
+
+#: src/brewing/brew_market.gd
+msgid "Партия в погребе вышла другим сортом: «%s». Этот заказ её не возьмёт."
+msgstr "The batch in the cellar came out another sort: “%s”. This order will not take it."
+
+#: src/brewing/brew_market.gd
+msgid "%s · %d м"
+msgstr "%s · %d m"
+
+#: src/brewing/brew_readout.gd
+msgid "Бродильный чан пуст"
+msgstr "The fermenting tun is empty"
+
+#: src/brewing/brew_readout.gd
+msgid "Бродильный чан: %.0f л"
+msgstr "Fermenting tun: %.0f l"
+
+#: src/brewing/brew_readout.gd
+msgid "Бродильный чан: %s"
+msgstr "Fermenting tun: %s"
+
+#: src/brewing/brew_readout.gd
+msgid "Горшок с дрожжами: %.1f л"
+msgstr "Yeast crock: %.1f l"
+
+#: src/brewing/brew_readout.gd
+msgid "Буковые поленья: %d шт."
+msgstr "Beech logs: %d"
+
+#: src/brewing/brew_readout.gd
+msgid "Еловые поленья: %d шт."
+msgstr "Spruce logs: %d"
+
+#: src/brewing/brew_readout.gd
+msgid "Бродильный чан рассохся: нужен бондарь"
+msgstr "The fermenting tun has dried out: it needs the cooper"
+
+#: src/brewing/brew_readout.gd
+msgid "Бродильный чан: %.0f л сусла · ждёт дрожжей"
+msgstr "Fermenting tun: %.0f l of wort · waiting for yeast"
+
+#: src/brewing/brew_readout.gd
+msgid "Бродильный чан: %.0f л · дрожжи в сусле"
+msgstr "Fermenting tun: %.0f l · yeast in the wort"
+
+#: src/brewing/brew_readout.gd
+msgid "Бродильный чан: %.0f л · брожение кончилось"
+msgstr "Fermenting tun: %.0f l · fermentation finished"
+
+#: src/brewing/brew_readout.gd
+msgid "Бродильный чан: %.0f л · бродит, день %d · шапка пены"
+msgstr "Fermenting tun: %.0f l · fermenting, day %d · a head of yeast"
+
+#: src/brewing/brew_readout.gd
+msgid "Бродильный чан: %.0f л · бродит, день %d"
+msgstr "Fermenting tun: %.0f l · fermenting, day %d"
+
+#: src/brewing/brew_readout.gd
+msgid "Бродильный чан: %.0f л пива"
+msgstr "Fermenting tun: %.0f l of beer"
+
+#: src/brewing/brew_readout.gd
+msgid "Лагерная бочка рассохлась: нужен бондарь"
+msgstr "The lager cask has dried out: it needs the cooper"
+
+#: src/brewing/brew_readout.gd
+msgid "Лагерная бочка пуста · ошпарена"
+msgstr "The lager cask is empty · scalded"
+
+#: src/brewing/brew_readout.gd
+msgid "Лагерная бочка пуста"
+msgstr "The lager cask is empty"
+
+#: src/brewing/brew_readout.gd
+msgid "Лагерная бочка: %.0f л · выдержка %d из %d дн. · под пробкой"
+msgstr "Lager cask: %.0f l · aged %d of %d days · bunged"
+
+#: src/brewing/brew_readout.gd
+msgid "Лагерная бочка: %.0f л · выдержка %d из %d дн. · без пробки"
+msgstr "Lager cask: %.0f l · aged %d of %d days · not bunged"
+
+#: src/brewing/brew_readout.gd
+msgid "Бочонок пуст"
+msgstr "The keg is empty"
+
+#: src/brewing/brew_readout.gd
+msgid "Бочонок: %.0f л · %s · под пробкой"
+msgstr "Keg: %.0f l · %s · bunged"
+
+#: src/brewing/brew_readout.gd
+msgid "Бочонок: %.0f л · %s"
+msgstr "Keg: %.0f l · %s"
+
+#: src/brewing/brew_readout.gd
+msgid "Зелёное и резкое: бочке стоять ещё %d день."
+msgid_plural "Зелёное и резкое: бочке стоять ещё %d дня."
+msgstr[0] "Green and harsh: the cask must stand %d more day."
+msgstr[1] "Green and harsh: the cask must stand %d more days."
+
+#: src/brewing/brew_trade.gd
+msgid "%s: %s × %d, срок %d день, %d медн."
+msgid_plural "%s: %s × %d, срок %d дня, %d медн."
+msgstr[0] "%s: %s × %d, %d day left, %d coppers"
+msgstr[1] "%s: %s × %d, %d days left, %d coppers"
+
 #: src/brewing/brew_trade.gd
 msgid "срок %d день"
 msgid_plural "срок %d дня"
@@ -599,14 +533,118 @@ msgstr[0] "%d day left"
 msgstr[1] "%d days left"
 
 #: src/brewing/brew_trade.gd
-msgid "висит %d день"
-msgid_plural "висит %d дня"
-msgstr[0] "on the board %d day"
-msgstr[1] "on the board %d days"
+msgid "%s: %s × %d, висит %d день, %s, %d медн."
+msgid_plural "%s: %s × %d, висит %d дня, %s, %d медн."
+msgstr[0] "%s: %s × %d, on the board %d day, %s, %d coppers"
+msgstr[1] "%s: %s × %d, on the board %d days, %s, %d coppers"
 
-#: src/brewing/brew_trade.gd
-msgid "%s: %s × %d, %s, %d медн."
-msgstr "%s: %s × %d, %s, %d coppers"
+#: src/brewing/brew_woodpiles.gd
+msgid "Поленница"
+msgstr "Woodpile"
+
+#: src/brewing/brew_woodpiles.gd
+msgid "Буковая поленница"
+msgstr "Beech woodpile"
+
+#: src/brewing/brew_work.gd
+msgid "{look} от себя — наклонить"
+msgstr "{look} away from you — tilt"
+
+#: src/brewing/brew_work.gd
+msgid "{look} по кругу"
+msgstr "{look} in circles"
+
+#: src/brewing/brew_work.gd
+msgid "{look} вниз-вверх — качать"
+msgstr "{look} down and up — pump"
+
+#: src/brewing/brew_work.gd
+msgid "{look} — тянуть"
+msgstr "{look} — pull"
+
+#: src/brewing/brew_work.gd
+msgid "{look} полосами"
+msgstr "{look} in strokes"
+
+#: src/brewing/brew_work.gd
+msgid "замах и удар"
+msgstr "swing and strike"
+
+#: src/brewing/brew_work.gd
+msgid "замах вниз, бросок вверх"
+msgstr "swing down, throw up"
+
+#: src/brewing/brew_work.gd
+msgid "{move_left} / {move_right} — листать   ·   {interact} — закрыть книгу"
+msgstr "{move_left} / {move_right} — turn the pages   ·   {interact} — close the book"
+
+#: src/brewing/brew_work.gd
+msgid "%s   ·   %s   ·   {choice} — другое дело   ·   {interact} — отойти"
+msgstr "%s   ·   %s   ·   {choice} — another task   ·   {interact} — step away"
+
+#: src/brewing/brew_work.gd
+msgid "%s   ·   %s   ·   {interact} — отойти"
+msgstr "%s   ·   %s   ·   {interact} — step away"
+
+#: src/brewing/brew_work.gd
+msgid "{interact} — открыть книгу пивовара"
+msgstr "{interact} — open the brewer's book"
+
+#: src/brewing/brew_work.gd
+msgid "{interact} — взять · %s"
+msgstr "{interact} — take · %s"
+
+#: src/brewing/brew_work.gd
+msgid "{interact} — взять полено · %s"
+msgstr "{interact} — take a log · %s"
+
+#: src/brewing/brew_work.gd
+msgid "{interact} — перевернуть песочные часы"
+msgstr "{interact} — turn the hourglass"
+
+#: src/brewing/brew_work.gd
+msgid "{interact} — поставить на стойку · %s"
+msgstr "{interact} — set on the bar · %s"
+
+#: src/brewing/brew_work.gd
+msgid "{interact} — поставить · %s"
+msgstr "{interact} — put down · %s"
+
+#: src/camping/camp_company.gd
+msgid "{interact} — поговорить · {camp_secondary} — попрощаться · {guide_outing} — любимое место"
+msgstr "{interact} — talk · {camp_secondary} — say goodbye · {guide_outing} — favourite place"
+
+#: src/camping/camp_company.gd
+msgid "{interact} — позвать гулять · %s"
+msgstr "{interact} — ask along for a walk · %s"
+
+#: src/camping/camp_company.gd
+msgid "{interact} — поговорить · %s"
+msgstr "{interact} — talk · %s"
+
+#: src/camping/camp_food.gd
+msgid "Печёная картошка · {eat_potato} — съесть половину · {camp_secondary} — поделиться · {drink_beer} — пиво"
+msgstr "Baked potato · {eat_potato} — eat half · {camp_secondary} — share · {drink_beer} — beer"
+
+#: src/camping/camp_hud.gd
+msgid " · {drink_beer} — пиво · {camp_refill} — налить · {eat_potato} — есть · {camp_secondary} — поделиться"
+msgstr " · {drink_beer} — beer · {camp_refill} — fill up · {eat_potato} — eat · {camp_secondary} — share"
+
+#: src/camping/camp_hud.gd
+msgid " · {drink_beer} — пиво · {camp_refill} — налить"
+msgstr " · {drink_beer} — beer · {camp_refill} — fill up"
+
+#: src/camping/camp_placing.gd
+msgid "Посмотри на землю в нескольких шагах от себя"
+msgstr "Look at the ground a few steps away"
+
+#: src/camping/camp_placing.gd
+msgid "{interact} — положить дрова здесь · {place_camp} — отменить"
+msgstr "{interact} — lay the firewood here · {place_camp} — cancel"
+
+#: src/camping/camp_placing.gd
+msgid "%s · {place_camp} — отменить"
+msgstr "%s · {place_camp} — cancel"
 
 #: src/camping/camp_site.gd
 msgid "Наведи взгляд на землю неподалёку"
@@ -647,42 +685,6 @@ msgstr "Leave room around the fire for people"
 #: src/camping/camp_site.gd
 msgid "Выбери место под открытым небом"
 msgstr "Pick a spot under the open sky"
-
-#: src/camping/camp_system.gd
-msgid "Печёная картошка · {eat_potato} — съесть половину · {camp_secondary} — поделиться · {drink_beer} — пиво"
-msgstr "Baked potato · {eat_potato} — eat half · {camp_secondary} — share · {drink_beer} — beer"
-
-#: src/camping/camp_system.gd
-msgid "Посмотри на землю в нескольких шагах от себя"
-msgstr "Look at the ground a few steps away"
-
-#: src/camping/camp_system.gd
-msgid "{interact} — положить дрова здесь · {place_camp} — отменить"
-msgstr "{interact} — lay the firewood here · {place_camp} — cancel"
-
-#: src/camping/camp_system.gd
-msgid "%s · {place_camp} — отменить"
-msgstr "%s · {place_camp} — cancel"
-
-#: src/camping/camp_system.gd
-msgid "{interact} — поговорить · {camp_secondary} — попрощаться · {guide_outing} — любимое место"
-msgstr "{interact} — talk · {camp_secondary} — say goodbye · {guide_outing} — favourite place"
-
-#: src/camping/camp_system.gd
-msgid "{interact} — позвать гулять · %s"
-msgstr "{interact} — ask along for a walk · %s"
-
-#: src/camping/camp_system.gd
-msgid "{interact} — поговорить · %s"
-msgstr "{interact} — talk · %s"
-
-#: src/camping/camp_system.gd
-msgid " · {drink_beer} — пиво · {camp_refill} — налить · {eat_potato} — есть · {camp_secondary} — поделиться"
-msgstr " · {drink_beer} — beer · {camp_refill} — fill up · {eat_potato} — eat · {camp_secondary} — share"
-
-#: src/camping/camp_system.gd
-msgid " · {drink_beer} — пиво · {camp_refill} — налить"
-msgstr " · {drink_beer} — beer · {camp_refill} — fill up"
 
 #: src/camping/campfire.gd
 msgid "Костёр полон дров"
@@ -1163,6 +1165,10 @@ msgid "Не удалось загрузить сцену долины."
 msgstr "Could not load the valley scene."
 
 #: src/loading/world_loader.gd
+msgid "Данные области не читаются: %s"
+msgstr "The region's data cannot be read: %s"
+
+#: src/loading/world_loader.gd
 msgid "Загружаем модели деревни…"
 msgstr "Loading the village models…"
 
@@ -1194,25 +1200,25 @@ msgstr "Restart the game."
 msgid "Этап загрузки не завершился за 3 минуты: %s"
 msgstr "A loading stage did not finish in 3 minutes: %s"
 
-#: src/npc/village_npc.gd
-msgid "Житель"
-msgstr "Villager"
-
-#: src/npc/village_npc.gd
+#: src/npc/jobs/bartender.gd
 msgid "%s наливает пиво…"
 msgstr "%s pours a beer…"
 
-#: src/npc/village_npc.gd
+#: src/npc/jobs/bartender.gd
 msgid "%s подаёт кружку…"
 msgstr "%s brings the mug…"
 
-#: src/npc/village_npc.gd
+#: src/npc/jobs/bartender.gd
 msgid "{interact} — взять пиво · %s"
 msgstr "{interact} — take the beer · %s"
 
-#: src/npc/village_npc.gd
+#: src/npc/jobs/bartender.gd
 msgid "{interact} — заказать пиво · %s"
 msgstr "{interact} — order a beer · %s"
+
+#: src/npc/village_npc.gd
+msgid "Житель"
+msgstr "Villager"
 
 #: src/player/body_channels.gd
 msgid "Кружки нет в руке."
@@ -1402,13 +1408,41 @@ msgstr "Picture, display, shadows, grass, sound and controls change at once. Tex
 msgid "Дверь"
 msgstr "Door"
 
-#: src/tavern/tavern_interactions.gd
+#: src/tavern/tavern_door.gd
+msgid "Отойдите от створки · {interact} — повернуть дверь"
+msgstr "Step away from the door leaf · {interact} — turn the door"
+
+#: src/tavern/tavern_door.gd
+msgid "{interact} — закрыть · %s"
+msgstr "{interact} — close · %s"
+
+#: src/tavern/tavern_door.gd
+msgid "{interact} — открыть · %s"
+msgstr "{interact} — open · %s"
+
+#: src/tavern/tavern_furnishings.gd
+msgid "{interact} — подняться на чердак"
+msgstr "{interact} — climb up to the loft"
+
+#: src/tavern/tavern_furnishings.gd
+msgid "{interact} — спуститься с чердака"
+msgstr "{interact} — climb down from the loft"
+
+#: src/tavern/tavern_furnishings.gd
+msgid "{interact} — спать до утра"
+msgstr "{interact} — sleep till morning"
+
+#: src/tavern/tavern_furnishings.gd
 msgid "Подъём по лестнице…"
 msgstr "Climbing the ladder…"
 
-#: src/tavern/tavern_interactions.gd
+#: src/tavern/tavern_furnishings.gd
 msgid "Лестница на чердак"
 msgstr "Ladder to the loft"
+
+#: src/tavern/tavern_furnishings.gd
+msgid "Выход с лестницы занят"
+msgstr "The ladder's top is blocked"
 
 #: src/tavern/tavern_interactions.gd
 msgid "{interact} — встать   ·   {look} — обзор"
@@ -1423,40 +1457,12 @@ msgid "{interact} — налить из кувшина"
 msgstr "{interact} — pour from the jug"
 
 #: src/tavern/tavern_interactions.gd
-msgid "Отойдите от створки · {interact} — повернуть дверь"
-msgstr "Step away from the door leaf · {interact} — turn the door"
-
-#: src/tavern/tavern_interactions.gd
-msgid "{interact} — закрыть · %s"
-msgstr "{interact} — close · %s"
-
-#: src/tavern/tavern_interactions.gd
-msgid "{interact} — открыть · %s"
-msgstr "{interact} — open · %s"
-
-#: src/tavern/tavern_interactions.gd
-msgid "{interact} — подняться на чердак"
-msgstr "{interact} — climb up to the loft"
-
-#: src/tavern/tavern_interactions.gd
-msgid "{interact} — спуститься с чердака"
-msgstr "{interact} — climb down from the loft"
-
-#: src/tavern/tavern_interactions.gd
-msgid "{interact} — спать до утра"
-msgstr "{interact} — sleep till morning"
-
-#: src/tavern/tavern_interactions.gd
 msgid "Хозяин вышел, а кувшин оставил на стойке."
 msgstr "The innkeeper has stepped out, but left the jug on the bar."
 
 #: src/tavern/tavern_interactions.gd
 msgid "Нет места, чтобы встать. Освободите проход."
 msgstr "No room to stand up. Clear the way."
-
-#: src/tavern/tavern_interactions.gd
-msgid "Выход с лестницы занят"
-msgstr "The ladder's top is blocked"
 
 #: src/village/building_machinery.gd
 msgid "крутить"
@@ -1465,18 +1471,6 @@ msgstr "turn"
 #: src/village/building_machinery.gd
 msgid "качать"
 msgstr "pump"
-
-#: src/village/village_pack.gd
-msgid "Торговец"
-msgstr "Merchant"
-
-#: src/village/village_pack.gd
-msgid "Путник"
-msgstr "Traveller"
-
-#: src/village/village_pack.gd
-msgid "Дровосек"
-msgstr "Woodcutter"
 
 #: assets/loop/people/borr.json
 msgid "Борр"
@@ -6341,6 +6335,18 @@ msgstr "Stone: beat the linen with the beetle"
 #: assets/models/wash_stage/wash_stage.json
 msgid "Верёвка: развесить холст"
 msgstr "Line: hang out the cloth"
+
+#: assets/regions/valley/villagers.json
+msgid "Торговец"
+msgstr "Merchant"
+
+#: assets/regions/valley/villagers.json
+msgid "Путник"
+msgstr "Traveller"
+
+#: assets/regions/valley/villagers.json
+msgid "Дровосек"
+msgstr "Woodcutter"
 
 #: assets/models/tavern/tavern_interior.json
 msgid "Большой стол"

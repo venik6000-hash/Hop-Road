@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ggykrt6tbrhq"
-path.s3tc="res://.godot/imported/wine_barrel_01_arm_1k.jpg-cc3df304e2820a15527dad9a2c438cc2.s3tc.ctex"
+uid="uid://bku6ie2sg4nnk"
+path.s3tc="res://.godot/imported/logs_mask.png-00de01ec2cc9da3bf0b3cf07b609d6ef.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/models/tavern/tavern_textures/wine_barrel_01_arm_1k.jpg"
-dest_files=["res://.godot/imported/wine_barrel_01_arm_1k.jpg-cc3df304e2820a15527dad9a2c438cc2.s3tc.ctex"]
+source_file="res://assets/models/fire_bed/logs_mask.png"
+dest_files=["res://.godot/imported/logs_mask.png-00de01ec2cc9da3bf0b3cf07b609d6ef.s3tc.ctex"]
 
 [params]
 
@@ -37,5 +37,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=2048
 detect_3d/compress_to=0

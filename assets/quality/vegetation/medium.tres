@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="QualityVegetation" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/render/quality/quality_vegetation.gd" id="1_group"]
+
+[resource]
+script = ExtResource("1_group")
+grass_fade = Vector2(80, 95)
+tree_mesh_reach = Vector2(125, 140)

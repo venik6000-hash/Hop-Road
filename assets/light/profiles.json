@@ -1,4 +1,5 @@
 {
+ "probe_rooms": "hall",
  "profiles": {
   "hall": {
    "exposure": {"day": 1.5, "night": 1.6, "over_day": 0.8, "over_night": 0.4},
@@ -22,6 +23,7 @@
   "lantern": {"shadow": true, "size": 0.0},
   "chandelier": {"shadow": true, "size": 0.0},
   "stove": {"shadow": true, "size": 0.0},
-  "hearth": {"shadow": true, "size": 0.25}
+  "hearth": {"shadow": true, "size": 0.25},
+  "campfire": {"shadow": true, "size": 0.0}
  }
 }

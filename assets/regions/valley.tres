@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="RegionDef" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="RegionDef" load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://src/world/region_def.gd" id="1_region"]
 [ext_resource type="Script" path="res://src/world/region_spawn.gd" id="2_spawn"]
-[ext_resource type="PackedScene" uid="uid://dd8gtgjb2show" path="res://assets/models/alpine/alpine_map.glb" id="3_map"]
+[ext_resource type="Resource" path="res://assets/regions/valley/environment.tres" id="3_environment"]
 
 [sub_resource type="Resource" id="Resource_tavern"]
 script = ExtResource("2_spawn")
@@ -11,35 +11,48 @@ position = Vector3(0, 12, 15)
 yaw_deg = -30.0
 pitch_deg = 10.0
 
+[sub_resource type="Resource" id="Resource_beach"]
+script = ExtResource("2_spawn")
+id = &"beach"
+position = Vector3(-58, 4, -6)
+yaw_deg = 20.0
+pitch_deg = -4.0
+
 [resource]
 script = ExtResource("1_region")
 id = &"valley"
 title = "Долина таверны"
 bounds = Rect2(-9000, -9700, 16376, 16376)
-parts = Array[StringName]([&"falls", &"brook", &"tavern", &"cottages", &"buildings", &"village_pack", &"rocks", &"vegetation", &"flora", &"people", &"camping", &"wildlife", &"lakeside"])
+parts = Array[StringName]([&"falls", &"brook", &"tavern", &"cottages", &"buildings", &"village_pack", &"rocks", &"vegetation", &"flora", &"people", &"camping", &"wildlife", &"dragon", &"lakeside"])
+near_bounds = Rect2(-632, -572, 1024, 1024)
 terrain_dir = "res://assets/generated/terrain"
+ground_recipe = "res://tools/pipeline/terrain/valley_ground.gd"
 settled_heights = "res://assets/generated/terrain/settled_height.bin"
 settled_masks = "res://assets/generated/terrain/settled_masks.bin"
 settled_ground = "res://assets/generated/terrain/settled_ground.json"
 zones = "res://assets/loop/zones.json"
-spawns = Array[ExtResource("2_spawn")]([SubResource("Resource_tavern")])
+spawns = Array[ExtResource("2_spawn")]([SubResource("Resource_tavern"), SubResource("Resource_beach")])
 shelter_centre = Vector2(-24, -44)
-map = ExtResource("3_map")
+environment = ExtResource("3_environment")
+map = "res://assets/models/alpine/alpine_map.glb"
 map_manifest = "res://assets/models/alpine/manifest.json"
 map_edits = "res://assets/regions/valley/map_edits.json"
 map_context = "res://assets/generated/layout/map_context.json"
 village_plan = "res://assets/generated/layout/village_plan.json"
 props = "res://assets/models/village_pack/layout.json"
-rocks = "res://assets/generated/layout/rocks.json"
-forest_wood = "res://assets/generated/layout/forest_wood.json"
+rocks = "res://assets/regions/valley/rocks.json"
+forest_wood = "res://assets/regions/valley/forest_wood.json"
+forest_floor = "res://assets/regions/valley/forest_floor.json"
 tavern = PackedStringArray("res://assets/models/tavern/tavern.json", "res://assets/models/tavern/tavern_interior.json")
 cottages = "res://assets/regions/valley/cottages.json"
 buildings = PackedStringArray("res://assets/models/brewery/brewery.json", "res://assets/models/lighthouse/lighthouse.json", "res://assets/models/smithy/smithy.json", "res://assets/models/mill/mill.json", "res://assets/models/lamplighter/lamplighter.json", "res://assets/models/hop_kiln/hop_kiln.json", "res://assets/models/marsh_walk/marsh_walk.json", "res://assets/models/wash_stage/wash_stage.json", "res://assets/models/quay/quay.json", "res://assets/models/road_lanterns/road_lanterns.json", "res://assets/models/cooperage/cooperage.json", "res://assets/models/hop_garden/hop_garden.json")
-worn_ground = "res://assets/generated/layout/worn_ground.json"
+worn_ground = "res://assets/regions/valley/worn_ground.json"
 tavern_ground = "res://assets/regions/valley/tavern_ground.json"
 tavern_work = "res://assets/regions/valley/tavern_work.json"
 cliff = "res://assets/generated/rocks/cliff_seat.json"
+cliff_faces = "res://assets/regions/valley/cliff_faces.json"
 brook = "res://assets/regions/valley/brook.json"
+lake = "res://assets/regions/valley/lake.json"
 falls = "res://assets/regions/valley/falls.json"
 woodland = "res://assets/models/alpine/woodland.json"
 village_trees = "res://assets/generated/layout/village_trees.json"
@@ -48,3 +61,4 @@ placement_manifest = "res://assets/generated/vegetation/placement-manifest.json"
 villagers = "res://assets/regions/valley/villagers.json"
 animals = "res://assets/regions/valley/animals.json"
 wildlife = "res://assets/regions/valley/wildlife.json"
+dragon = "res://assets/regions/valley/dragon.json"
